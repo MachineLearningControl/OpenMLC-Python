@@ -1,0 +1,8 @@
+(- (* (+ S2 (* S2 (- -8.807 (- S0 S0)))) S0) (+ (+ (+ 7.764 (+ (- (- (* S2 6.309) (+ S2 (+ S2 -7.931))) (- S1 S0)) (+ S2 (- (* S2 6.309) (+ S2 (+ S2 -7.931)))))) S1) (+ (- (* S2 6.309) (* S2 S0)) (+ S0 (+ (+ S0 (- (* S2 S0) S1)) (- S0 S1))))))
+Output argument f (and maybe others) not assigned during call to /home/tduriez/Dropbox/GP/MLC_withclasses/Lorenz_Problem/my_lyapunov_ev748.m
+(- (* (+ (+ S0 (* S2 S0)) (* (+ (+ S0 (- S0 S0)) (- (* S2 S0) S1)) S0)) S0) (- (- (+ (+ (- S0 S0) S1) (+ (- (* S2 6.309) (- S2 (* S2 S0))) (- S2 (- S2 S2)))) S1) (* S2 (- -8.807 (* S0 -3)))))
+Output argument f (and maybe others) not assigned during call to /home/tduriez/Dropbox/GP/MLC_withclasses/Lorenz_Problem/my_lyapunov_ev949.m
+(* (* S0 (* S2 S1)) (+ S1 (- S2 S1)))
+Not enough input arguments.
+(* (* S0 (* S2 S1)) (+ S1 (- S2 S1)))
+Not enough input arguments.

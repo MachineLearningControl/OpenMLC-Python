@@ -1,0 +1,66 @@
+classdef MLC2 < handle
+% MLC2 constructor of the Machine Learning Control 2 class.
+%   The MLC2 class is a handle class that implements <a href="matlab: 
+%   web('http://www.arxiv.org/abs/1311.5250')">a machine learning control problem</a>.
+%
+%   OBJ_MLC=MLC2 implements a new MLC problem using default options
+%   OBJ_MLC=MLC2('FILENAME') implements a MLC problem using options
+%   defined in M-file FILENAME. 
+%
+%   MLC2 properties:
+%      <a href="matlab:help MLCtable">table</a>        - contains the individual database as a <a href="matlab:help MLCtable">MLCtable</a> object.
+%      <a href="matlab:help MLCpop">population</a>   - contains one <a href="matlab:help MLCpop">MLCpop</a> object per generation.
+%      <a href="matlab:help MLCparameters">parameters</a>   - contains the parameters as a <a href="matlab:help MLCparameters">MLCparameters</a> object.
+%      version      - current version of MLC2.
+%
+%   MLC2 methods:
+%      generate_population">generate_population</a>:
+%      evaluate_population">evaluate_population</a>
+%      - <a href="matlab:help MLC2/evolve_population">evolve_population</a>
+%      - <a href="matlab:help MLC2/go">go</a>
+%      - <a href="matlab:help MLC2/genealogy">genealogy</a>
+%      - <a href="matlab:help MLC2/show_best">show_best</a>
+%      - <a href="matlab:help MLC2/show_convergence">show_convergence</a>
+%
+%   See also: MLCPARAMETERS
+%
+%   Copyright (C) 2015 Thomas Duriez (thomas.duriez@gmail.com)
+%   Development version. Use, copy and diffusion of this pogram is subject 
+%   to the author's agreement.
+   
+    properties
+        table
+        population
+        parameters
+        version
+    end
+    
+    methods
+        obj=generate_population(obj);
+        obj=evaluate_population(obj,n);
+        obj=evolve_population(obj,n);
+        obj=go(obj,n,figs);
+        genealogy(obj,ngen,idv);
+        m=show_best(obj,fig);
+        show_convergence(obj,nhisto,Jmin,Jmax,linlog,sat,gen_range,axis);
+        
+        function obj=MLC2(varargin)
+            vers = 'alpha.2.5';
+            obj.table=[];
+            obj.population=[];
+            obj.parameters=MLCparameters(varargin{:});
+            obj.parameters.opset=opset(obj.parameters.opsetrange);
+            obj.version=vers;
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        end
+    end
+end
+            
