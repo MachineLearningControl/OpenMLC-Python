@@ -11,6 +11,7 @@ function mlc=evolve_population(mlc,n)
 %   Copyright (C) 2015 Thomas Duriez (thomas.duriez@gmail.com)
 %   Development version. Use, copy and diffusion of this pogram is subject 
 %   to the author's agreement.
+
     if nargin<2
         n=length(mlc.population);
     end
@@ -27,6 +28,3 @@ function mlc=evolve_population(mlc,n)
         end
     end
     mlc.population(n+1).state='created';
-    
-    
-    

@@ -19,7 +19,8 @@ classdef MLCpop < handle
         [obj,idx]=remove_bad_indivs(obj,mlc_parameters);
         [obj]=remove_duplicates(obj);
         obj=remove_individual(obj,idx);
-        
+
+        % Constructor
         function obj=MLCpop(mlc_parameters,gen)
             if nargin<2
                 gen=1;
@@ -40,6 +41,11 @@ classdef MLCpop < handle
             obj.gen_method=zeros(1,gensize)-1;
             obj.parents=cell(1,gensize);
             obj.state='init';
+        end
+
+        % Helper methods
+        function obj=set_state(obj,new_state)
+            obj.state = new_state;
         end
     end
 end

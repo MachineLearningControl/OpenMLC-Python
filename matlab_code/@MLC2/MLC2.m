@@ -50,25 +50,48 @@ classdef MLC2 < handle
         genealogy(obj,ngen,idv);
         m=show_best(obj,fig);
         show_convergence(obj,nhisto,Jmin,Jmax,linlog,sat,gen_range,axis);
-        
+
+        % Constructor
         function obj=MLC2(varargin)
             vers = 'alpha.2.5';
             obj.table=[];
             obj.population=[];
             obj.parameters=MLCparameters(varargin{:});
-            obj.parameters.opsetrange
             obj.parameters.opset=opset(obj.parameters.opsetrange);
             obj.version=vers;
-            
-            
-            
-            
-            
-            
-            
-            
-            
         end
+
+        % Helper methods
+        % All this methods are used to access the properties of the MLC
+        % object, as we can't do ir from python directly right now, we have
+        % to add this methods
+        function state = get_population_state(obj,generation)
+            state = obj.population(generation).state;
+        end
+
+        function params = get_params(obj)
+            params = obj.parameters;
+        end
+
+        function obj = set_table(obj,table)
+            obj.table = table;
+        end
+
+        function obj = add_initial_population(obj,new_population)
+            obj.population = new_population;
+        end
+
+        function obj = add_population(obj,new_population,gen)
+            obj.population(gen) = new_population;
+        end
+
+        function curr_gen = get_current_generation(obj)
+            curr_gen = length(obj.population);
+        end
+
+        function pop = get_population(obj, gen)
+            pop = obj.population(gen);
+        end
+
     end
 end
-            

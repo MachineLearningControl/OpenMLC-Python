@@ -79,46 +79,41 @@ end
      end
      
    
-      if length(pop)>=2
-     %% Plot
-     hgen=repmat(1:ngen,[nhisto-1 1]);
-     surf(hgen,repmat(binhisto(1:end-1)',[1 ngen]),histo(1:end-1,:),log(1+histo(1:end-1,:)));view(0,90);shading interp
-     hold on
-     for i=1:ngen-1
-         plot3(ones(size(binhisto(1:end-1)))*i,binhisto(1:end-1),histo(1:end-1,i),'b','linewidth',2);
-     end
-     plot3(ones(size(binhisto(1:end-1)))*ngen,binhisto(1:end-1),histo(1:end-1,ngen),'r','linewidth',2);
-     hold off
-     set(gca,'xlim',[1 ngen],'ylim',[min(binhisto(:)),max(binhisto(:))],'zlim',[0 max(max(histo(1:end-1,:)))],'clim',[-1/5 maxsat]);
-     xlabel('n (generation index)','Interpreter','latex','fontsize',30);
-     ylabel('J','Interpreter','latex','fontsize',30);
-     set(gcf,'color',[1 1 1]);
-     %box on
-     set(gca,'fontsize',20,'fontweight','bold','linewidth',2);
-     if linlog==0
-         set(gca,'yscale','log');
-     end
-     load my_default_colormap c
-     colormap(c);
-     %clb=colorbar;set(clb,'fontsize',20,'linewidth',2,'fontweight','bold')
-     t=title('Population repartition (\%)');set(t,'interpreter','latex','fontsize',30)
+     if length(pop)>=2
+        %% Plot
+        hgen=repmat(1:ngen,[nhisto-1 1]);
+        surf(hgen,repmat(binhisto(1:end-1)',[1 ngen]),histo(1:end-1,:),log(1+histo(1:end-1,:)));view(0,90);shading interp
+        hold on
+        for i=1:ngen-1
+            plot3(ones(size(binhisto(1:end-1)))*i,binhisto(1:end-1),histo(1:end-1,i),'b','linewidth',2);
+        end
+        plot3(ones(size(binhisto(1:end-1)))*ngen,binhisto(1:end-1),histo(1:end-1,ngen),'r','linewidth',2);
+        hold off
+        set(gca,'xlim',[1 ngen],'ylim',[min(binhisto(:)),max(binhisto(:))],'zlim',[0 max(max(histo(1:end-1,:)))],'clim',[-1/5 maxsat]);
+        xlabel('n (generation index)','Interpreter','latex','fontsize',30);
+        ylabel('J','Interpreter','latex','fontsize',30);
+        set(gcf,'color',[1 1 1]);
+        %box on
+        set(gca,'fontsize',20,'fontweight','bold','linewidth',2);
+        if linlog==0
+            set(gca,'yscale','log');
+        end
+        load my_default_colormap c
+        colormap(c);
+        %clb=colorbar;set(clb,'fontsize',20,'linewidth',2,'fontweight','bold')
+        t=title('Population repartition (\%)');set(t,'interpreter','latex','fontsize',30)
         view(0,90)
         
-        
-        
-    else
-     plot(binhisto,histo);
+     else
+        plot(binhisto,histo);
         xlabel('J','Interpreter','latex','fontsize',30);
-         ylabel('N','Interpreter','latex','fontsize',30);
-         set(gca,'xlim',[min(binhisto(:)),max(binhisto(:))]);
-         set(gcf,'color',[1 1 1]);
-     box on
-     if linlog==0
-         set(gca,'xscale','log');
-     end
+        ylabel('N','Interpreter','latex','fontsize',30);
+        set(gca,'xlim',[min(binhisto(:)),max(binhisto(:))]);
+        set(gcf,'color',[1 1 1]);
+        box on
+        if linlog==0
+            set(gca,'xscale','log');
+        end
      end
             
-    end
-    
-            
-    
+end
