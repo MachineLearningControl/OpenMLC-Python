@@ -1,4 +1,3 @@
-        #mlc.population(1).state='created';
 import matlab.engine
 
 from MLCpop import MLCpop
@@ -36,15 +35,15 @@ class MLC3(object):
         #curgen=length(mlc.population);
         curgen=0
         if (curgen==0): #%% population is empty, we have to create it
-            self.generate_population()
-            #self.eng.generate_population(self.mlc) #mlc.generate_population;
             curgen=1
+            self.generate_population(curgen)
+            #self.eng.generate_population(self.mlc) #mlc.generate_population;
 
         while (curgen<=ngen): #%% ok we can do something
             state = self.eng.get_population_state(self.mlc,curgen)
             if (state == 'init'):
                  if (curgen==1):
-                     self.generate_population()
+                     self.generate_population(curgen)
                      #self.eng.generate_population(self.mlc)
                  else:
                      self.evolve_population()
@@ -59,17 +58,14 @@ class MLC3(object):
                 if (fig>0):
                     self.eng.show_best(self.mlc)
 
-                if (fig>1):
-                    self.eng.show_convergence(self.mlc)
+                #if (fig>1):
+                    #self.eng.show_convergence(self.mlc)
 
                 if (curgen<=ngen):
-                    self.eng.show_best(self.mlc)
                     self.evolve_population()
                     #self.eng.evolve_population(self.mlc)
 
-    def generate_population(self):
-
-        %pop = MLCpop(self.params)
+    def generate_population(self, gen_number):
 
         population = self.eng.MLCpop(self.params)
         self.eng.workspace["wpopulation"] = population
@@ -78,7 +74,8 @@ class MLC3(object):
         self.eng.create(population, self.params, self.table)
         self.eng.set_state(population, 'created')
         print self.eng.eval("wpopulation.state")
-        self.eng.add_initial_population(self.mlc,population)
+
+        self.eng.add_population(self.mlc,population, gen_number)
 
         #mlc.population=MLCpop(mlc.parameters);
         #[mlc.population(1),mlc.table]=mlc.population.create(mlc.parameters);
@@ -86,13 +83,15 @@ class MLC3(object):
 
     def evolve_population(self):
 
-        n=self.eng.get_current_gen(self.mlc)
+        n=self.eng.get_current_generation(self.mlc)
 
         currentPopulation = self.eng.get_population(self.mlc,n)
 
         nextPopulation = self.eng.MLCpop(self.params)
         self.eng.evolve(currentPopulation,self.params,self.table,nextPopulation)
-        #[mlc.population(n+1),mlc.table]=mlc.population(n).evolve(mlc.parameters,mlc.table);
+
+        self.eng.set_state(nextPopulation,'created')
+        self.eng.add_population(self.mlc,nextPopulation, n+1)
 
         '''
         self.eng.workspace["wparams"] = self.params

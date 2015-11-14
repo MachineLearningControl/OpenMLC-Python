@@ -55,8 +55,8 @@ classdef MLC2 < handle
         function obj=MLC2(varargin)
             vers = 'alpha.2.5';
             obj.table=[];
-            obj.population=[];
             obj.parameters=MLCparameters(varargin{:});
+            obj.population = MLCpop(obj.parameters);
             obj.parameters.opset=opset(obj.parameters.opsetrange);
             obj.version=vers;
         end
@@ -77,11 +77,8 @@ classdef MLC2 < handle
             obj.table = table;
         end
 
-        function obj = add_initial_population(obj,new_population)
-            obj.population = new_population;
-        end
-
         function obj = add_population(obj,new_population,gen)
+            fprintf('Adding population to generation %f\n',gen) 
             obj.population(gen) = new_population;
         end
 
