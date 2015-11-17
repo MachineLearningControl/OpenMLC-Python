@@ -6,10 +6,10 @@ import sys
 class CreationFactory(object):
     @staticmethod
     def make(strategy):
-        if strategy == "MixedRampedGauss":
+        if strategy == "mixed_ramped_gauss":
             return MixedRampedGauss()
         else:
-            logging.getLogger("default").error("Evaluation method "
-                                               "inserted is not valid. "
+            logging.getLogger("default").error("Evaluation method " + strategy +
+                                               " is not valid. "
                                                "Aborting program")
             sys.exit(-1)

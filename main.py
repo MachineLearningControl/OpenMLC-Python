@@ -17,7 +17,7 @@ def initialize_matlab():
 
 
 def initialize_config():
-    config = Config
+    config = Config()
     config.read('configuration.ini')
     return config
 
@@ -34,6 +34,7 @@ def main():
     set_path(eng)
 
     pop = Population(eng, config, 1)
+    pop.create()
     raw_input("Press Enter to continue...")
 
 

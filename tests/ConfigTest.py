@@ -7,6 +7,7 @@ class ConfigTest(unittest.TestCase):
     def setUp(self):
         self._file = open('test', 'w+')
         self._file.write('[TEST]\n')
+        self._file.write('sigma = 5\n')
         self._file.write('arange = 1:10\n')
         self._file.write('arange_step = 1:13:3\n')
         self._file.write('array = 1,2,3,4\n')
@@ -17,6 +18,11 @@ class ConfigTest(unittest.TestCase):
     def tearDown(self):
         os.remove('test')
         self._config = None
+
+    def test_common_type(self):
+        expected = '5'
+        actual = self._config.get_param('TEST', 'sigma')
+        self.assertEqual(expected, actual)
 
     def test_array_creation(self):
         expected = np.array([1, 2, 3, 4])

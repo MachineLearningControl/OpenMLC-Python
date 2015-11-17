@@ -6,7 +6,6 @@ import logging
 class Config(ConfigParser.ConfigParser):
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self)
-        self._config = ConfigParser.RawConfigParser()
         self._dispatcher = {'common': self.__get_common,
                             'array': self.__get_array,
                             'arange': self.__get_arange}
@@ -14,10 +13,10 @@ class Config(ConfigParser.ConfigParser):
         self._log_prefix = '[CONFIG] '
 
     def __get_common(self, section, param):
-        return self._config.get(section, param)
+        return self.get(section, param)
 
     def get_param(self, section, param, **kwargs):
-        if kwargs is None:
+        if kwargs.get('type') is None:
             return self._dispatcher['common'](section, param)
 
         try:
