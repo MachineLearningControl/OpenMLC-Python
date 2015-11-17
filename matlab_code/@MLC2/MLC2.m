@@ -56,18 +56,10 @@ classdef MLC2 < handle
             obj.table=[];
             obj.population=[];
             obj.parameters=MLCparameters(varargin{:});
-            obj.parameters.opsetrange
             obj.parameters.opset=opset(obj.parameters.opsetrange);
             obj.version=vers;
             
-            
-            
-            
-            
-            
-            
-            
-            
+
         end
     end
 end
