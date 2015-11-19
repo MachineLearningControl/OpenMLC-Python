@@ -25,12 +25,5 @@ class Population(object):
     def create(self):
         gen_method = self._config.get_param('GP', 'generation_method')
         logging.info("Using " + gen_method + " to generate population")
-        gen_creator = CreationFactory.make(gen_method)
-        gen_creator.create(self._eng, self._config, self._gen_size)
-
-
-
-
-
-
-
+        gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
+        gen_creator.create(self._gen_size)
