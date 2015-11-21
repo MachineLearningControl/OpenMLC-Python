@@ -2,8 +2,7 @@
 import matlab.engine
 from MLC.Population import Population
 from MLC.Config.Config import Config
-import logging
-import logging.config
+
 
 def set_path(eng):
     eng.addpath("./matlab_code")
@@ -19,23 +18,24 @@ def initialize_matlab():
 def initialize_config():
     config = Config()
     config.read('configuration.ini')
+
     return config
-
-
-def init_logger():
-    logging.config.fileConfig("logging.conf")
-    logger = logging.getLogger("default")
 
 
 def main():
     eng = initialize_matlab()
     config = initialize_config()
-    init_logger()
     set_path(eng)
+    eng.rand('seed', 20.0, nargout=0)
+
+    # Create the MLC2 object and store it in the workspace. With this
+    # feature we will be able to call every function of the MATLAB code
+    # from any part of the code where the engine is available
+    eng.workspace['wmlc'] = eng.MLC2()
 
     pop = Population(eng, config, 1)
     pop.create()
-    raw_input("Press Enter to continue...")
+    # raw_input("Press Enter to continue...")
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ class ConfigTest(unittest.TestCase):
         self._file.write('sigma = 5\n')
         self._file.write('arange = 1:10\n')
         self._file.write('arange_step = 1:13:3\n')
+        self._file.write('arange_float = 1:5:0.5\n')
         self._file.write('array = 1,2,3,4\n')
         self._file.close()
         self._config = Config()
@@ -33,6 +34,13 @@ class ConfigTest(unittest.TestCase):
     def test_arange_creation_without_step(self):
         expected = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
         actual = self._config.get_param('TEST', 'arange', type='arange')
+        comparison = (expected == actual).all()
+        self.assertEqual(comparison, True)
+
+    def test_arange_creation_float_type(self):
+        expected = np.arange(1, 5., .5)
+        actual = self._config.get_param('TEST', 'arange_float',
+                                        type='arange', dtype='float')
         comparison = (expected == actual).all()
         self.assertEqual(comparison, True)
 

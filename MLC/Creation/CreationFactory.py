@@ -1,5 +1,5 @@
 from MixedRampedGauss import MixedRampedGauss
-import logging
+from MLC.Log.log import logger
 import sys
 
 
@@ -9,7 +9,7 @@ class CreationFactory(object):
         if strategy == "mixed_ramped_gauss":
             return MixedRampedGauss(eng, config)
         else:
-            logging.getLogger("default").error("Evaluation method " + strategy +
-                                               " is not valid. "
-                                               "Aborting program")
+            logger.error("Evaluation method " + strategy +
+                         " is not valid. "
+                         "Aborting program")
             sys.exit(-1)

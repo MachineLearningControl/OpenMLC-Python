@@ -1,7 +1,7 @@
 from BaseCreation import BaseCreation
 import numpy as np
 import math
-import logging
+from MLC.Log.log import logger
 
 
 class MixedRampedGauss(BaseCreation):
@@ -9,29 +9,44 @@ class MixedRampedGauss(BaseCreation):
         BaseCreation.__init__(self, eng, config)
 
     def create(self, gen_size):
-        ramp = self._config.get_param('GP', 'ramp', type='arange')
+        ramp = self._config.get_param('GP', 'ramp',
+                                      type='arange', dtype='float')
         center = (np.max(ramp) + np.amin(ramp)) / 2
         sigma = self._config.getint('GP', 'gaussigma')
-        distribution = self.__create_gaussian_distribution(ramp, center,
-                                                           sigma, gen_size)
-        logging.getLogger('default').debug(
-            '[MIXED_RAMP_GAUSS] Distribution generated: ' +
-            np.array_str(distribution))
+        distrib = self.__create_gaussian_distribution(ramp, center,
+                                                      sigma, gen_size)
 
-        index = 0
-        while index < len(distribution) - 1:
-            aux = round((distribution(index+1) - distribution(index)) / 2)
-            indiv_indexes_1 = np.arange(1, aux)
-            indiv_indexes_2 = np.arange(1, distribution(index+1))
+        # Append a zero to the begginning of the array
+        distrib = np.concatenate((np.array([0.]), distrib))
+        logger.debug('[MIXED_RAMP_GAUSS] Distribution generated: ' +
+                     np.array_str(distrib))
 
-            self._fill_creation(indiv_indexes_1, index, 1)
-            self._fill_creation(indiv_indexes_2, index, 3)
-            ++index
+        i = 0
+        j = 0
+        while j < len(distrib) - 1:
+            # MATLAB_COMPAT_ONLY
+            param = self._eng.eval('wmlc.parameters')
+            self._eng.set_maxdepthfirst(param, ramp[j])
 
+            aux = distrib[j] + round((distrib[j + 1] - distrib[j]) / 2)
+            # Numpy ranges doesn't include the last element as in python.
+            # Increment the max value by 1 to correct this effect
+            indiv_indexes_1 = np.arange(1, aux + 1, dtype=int)
+            indiv_indexes_2 = np.arange(1, distrib[j + 1] + 1, dtype=int)
+
+            i = self._fill_creation(indiv_indexes_1, i, 1)
+            i = self._fill_creation(indiv_indexes_2, i, 3)
+            j += 1
 
     def __create_gaussian_distribution(self, ramp, center, sigma, gen_size):
-        pseudo_gaussian = np.power(math.e,
-                                   (- (ramp - center) ** 2) / sigma ** 2)
+        logger.debug('[MIXED_RAMP_GAUSS] Ramp: ' + np.array_str(ramp) +
+                     ' - Center: ' + str(center) + ' Sigma: ' + str(sigma))
+        pseudo_gaussian = \
+            np.power(math.e, (- (ramp - center) ** 2) / sigma ** 2) * gen_size
+
+        logger.debug('[MIXED_RAMP_GAUSS] Gaussian: ' +
+                     np.array_str(pseudo_gaussian))
+
         normalization = np.sum(pseudo_gaussian)
         gaussian = pseudo_gaussian / normalization * gen_size
         return np.round(np.cumsum(gaussian))

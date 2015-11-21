@@ -1,4 +1,4 @@
-import logging
+from MLC.Log.log import logger
 from Creation.CreationFactory import CreationFactory
 
 
@@ -18,12 +18,16 @@ class Population(object):
             if (self._gen > 1 and len(size) > 1) else size[0]
         self._state = 'init'
 
-        logging.getLogger("default").debug("Population created. Number: " +
-                                           str(self._gen) + " - Size: " +
-                                           str(self._gen_size))
+        logger.debug("Population created. Number: " +
+                     str(self._gen) + " - Size: " +
+                     str(self._gen_size))
 
-    def create(self):
+    def create(self, table=None):
+        if table is None:
+            self._eng.workspace['wtable'] = \
+                self._eng.MLCtable(self._gen_size * 50)
+
         gen_method = self._config.get_param('GP', 'generation_method')
-        logging.info("Using " + gen_method + " to generate population")
+        logger.info("Using " + gen_method + " to generate population")
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
         gen_creator.create(self._gen_size)

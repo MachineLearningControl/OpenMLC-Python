@@ -26,14 +26,19 @@ class Config(ConfigParser.ConfigParser):
             raise KeyError('Type not supported')
 
     def __get_arange(self, section, param, **kwargs):
-        # TODO: Research how to use dtype to create ranges from different types
-        arg_range = [int(x) for x in self.get(section, param).split(':')]
+        # Convert the range to float. Then use the desired type when creating
+        # the array
+        arg_range = [float(x) for x in self.get(section, param).split(':')]
+
+        type = int
+        if not kwargs.get('dtype') is None:
+            type = kwargs.get('dtype')
 
         if len(arg_range) == 2:
-            return np.arange(arg_range[0], arg_range[1], dtype=int)
+            return np.arange(arg_range[0], arg_range[1], dtype=type)
         elif len(arg_range) == 3:
             return np.arange(arg_range[0], arg_range[1],
-                             arg_range[2], dtype=int)
+                             arg_range[2], dtype=type)
 
     def __get_array(self, section, param, **kwargs):
         # TODO: Research how to use dtype to create ranges from different types
