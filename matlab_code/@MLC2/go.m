@@ -12,12 +12,13 @@ function mlc=go(mlc,ngen,figs)
 %   Development version. Use, copy and diffusion of this pogram is subject 
 %   to the author's agreement.
 
-%% Reinitialize god.
-try
-    rng('shuffle'); % Official recommanded seed shuffling
-catch %% take into account versions problems
-    rand('seed',sum(100*clock)); % Old school deprecated seed shuffling
-end
+%% Reinitialize god. 
+% try
+%     rng('shuffle'); % Official recommanded seed shuffling
+% catch %% take into account versions problems
+%     rand('seed',sum(100*clock)); % Old school deprecated seed shuffling
+% end
+rand('seed', 20)
 
 %% Solve the problem
     if nargin<3
@@ -63,6 +64,7 @@ end
                     mlc.show_convergence;
                 end
                 if curgen<=ngen
+
                     mlc.evolve_population;
                 end     
         end    

@@ -43,6 +43,11 @@ classdef MLCpop < handle
             obj.state='init';
         end
 
+        % FOR PYTHON COMPATIBILITY ONLY
+        function obj=set_individuals(obj, individuals)
+            obj.individuals = individuals;
+        end
+
         % Helper methods
         function obj=set_state(obj,new_state)
             obj.state = new_state;

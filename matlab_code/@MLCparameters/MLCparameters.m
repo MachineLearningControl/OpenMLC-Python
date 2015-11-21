@@ -87,6 +87,11 @@ properties (SetAccess = private, Hidden)
 end
 
 methods
+    % FIXME: PYTHON COMPATIBILITY ONLY
+    function parameters=set_maxdepthfirst(parameters, value)
+        parameters.maxdepthfirst = value;
+    end
+
     function parameters=elimswitch(parameters,value)
         parameters.badvalues_elimswitch=value;
     end
