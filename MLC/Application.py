@@ -1,7 +1,10 @@
-from MLC.Log.log import logger
-from MLC.Population import Population
-import numpy as np
 import matlab.engine
+import numpy as np
+import sys
+
+from MLC.Log.log import logger
+from MLC.Population.Population import Population
+
 
 class Application(object):
     def __init__(self, eng, config):
@@ -11,6 +14,7 @@ class Application(object):
 
         self._mlc = self._eng.eval('wmlc')
         self._params = self._eng.eval('wmlc.parameters')
+        self._pop = None
 
         # print "Selection method: " + self.eng.eval("wparams.selectionmethod")
 
@@ -45,7 +49,8 @@ class Application(object):
                     # self.eng.evolve_population(self.mlc)
 
             elif state == 'created':
-                self._eng.evaluate_population(self._mlc)
+                # self._eng.evaluate_population(self._mlc, curgen)
+                self.evaluate_population()
 
             elif state == 'evaluated':
                 curgen += 1
@@ -62,27 +67,68 @@ class Application(object):
 
     def generate_population(self, gen_number):
         population = self._eng.MLCpop(self._params)
-        py_pop = Population(self._eng, self._config)
+        self._pop = Population(self._eng, self._config)
 
         self._eng.workspace["wpopulation"] = population
         print self._eng.eval("wpopulation.state")
 
-        py_pop.create()
+        self._pop.create()
         # Table created inside population create
         self._eng.set_table(self._mlc, self._eng.eval('wtable'))
 
-        matlab_array = matlab.double(py_pop.get_individuals().tolist())
+        matlab_array = matlab.double(self._pop.get_individuals().tolist())
         self._eng.set_individuals(population,
                                   matlab_array,
                                   nargout=0)
 
         self._eng.set_state(population, 'created')
-        print self._eng.eval("wpopulation.state")
+        logger.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
 
         self._eng.add_population(self._mlc, population, gen_number)
 
         # mlc.population=MLCpop(mlc.parameters);
         # [mlc.population(1),mlc.table]=mlc.population.create(mlc.parameters);
+
+    def evaluate_population(self):
+        params = self._eng.eval('wmlc.parameters')
+        table = self._eng.eval('wmlc.table')
+
+        # First evaluation
+        pop_index = int(self._eng.eval('length(wmlc.population)'))
+        string_pop = 'wmlc.population(' + str(pop_index) + ')'
+        actual_pop = self._eng.eval(string_pop)
+
+        indiv_len = int(self._eng.eval('length(' + string_pop + '.individuals)'))
+        idx = matlab.int32(np.arange(1, indiv_len + 1).tolist())
+        self._eng.evaluate(actual_pop, table, params, idx)
+
+        # Remove bad individuals
+        elim = False
+        bad_values = self._config.get('EVALUATOR', 'badvalues_elim')
+        if bad_values == 'all':
+            elim = True
+        elif bad_values == 'first':
+            if pop_index == 1:
+                elim = True
+
+        if elim:
+            ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
+            while len(ret[1]):
+                # There are bad individuals, recreate the population
+                self._pop.create()
+                self._eng.evaluate(actual_pop, table, params, idx)
+                ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
+
+        self._eng.sort(actual_pop, params)
+
+        # Enforce reevaluation
+        if self._config.getboolean('EVALUATOR', 'ev_again_best'):
+            # TODO: In this iteration, this code is not executed. Code it later
+            logger.error("[EV_POP] Code not generated yet. " +
+                         "This shouldn't be executed")
+            sys.exit(-1)
+
+        self._eng.set_state(actual_pop, 'evaluated')
 
     def evolve_population(self):
         n = self._eng.get_current_generation(self._mlc)
@@ -94,21 +140,3 @@ class Application(object):
 
         self._eng.set_state(next_pop, 'created')
         self._eng.add_population(self._mlc, next_pop, n + 1)
-
-        '''
-        self.eng.workspace["wparams"] = self.params
-        if (self.eng.eval("wparams.lookforduplicates")):
-            self.eng.remove_duplicates(next_pop)
-            %% Remove duplicates
-
-        if mlc.parameters.lookforduplicates
-            mlc.population(n+1).remove_duplicates;
-            idx=find(mlc.population(n+1).individuals==-1);
-            while ~isempty(idx);
-                [mlc.population(n+1),mlc.table]=mlc.population(n).evolve(mlc.parameters,mlc.table,mlc.population(n+1));
-                mlc.population(n+1).remove_duplicates;
-                idx=find(mlc.population(n+1).individuals==-1);
-            end
-        end
-        mlc.population(n+1).state='created';
-        '''
