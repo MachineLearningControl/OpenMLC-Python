@@ -61,7 +61,7 @@ function [mlcpop,mlctable]=evaluate(mlcpop,mlctable,mlc_parameters,eval_idx);
                     ic=i;
                     save(fullfile(mlc_parameters.savedir,'MLC_incomplete.mat'),'JJ','ic');
                 end
-                if verb>1;fprintf('Individual %i from generation %i\n',eval_idx(i),ngen);end
+                if verb>1;fprintf('Individual %i from generationnnnnn %i\n',eval_idx(i),ngen);end
                 if verb>2;fprintf('%s\n',mlctable.individuals(idv_to_evaluate(i)).value);end
                 %retrieve object in the table
                 m=mlctable.individuals((idv_to_evaluate(i)));
@@ -81,7 +81,7 @@ function [mlcpop,mlctable]=evaluate(mlcpop,mlctable,mlc_parameters,eval_idx);
     %% MLCtable update
     if verb>0;fprintf('Updating database\n');end
     for i=1:length(eval_idx);
-        if verb>2;fprintf('Individual %i from generation %i\n',eval_idx(i),ngen);end
+        if verb>2;fprintf('Individual %i from generatioNNNNN %i\n',eval_idx(i),ngen);end
         if verb>2;fprintf('%s\n',mlctable.individuals(idv_to_evaluate(i)).value);end
         J=JJ(i);
         %% Checking numerical value

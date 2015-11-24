@@ -1,9 +1,20 @@
-from MLC.Log.log import logger
-from MLC.Creation.CreationFactory import CreationFactory
 import numpy as np
+
+from MLC.Log.log import logger
+from MLC.Population.Creation.CreationFactory import CreationFactory
 
 
 class Population(object):
+    amount_population = 0
+
+    @staticmethod
+    def inc_pop_number():
+        Population.amount_population += 1
+
+    @staticmethod
+    def get_actual_pop_number():
+        return Population.amount_population
+
     def __init__(self, eng, config, gen=None):
         self._eng = eng
         self._config = config
@@ -35,6 +46,10 @@ class Population(object):
         gen_creator.create(self._gen_size)
 
         self.set_individuals(gen_creator.individuals())
+
+    def evaluate(self, eval_idx):
+        # TODO: Serialization of the population
+        a = 1
 
     def set_individuals(self, indiv_list):
         for x in indiv_list:

@@ -1,16 +1,19 @@
 import matlab.engine
 import numpy as np
-import sys
 
 from MLC.Log.log import logger
+from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
 
 class Application(object):
-    def __init__(self, eng, config):
+    def __init__(self, eng, config, log_mode="default"):
         self._eng = eng
         # Parameters class like in Python
         self._config = config
+
+        # Set logger mode of the App
+        set_logger(log_mode)
 
         self._mlc = self._eng.eval('wmlc')
         self._params = self._eng.eval('wmlc.parameters')
@@ -30,30 +33,28 @@ class Application(object):
             return
 
         # curgen=length(mlc.population);
-        curgen = 0
-        if curgen == 0:
+        if Population.get_actual_pop_number() == 0:
             # population is empty, we have to create it
-            curgen = 1
-            self.generate_population(curgen)
+            Population.inc_pop_number()
+            self.generate_population()
             # self.eng.generate_population(self.mlc) #mlc.generate_population;
 
-        while curgen <= ngen:
+        while Population.get_actual_pop_number() <= ngen:
             # ok we can do something
-            state = self._eng.get_population_state(self._mlc, curgen)
+            state = \
+                self._eng.get_population_state(self._mlc,
+                                               Population.get_actual_pop_number())
             if state == 'init':
-                if curgen == 1:
-                    self.generate_population(curgen)
-                    # self.eng.generate_population(self.mlc)
+                if Population.get_actual_pop_number() == 1:
+                    self.generate_population()
                 else:
                     self.evolve_population()
-                    # self.eng.evolve_population(self.mlc)
 
             elif state == 'created':
-                # self._eng.evaluate_population(self._mlc, curgen)
                 self.evaluate_population()
 
             elif state == 'evaluated':
-                curgen += 1
+                Population.inc_pop_number()
 
                 if fig > 0:
                     self._eng.show_best(self._mlc)
@@ -61,11 +62,11 @@ class Application(object):
                 # if (fig>1):
                     # self.eng.show_convergence(self.mlc)
 
-                if curgen <= ngen:
+                if Population.get_actual_pop_number() <= ngen:
                     self.evolve_population()
                     # self.eng.evolve_population(self.mlc)
 
-    def generate_population(self, gen_number):
+    def generate_population(self):
         population = self._eng.MLCpop(self._params)
         self._pop = Population(self._eng, self._config)
 
@@ -84,7 +85,8 @@ class Application(object):
         self._eng.set_state(population, 'created')
         logger.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
 
-        self._eng.add_population(self._mlc, population, gen_number)
+        self._eng.add_population(self._mlc, population,
+                                 Population.get_actual_pop_number())
 
         # mlc.population=MLCpop(mlc.parameters);
         # [mlc.population(1),mlc.table]=mlc.population.create(mlc.parameters);
@@ -123,10 +125,12 @@ class Application(object):
 
         # Enforce reevaluation
         if self._config.getboolean('EVALUATOR', 'ev_again_best'):
-            # TODO: In this iteration, this code is not executed. Code it later
-            logger.error("[EV_POP] Code not generated yet. " +
-                         "This shouldn't be executed")
-            sys.exit(-1)
+            ev_again_times = self._config.getint('EVALUATOR', 'ev_again_times')
+            for i in range(1, ev_again_times):
+                ev_again_nb = self._config.getint('EVALUATOR', 'ev_again_nb')
+                idx = matlab.int32(np.arange(1, ev_again_nb + 1).tolist())
+                self._eng.evaluate(actual_pop, table, params, idx)
+                self._eng.sort(actual_pop, params)
 
         self._eng.set_state(actual_pop, 'evaluated')
 

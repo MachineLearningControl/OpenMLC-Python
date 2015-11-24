@@ -50,6 +50,7 @@ class ConfigTest(unittest.TestCase):
         comparison = (expected == actual).all()
         self.assertEqual(comparison, True)
 
+
 def suite():
     a_suite = unittest.TestSuite()
     a_suite.addTest(ConfigTest())

@@ -78,7 +78,7 @@ classdef MLC2 < handle
         end
 
         function obj = add_population(obj,new_population,gen)
-            fprintf('Adding population to generation %f\n',gen) 
+            fprintf('Adding population to generation %f\n',gen)
             obj.population(gen) = new_population;
         end
 
