@@ -82,13 +82,5 @@ classdef MLC2 < handle
             obj.population(gen) = new_population;
         end
 
-        function curr_gen = get_current_generation(obj)
-            curr_gen = length(obj.population);
-        end
-
-        function pop = get_population(obj, gen)
-            pop = obj.population(gen);
-        end
-
     end
 end

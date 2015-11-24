@@ -31,7 +31,7 @@ class BaseCreation(object):
                 indiv_number = individuals[response[1] - 1]
 
                 lg.logger_.info('[FILL_CREATION] Generating individual N#' +
-                                 str(indiv_number))
+                                str(indiv_number))
 
                 self._eng.workspace['windiv'] = indiv
                 lg.logger_.debug('Individual N#' + str(indiv_number) +

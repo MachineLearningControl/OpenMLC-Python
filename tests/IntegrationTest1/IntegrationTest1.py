@@ -63,6 +63,9 @@ class IntegrationTest1(unittest.TestCase):
         ALSO an array and not viceversa
         '''
         i = 1
+        print 'POP indexes: '
+        print indexes[0]
+
         for index in indexes[0]:
             value = 'wmlc.table.individuals(' + str(index) + ').value'
 

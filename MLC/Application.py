@@ -41,9 +41,9 @@ class Application(object):
 
         while Population.get_actual_pop_number() <= ngen:
             # ok we can do something
-            state = \
-                self._eng.get_population_state(self._mlc,
-                                               Population.get_actual_pop_number())
+            state = self._eng.get_population_state(self._mlc,
+                                                   Population.
+                                                   get_actual_pop_number())
             if state == 'init':
                 if Population.get_actual_pop_number() == 1:
                     self.generate_population()
@@ -87,9 +87,6 @@ class Application(object):
 
         self._eng.add_population(self._mlc, population,
                                  Population.get_actual_pop_number())
-
-        # mlc.population=MLCpop(mlc.parameters);
-        # [mlc.population(1),mlc.table]=mlc.population.create(mlc.parameters);
 
     def evaluate_population(self):
         params = self._eng.eval('wmlc.parameters')
@@ -136,12 +133,43 @@ class Application(object):
         self._eng.set_state(actual_pop, 'evaluated')
 
     def evolve_population(self):
-        n = self._eng.get_current_generation(self._mlc)
-        current_pop = self._eng.get_population(self._mlc, n)
-
-        next_pop = self._eng.MLCpop(self._params)
+        # Evolve the current population and add it to the MLC MATLAB object
+        n = self._eng.eval('length(wmlc.population)')
         table = self._eng.eval('wmlc.table')
-        self._eng.evolve(current_pop, self._params, table, next_pop)
+        current_pop = self._eng.eval('wmlc.population(' + str(n) + ')')
+
+        next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
+        n += 1
+        self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
+
+        # Remove duplicates
+        look_for_dup = self._config.getboolean('OPTIMIZATION',
+                                               'lookforduplicates')
+
+        if look_for_dup:
+            self._eng.remove_duplicates(next_pop)
+            indivs = self._eng.eval(
+                'wmlc.population(' + str(n) + ').individuals')
+
+            nulls = []
+            i = 1
+            for idx in indivs[0]:
+                if idx == -1:
+                    nulls.append(i)
+                i += 1
+
+            while len(nulls):
+                self._eng.evolve(current_pop, self._params,
+                                 table, next_pop, nargout=0)
+                self._eng.remove_duplicates(next_pop)
+                indivs = self._eng.eval(
+                    'wmlc.population(' + str(n) + ').individuals')
+                # nulls = [idx for idx, value in indivs[0] if value == -1]
+                nulls = []
+                i = 1
+                for idx in indivs[0]:
+                    if idx == -1:
+                        nulls.append(i)
+                    i += 1
 
         self._eng.set_state(next_pop, 'created')
-        self._eng.add_population(self._mlc, next_pop, n + 1)
