@@ -17,7 +17,7 @@ def initialize_matlab():
 
 def initialize_config():
     config = Config()
-    config.read('configuration.ini')
+    config.read('conf/configuration.ini')
     return config
 
 

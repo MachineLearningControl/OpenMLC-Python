@@ -1,7 +1,7 @@
 from BaseCreation import BaseCreation
 import numpy as np
 import math
-from MLC.Log.log import logger
+import MLC.Log.log as lg
 
 
 class MixedRampedGauss(BaseCreation):
@@ -18,8 +18,8 @@ class MixedRampedGauss(BaseCreation):
 
         # Append a zero to the begginning of the array
         distrib = np.concatenate((np.array([0.]), distrib))
-        logger.debug('[MIXED_RAMP_GAUSS] Distribution generated: ' +
-                     np.array_str(distrib))
+        lg.logger_.debug('[MIXED_RAMP_GAUSS] Distribution generated: ' +
+                         np.array_str(distrib))
 
         i = 0
         j = 0
@@ -39,13 +39,13 @@ class MixedRampedGauss(BaseCreation):
             j += 1
 
     def __create_gaussian_distribution(self, ramp, center, sigma, gen_size):
-        logger.debug('[MIXED_RAMP_GAUSS] Ramp: ' + np.array_str(ramp) +
-                     ' - Center: ' + str(center) + ' Sigma: ' + str(sigma))
+        lg.logger_.debug('[MIXED_RAMP_GAUSS] Ramp: ' + np.array_str(ramp) +
+                         ' - Center: ' + str(center) + ' Sigma: ' + str(sigma))
         pseudo_gaussian = \
             np.power(math.e, (- (ramp - center) ** 2) / sigma ** 2) * gen_size
 
-        logger.debug('[MIXED_RAMP_GAUSS] Gaussian: ' +
-                     np.array_str(pseudo_gaussian))
+        lg.logger_.debug('[MIXED_RAMP_GAUSS] Gaussian: ' +
+                         np.array_str(pseudo_gaussian))
 
         normalization = np.sum(pseudo_gaussian)
         gaussian = pseudo_gaussian / normalization * gen_size

@@ -1,13 +1,13 @@
 import matlab.engine
 import numpy as np
 
-from MLC.Log.log import logger
+import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
 
 class Application(object):
-    def __init__(self, eng, config, log_mode="default"):
+    def __init__(self, eng, config, log_mode='default'):
         self._eng = eng
         # Parameters class like in Python
         self._config = config
@@ -28,8 +28,8 @@ class Application(object):
         # self.eng.go(self.mlc, generations, fig
 
         if ngen <= 0:
-            logger.error('The amounts of generations must be a '
-                         'positive decimal number. Value provided: ' + ngen)
+            lg.logger_.error('The amounts of generations must be a '
+                             'positive decimal number. Value provided: ' + ngen)
             return
 
         # curgen=length(mlc.population);
@@ -83,7 +83,7 @@ class Application(object):
                                   nargout=0)
 
         self._eng.set_state(population, 'created')
-        logger.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
+        lg.logger_.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
 
         self._eng.add_population(self._mlc, population,
                                  Population.get_actual_pop_number())
@@ -100,7 +100,8 @@ class Application(object):
         string_pop = 'wmlc.population(' + str(pop_index) + ')'
         actual_pop = self._eng.eval(string_pop)
 
-        indiv_len = int(self._eng.eval('length(' + string_pop + '.individuals)'))
+        indiv_len = \
+            int(self._eng.eval('length(' + string_pop + '.individuals)'))
         idx = matlab.int32(np.arange(1, indiv_len + 1).tolist())
         self._eng.evaluate(actual_pop, table, params, idx)
 

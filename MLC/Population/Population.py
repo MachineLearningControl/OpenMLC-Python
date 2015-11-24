@@ -1,6 +1,6 @@
 import numpy as np
 
-from MLC.Log.log import logger
+import MLC.Log.log as lg
 from MLC.Population.Creation.CreationFactory import CreationFactory
 
 
@@ -31,9 +31,9 @@ class Population(object):
         self._individuals = np.zeros(self._gen_size, dtype=int)
         self._state = 'init'
 
-        logger.debug("Population created. Number: " +
-                     str(self._gen) + " - Size: " +
-                     str(self._gen_size))
+        lg.logger_.debug("Population created. Number: " +
+                         str(self._gen) + " - Size: " +
+                         str(self._gen_size))
 
     def create(self, table=None):
         if table is None:
@@ -41,7 +41,7 @@ class Population(object):
                 self._eng.MLCtable(self._gen_size * 50)
 
         gen_method = self._config.get_param('GP', 'generation_method')
-        logger.info("Using " + gen_method + " to generate population")
+        lg.logger_.info("Using " + gen_method + " to generate population")
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
         gen_creator.create(self._gen_size)
 

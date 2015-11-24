@@ -1,6 +1,6 @@
 import ConfigParser
 import numpy as np
-import logging
+import MLC.Log.log as lg
 
 
 class Config(ConfigParser.ConfigParser):
@@ -9,7 +9,6 @@ class Config(ConfigParser.ConfigParser):
         self._dispatcher = {'common': self.__get_common,
                             'array': self.__get_array,
                             'arange': self.__get_arange}
-        self._logger = logging.getLogger('default')
         self._log_prefix = '[CONFIG] '
 
     def __get_common(self, section, param):
@@ -22,7 +21,7 @@ class Config(ConfigParser.ConfigParser):
         try:
             return self._dispatcher[kwargs.get('type')](section, param, **kwargs)
         except KeyError:
-            logging.error(self._log_prefix, 'Type not supported')
+            lg.logger_.error(self._log_prefix, 'Type not supported')
             raise KeyError('Type not supported')
 
     def __get_arange(self, section, param, **kwargs):

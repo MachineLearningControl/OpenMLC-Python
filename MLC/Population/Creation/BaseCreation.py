@@ -1,4 +1,4 @@
-from MLC.Log.log import logger
+import MLC.Log.log as lg
 import numpy as np
 
 
@@ -30,45 +30,22 @@ class BaseCreation(object):
                 # The individual didn't exist
                 indiv_number = individuals[response[1] - 1]
 
-                logger.info('[FILL_CREATION] Generating individual N#' +
-                            str(indiv_number))
+                lg.logger_.info('[FILL_CREATION] Generating individual N#' +
+                                 str(indiv_number))
 
                 self._eng.workspace['windiv'] = indiv
-                logger.debug('Individual N#' + str(indiv_number) +
-                             ' - Value: ' + self._eng.eval('windiv.value'))
+                lg.logger_.debug('Individual N#' + str(indiv_number) +
+                                 ' - Value: ' + self._eng.eval('windiv.value'))
 
                 if self._eng.preev(indiv, param, nargout=1):
                     # TODO: We should store the number of the individual
                     self._individuals.append((index, response[1]))
                     index += 1
                 else:
-                    logger.info('[FILL_CREATION] Preevaluation failed'
-                                '. Individual value: ' +
-                                self._eng.eval('windiv.value'))
+                    lg.logger_.info('[FILL_CREATION] Preevaluation failed'
+                                    '. Individual value: ' +
+                                    self._eng.eval('windiv.value'))
             else:
-                logger.debug('[FILL_CREATION] Replica created.')
+                lg.logger_.debug('[FILL_CREATION] Replica created.')
 
         return index
-
-"""
-n_indiv_to_generate=length(indiv_to_generate);
-while i<=n_indiv_to_generate
-    mlcind=MLCind;
-    mlcind.generate(mlc_parameters,type);
-    [mlctable,number,already_exist]=mlctable.add_individual(mlcind);
-    if already_exist==0
-        if verb>1;fprintf('Generating individual %i\n',indiv_to_generate(i));end
-        if verb>2;mlcind.textoutput;end
-
-            if  mlcind.preev(mlc_parameters)
-                mlcpop.individuals(indiv_to_generate(i))=number;
-                i=i+1;
-            else
-                if verb>1;fprintf('preevaluation fail\n');end
-            end
-
-    else
-        if verb>3;fprintf('replica\n');end
-    end
-end
-"""
