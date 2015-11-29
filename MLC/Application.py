@@ -56,6 +56,7 @@ class Application(object):
             elif state == 'evaluated':
                 if fig > 0:
                     self._eng.show_best(self._mlc)
+                    raw_input('Press enter to continue...')
 
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)

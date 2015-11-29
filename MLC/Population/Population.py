@@ -67,17 +67,17 @@ class Population(object):
 
         for idx in xrange(len(jj)):
             self._eng.update_individual(table, self._individuals[idx], jj[idx])
-            string_cost = str(jj[idx])
+
+            if str(jj[idx]) == 'nan' or str(jj[idx]) == 'inf':
+                lg.logger_.debug('[POP][EVALUATE] Individual N#: ' +
+                                 str(self._individuals[idx]) +
+                                 '. Invalid value found: ' + str(jj[idx]))
+                jj[idx] = bad_value
 
             lg.logger_.debug('[POP][EVALUATE] Idx: ' + str(idx + 1) +
                              ' - Indiv N#: ' + str(self._individuals[idx]) +
-                             ' - Cost: ' + string_cost)
+                             ' - Cost: ' + str(jj[idx]))
 
-            if string_cost == 'nan' or string_cost == 'inf':
-                lg.logger_.debug('[POP][EVALUATE] Individual N#: ' +
-                                 str(self._individuals[idx]) +
-                                 '. Invalid value found: ' + string_cost)
-                jj[idx] = bad_value
             self._eng.set_cost(matlab_pop, idx + 1, jj[idx])
 
         self._costs = jj
