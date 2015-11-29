@@ -64,7 +64,7 @@ parameters.size=100;
         %% MLC behaviour parameters 
         parameters.save=1;
         parameters.saveincomplete=1;
-        parameters.verbose=4;
+        parameters.verbose=5;
         parameters.fgen=250; 
         parameters.show_best=1;
         parameters.savedir=fullfile(pwd,'save_GP');

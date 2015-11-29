@@ -54,17 +54,14 @@ class Application(object):
                 self.evaluate_population()
 
             elif state == 'evaluated':
-                Population.inc_pop_number()
-
                 if fig > 0:
                     self._eng.show_best(self._mlc)
 
-                # if (fig>1):
-                    # self.eng.show_convergence(self.mlc)
+                # if (fig > 1):
+                #    self.eng.show_convergence(self.mlc)
 
                 if Population.get_actual_pop_number() <= ngen:
                     self.evolve_population()
-                    # self.eng.evolve_population(self.mlc)
 
     def generate_population(self):
         population = self._eng.MLCpop(self._params)
@@ -97,10 +94,11 @@ class Application(object):
         string_pop = 'wmlc.population(' + str(pop_index) + ')'
         actual_pop = self._eng.eval(string_pop)
 
-        indiv_len = \
-            int(self._eng.eval('length(' + string_pop + '.individuals)'))
-        idx = matlab.int32(np.arange(1, indiv_len + 1).tolist())
-        self._eng.evaluate(actual_pop, table, params, idx)
+        # indiv_len = \
+        #     int(self._eng.eval('length(' + string_pop + '.individuals)'))
+        # idx = matlab.int32(np.arange(1, indiv_len + 1).tolist())
+        # self._eng.evaluate(actual_pop, table, params, idx)
+        self._pop.evaluate()
 
         # Remove bad individuals
         elim = False
@@ -112,12 +110,12 @@ class Application(object):
                 elim = True
 
         if elim:
-            ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
-            while len(ret[1]):
+            ret = self._pop.remove_bad_individuals()
+            while ret:
                 # There are bad individuals, recreate the population
                 self._pop.create()
-                self._eng.evaluate(actual_pop, table, params, idx)
-                ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
+                self._pop.evaluate()
+                ret = self._pop.remove_bad_individuals()
 
         self._eng.sort(actual_pop, params)
 
@@ -139,7 +137,11 @@ class Application(object):
         current_pop = self._eng.eval('wmlc.population(' + str(n) + ')')
 
         next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
+
+        # Increase both counters. MATLAB and Python pops counters
         n += 1
+        Population.inc_pop_number()
+
         self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
 
         # Remove duplicates
@@ -152,11 +154,9 @@ class Application(object):
                 'wmlc.population(' + str(n) + ').individuals')
 
             nulls = []
-            i = 1
-            for idx in indivs[0]:
-                if idx == -1:
-                    nulls.append(i)
-                i += 1
+            for idx in xrange(len(indivs[0])):
+                if indivs[0][idx] == -1:
+                    nulls.append(idx + 1)
 
             while len(nulls):
                 self._eng.evolve(current_pop, self._params,
@@ -164,12 +164,24 @@ class Application(object):
                 self._eng.remove_duplicates(next_pop)
                 indivs = self._eng.eval(
                     'wmlc.population(' + str(n) + ').individuals')
-                # nulls = [idx for idx, value in indivs[0] if value == -1]
-                nulls = []
-                i = 1
-                for idx in indivs[0]:
-                    if idx == -1:
-                        nulls.append(i)
-                    i += 1
 
-        self._eng.set_state(next_pop, 'created')
+                nulls = []
+                for idx in xrange(len(indivs[0])):
+                    if indivs[0][idx] == -1:
+                        nulls.append(idx + 1)
+
+            self._eng.set_state(next_pop, 'created')
+            self._set_pop_new_individuals()
+
+    def _set_pop_new_individuals(self):
+        next_gen = Population.get_actual_pop_number()
+        indivs = \
+            self._eng.eval('wmlc.population(' + str(next_gen) + ').individuals')
+
+        # Create a new population with the indexes updated
+        self._pop = Population(self._eng,
+                               self._config,
+                               Population.get_actual_pop_number())
+
+        self._pop.set_individuals(
+            [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])

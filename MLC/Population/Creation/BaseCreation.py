@@ -38,7 +38,6 @@ class BaseCreation(object):
                                  ' - Value: ' + self._eng.eval('windiv.value'))
 
                 if self._eng.preev(indiv, param, nargout=1):
-                    # TODO: We should store the number of the individual
                     self._individuals.append((index, response[1]))
                     index += 1
                 else:
