@@ -57,6 +57,11 @@ classdef MLCpop < handle
         function obj=set_cost(obj, index, cost)
             obj.costs(index) = cost;
         end
+
+        function obj=dump(obj)
+            obj.individuals
+            obj.costs
+        end
     end
 end
         

@@ -7,20 +7,24 @@ class StandaloneEvaluator(object):
         self._eng = eng
         self._config = config
 
-    def evaluate(self, eval_index, pop_number):
+    def evaluate(self, eval_idx, indivs, pop_number):
         # TODO: Don't use this value as a callback for the moment. Hardcode
         # the call to the evaluation function
         eval_function = self._config.get('EVALUATOR', 'evaluation_function')
         JJ = []
 
-        for i in xrange(1,len(eval_index)+1):
-            lg.logger_.debug('Individual N#' + str(i) +
+        for i in xrange(len(eval_idx)):
+            index = eval_idx[i]
+            lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
                              ' from generation ' + str(pop_number))
 
-            indiv = self._eng.eval('wtable.individuals(' + str(i) + ')')
+            indiv = self._eng.eval('wtable.individuals(' +
+                                   str(indivs[index-1]) + ')')
             value = \
-                self._eng.eval('wtable.individuals(' + str(i) + ').value')
-            lg.logger_.debug(value)
+                self._eng.eval('wtable.individuals(' + str(indivs[index-1]) +
+                               ').value')
+            lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
+                             ' Value: ' + value)
             JJ.append(self._toy_problem(indiv))
 
         return JJ
@@ -49,7 +53,7 @@ class StandaloneEvaluator(object):
         # Calculate J like the sum of the square difference of the
         # functions in every point
 
-        lg.logger_.debug(formal)
+        lg.logger_.debug('[POP][TOY_PROBLEM] Individual Formal: ' + formal)
         self._eng.workspace['y3'] = \
             self._eng.eval('zeros(1, ' + str(len(x)) + ')')
         self._eng.eval('eval([formal])')

@@ -14,6 +14,7 @@ class IntegrationTest1(unittest.TestCase):
     def setUpClass(cls):
         config_file = 'configuration.ini'
         generations_file = 'generation.txt'
+        costs_file = 'costs_gen1.txt'
 
         '''
         FIXME: This is really UGLY!!!. Try later to at
@@ -44,6 +45,13 @@ class IntegrationTest1(unittest.TestCase):
                 # Chomp line
                 cls._gen.append(line.rstrip())
 
+        cls._costs = []
+        # Parse the costs arrays
+        with open(costs_file) as f:
+            for line in f:
+                # Chomp line
+                cls._costs.append(line.rstrip())
+
     def test_first_generation(self):
         self._run_x_generation(1)
 
@@ -52,6 +60,13 @@ class IntegrationTest1(unittest.TestCase):
 
     def test_third_generation(self):
         self._run_x_generation(3)
+
+    def test_costs_first_geneneration(self):
+        costs = self._eng.eval('wmlc.population(1).costs')
+        for idx in xrange(len(costs[0])):
+            self.assertEquals(round(float(costs[0][idx]), 4),
+                              float(self._costs[idx]))
+            print "Cost N# ", idx, "OK!"
 
     def _run_x_generation(self, gen_number):
         indexes = \

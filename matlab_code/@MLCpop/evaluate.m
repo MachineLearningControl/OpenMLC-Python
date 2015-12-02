@@ -93,7 +93,7 @@ function [mlcpop,mlctable]=evaluate(mlcpop,mlctable,mlc_parameters,eval_idx);
         end
       %  save test idv_to_evaluate
         mlctable.update_individual(idv_to_evaluate(i),J);
-        if verb>2;fprintf('Cost %i\n', J);end
+        if verb>2;fprintf('Index: %i - Indiv index: %i - Cost %i\n', eval_idx(i), idv_to_evaluate(i), J);end
         mlcpop.costs(eval_idx(i))=mlctable.individuals(idv_to_evaluate(i)).cost;
     end
 end

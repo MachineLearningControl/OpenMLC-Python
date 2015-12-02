@@ -47,7 +47,7 @@ class Population(object):
 
         self.set_individuals(gen_creator.individuals())
 
-    def evaluate(self):
+    def evaluate(self, eval_idx):
         gen = str(Population.get_actual_pop_number())
         lg.logger_.info('Evaluation of generation ' + gen)
 
@@ -57,7 +57,7 @@ class Population(object):
         # TODO: Serialization of the population.
 
         evaluator = EvaluatorFactory.make(self._eng, self._config, ev_method)
-        jj = evaluator.evaluate(self._individuals,
+        jj = evaluator.evaluate(eval_idx, self._individuals,
                                 Population.get_actual_pop_number())
 
         # Update table individuals and MATLAB Population indexes and costs
@@ -65,20 +65,27 @@ class Population(object):
         matlab_pop = self._eng.eval('wmlc.population(' + str(gen) + ')')
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
 
-        for idx in xrange(len(jj)):
-            self._eng.update_individual(table, self._individuals[idx], jj[idx])
-
-            if str(jj[idx]) == 'nan' or str(jj[idx]) == 'inf':
+        for i in xrange(len(eval_idx)):
+            index = eval_idx[i] - 1
+            mlab_index = eval_idx[i]
+            if str(jj[index]) == 'nan' or \
+               str(jj[index]) == 'inf' or \
+               jj[index] > bad_value:
                 lg.logger_.debug('[POP][EVALUATE] Individual N#: ' +
-                                 str(self._individuals[idx]) +
-                                 '. Invalid value found: ' + str(jj[idx]))
-                jj[idx] = bad_value
+                                 str(self._individuals[index]) +
+                                 '. Invalid value found: ' +
+                                 str(jj[index]))
+                jj[index] = bad_value
 
-            lg.logger_.debug('[POP][EVALUATE] Idx: ' + str(idx + 1) +
-                             ' - Indiv N#: ' + str(self._individuals[idx]) +
-                             ' - Cost: ' + str(jj[idx]))
+            lg.logger_.debug('[POP][EVALUATE] Idx: ' + str(index) +
+                             ' - Indiv N#: ' +
+                             str(self._individuals[index]) +
+                             ' - Cost: ' + str(jj[index]))
 
-            self._eng.set_cost(matlab_pop, idx + 1, jj[idx])
+            self._eng.update_individual(table,
+                                        self._individuals[index],
+                                        jj[index])
+            self._eng.set_cost(matlab_pop, mlab_index, jj[index])
 
         self._costs = jj
 
