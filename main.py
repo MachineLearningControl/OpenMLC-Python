@@ -1,5 +1,6 @@
 #!/usr/bin/python2.7
 import matlab.engine
+import numpy as np
 from MLC.Application import Application
 from MLC.Config.Config import Config
 
@@ -26,6 +27,7 @@ def main():
     config = initialize_config()
     set_path(eng)
     eng.rand('seed', 20.0, nargout=0)
+    np.set_printoptions(precision=4, suppress=True)
 
     # Create the MLC2 object and store it in the workspace. With this
     # feature we will be able to call every function of the MATLAB code
