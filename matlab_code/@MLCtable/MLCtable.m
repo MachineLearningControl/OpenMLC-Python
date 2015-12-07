@@ -21,5 +21,17 @@ classdef MLCtable < handle
             obj.costlist=zeros(1,Nind);
             obj.number=0;
         end
+
+        function obj=print_indivs(obj)
+            for i=1:obj.number
+                fprintf('INDIVIDUAL N#%d - Cost: %f\n', i, obj.individuals(i).cost);
+            end
+        end
+
+        function obj=print_formal(obj)
+            for i=1:obj.number
+                fprintf('INDIVIDUAL N#%d - Value: %f\n', i, obj.individuals(i).value);
+            end
+        end
     end
 end

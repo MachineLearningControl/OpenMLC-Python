@@ -1,16 +1,19 @@
 import matlab.engine
-import numpy as np
 
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
+from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.Scripts.toy_problem import toy_problem
+from MLC.Scripts.arduino import arduino
+
 
 class Application(object):
     def __init__(self, eng, config, log_mode='default'):
         self._eng = eng
-        # Parameters class like in Python
         self._config = config
+        self._set_ev_callbacks()
 
         # Set logger mode of the App
         set_logger(log_mode)
@@ -48,7 +51,6 @@ class Application(object):
             elif state == 'evaluated':
                 if fig > 0:
                     self._eng.show_best(self._mlc)
-                    raw_input('Press enter to continue...')
 
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
@@ -124,8 +126,8 @@ class Application(object):
         n = self._eng.eval('length(wmlc.population)')
         table = self._eng.eval('wmlc.table')
         current_pop = self._eng.eval('wmlc.population(' + str(n) + ')')
-
         next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
+
         # Increase both counters. MATLAB and Python pops counters
         n += 1
         Population.inc_pop_number()
@@ -176,3 +178,8 @@ class Application(object):
         self._pop.set_individuals(
             [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
 
+    def _set_ev_callbacks(self):
+        # Set the callbacks to be called at the moment of the evaluation
+        # FIXME: To this dynamically searching .pys in the directory
+        EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
+        EvaluatorFactory.set_ev_callback('arduino', arduino)
