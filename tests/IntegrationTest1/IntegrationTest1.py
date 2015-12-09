@@ -14,6 +14,7 @@ class IntegrationTest1(unittest.TestCase):
     def setUpClass(cls):
         config_file = 'configuration.ini'
         generations_file = 'generation.txt'
+        costs_file = 'costs_gen1.txt'
 
         '''
         FIXME: This is really UGLY!!!. Try later to at
@@ -32,7 +33,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng.rand('seed', 20.0, nargout=0)
         cls._eng.workspace['wmlc'] = cls._eng.MLC2()
         cls._app = Application(cls._eng, config, "testing")
-        cls._app.go(3, 0)
+        cls._app.go(10, 0)
 
         a = cls._eng.eval('length(wmlc.population)')
         print "Number of populations: " + str(a)
@@ -44,14 +45,42 @@ class IntegrationTest1(unittest.TestCase):
                 # Chomp line
                 cls._gen.append(line.rstrip())
 
-    def test_first_generation(self):
+        cls._costs = []
+        # Parse the costs arrays
+        with open(costs_file) as f:
+            for line in f:
+                # Chomp line
+                cls._costs.append(line.rstrip())
+
+    def test_generation_1(self):
         self._run_x_generation(1)
 
-    def test_second_generation(self):
+    def test_generation_2(self):
         self._run_x_generation(2)
 
-    def test_third_generation(self):
+    def test_generation_3(self):
         self._run_x_generation(3)
+
+    def test_generation_4(self):
+        self._run_x_generation(4)
+
+    def test_generation_5(self):
+        self._run_x_generation(5)
+
+    def test_generation_6(self):
+        self._run_x_generation(6)
+
+    def test_generation_7(self):
+        self._run_x_generation(7)
+
+    def test_generation_8(self):
+        self._run_x_generation(8)
+
+    def test_generation_9(self):
+        self._run_x_generation(9)
+
+    def test_generation_10(self):
+        self._run_x_generation(10)
 
     def _run_x_generation(self, gen_number):
         indexes = \
@@ -63,7 +92,7 @@ class IntegrationTest1(unittest.TestCase):
         ALSO an array and not viceversa
         '''
         i = 1
-        print 'POP indexes: '
+        print 'Generation N# ', gen_number, ' - POP indexes: '
         print indexes[0]
 
         for index in indexes[0]:

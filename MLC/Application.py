@@ -1,16 +1,19 @@
 import matlab.engine
-import numpy as np
 
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
+from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.Scripts.toy_problem import toy_problem
+from MLC.Scripts.arduino import arduino
+
 
 class Application(object):
     def __init__(self, eng, config, log_mode='default'):
         self._eng = eng
-        # Parameters class like in Python
         self._config = config
+        self._set_ev_callbacks()
 
         # Set logger mode of the App
         set_logger(log_mode)
@@ -19,14 +22,7 @@ class Application(object):
         self._params = self._eng.eval('wmlc.parameters')
         self._pop = None
 
-        # print "Selection method: " + self.eng.eval("wparams.selectionmethod")
-
-        # self.eng.workspace["wtable"] = self.table
-        # print "Table number: " + self.eng.eval("wtable.number")
-
     def go(self, ngen, fig):
-        # self.eng.go(self.mlc, generations, fig
-
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
                              'positive decimal number. Value provided: ' + ngen)
@@ -37,7 +33,6 @@ class Application(object):
             # population is empty, we have to create it
             Population.inc_pop_number()
             self.generate_population()
-            # self.eng.generate_population(self.mlc) #mlc.generate_population;
 
         while Population.get_actual_pop_number() <= ngen:
             # ok we can do something
@@ -54,17 +49,14 @@ class Application(object):
                 self.evaluate_population()
 
             elif state == 'evaluated':
-                Population.inc_pop_number()
-
                 if fig > 0:
                     self._eng.show_best(self._mlc)
 
-                # if (fig>1):
-                    # self.eng.show_convergence(self.mlc)
+                # if (fig > 1):
+                #    self.eng.show_convergence(self.mlc)
 
                 if Population.get_actual_pop_number() <= ngen:
                     self.evolve_population()
-                    # self.eng.evolve_population(self.mlc)
 
     def generate_population(self):
         population = self._eng.MLCpop(self._params)
@@ -90,17 +82,12 @@ class Application(object):
 
     def evaluate_population(self):
         params = self._eng.eval('wmlc.parameters')
-        table = self._eng.eval('wmlc.table')
 
         # First evaluation
         pop_index = int(self._eng.eval('length(wmlc.population)'))
         string_pop = 'wmlc.population(' + str(pop_index) + ')'
         actual_pop = self._eng.eval(string_pop)
-
-        indiv_len = \
-            int(self._eng.eval('length(' + string_pop + '.individuals)'))
-        idx = matlab.int32(np.arange(1, indiv_len + 1).tolist())
-        self._eng.evaluate(actual_pop, table, params, idx)
+        self._pop.evaluate(range(1, len(self._pop.get_individuals())+1))
 
         # Remove bad individuals
         elim = False
@@ -112,22 +99,24 @@ class Application(object):
                 elim = True
 
         if elim:
-            ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
-            while len(ret[1]):
+            ret = self._pop.remove_bad_individuals()
+            while ret:
                 # There are bad individuals, recreate the population
                 self._pop.create()
-                self._eng.evaluate(actual_pop, table, params, idx)
-                ret = self._eng.remove_bad_indivs(actual_pop, params, nargout=2)
+                self._pop.evaluate(range(1, len(self._pop.get_individuals())+1))
+                ret = self._pop.remove_bad_individuals()
 
         self._eng.sort(actual_pop, params)
+        self._set_pop_individuals()
 
         # Enforce reevaluation
         if self._config.getboolean('EVALUATOR', 'ev_again_best'):
             ev_again_times = self._config.getint('EVALUATOR', 'ev_again_times')
             for i in range(1, ev_again_times):
                 ev_again_nb = self._config.getint('EVALUATOR', 'ev_again_nb')
-                idx = matlab.int32(np.arange(1, ev_again_nb + 1).tolist())
-                self._eng.evaluate(actual_pop, table, params, idx)
+                self._pop.evaluate(range(1, ev_again_nb + 1))
+
+                self._set_pop_individuals()
                 self._eng.sort(actual_pop, params)
 
         self._eng.set_state(actual_pop, 'evaluated')
@@ -137,9 +126,11 @@ class Application(object):
         n = self._eng.eval('length(wmlc.population)')
         table = self._eng.eval('wmlc.table')
         current_pop = self._eng.eval('wmlc.population(' + str(n) + ')')
-
         next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
+
+        # Increase both counters. MATLAB and Python pops counters
         n += 1
+        Population.inc_pop_number()
         self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
 
         # Remove duplicates
@@ -152,11 +143,9 @@ class Application(object):
                 'wmlc.population(' + str(n) + ').individuals')
 
             nulls = []
-            i = 1
-            for idx in indivs[0]:
-                if idx == -1:
-                    nulls.append(i)
-                i += 1
+            for idx in xrange(len(indivs[0])):
+                if indivs[0][idx] == -1:
+                    nulls.append(idx + 1)
 
             while len(nulls):
                 self._eng.evolve(current_pop, self._params,
@@ -164,12 +153,33 @@ class Application(object):
                 self._eng.remove_duplicates(next_pop)
                 indivs = self._eng.eval(
                     'wmlc.population(' + str(n) + ').individuals')
-                # nulls = [idx for idx, value in indivs[0] if value == -1]
-                nulls = []
-                i = 1
-                for idx in indivs[0]:
-                    if idx == -1:
-                        nulls.append(i)
-                    i += 1
 
-        self._eng.set_state(next_pop, 'created')
+                nulls = []
+                for idx in xrange(len(indivs[0])):
+                    if indivs[0][idx] == -1:
+                        nulls.append(idx + 1)
+
+            self._eng.set_state(next_pop, 'created')
+            self._set_pop_new_individuals()
+
+    def _set_pop_new_individuals(self):
+        # Create a new population with the indexes updated
+        self._pop = Population(self._eng,
+                               self._config,
+                               Population.get_actual_pop_number())
+        self._set_pop_individuals()
+
+    def _set_pop_individuals(self):
+        gen_number = Population.get_actual_pop_number()
+        indivs = \
+            self._eng.eval('wmlc.population(' +
+                           str(gen_number) + ').individuals')
+
+        self._pop.set_individuals(
+            [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
+
+    def _set_ev_callbacks(self):
+        # Set the callbacks to be called at the moment of the evaluation
+        # FIXME: To this dynamically searching .pys in the directory
+        EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
+        EvaluatorFactory.set_ev_callback('arduino', arduino)

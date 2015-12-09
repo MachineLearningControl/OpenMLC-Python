@@ -34,11 +34,11 @@ class BaseCreation(object):
                                 str(indiv_number))
 
                 self._eng.workspace['windiv'] = indiv
-                lg.logger_.debug('Individual N#' + str(indiv_number) +
+                lg.logger_.debug('[FILL_CREATION] Individual N#' +
+                                 str(indiv_number) +
                                  ' - Value: ' + self._eng.eval('windiv.value'))
 
                 if self._eng.preev(indiv, param, nargout=1):
-                    # TODO: We should store the number of the individual
                     self._individuals.append((index, response[1]))
                     index += 1
                 else:

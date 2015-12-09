@@ -1,5 +1,6 @@
 #!/usr/bin/python2.7
 import matlab.engine
+import numpy as np
 from MLC.Application import Application
 from MLC.Config.Config import Config
 
@@ -22,6 +23,7 @@ def initialize_config():
 
 
 def main():
+    np.set_printoptions(precision=4, suppress=True)
     eng = initialize_matlab()
     config = initialize_config()
     set_path(eng)
@@ -34,7 +36,6 @@ def main():
 
     mlc = Application(eng, config)
     mlc.go(3, 2)
-    raw_input("Press Enter to continue...")
 
 if __name__ == "__main__":
     main()

@@ -52,6 +52,16 @@ classdef MLCpop < handle
         function obj=set_state(obj,new_state)
             obj.state = new_state;
         end
+
+        % Helper methods
+        function obj=set_cost(obj, index, cost)
+            obj.costs(index) = cost;
+        end
+
+        function obj=dump(obj)
+            obj.individuals
+            obj.costs
+        end
     end
 end
         
