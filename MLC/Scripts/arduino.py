@@ -25,16 +25,22 @@ def arduino(eng, config, indiv):
     if not ser:
         ser = initialize_pyserial(config)
 
-    read_retries = config.getint('ARDUINO', 'read_retries')
+    np.set_printoptions(precision=4, suppress=True)
     x = np.arange(-10, 10 + 0.1, 0.1)
+
+    read_retries = config.getint('ARDUINO', 'read_retries')
     command = config.get('ARDUINO', 'command_opcode')
     period = config.get('ARDUINO', 'wait_period')
     for value in x:
+        str_value = str(round(value, 1))
+        if str_value == "-0.0":
+            str_value = "0.0"
+
         retries = read_retries
         if command == '1':
-            string = '1|' + period + '|' + str(value) + '\n'
+            string = '1|' + period + '|' + str_value + '\n'
         elif command == '2':
-            string = '1|' + str(value) + '\n'
+            string = '1|' + str_value + '\n'
         else:
             lg.logger_.error('[POP][STAND_EVAL] Unknown command received.' +
                              'Aborting simulation.')
@@ -49,12 +55,12 @@ def arduino(eng, config, indiv):
                             'remaining: ' + str(retries))
             response = ser.readline()
 
-        lg.logger_.debug('[POP][STAND_EVAL] Value expected: ' + str(value))
+        lg.logger_.debug('[POP][STAND_EVAL] Value expected: ' + str_value)
         lg.logger_.debug('[POP][STAND_EVAL] Value received: ' +
                          response.rstrip())
 
     y = np.tanh(x**3 - x**2 - 1)
-    artificial_noise = config.getint('EVALUATOR', 'artificialnoise')
+    # artificial_noise = config.getint('EVALUATOR', 'artificialnoise')
 
     # In this test we have no noise by config file. But, if this were the
     # case, we would a have problem because the random of MATLAB is not

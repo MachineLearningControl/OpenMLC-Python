@@ -36,6 +36,7 @@ def main():
 
     mlc = Application(eng, config)
     mlc.go(3, 2)
+    raw_input("Press enter to continue...")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,11 @@
+import sys
+sys.path.insert(1, '../.')
+
 import unittest
 from MLC.Config.Config import Config
 import os
 import numpy as np
+
 
 class ConfigTest(unittest.TestCase):
     def setUp(self):
@@ -51,13 +55,10 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(comparison, True)
 
 
-def suite():
-    a_suite = unittest.TestSuite()
-    a_suite.addTest(ConfigTest())
-    return a_suite
-
-
 if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    test_suite = suite()
-    runner.run(test_suite)
+    # runner = unittest.TextTestRunner()
+    # test_suite = suite()
+    # runner.run(test_suite)
+    a_suite = unittest.TestLoader().loadTestsFromTestCase(ConfigTest)
+    unittest.TextTestRunner(verbosity=2).run(a_suite)
+
