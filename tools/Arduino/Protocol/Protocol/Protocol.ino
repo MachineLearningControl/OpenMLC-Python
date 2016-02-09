@@ -1,14 +1,17 @@
-#include "commands.h"
 #include "CommandProcessor.h"
+#include "commands.h"
+#include "errors.h"
+#include "util.h"
 
 // Global variables
-int G_ERROR_LED = 13;
+int G_ERROR_LED = 9;
 CommandProcessor gCmdProcessor;
+Command* cmd = NULL;
 
 void setup() {
   // By the default, configure the serial port at this baudrate
   // Update the value of it with a command
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   // Define the function ptr array
   setCmdFuncPtr();
@@ -18,5 +21,12 @@ void setup() {
 }
 
 void loop() {
-  gCmdProcessor.readCommand();
+  uint8_t error_code = NO_ERROR;
+  cmd = gCmdProcessor.readCommand();
+  if (cmd != NULL) {
+    if (error_code = gCmdProcessor.processCommand(cmd)) {
+      // Error ocurred
+      blinkVariable(G_ERROR_LED, error_code);
+    }
+  }
 }
