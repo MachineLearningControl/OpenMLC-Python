@@ -25,12 +25,12 @@ opcode = 1 (2 bytes)
 
 Finalizar Configuración
 -----------------------
-opcode = 2 (2 bytes)
+opcode = 2 (1 bytes)
 
 ACK
 ---
-opcode = 3 (2 bytes)
-opcode_accepted (2 bytes)
+opcode = 3 (1 bytes)
+opcode_accepted (1 bytes)
 
 Error Code
 ----------
@@ -39,12 +39,14 @@ error_code (2 bytes)
 
 Configurar Sensor Digital
 -----------------
-opcode = 10 (2 bytes)
+opcode = 10 (1 bytes)
 sensor_number (1 bytes)
-cantidad_puertos (1 byte)
 pin1 (1 byte)
+pinMode(1 byte)
 pin2 (1 byte)
+pinMode(1 byte)
 pinN (1 byte)
+pinMode(1 byte)
 
 Configurar Actuador Digital
 -------------------
