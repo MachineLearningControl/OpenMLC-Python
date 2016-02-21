@@ -2,10 +2,10 @@
 FROM ubuntu:14.04
 
 # Update the current system
-RUN apt-get update && apt-get upgrade
+RUN apt-get update && apt-get upgrade -y
 
 # Install packages
-RUN apt-get install ssh gcc wget xz-utils make vim -y
+RUN apt-get install ssh gcc wget xz-utils make vim libssl-dev -y
 
 # Download python 2.7.11
 WORKDIR /tmp
@@ -15,14 +15,70 @@ RUN tar xJvf Python-2.7.11.tar.xz
 RUN cd Python-2.7.11 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-2.7.11 
 RUN cd Python-2.7.11 && make && make install
 
+# Create .sh who will load the desired enviroment to run python within it
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo 'PYTHON="/opt/mlc-python-2.7.11/bin/python2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo "# Run the dynamically compiled python for matlab" >> /opt/mlc-python-2.7.11/bin/mlc_python
+RUN echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_python  
+RUN echo '        $PYTHON $@' >> /opt/mlc-python-2.7.11/bin/mlc_python 
+RUN echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_python 
+RUN echo '        $PYTHON' >> /opt/mlc-python-2.7.11/bin/mlc_python 
+RUN echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_python 
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_python
+
+
 # Install Python Setuptools
 RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1.1.tar.gz#md5=10a0f4feb9f2ea99acf634c8d7136d6d
 RUN tar xzvf setuptools-20.1.1.tar.gz
-RUN cd setuptools-20.1.1 && /opt/mlc-python-2.7.11/bin/python2.7 setup.py build && /opt/mlc-python-2.7.11/bin/python2.7 setup.py install 
+RUN cd setuptools-20.1.1 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install 
+
 
 # Idem with pip
 RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb
 RUN tar xzvf pip-8.0.2.tar.gz
-RUN cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/python2.7 setup.py build && /opt/mlc-python-2.7.11/bin/python2.7 setup.py install 
+RUN cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install 
+
+# Create .sh who will load the desired enviroment to run pip within it
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo 'PIP="/opt/mlc-python-2.7.11/bin/pip2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo "# Run the dynamically compiled pip" >> /opt/mlc-python-2.7.11/bin/mlc_pip
+RUN echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_pip  
+RUN echo '        $PIP $@' >> /opt/mlc-python-2.7.11/bin/mlc_pip 
+RUN echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_pip 
+RUN echo '        $PIP' >> /opt/mlc-python-2.7.11/bin/mlc_pip 
+RUN echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip 
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 
 
+# Install mlc dependencies
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose 
+
+# Create .sh who will load the desired enviroment to run nosetests within it
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo 'NOSETESTS="/opt/mlc-python-2.7.11/bin/nosetests"' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo "# Run the dynamically compiled nosetests" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests  
+RUN echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests 
+RUN echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests 
+RUN echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests 
+RUN echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests 
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
+
+# Install fpm
+RUN apt-get install ruby-dev -y
+RUN gem install fpm
+
+# Create .deb package
+RUN fpm -s dir -t deb -v 0.1 -n mlc-python /opt/mlc-python-2.7.11

@@ -3,25 +3,28 @@
 OS=""
 UNAME=`uname`
 DATE_STRING=`date +"%Y-%m-%d_%H%M%S"`
-LOG_FILE="MLC_install_log_$DATE_STRING.log"
+LOG_FILE="/tmp/MLC_install_log_$DATE_STRING.log"
 FILE_LOG_LEVEL=7
 CONSOLE_LOG_LEVEL=5
-MLC_ROOT_DIR=/opt/mlc-python-2.7.11
+MLC_PYTHON_DIR=/opt/mlc-python-2.7.11
 UNINSTALL=0
 INSTALLED=0
+PACKAGE_PATH=""
+MATLAB_DIR=""
+PYTHON_ENG_DIR="extern/engines/python"
 
 function usage() {
     log_message 5 "MLC Installer. Available options:"
     log_message 5 "  -h: Show this help"
     log_message 5 "  -u: uninstall TFTP"
     log_message 5 "  -p <file>: MLC's deb file. Mandatory!"
-    log_message 5 "  -m <dir>: Absolute path where MATLAB is installed in the system"
+    log_message 5 "  -d <dir>: Absolute path where MATLAB is installed in the system. Mandatory!"
 }
 
 
 # Check if the OS where this script is running is a Linux like flavor
 function check_os() {
-    if [ x"$UNAME" = "xLinux" ] ; then
+    if [ x"$UNAME" = "xLinux" ]; then
         return 0
     fi
 
@@ -67,12 +70,14 @@ function check_run_as_root() {
 
 function parse_args() {
     log_message 7 "Checking command line arguments"
-    optspec="hup:d:"
-   
-    while getopts "$optspec" opt; do
-        case $opt in
+    # Needed to make getopts work
+    local OPTIND opt
+    OPTSPEC=":hup:d:"
+
+    while getopts $OPTSPEC opt; do
+        case "${opt}" in
             h)
-                show_usage
+                usage
                 exit 0
                 ;;
             u)
@@ -81,7 +86,7 @@ function parse_args() {
             p)
                 if [ -z "$OPTARG" ]; then
                    log_message 1 "option '-p' requires an argument" 
-                   show_usage
+                   usage
                    exit 1
                 fi
 
@@ -90,37 +95,130 @@ function parse_args() {
             d)
                 if [ -z "$OPTARG" ]; then
                    log_message 1 "option '-d' requires an argument" 
-                   show_usage
+                   usage
                    exit 1
                 fi
                 MATLAB_DIR=$OPTARG
                 ;;
-            *)
+            \?)
                 log_message 1 "ERROR: Invalid option received"
-                show_usage
+                usage
                 exit 1
                 ;;
         esac
     done
+
+    if [ $UNINSTALL -eq 1 ]; then
+	    return
+    fi
+
+    if [ x"$PACKAGE_PATH" = "x" ]; then
+	    log_message  1 "Package path must be supplied."
+	    usage
+	    exit 1
+    fi
+
+    if [ x"$MATLAB_DIR" = "x" ]; then
+	    log_message 1 "MATLAB dir must be supplied."
+	    usage
+	    exit 1
+    fi
 }
 
 
 function check_previous_installation() {
     log_message 5 "Searching for previous version of MLC"
-    if [ -d $MLC_ROOT_DIR ]; then
+    if [ -d $MLC_PYTHON_DIR ]; then
         log_message 5 "Previous installation of MLC detected"
         INSTALLED=1
     fi
 }
 
 
+# For the moment, there will be always only a version of mlc.
+# This version always will be installed in /opt/mlc-python-2.7.11
 function uninstall() {
     log_message 5 "Preparing for uninstall"
-    
+    MLC_PYTHON=`dpkg -l | grep mlc-python | awk '{print $2}'`
+    MLC_VERSION=`dpkg -l | grep mlc-python | awk '{print $3}'`
+    if [ x"$MLC_PYTHON" != "x" ]; then
+	    log_message 5 "Version $MLC_VERSION of MLC found. Proceed to uninstall." 
+        # Redirect stderr to stdout and the output to /dev/null to avoid annoying warnings  
+	    dpkg -r $MLC_PYTHON > /dev/null 2>&1 
+    else
+        log_message 3 "No version of MLC was found on the database. Aborting uninstalling."
+        exit 1
+    fi
+
+    if [ -d $MLC_PYTHON_DIR ]; then
+        log_message 5 "MLC python root dir wasn't removed after the package removal. Do you want to remove it? y[n]"
+        DEFAULT="y"
+        while true; do
+            read -p "" RESPONSE
+            RESPONSE=${RESPONSE:=$DEFAULT}
+            case $RESPONSE in
+                [yn]*) break;;
+                *) log_message 4 "Please answer y or n";;
+            esac
+        done
+        
+        if [ $RESPONSE = y ]; then
+            log_message 5 "Proceed to remove MLC python root dir"   
+           rm -rf $MLC_PYTHON_DIR
+        fi
+    fi
+
+    log_message 5 "MLC Python was succesfully uninstalled."
 }
 
 
 function install_mlc() {
+    # Check if the package exists
+    if [ ! -f $PACKAGE_PATH ]; then
+        log_message 1 "Package path doesn't exists. Aborting installation."
+        exit 1
+    fi
+
+    # Check if MATLAB dir exists
+    if [ ! -d $MATLAB_DIR ]; then
+        log_message 1 "MATLAB dir doesn't exists. Aborting installation."
+    fi
+
+    # Check that the python engine is installed
+    if [ ! -d "$MATLAB_DIR/$PYTHON_ENG_DIR" ]; then
+        log_message 1 "MATLAB version isn't shipped with Python Engine module. Check that your MATLAB version is superior to version 2014a"
+    fi
+
+    log_message 5 "Proceed to install MLC Python."
+    dpkg -i $PACKAGE_PATH 
+    if [ $? -ne 0 ]; then
+        log_message 1 "An error ocurred while installing MLC Package. Aborting installation"
+        exit 1
+    fi 
+   
+    # Move to Python engine directory to install the Engine module. It doesn't work in another way 
+    cd "$MATLAB_DIR/$PYTHON_ENG_DIR"
+
+    #Remove the build directory if it exists
+    rm -rf "$MATLAB_DIR/$PYTHON_ENG_DIR/build" 
+    $MLC_PYTHON_DIR/bin/mlc_python "$MATLAB_DIR/$PYTHON_ENG_DIR/setup.py" build > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        log_message 1 "An error ocurred while building MATLAB Python Package. Aborting installation"
+        UNINSTALL=1
+        uninstall
+        exit 1
+    fi 
+
+
+    $MLC_PYTHON_DIR/bin/mlc_python "$MATLAB_DIR/$PYTHON_ENG_DIR/setup.py" install > /dev/null 2>&1 
+    if [ $? -ne 0 ]; then
+        log_message 1 "An error ocurred while installing MATLAB Python Package. Aborting installation"
+        UNINSTALL=1
+        uninstall
+        exit 1
+    fi
+    
+    log_message 5 "MLC Python succesfully installed" 
 }
 
 
@@ -132,7 +230,7 @@ function main() {
 
     check_os
     check_run_as_root
-    parse_args $* 
+    parse_args $*
     check_previous_installation
 
     if [ $UNINSTALL -eq 1 ]; then
@@ -143,5 +241,4 @@ function main() {
 }
 
 
-main
-
+main $*
