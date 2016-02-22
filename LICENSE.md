@@ -1,5 +1,5 @@
-MLC (Machine Learning Control): A genetic algorithm library to solve chaotic problems
-Copyright (C) 2015  Thomas Duriez (thomas.duriez@gmail.com)
+MLC (Machine Learning Control): A genetic algorithm library to solve chaotic problems  
+Copyright (C) 2015  Thomas Duriez (thomas.duriez@gmail.com), Adrian Durán (adrianmdu@gmail.com), Ezequiel Torres (ezequiel.torresfeyuk@gmail.com)  
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
