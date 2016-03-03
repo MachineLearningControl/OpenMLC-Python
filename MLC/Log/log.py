@@ -8,6 +8,7 @@ logging.config.fileConfig(os.path.dirname(os.path.realpath(__file__)) +
 
 
 def set_logger(mode):
-    if mode == "default" or mode == "testing" or mode == "root":
+    if mode == "console" or mode == "testing" or \
+       mode == "root" or mode == "file":
         global logger_
         logger_ = logging.getLogger(mode)

@@ -34,7 +34,7 @@ def main():
     # from any part of the code where the engine is available
     eng.workspace['wmlc'] = eng.MLC2()
 
-    mlc = Application(eng, config)
+    mlc = Application(eng, config, config.get('LOGGING', 'logmode'))
     mlc.go(3, 2)
     raw_input("Press enter to continue...")
 

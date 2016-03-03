@@ -11,7 +11,7 @@ from MLC.Scripts.arduino import arduino
 
 
 class Application(object):
-    def __init__(self, eng, config, log_mode='default'):
+    def __init__(self, eng, config, log_mode='console'):
         self._eng = eng
         self._config = config
         self._set_ev_callbacks()
