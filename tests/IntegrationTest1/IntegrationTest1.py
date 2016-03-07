@@ -73,15 +73,6 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_7(self):
         self._run_x_generation(7)
 
-    def test_generation_8(self):
-        self._run_x_generation(8)
-
-    def test_generation_9(self):
-        self._run_x_generation(9)
-
-    def test_generation_10(self):
-        self._run_x_generation(10)
-
     def _run_x_generation(self, gen_number):
         indexes = \
             self._eng.eval('wmlc.population(' +
