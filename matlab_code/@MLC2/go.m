@@ -12,6 +12,9 @@ function mlc=go(mlc,ngen,figs)
 %   Development version. Use, copy and diffusion of this pogram is subject 
 %   to the author's agreement.
 
+
+
+
 %% Reinitialize god. 
 % try
 %     rng('shuffle'); % Official recommanded seed shuffling

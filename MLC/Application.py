@@ -24,6 +24,14 @@ class Application(object):
         self._pop = None
 
     def go(self, ngen, fig):
+        """
+        Start MLC2 problem solving (MLC2 Toolbox)
+            OBJ.GO(N) creates (if necessary) the population, evaluate and evolve it until N evaluated generations
+                are obtained.
+            OBJ.GO(N,1) additionaly displays the best individual if implemented in the evaluation function at the end
+                of each generation evaluation
+            OBJ.GO(N,2) additionaly displays the convergence graph at the end of each generation evaluation
+        """
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
                              'positive decimal number. Value provided: ' + ngen)
@@ -60,6 +68,14 @@ class Application(object):
                     self.evolve_population()
 
     def generate_population(self):
+        """
+        Initializes the population. (MLC2 Toolbox)
+        OBJ.GENERATE_POPULATION updates the OBJ MLC2 object with an initial population
+        The function creates a MLCpop object defining the population and launch its creation method according
+        to the OBJ.PARAMETERS content.
+        The creation algorithm is implemented in the MLCpop class.
+        """
+
         population = self._eng.MLCpop(self._params)
         self._pop = Population(self._eng, self._config)
 
@@ -82,6 +98,11 @@ class Application(object):
                                  Population.get_actual_pop_number())
 
     def evaluate_population(self):
+        """
+        Evolves the population. (MLC2 Toolbox)
+        OBJ.EVALUATE_POPULATION launches the evaluation method, and updates the MLC2 object.
+        The evaluation algorithm is implemented in the MLCpop class.
+        """
         params = self._eng.eval('wmlc.parameters')
 
         # First evaluation
@@ -123,6 +144,13 @@ class Application(object):
         self._eng.set_state(actual_pop, 'evaluated')
 
     def evolve_population(self):
+        """
+        Evolves the population. (MLC2 Toolbox)
+        OBJ.EVOLVE_POPULATION updates the OBJ MLC2 object with a new MLCpop object in the OBJ.POPULATION array
+        containing the evolved population
+        The evolution algorithm is implemented in the MLCpop class.
+        """
+
         # Evolve the current population and add it to the MLC MATLAB object
         n = self._eng.eval('length(wmlc.population)')
         table = self._eng.eval('wmlc.table')
