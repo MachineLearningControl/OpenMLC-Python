@@ -48,6 +48,15 @@ class Population(object):
         self.set_individuals(gen_creator.individuals())
 
     def evaluate(self, eval_idx):
+        """
+        Evaluates cost of individuals and update the MLC object MLC_OBJ. All options are set in the MLC object.
+        Implemented:
+            - evaluation with m-file function (standalone and multihread), external evaluation with file exchange.
+            - detection of bad individuals (above a threshold) and their replacement.
+            - evaluation or not of already evaluated individuals.
+            - averaging of all past cost values for a given individual if evaluation are repeated (for experiments or
+                numerics with random noise).
+        """
         gen = str(Population.get_actual_pop_number())
         lg.logger_.info('Evaluation of generation ' + gen)
 
