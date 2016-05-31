@@ -3,10 +3,28 @@ import numpy as np
 import MLC.Log.log as lg
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.matlab_engine import MatlabEngine
 
 
 class Population(object):
     amount_population = 0
+
+    @staticmethod
+    def population(generation_id):
+        """
+        Return a generation object from the list (index starts from 1)
+        """
+        if generation_id>Population.generations():
+            raise IndexError('generation index out of range')
+        return MatlabEngine.engine().eval('wmlc.population(' + str(generation_id) + ')')
+
+    @staticmethod
+    def generations():
+        """
+        Return the amount of generations.
+        """
+        return int(MatlabEngine.engine().eval('length(wmlc.population)'))
+
 
     @staticmethod
     def inc_pop_number():
@@ -57,8 +75,8 @@ class Population(object):
             - averaging of all past cost values for a given individual if evaluation are repeated (for experiments or
                 numerics with random noise).
         """
-        gen = str(Population.get_actual_pop_number())
-        lg.logger_.info('Evaluation of generation ' + gen)
+        gen = Population.get_actual_pop_number()
+        lg.logger_.info('Evaluation of generation %s' + str(gen))
 
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
         lg.logger_.info('Evaluation method: ' + ev_method)
@@ -71,7 +89,7 @@ class Population(object):
 
         # Update table individuals and MATLAB Population indexes and costs
         table = self._eng.eval('wtable')
-        matlab_pop = self._eng.eval('wmlc.population(' + str(gen) + ')')
+        matlab_pop = Population.population(gen)
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
 
         for i in xrange(len(eval_idx)):
