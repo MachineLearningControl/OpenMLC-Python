@@ -106,9 +106,8 @@ class Application(object):
         params = self._eng.eval('wmlc.parameters')
 
         # First evaluation
-        pop_index = int(self._eng.eval('length(wmlc.population)'))
-        string_pop = 'wmlc.population(' + str(pop_index) + ')'
-        actual_pop = self._eng.eval(string_pop)
+        pop_index = Population.generations()
+        actual_pop = Population.population(pop_index)
         self._pop.evaluate(range(1, len(self._pop.get_individuals())+1))
 
         # Remove bad individuals
@@ -152,9 +151,9 @@ class Application(object):
         """
 
         # Evolve the current population and add it to the MLC MATLAB object
-        n = self._eng.eval('length(wmlc.population)')
+        n = Population.generations()
         table = self._eng.eval('wmlc.table')
-        current_pop = self._eng.eval('wmlc.population(' + str(n) + ')')
+        current_pop = Population.population(n)
         next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
 
         # Increase both counters. MATLAB and Python pops counters

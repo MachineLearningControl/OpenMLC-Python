@@ -2,6 +2,8 @@ import unittest
 import matlab.engine
 from MLC.Config.Config import Config
 from MLC.Application import Application
+from MLC.Population.Population import Population
+from MLC.matlab_engine import MatlabEngine
 
 """
 This test run the application setting the seed to a fix number. The output of
@@ -20,10 +22,7 @@ class IntegrationTest1(unittest.TestCase):
         FIXME: This is really UGLY!!!. Try later to at
         least set the path with absolute paths
         '''
-        cls._eng = matlab.engine.start_matlab()
-        cls._eng.addpath("../../matlab_code")
-        cls._eng.addpath("../../matlab_code/MLC_tools")
-        cls._eng.addpath("../../matlab_code/MLC_tools/Demo")
+        cls._eng = MatlabEngine.engine("./../../")
 
         # Load the config
         config = Config()
@@ -35,7 +34,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._app = Application(cls._eng, config, "testing")
         cls._app.go(10, 0)
 
-        a = cls._eng.eval('length(wmlc.population)')
+        a = Population.generations()
         print "Number of populations: " + str(a)
 
         cls._gen = []
