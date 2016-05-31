@@ -1,19 +1,8 @@
 #!/usr/bin/python2.7
-import matlab.engine
 import numpy as np
 from MLC.Application import Application
 from MLC.Config.Config import Config
-
-
-def set_path(eng):
-    eng.addpath("./matlab_code")
-    eng.addpath("./matlab_code/MLC_tools")
-    eng.addpath("./matlab_code/MLC_tools/Demo")
-
-
-def initialize_matlab():
-    eng = matlab.engine.start_matlab()
-    return eng
+from MLC.matlab_engine import MatlabEngine
 
 
 def initialize_config():
@@ -24,9 +13,8 @@ def initialize_config():
 
 def main():
     np.set_printoptions(precision=4, suppress=True)
-    eng = initialize_matlab()
+    eng = MatlabEngine.engine()
     config = initialize_config()
-    set_path(eng)
     eng.rand('seed', 20.0, nargout=0)
 
     # Create the MLC2 object and store it in the workspace. With this
