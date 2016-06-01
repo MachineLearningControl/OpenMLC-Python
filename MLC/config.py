@@ -2,7 +2,6 @@
 General MLC configuration, this functions return absolute paths to the MLC project folders.
 This file should be placed on root_prohect/MLC/config.py
 """
-
 import os
 
 
@@ -26,6 +25,9 @@ def get_config_path():
 
 
 def get_tools_path():
+    """
+    :return: absolute path to mlcv3 general tools
+     """
     return os.path.join(get_mlc_root_directory(), "tools")
 
 

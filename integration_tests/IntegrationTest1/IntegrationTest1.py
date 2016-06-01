@@ -22,7 +22,7 @@ class IntegrationTest1(unittest.TestCase):
         FIXME: This is really UGLY!!!. Try later to at
         least set the path with absolute paths
         '''
-        cls._eng = MatlabEngine.engine("./../../")
+        cls._eng = MatlabEngine.engine()
 
         # Load the config
         config = Config()
