@@ -1,18 +1,20 @@
 import matlab.engine
+import config as mlcv3_config
+import os
 
 class MatlabEngine:
-    DEFAULT_SRC_DIR = "./../"
     """
     Singleton class that allow to call matlab code from python using the matlab engine.
     """
     _engine_instance = None
 
     @staticmethod
-    def engine(src_dir=DEFAULT_SRC_DIR):
+    def engine():
         if MatlabEngine._engine_instance is None:
+            matlab_code_dir = mlcv3_config.get_matlab_path()
             MatlabEngine._engine_instance = matlab.engine.start_matlab()
-            MatlabEngine._engine_instance.addpath(src_dir+"matlab_code")
-            MatlabEngine._engine_instance.addpath(src_dir+"matlab_code/MLC_tools")
-            MatlabEngine._engine_instance.addpath(src_dir+"matlab_code/MLC_tools/Demo")
+            MatlabEngine._engine_instance.addpath(matlab_code_dir)
+            MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools"))
+            MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools/Demo"))
 
         return MatlabEngine._engine_instance
