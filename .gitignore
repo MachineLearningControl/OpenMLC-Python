@@ -1,2 +1,6 @@
 .idea
 *.pyc
+
+# Ctags folders
+.tags
+.tags_sorted_by_file
