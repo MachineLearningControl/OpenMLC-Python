@@ -77,7 +77,7 @@ class Application(object):
         """
 
         population = self._eng.MLCpop(self._params)
-        self._pop = Population(self._eng, self._config)
+        self._pop = Population(self._config)
 
         self._eng.workspace["wpopulation"] = population
         print self._eng.eval("wpopulation.state")
@@ -154,7 +154,7 @@ class Application(object):
         n = Population.generations()
         table = self._eng.eval('wmlc.table')
         current_pop = Population.population(n)
-        next_pop = self._eng.evolve(current_pop, self._params, table, nargout=1)
+        next_pop = Population.evolve(current_pop, self._params, table)
 
         # Increase both counters. MATLAB and Python pops counters
         n += 1
@@ -162,13 +162,11 @@ class Application(object):
         self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
 
         # Remove duplicates
-        look_for_dup = self._config.getboolean('OPTIMIZATION',
-                                               'lookforduplicates')
+        look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
         if look_for_dup:
             self._eng.remove_duplicates(next_pop)
-            indivs = self._eng.eval(
-                'wmlc.population(' + str(n) + ').individuals')
+            indivs = Population.get_gen_individuals(n)
 
             nulls = []
             for idx in xrange(len(indivs[0])):
@@ -176,11 +174,9 @@ class Application(object):
                     nulls.append(idx + 1)
 
             while len(nulls):
-                self._eng.evolve(current_pop, self._params,
-                                 table, next_pop, nargout=0)
+                Population.evolve(current_pop, self._params, table, next_pop)
                 self._eng.remove_duplicates(next_pop)
-                indivs = self._eng.eval(
-                    'wmlc.population(' + str(n) + ').individuals')
+                indivs = Population.get_gen_individuals(n)
 
                 nulls = []
                 for idx in xrange(len(indivs[0])):
@@ -192,19 +188,14 @@ class Application(object):
 
     def _set_pop_new_individuals(self):
         # Create a new population with the indexes updated
-        self._pop = Population(self._eng,
-                               self._config,
+        self._pop = Population(self._config,
                                Population.get_actual_pop_number())
         self._set_pop_individuals()
 
     def _set_pop_individuals(self):
         gen_number = Population.get_actual_pop_number()
-        indivs = \
-            self._eng.eval('wmlc.population(' +
-                           str(gen_number) + ').individuals')
-
-        self._pop.set_individuals(
-            [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
+        indivs = Population.get_gen_individuals(gen_number)
+        self._pop.set_individuals([(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
 
     def _set_ev_callbacks(self):
         # Set the callbacks to be called at the moment of the evaluation
