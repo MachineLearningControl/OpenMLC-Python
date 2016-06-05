@@ -1,5 +1,6 @@
 import unittest
 import matlab.engine
+import numpy as np
 from MLC.Config.Config import Config
 from MLC.Application import Application
 from MLC.Population.Population import Population
@@ -15,13 +16,8 @@ class IntegrationTest1(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config_file = 'configuration.ini'
-        generations_file = 'generation.txt'
-        costs_file = 'costs_gen1.txt'
-
-        '''
-        FIXME: This is really UGLY!!!. Try later to at
-        least set the path with absolute paths
-        '''
+        individuals_file = 'individuals.txt'
+        populations_file = 'populations.txt'
         cls._eng = MatlabEngine.engine()
 
         # Load the config
@@ -32,24 +28,47 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng.rand('seed', 20.0, nargout=0)
         cls._eng.workspace['wmlc'] = cls._eng.MLC2()
         cls._app = Application(cls._eng, config, "testing")
-        cls._app.go(10, 0)
+        cls._app.go(7, 0)
 
         a = Population.generations()
         print "Number of populations: " + str(a)
 
-        cls._gen = []
+        # List with individuals data 
+        cls._indivs = []
         # Parse the generations
-        with open(generations_file) as f:
+        with open(individuals_file) as f:
             for line in f:
                 # Chomp line
-                cls._gen.append(line.rstrip())
+                line = line.rstrip()
 
-        cls._costs = []
-        # Parse the costs arrays
-        with open(costs_file) as f:
+                # Create the individual as a dictionary
+                indiv = {}
+                properties = line.split('@')
+                for prop in properties:
+                    key_value = prop.split('=')
+                    indiv[str(key_value[0])] = key_value[1]
+
+                cls._indivs.append(indiv)
+
+        cls._pops = []
+        with open(populations_file) as f:
+            # Each line has a different population
             for line in f:
                 # Chomp line
-                cls._costs.append(line.rstrip())
+                line = line.rstrip()
+
+                # Create the populations
+                pop = []
+                indivs = line.split('$')
+                for indiv in indivs:
+                    indiv_dict = {}
+                    fields = indiv.split('@')
+                    for field in fields:
+                        key_value = field.split('=')
+                        indiv_dict[key_value[0]] = key_value[1]
+
+                    pop.append(indiv_dict)
+                cls._pops.append(pop)
 
     def test_generation_1(self):
         self._run_x_generation(1)
@@ -73,6 +92,15 @@ class IntegrationTest1(unittest.TestCase):
         self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
+        self._check_indiv_values(gen_number)
+        self._check_indiv_property(gen_number, 'individuals', 
+                                   'index', 'int')
+        self._check_indiv_property(gen_number, 'costs', 
+                                   'cost', 'float')
+        self._check_indiv_property(gen_number, 'gen_method', 
+                                   'gen_method', 'int')
+
+    def _check_indiv_values(self, gen_number):
         indexes = \
             self._eng.eval('wmlc.population(' +
                            str(gen_number) + ').individuals')
@@ -82,17 +110,40 @@ class IntegrationTest1(unittest.TestCase):
         ALSO an array and not viceversa
         '''
         i = 1
-        print 'Generation N# ', gen_number, ' - POP indexes: '
-        print indexes[0]
 
         for index in indexes[0]:
             value = 'wmlc.table.individuals(' + str(index) + ').value'
 
             self.assertEqual(self._eng.eval(value),
-                             self._gen[int(index) - 1])
+                             self._indivs[int(index) - 1]['value'])
             print "Individual N# ", i, " OK!"
             i += 1
 
+    def _check_indiv_property(self, 
+                              gen_number, 
+                              property, 
+                              map_property, 
+                              type=None):
+        property_string = 'wmlc.population(' + str(gen_number) + ').' + property
+        values_obtained = self._eng.eval(property_string)
+
+        pop = self._pops[gen_number - 1]
+        for i in range(len(pop)):
+            print "Index: " + str(i)
+            print "Value obtained: " + str(values_obtained[0][i])
+            print "Value expected: " + str(pop[i][map_property])
+            if type == 'int':
+                self.assertEqual(int(values_obtained[0][i]),
+                                 int(pop[i][map_property]))
+            elif type == 'float':
+                obtained = float(values_obtained[0][i])
+                expected = float(pop[i][map_property])
+                if (not np.isclose(obtained, expected)):
+                    self.assertEqual(True, False)
+                else:
+                    self.assertEqual(True, True)
+            else:
+                self.assertEqual(values_obtained[0][i], pop[i][map_property])
 
 def suite():
     a_suite = unittest.TestSuite()
