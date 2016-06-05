@@ -13,28 +13,10 @@ the pure MATLAB Application is stored in the file 'generations.txt'
 
 
 class IntegrationTest1(unittest.TestCase):
+
     @classmethod
-    def setUpClass(cls):
-        config_file = 'configuration.ini'
+    def _populate_indiv_dict(cls):
         individuals_file = 'individuals.txt'
-        populations_file = 'populations.txt'
-        cls._eng = MatlabEngine.engine()
-
-        # Load the config
-        config = Config()
-        config.read(config_file)
-
-        # Fix seed and run program
-        cls._eng.rand('seed', 20.0, nargout=0)
-        cls._eng.workspace['wmlc'] = cls._eng.MLC2()
-        cls._app = Application(cls._eng, config, "testing")
-        cls._app.go(7, 0)
-
-        a = Population.generations()
-        print "Number of populations: " + str(a)
-
-        # List with individuals data 
-        cls._indivs = []
         # Parse the generations
         with open(individuals_file) as f:
             for line in f:
@@ -50,7 +32,9 @@ class IntegrationTest1(unittest.TestCase):
 
                 cls._indivs.append(indiv)
 
-        cls._pops = []
+    @classmethod
+    def _populate_pop_dict(cls):
+        populations_file = 'populations.txt'
         with open(populations_file) as f:
             # Each line has a different population
             for line in f:
@@ -65,10 +49,42 @@ class IntegrationTest1(unittest.TestCase):
                     fields = indiv.split('@')
                     for field in fields:
                         key_value = field.split('=')
-                        indiv_dict[key_value[0]] = key_value[1]
-
+                        if key_value[0] != 'parents':
+                            indiv_dict[key_value[0]] = key_value[1]
+                        else:
+                            parents = []
+                            parents = key_value[1].split(',')
+                            value = [float(i)
+                                     for i in parents
+                                     if parents != ['']]
+                            indiv_dict[key_value[0]] = value
                     pop.append(indiv_dict)
                 cls._pops.append(pop)
+
+    @classmethod
+    def setUpClass(cls):
+        config_file = 'configuration.ini'
+        cls._eng = MatlabEngine.engine()
+
+        # Load the config
+        config = Config()
+        config.read(config_file)
+
+        # Fix seed and run program
+        cls._eng.rand('seed', 20.0, nargout=0)
+        cls._eng.workspace['wmlc'] = cls._eng.MLC2()
+        cls._app = Application(cls._eng, config, "testing")
+        cls._app.go(6, 0)
+
+        a = Population.generations()
+        print "Number of populations: " + str(a)
+
+        # List with individuals data
+        cls._indivs = []
+        IntegrationTest1._populate_indiv_dict()
+
+        cls._pops = []
+        IntegrationTest1._populate_pop_dict()
 
     def test_generation_1(self):
         self._run_x_generation(1)
@@ -88,18 +104,19 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_6(self):
         self._run_x_generation(6)
 
-    @unittest.skip
+    """
     def test_generation_7(self):
-        self._run_x_generation(7)
+        self._run_x_generation(7)"""
 
     def _run_x_generation(self, gen_number):
         self._check_indiv_values(gen_number)
-        self._check_indiv_property(gen_number, 'individuals', 
+        self._check_indiv_property(gen_number, 'individuals',
                                    'index', 'int')
-        self._check_indiv_property(gen_number, 'costs', 
+        self._check_indiv_property(gen_number, 'costs',
                                    'cost', 'float')
-        self._check_indiv_property(gen_number, 'gen_method', 
+        self._check_indiv_property(gen_number, 'gen_method',
                                    'gen_method', 'int')
+        self._check_cellarray_property(gen_number, 'parents', 'parents')
 
     def _check_indiv_values(self, gen_number):
         indexes = \
@@ -120,19 +137,41 @@ class IntegrationTest1(unittest.TestCase):
             print "Individual N# ", i, " OK!"
             i += 1
 
-    def _check_indiv_property(self, 
-                              gen_number, 
-                              property, 
-                              map_property, 
-                              type=None):
-        property_string = 'wmlc.population(' + str(gen_number) + ').' + property
+    def _check_cellarray_property(self, gen_number, property, map_property):
+        property_string = ('wmlc.population(' +
+                           str(gen_number) +
+                           ').' + property)
         values_obtained = self._eng.eval(property_string)
 
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-            print "Index: " + str(i)
+            obtained = []
+            if type(values_obtained[i]) is float:
+                obtained = [values_obtained[i]]
+            else:
+                if len(values_obtained[i]) > 0:
+                    obtained = [float(item)
+                                for item in values_obtained[i][0]]
+
+            print "Value obtained: " + str(obtained)
+            print "Value expected: " + str(pop[i][map_property])
+            self.assertEqual(obtained, pop[i][map_property])
+
+    def _check_indiv_property(self,
+                              gen_number,
+                              property,
+                              map_property,
+                              type=None):
+        property_string = ('wmlc.population(' +
+                           str(gen_number) + ').' + property)
+        values_obtained = self._eng.eval(property_string)
+
+        # List of dictionaries with the values of every individual
+        pop = self._pops[gen_number - 1]
+        for i in range(len(pop)):
             print "Value obtained: " + str(values_obtained[0][i])
             print "Value expected: " + str(pop[i][map_property])
+
             if type == 'int':
                 self.assertEqual(int(values_obtained[0][i]),
                                  int(pop[i][map_property]))
@@ -145,6 +184,7 @@ class IntegrationTest1(unittest.TestCase):
                     self.assertEqual(True, True)
             else:
                 self.assertEqual(values_obtained[0][i], pop[i][map_property])
+
 
 def suite():
     a_suite = unittest.TestSuite()

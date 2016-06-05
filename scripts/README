@@ -1,0 +1,6 @@
+Run MATLAB scripts with the following command:
+
+/path/to/MATLAB/dir/bin/matlab -nodisplay -nosplash -nodesktop -r script
+
+Note: Take a look to the lack of extension in the script. The script MUST be a .m file,
+yet the argument of the command receives it without extension
