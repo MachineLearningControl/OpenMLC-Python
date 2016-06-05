@@ -19,7 +19,9 @@ class Config(ConfigParser.ConfigParser):
             return self._dispatcher['common'](section, param)
 
         try:
-            return self._dispatcher[kwargs.get('type')](section, param, **kwargs)
+            return self._dispatcher[kwargs.get('type')](section,
+                                                        param,
+                                                        **kwargs)
         except KeyError:
             lg.logger_.error(self._log_prefix, 'Type not supported')
             raise KeyError('Type not supported')
