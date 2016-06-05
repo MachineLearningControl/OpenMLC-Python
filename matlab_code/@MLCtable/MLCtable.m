@@ -33,5 +33,9 @@ classdef MLCtable < handle
                 fprintf('INDIVIDUAL N#%d - Value: %f\n', i, obj.individuals(i).value);
             end
         end
+
+        function individual=get_individual(obj, individual_id)
+            individual = obj.individuals(individual_id);
+        end
     end
 end
