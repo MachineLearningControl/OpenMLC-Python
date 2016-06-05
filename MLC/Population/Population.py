@@ -179,7 +179,7 @@ class Population(object):
                                                 mlc_parameters,
                                                 mlctable,
                                                 mlcpop2,
-                                                nargout=0)
+                                                nargout=1)
         """
 
         eng = MatlabEngine.engine()
