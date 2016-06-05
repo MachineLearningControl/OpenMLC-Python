@@ -9,7 +9,6 @@ from MLC.Scripts.toy_problem import toy_problem
 from MLC.Scripts.arduino import arduino
 
 
-
 class Application(object):
     def __init__(self, eng, config, log_mode='console'):
         self._eng = eng
@@ -26,15 +25,18 @@ class Application(object):
     def go(self, ngen, fig):
         """
         Start MLC2 problem solving (MLC2 Toolbox)
-            OBJ.GO(N) creates (if necessary) the population, evaluate and evolve it until N evaluated generations
-                are obtained.
-            OBJ.GO(N,1) additionaly displays the best individual if implemented in the evaluation function at the end
+            OBJ.GO(N) creates (if necessary) the population, evaluate and
+                evolve it until N evaluated generations are obtained.
+            OBJ.GO(N,1) additionaly displays the best individual if implemented
+                in the evaluation function at the end of each generation
+                evaluation
+            OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
-            OBJ.GO(N,2) additionaly displays the convergence graph at the end of each generation evaluation
         """
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
-                             'positive decimal number. Value provided: ' + ngen)
+                             'positive decimal number. Value provided: '
+                             + ngen)
             return
 
         # curgen=length(mlc.population);
@@ -70,9 +72,10 @@ class Application(object):
     def generate_population(self):
         """
         Initializes the population. (MLC2 Toolbox)
-        OBJ.GENERATE_POPULATION updates the OBJ MLC2 object with an initial population
-        The function creates a MLCpop object defining the population and launch its creation method according
-        to the OBJ.PARAMETERS content.
+        OBJ.GENERATE_POPULATION updates the OBJ MLC2 object with an initial
+        population
+        The function creates a MLCpop object defining the population and
+        launch its creation method according to the OBJ.PARAMETERS content.
         The creation algorithm is implemented in the MLCpop class.
         """
 
@@ -100,7 +103,8 @@ class Application(object):
     def evaluate_population(self):
         """
         Evolves the population. (MLC2 Toolbox)
-        OBJ.EVALUATE_POPULATION launches the evaluation method, and updates the MLC2 object.
+        OBJ.EVALUATE_POPULATION launches the evaluation method,
+        and updates the MLC2 object.
         The evaluation algorithm is implemented in the MLCpop class.
         """
         params = self._eng.eval('wmlc.parameters')
@@ -124,7 +128,8 @@ class Application(object):
             while ret:
                 # There are bad individuals, recreate the population
                 self._pop.create()
-                self._pop.evaluate(range(1, len(self._pop.get_individuals())+1))
+                self._pop.evaluate(range(1,
+                                         len(self._pop.get_individuals())+1))
                 ret = self._pop.remove_bad_individuals()
 
         self._eng.sort(actual_pop, params)
@@ -145,7 +150,8 @@ class Application(object):
     def evolve_population(self):
         """
         Evolves the population. (MLC2 Toolbox)
-        OBJ.EVOLVE_POPULATION updates the OBJ MLC2 object with a new MLCpop object in the OBJ.POPULATION array
+        OBJ.EVOLVE_POPULATION updates the OBJ MLC2 object with a new MLCpop
+        object in the OBJ.POPULATION array
         containing the evolved population
         The evolution algorithm is implemented in the MLCpop class.
         """
@@ -162,7 +168,8 @@ class Application(object):
         self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
 
         # Remove duplicates
-        look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
+        look_for_dup = self._config.getboolean('OPTIMIZATION',
+                                               'lookforduplicates')
 
         if look_for_dup:
             self._eng.remove_duplicates(next_pop)
@@ -195,7 +202,8 @@ class Application(object):
     def _set_pop_individuals(self):
         gen_number = Population.get_actual_pop_number()
         indivs = Population.get_gen_individuals(gen_number)
-        self._pop.set_individuals([(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
+        self._pop.set_individuals(
+            [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
 
     def _set_ev_callbacks(self):
         # Set the callbacks to be called at the moment of the evaluation

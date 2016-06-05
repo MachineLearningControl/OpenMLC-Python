@@ -1,5 +1,6 @@
 """
-General MLC configuration, this functions return absolute paths to the MLC project folders.
+General MLC configuration, this functions return absolute paths to the MLC
+project folders.
 This file should be placed on root_prohect/MLC/config.py
 """
 import os
@@ -19,7 +20,8 @@ def get_src_path():
 
 def get_config_path():
     """
-    :return: absolute path to mlcv3 configuration directories (ini and conf files)
+    :return: absolute path to mlcv3 configuration directories (ini and
+        conf files)
     """
     return os.path.join(get_mlc_root_directory(), "conf")
 
