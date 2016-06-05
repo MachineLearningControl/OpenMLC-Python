@@ -111,6 +111,11 @@ classdef MLCpop < handle
         function idv_orig=choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
             idv_orig = mlcpop.choose_individual(mlc_parameters, idx_source_pool);
         end
+
+        function idxsubgen=init_generation(mlcpop, idxsubgen2, i)
+            idxsubgen2{i}=idxsubgen2{i}(mlcpop.individuals(idxsubgen2{i})==-1);
+            idxsubgen = idxsubgen2;
+        end
     end
 end
         
