@@ -166,8 +166,9 @@ class Population(object):
         return Population.amount_population
 
     @staticmethod
-    def evolve(mlcpop, mlc_parameters, mlctable, mlcpop2=None, config = None):
+    def evolve(mlcpop, mlc_parameters, mlctable, mlcpop2=None, config=None):
         """
+        # uncomment this section to use MLC original evolve implementation from matlab
         if mlcpop2 is None:
             return MatlabEngine.engine().evolve(mlcpop,
                                                 mlc_parameters,
@@ -182,10 +183,10 @@ class Population(object):
         """
 
         eng = MatlabEngine.engine()
-
         ngen = eng.get_gen(mlcpop)
 
-        verb = True # verb = mlc_parameters.verbose;
+        # verb = mlc_parameters.verbose;
+        verb = True
 
         new_mlcpop2 = mlcpop2 is None
         if new_mlcpop2:
@@ -195,10 +196,17 @@ class Population(object):
             print 'Evolving population'
 
         idxsubgen = eng.subgen(mlcpop, mlc_parameters)[0]
-        idxsubgen2 = eng.subgen(mlcpop2, mlc_parameters)[0]
+        cell_idxsubgen2 = eng.subgen(mlcpop2, mlc_parameters)
+        idxsubgen2 = cell_idxsubgen2[0]
 
         for i in range(0, len(idxsubgen2)):
-            #TODO: idxsubgen2{i}=idxsubgen2{i}(mlcpop2.individuals(idxsubgen2{i})==-1);
+
+            # TODO: Implements this strange line in python and remove @MLCpop::init_generation method
+            # idxsubgen2{i}=idxsubgen2{i}(mlcpop2.individuals(idxsubgen2{i})==-1);
+            idxsubgen2 = eng.init_generation(mlcpop2, cell_idxsubgen2, i+1)[0]
+            # if len(idxsubgen2) == 1, matlab return a float object instead of an array
+            if type(idxsubgen2) == float:
+                idxsubgen2 = [[idxsubgen2]]
 
             if verb:
                 print 'Evolving sub-population %s/%s' % (i, eng.get_subgen(mlcpop2))
@@ -206,104 +214,96 @@ class Population(object):
             if len(idxsubgen) == 1:
                 idx_source_pool = idxsubgen[0]
             else:
-                idx_source_pool=idxsubgen[i]
+                idx_source_pool = idxsubgen[i]
 
             individuals_created = 0
 
-            param_elitism =  config.getint('OPTIMIZATION', 'elitism')
+            param_elitism = config.getint('OPTIMIZATION', 'elitism')
 
-            ## elitism
+            # elitism
             if new_mlcpop2:
                 for i_el in range(0, int(math.ceil(param_elitism/len(idxsubgen2)))):
                     idv_orig = idx_source_pool[i_el]
                     idv_dest = idxsubgen2[i][individuals_created]
-
-                    print 'ELITISM - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
+                    # print 'ELITISM - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
                     eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
                     eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
                     eng.set_parent(mlcpop2, idv_dest, idv_orig)
                     eng.set_gen_method(mlcpop2, idv_dest, 4)
-                    # mlctable.individuals(mlcpop.individuals(idv_orig)).appearences=mlctable.individuals(mlcpop.individuals(idv_orig)).appearences+1;
+                    # TODO: mlctable.individuals(mlcpop.individuals(idv_orig)).appearences=
+                    #       mlctable.individuals(mlcpop.individuals(idv_orig)).appearences+1;
                     individuals_created += 1
 
-                ## completing population
-                while individuals_created < len(idxsubgen2[i]):
-                    print 'LEN idx_sub: %s' % (len(idxsubgen2[i])-individuals_created)
-                    op = eng.choose_genetic_operation(mlcpop, mlc_parameters, len(idxsubgen2[i]) - individuals_created)
+            # completing population
+            while individuals_created < len(idxsubgen2[i]):
+                print 'LEN idx_sub: %s' % (len(idxsubgen2[i])-individuals_created)
+                op = eng.choose_genetic_operation(mlcpop, mlc_parameters, len(idxsubgen2[i]) - individuals_created)
 
-                    if op == 'replication':
+                if op == 'replication':
+                    idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                    idv_dest = idxsubgen2[i][individuals_created]
+
+                    # print 'REPLICATION - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
+                    eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
+                    eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
+                    eng.set_parent(mlcpop2, idv_dest, idv_orig)
+                    eng.set_gen_method(mlcpop2, idv_dest, 1)
+                    # TODO: mlctable.individuals(mlcpop.individuals(idv_orig)).appearences=
+                    #       mlctable.individuals(mlcpop.individuals(idv_orig)).appearences+1;
+                    individuals_created += 1
+
+                elif op == 'mutation':
+                    new_ind = None
+                    fail = 1
+                    while fail == 1:
                         idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                         idv_dest = idxsubgen2[i][individuals_created]
+                        # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
+                        old_individual = eng.get_individual(mlcpop, idv_orig)
+                        old_ind = eng.get_individual(mlctable, old_individual)
+                        new_ind, fail = eng.mutate(old_ind, mlc_parameters, nargout=2)
 
-                        print 'REPLICATION - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
-                        eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
-                        eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
-                        eng.set_parent(mlcpop2, idv_dest, idv_orig)
-                        eng.set_gen_method(mlcpop2, idv_dest, 1)
-                        # mlctable.individuals(mlcpop.individuals(idv_orig)).appearences=mlctable.individuals(mlcpop.individuals(idv_orig)).appearences+1;
-                        individuals_created += 1
+                    mlctable, number = eng.add_individual(mlctable, new_ind, nargout=2)
+                    eng.set_individual(mlcpop2, idv_dest, number)
+                    eng.set_cost(mlcpop2, idv_dest, -1)
+                    eng.set_parent(mlcpop2, idv_dest, idv_orig)
+                    eng.set_gen_method(mlcpop2, idv_dest, 2)
+                    # mlctable.individuals(number).appearences=mlctable.individuals(number).appearences+1;
+                    individuals_created += 1
 
-                    elif op == 'mutation':
-                        new_ind = None
-                        fail = 1
-                        while fail==1:
-                            idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                elif op == 'crossover':
+                    fail = 1
+                    while fail == 1:
+                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                        idv_orig2 = idv_orig
 
-                            print "try to access idxsubgen2[%s][%s]" % (i, individuals_created)
+                        while idv_orig2 == idv_orig:
+                            idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
 
-                            idv_dest = idxsubgen2[i][individuals_created]
-                            print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' % (idv_orig, idv_dest)
+                        idv_dest = idxsubgen2[i][individuals_created]
+                        idv_dest2 = idxsubgen2[i][individuals_created + 1]
+                        # print('CROSSOVER -  IDV_ORIG 1 : %s - IDV_DEST 1 : %s' % (idv_orig, idv_dest) +
+                        #      'IDV_ORIG 2 : %s - IDV_DEST 2 : %s' % (idv_orig2, idv_dest2))
+                        old_individual = eng.get_individual(mlcpop, idv_orig)
+                        old_ind = eng.get_individual(mlctable, old_individual)
+                        old_individual = eng.get_individual(mlcpop, idv_orig2)
+                        old_ind2 = eng.get_individual(mlctable, old_individual)
+                        new_ind, new_ind2, fail = eng.crossover(old_ind, old_ind2, mlc_parameters, nargout=3)
 
-                            old_individual = eng.get_individual(mlcpop, idv_orig)
-                            old_ind = eng.get_individual(mlctable, old_individual)
+                    mlctable, number = eng.add_individual(mlctable, new_ind, nargout=2)
+                    eng.set_individual(mlcpop2, idv_dest, number)
+                    eng.set_cost(mlcpop2, idv_dest, -1)
+                    eng.set_parent(mlcpop2, idv_dest, [idv_orig, idv_orig2])
+                    eng.set_gen_method(mlcpop2, idv_dest, 3)
+                    # TODO: mlctable.individuals(number).appearences=mlctable.individuals(number).appearences+1;
+                    individuals_created += 1
 
-                            new_ind, fail = eng.mutate(old_ind, mlc_parameters, nargout=2)
-
-                        mlctable, number = eng.add_individual(mlctable, new_ind, nargout=2)
-                        eng.set_individual(mlcpop2, idv_dest, number)
-                        eng.set_cost(mlcpop2, idv_dest, -1)
-                        eng.set_parent(mlcpop2, idv_dest, idv_orig)
-                        eng.set_gen_method(mlcpop2, idv_dest, 2)
-                        # mlctable.individuals(number).appearences=mlctable.individuals(number).appearences+1;
-                        individuals_created += 1
-
-                    elif op == 'crossover':
-                        fail=1
-                        while fail==1:
-                            idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
-                            idv_orig2 = idv_orig
-
-                            while idv_orig2 == idv_orig:
-                                idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
-
-                            idv_dest = idxsubgen2[i][individuals_created]
-                            idv_dest2 = idxsubgen2[i][individuals_created+1]
-
-                            print('CROSSOVER -  IDV_ORIG 1 : %s - IDV_DEST 1 : %s' % (idv_orig, idv_dest) +
-                                               'IDV_ORIG 2 : %s - IDV_DEST 2 : %s' % (idv_orig2, idv_dest2))
-
-                            old_individual = eng.get_individual(mlcpop, idv_orig)
-                            old_ind = eng.get_individual(mlctable, old_individual)
-
-                            old_individual = eng.get_individual(mlcpop, idv_orig2)
-                            old_ind2 = eng.get_individual(mlctable, old_individual)
-
-                            new_ind, new_ind2 ,fail = eng.crossover(old_ind, old_ind2, mlc_parameters, nargout=3)
-
-                        mlctable, number = eng.add_individual(mlctable, new_ind, nargout=2)
-                        eng.set_individual(mlcpop2, idv_dest, number)
-                        eng.set_cost(mlcpop2, idv_dest, -1)
-                        eng.set_parent(mlcpop2, idv_dest, [idv_orig, idv_orig2])
-                        eng.set_gen_method(mlcpop2, idv_dest, 3)
-                        # mlctable.individuals(number).appearences=mlctable.individuals(number).appearences+1;
-                        individuals_created += 1
-
-                        mlctable, number2 = eng.add_individual(mlctable, new_ind2, nargout=2)
-                        eng.set_individual(mlcpop2, idv_dest2, number2)
-                        eng.set_cost(mlcpop2, idv_dest2, -1)
-                        eng.set_parent(mlcpop2, idv_dest2, [idv_orig, idv_orig2])
-                        eng.set_gen_method(mlcpop2, idv_dest2, 3)
-                        # mlctable.individuals(number2).appearences=mlctable.individuals(number2).appearences+1;
-                        individuals_created += 1
+                    mlctable, number2 = eng.add_individual(mlctable, new_ind2, nargout=2)
+                    eng.set_individual(mlcpop2, idv_dest2, number2)
+                    eng.set_cost(mlcpop2, idv_dest2, -1)
+                    eng.set_parent(mlcpop2, idv_dest2, [idv_orig, idv_orig2])
+                    eng.set_gen_method(mlcpop2, idv_dest2, 3)
+                    # TODO: mlctable.individuals(number2).appearences=mlctable.individuals(number2).appearences+1;
+                    individuals_created += 1
 
         return mlcpop2

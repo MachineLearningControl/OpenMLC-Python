@@ -181,7 +181,7 @@ class Application(object):
                     nulls.append(idx + 1)
 
             while len(nulls):
-                Population.evolve(current_pop, self._params, table, next_pop, config = self._config)
+                next_pop = Population.evolve(current_pop, self._params, table, next_pop, config = self._config)
                 self._eng.remove_duplicates(next_pop)
                 indivs = Population.get_gen_individuals(n)
 
