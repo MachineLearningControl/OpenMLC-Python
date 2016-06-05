@@ -19,6 +19,7 @@ classdef MLCpop < handle
         [obj,idx]=remove_bad_indivs(obj,mlc_parameters);
         [obj]=remove_duplicates(obj);
         obj=remove_individual(obj,idx);
+        op=choose_genetic_op(obj, mlc_parameters,n);
 
         % Constructor
         function obj=MLCpop(mlc_parameters,gen)
@@ -61,6 +62,54 @@ classdef MLCpop < handle
         function obj=dump(obj)
             obj.individuals
             obj.costs
+        end
+
+        function obj=print_individual(obj, individual_id)
+            fprintf('Ind id : %d', individual_id)
+            fprintf('   COST %d', obj.costs(individual_id));
+            fprintf('   GEN_METHOD %d', obj.gen_method(individual_id));
+            fprintf('   PARENT %d', obj.parents{individual_id});
+            fprintf('\n')
+        end
+
+        function obj=set_individual(obj, individual_id, individual)
+            obj.individuals(individual_id) = individual;
+        end
+
+        function individual=get_individual(obj, individual_id)
+            individual = obj.individuals(individual_id);
+        end
+
+        function cost=get_cost(obj, individual_id)
+            cost = obj.costs(individual_id);
+        end
+
+        function obj=set_parent(obj, individual_id, parent)
+            obj.parents{individual_id} = parent;
+        end
+
+        function parent=get_parent(obj, individual_id)
+            parent = obj.parents{individual_id};
+        end
+
+        function obj=set_gen_method(obj, individual_id, gen_method)
+            obj.gen_method(individual_id) = gen_method;
+        end
+
+        function gen=get_gen(obj)
+            gen = obj.gen;
+        end
+
+        function subgen=get_subgen(obj)
+            subgen = obj.subgen;
+        end
+
+        function op=choose_genetic_operation(obj,mlc_parameters,n)
+            op = choose_genetic_op(mlc_parameters,n);
+        end
+
+        function idv_orig=choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+            idv_orig = mlcpop.choose_individual(mlc_parameters, idx_source_pool);
         end
     end
 end
