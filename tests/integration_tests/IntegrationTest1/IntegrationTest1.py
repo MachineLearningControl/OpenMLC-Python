@@ -92,21 +92,25 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_2(self):
         self._run_x_generation(2)
 
+    # @unittest.skip
     def test_generation_3(self):
         self._run_x_generation(3)
 
+    # @unittest.skip
     def test_generation_4(self):
         self._run_x_generation(4)
 
+    # @unittest.skip
     def test_generation_5(self):
         self._run_x_generation(5)
 
+    # @unittest.skip
     def test_generation_6(self):
         self._run_x_generation(6)
 
-    """
+    @unittest.skip
     def test_generation_7(self):
-        self._run_x_generation(7)"""
+        self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
         self._check_indiv_values(gen_number)
@@ -146,13 +150,17 @@ class IntegrationTest1(unittest.TestCase):
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
             obtained = []
-            if type(values_obtained[i]) is float:
+            if type(values_obtained[i]) is list:
+                obtained = values_obtained[i]
+            elif type(values_obtained[i]) is float:
                 obtained = [values_obtained[i]]
+            """
             else:
+                print type(values_obtained[i])
                 if len(values_obtained[i]) > 0:
                     obtained = [float(item)
                                 for item in values_obtained[i][0]]
-
+            """
             print "Value obtained: " + str(obtained)
             print "Value expected: " + str(pop[i][map_property])
             self.assertEqual(obtained, pop[i][map_property])
