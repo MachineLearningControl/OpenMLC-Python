@@ -6,6 +6,9 @@ from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.matlab_engine import MatlabEngine
 
+from MLC.individual.Individual import Individual
+from MLC.mlc_table.MLCTable import MLCTable
+
 
 class Population(object):
     amount_population = 0
@@ -206,17 +209,14 @@ class Population(object):
             # @MLCpop::init_generation method
             # idxsubgen2{i}=idxsubgen2{i}(mlcpop2.individuals(
             #   idxsubgen2{i})==-1);
-            idxsubgen2 = eng.init_generation(mlcpop2,
-                                             cell_idxsubgen2,
-                                             i + 1)[0]
+            idxsubgen2 = eng.init_generation(mlcpop2, cell_idxsubgen2, i + 1)[0]
             # if len(idxsubgen2) == 1, matlab return a float object instead
             # of an array
             if type(idxsubgen2) == float:
                 idxsubgen2 = [[idxsubgen2]]
 
             if verb:
-                lg.logger_.info('Evolving sub-population %s/%s' %
-                                (i, eng.get_subgen(mlcpop2)))
+                lg.logger_.info('Evolving sub-population %s/%s' % (i, eng.get_subgen(mlcpop2)))
 
             if len(idxsubgen) == 1:
                 idx_source_pool = idxsubgen[0]
@@ -229,16 +229,13 @@ class Population(object):
 
             # elitism
             if new_mlcpop2:
-                for i_el in range(0, int(math.ceil(param_elitism /
-                                                   len(idxsubgen2)))):
+                for i_el in range(0, int(math.ceil(param_elitism / len(idxsubgen2)))):
                     idv_orig = idx_source_pool[i_el]
                     idv_dest = idxsubgen2[i][individuals_created]
                     # print 'ELITISM - IDV_ORIG: %s - IDV_DEST: %s'
                     # % (idv_orig, idv_dest)
-                    eng.set_individual(mlcpop2, idv_dest,
-                                       eng.get_individual(mlcpop, idv_orig))
-                    eng.set_cost(mlcpop2, idv_dest,
-                                 eng.get_cost(mlcpop, idv_orig))
+                    eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
+                    eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
                     eng.set_parent(mlcpop2, idv_dest, idv_orig)
                     eng.set_gen_method(mlcpop2, idv_dest, 4)
                     # TODO: mlctable.individuals(mlcpop.individuals(
@@ -249,24 +246,18 @@ class Population(object):
 
             # completing population
             while individuals_created < len(idxsubgen2[i]):
-                lg.logger_.debug('LEN idx_sub: %s' %
-                                 (len(idxsubgen2[i]) - individuals_created))
-                op = eng.choose_genetic_operation(mlcpop,
-                                                  mlc_parameters,
-                                                  len(idxsubgen2[i]) -
-                                                  individuals_created)
+                lg.logger_.debug('LEN idx_sub: %s' % (len(idxsubgen2[i]) - individuals_created))
+                op = eng.choose_genetic_operation(mlcpop, mlc_parameters,
+                                                  len(idxsubgen2[i]) - individuals_created)
 
                 if op == 'replication':
-                    idv_orig = eng.choose_individual_(
-                        mlcpop, mlc_parameters, idx_source_pool)
+                    idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                     idv_dest = idxsubgen2[i][individuals_created]
 
                     # print 'REPLICATION - IDV_ORIG: %s - IDV_DEST: %s' %
                     # (idv_orig, idv_dest)
-                    eng.set_individual(mlcpop2, idv_dest,
-                                       eng.get_individual(mlcpop, idv_orig))
-                    eng.set_cost(mlcpop2, idv_dest,
-                                 eng.get_cost(mlcpop, idv_orig))
+                    eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
+                    eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
                     eng.set_parent(mlcpop2, idv_dest, idv_orig)
                     eng.set_gen_method(mlcpop2, idv_dest, 1)
                     # TODO: mlctable.individuals(mlcpop.individuals(
@@ -279,18 +270,15 @@ class Population(object):
                     new_ind = None
                     fail = 1
                     while fail == 1:
-                        idv_orig = eng.choose_individual_(
-                            mlcpop, mlc_parameters, idx_source_pool)
+                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                         idv_dest = idxsubgen2[i][individuals_created]
                         # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' %
                         # (idv_orig, idv_dest)
                         old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = eng.get_individual(mlctable, old_individual)
-                        new_ind, fail = eng.mutate(
-                            old_ind, mlc_parameters, nargout=2)
+                        old_ind = MLCTable.get_individual(mlctable, old_individual)
+                        new_ind, fail = old_ind.mutate(mlc_parameters)
 
-                    mlctable, number = eng.add_individual(
-                        mlctable, new_ind, nargout=2)
+                    mlctable, number = MLCTable.add_individual(mlctable, new_ind)
                     eng.set_individual(mlcpop2, idv_dest, number)
                     eng.set_cost(mlcpop2, idv_dest, -1)
                     eng.set_parent(mlcpop2, idv_dest, idv_orig)
@@ -302,13 +290,11 @@ class Population(object):
                 elif op == 'crossover':
                     fail = 1
                     while fail == 1:
-                        idv_orig = eng.choose_individual_(
-                            mlcpop, mlc_parameters, idx_source_pool)
+                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                         idv_orig2 = idv_orig
 
                         while idv_orig2 == idv_orig:
-                            idv_orig2 = eng.choose_individual_(
-                                mlcpop, mlc_parameters, idx_source_pool)
+                            idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
 
                         idv_dest = idxsubgen2[i][individuals_created]
                         idv_dest2 = idxsubgen2[i][individuals_created + 1]
@@ -318,14 +304,13 @@ class Population(object):
                                          '- IDV_ORIG 2 : %s - IDV_DEST 2 : %s'
                                          % (idv_orig2, idv_dest2))
                         old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = eng.get_individual(mlctable, old_individual)
+                        old_ind = MLCTable.get_individual(mlctable, old_individual)
                         old_individual = eng.get_individual(mlcpop, idv_orig2)
-                        old_ind2 = eng.get_individual(mlctable, old_individual)
-                        new_ind, new_ind2, fail = eng.crossover(
-                            old_ind, old_ind2, mlc_parameters, nargout=3)
+                        old_ind2 = MLCTable.get_individual(mlctable, old_individual)
+                        #new_ind, new_ind2, fail = eng.crossover(old_ind.get_matlab_object(), old_ind2.get_matlab_object(), mlc_parameters, nargout=3)
+                        new_ind, new_ind2, fail = old_ind.crossover(old_ind2, mlc_parameters)
 
-                    mlctable, number = eng.add_individual(
-                        mlctable, new_ind, nargout=2)
+                    mlctable, number = MLCTable.add_individual(mlctable, new_ind)
                     eng.set_individual(mlcpop2, idv_dest, number)
                     eng.set_cost(mlcpop2, idv_dest, -1)
                     eng.set_parent(mlcpop2, idv_dest, [idv_orig, idv_orig2])
@@ -335,8 +320,7 @@ class Population(object):
                     #   mlctable.individuals(number).appearences+1;
                     individuals_created += 1
 
-                    mlctable, number2 = eng.add_individual(
-                        mlctable, new_ind2, nargout=2)
+                    mlctable, number2 = MLCTable.add_individual(mlctable, new_ind2)
                     eng.set_individual(mlcpop2, idv_dest2, number2)
                     eng.set_cost(mlcpop2, idv_dest2, -1)
                     eng.set_parent(mlcpop2, idv_dest2, [idv_orig, idv_orig2])
