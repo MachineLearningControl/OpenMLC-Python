@@ -2,13 +2,19 @@ from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 
 class MLCTable:
-    @staticmethod
-    def get_individual(mlctable, individual_id):
-        individual = MatlabEngine.engine().get_individual(mlctable, individual_id)
+    """
+    This works as a wrapper for a MLCTable matlab class.
+    """
+    def __init__(self, mlc_table):
+        self._mlc_table = mlc_table
+
+    def individuals(self, individual_id):
+        individual = MatlabEngine.engine().get_individual(self._mlc_table,
+                                                          individual_id)
         return Individual(mlc_ind=individual)
 
-    @staticmethod
-    def add_individual(mlctable, new_ind):
-        return MatlabEngine.engine().add_individual(mlctable,
-                                                    new_ind.get_matlab_object(),
-                                                    nargout=2)
+    def add_individual(self, individual):
+        mlc_table, number = MatlabEngine.engine().add_individual(self._mlc_table,
+                                                                 individual.get_matlab_object(),
+                                                                 nargout=2)
+        return MLCTable(mlc_table), number
