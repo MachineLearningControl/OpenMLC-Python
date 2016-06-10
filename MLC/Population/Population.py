@@ -169,22 +169,24 @@ class Population(object):
         return Population.amount_population
 
     @staticmethod
-    def evolve(mlcpop, mlc_parameters, mlctable, mlcpop2=None, config=None):
+    def evolve(mlcpop, mlc_parameters, matlab_mlctable, mlcpop2=None, config=None):
         """
         # uncomment this section to use MLC original evolve implementation
         from matlab
         if mlcpop2 is None:
             return MatlabEngine.engine().evolve(mlcpop,
                                                 mlc_parameters,
-                                                mlctable,
+                                                matlab_mlctable,
                                                 nargout=1)
         else:
             return MatlabEngine.engine().evolve(mlcpop,
                                                 mlc_parameters,
-                                                mlctable,
+                                                matlab_mlctable,
                                                 mlcpop2,
                                                 nargout=1)
         """
+        # wrap matlab MLCtable in a python object
+        mlctable = MLCTable(matlab_mlctable)
 
         eng = MatlabEngine.engine()
         ngen = eng.get_gen(mlcpop)
@@ -275,10 +277,10 @@ class Population(object):
                         # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' %
                         # (idv_orig, idv_dest)
                         old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = MLCTable.get_individual(mlctable, old_individual)
+                        old_ind = mlctable.individuals(old_individual)
                         new_ind, fail = old_ind.mutate(mlc_parameters)
 
-                    mlctable, number = MLCTable.add_individual(mlctable, new_ind)
+                    mlctable, number = mlctable.add_individual(new_ind)
                     eng.set_individual(mlcpop2, idv_dest, number)
                     eng.set_cost(mlcpop2, idv_dest, -1)
                     eng.set_parent(mlcpop2, idv_dest, idv_orig)
@@ -304,13 +306,12 @@ class Population(object):
                                          '- IDV_ORIG 2 : %s - IDV_DEST 2 : %s'
                                          % (idv_orig2, idv_dest2))
                         old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = MLCTable.get_individual(mlctable, old_individual)
+                        old_ind = mlctable.individuals(old_individual)
                         old_individual = eng.get_individual(mlcpop, idv_orig2)
-                        old_ind2 = MLCTable.get_individual(mlctable, old_individual)
-                        #new_ind, new_ind2, fail = eng.crossover(old_ind.get_matlab_object(), old_ind2.get_matlab_object(), mlc_parameters, nargout=3)
+                        old_ind2 = mlctable.individuals(old_individual)
                         new_ind, new_ind2, fail = old_ind.crossover(old_ind2, mlc_parameters)
 
-                    mlctable, number = MLCTable.add_individual(mlctable, new_ind)
+                    mlctable, number = mlctable.add_individual(new_ind)
                     eng.set_individual(mlcpop2, idv_dest, number)
                     eng.set_cost(mlcpop2, idv_dest, -1)
                     eng.set_parent(mlcpop2, idv_dest, [idv_orig, idv_orig2])
@@ -320,7 +321,7 @@ class Population(object):
                     #   mlctable.individuals(number).appearences+1;
                     individuals_created += 1
 
-                    mlctable, number2 = MLCTable.add_individual(mlctable, new_ind2)
+                    mlctable, number2 = mlctable.add_individual(new_ind2)
                     eng.set_individual(mlcpop2, idv_dest2, number2)
                     eng.set_cost(mlcpop2, idv_dest2, -1)
                     eng.set_parent(mlcpop2, idv_dest2, [idv_orig, idv_orig2])
