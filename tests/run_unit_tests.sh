@@ -1,3 +1,3 @@
 #!/bin/bash
 export PYTHONPATH=$PYTHONPATH:../
-python -m unittest discover .
+python -m unittest discover ./mlc/

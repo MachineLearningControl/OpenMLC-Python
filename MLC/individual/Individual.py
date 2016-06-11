@@ -57,14 +57,17 @@ class Individual(object):
 
     See also MLCPARAMETERS, MLCTABLE, MLCPOP, MLC2
     """
-    def __init__(self, config = None, mlc_ind = None):
+    def __init__(self, config=None, mlc_ind=None, value=None):
         self._eng = MatlabEngine.engine()
         self._config = config
 
         if mlc_ind:
             self._mlc_ind = mlc_ind
         else:
-            self._mlc_ind = self._eng.MLCind()
+            if value:
+                self._mlc_ind = self._eng.MLCind(value)
+            else:
+                self._mlc_ind = self._eng.MLCind()
 
     def get_matlab_object(self):
         return self._mlc_ind
@@ -87,13 +90,48 @@ class Individual(object):
 
         return Individual(mlc_ind=new_ind), Individual(mlc_ind=new_ind2), fail
 
-
-
     def compare(self, other_individual):
-        return self._eng.compare(self._mlc_ind, other_individual)
+        return self._eng.compare(self._mlc_ind, other_individual.get_matlab_object())
 
     def textoutput(self):
         return self._eng.textoutput(self._mlc_ind)
 
     def preev(self, mlc_patameters):
         return self._eng.textoutput(self._mlc_ind, mlc_patameters)
+
+    def get_value(self):
+        return self._eng.get_value(self._mlc_ind)
+
+    def get_type(self):
+        return self._eng.get_type(self._mlc_ind)
+
+    def get_cost(self):
+        return int(self._eng.get_cost(self._mlc_ind))
+
+    def get_cost_history(self):
+        return self._eng.get_cost_history(self._mlc_ind)
+
+    def get_evaluation_time(self):
+        return self._eng.get_evaluation_time(self._mlc_ind)
+
+    def get_appearences(self):
+        return int(self._eng.get_appearences(self._mlc_ind))
+
+    def get_hash(self):
+        return self._eng.get_hash(self._mlc_ind)
+
+    def get_formal(self):
+        return self._eng.get_formal(self._mlc_ind)
+
+    def get_complexity(self):
+        return int(self._eng.get_complexity(self._mlc_ind))
+
+    def __str__(self):
+        return "value: %s\n" % self.get_value() + \
+               "type: %s\n" % self.get_type() + \
+               "cost_history: %s\n" % self.get_cost_history() + \
+               "evaluation_time: %s\n" % self.get_evaluation_time() + \
+               "appearences: %s\n" % self.get_appearences() + \
+               "hash: %s\n" % self.get_hash() + \
+               "formal: %s\n" % self.get_formal() + \
+               "complexity: %s\n" % self.get_complexity()
