@@ -85,10 +85,18 @@ classdef MLCind < handle
             value=obj.value;
         end
         
+        function obj=set_value(obj, value)
+            obj.value = value;
+        end
+        
         function value=get_type(obj)
             value=obj.type;
         end
 
+        function obj=set_type(obj, type)
+            obj.type=type;
+        end
+        
         function value=get_cost(obj)
             value=obj.cost;
         end
@@ -109,12 +117,42 @@ classdef MLCind < handle
             value=obj.hash;
         end
         
+        function obj=set_hash(obj, hash)
+            obj.hash = hash;
+        end
+        
         function value=get_formal(obj)
             value=obj.formal;
+        end
+        
+        function obj=set_formal(obj, formal)
+            obj.formal = formal;
         end
         
         function value=get_complexity(obj)
             value=obj.complexity;
         end
+        
+        function obj=set_complexity(obj, complexity)
+            obj.complexity = complexity;
+        end
+        
+        %% Helper function in order to acces proivate methods from python
+        function hash=calculate_hash_from_value(obj)
+            hash = DataHash(obj.value);
+        end
+        
+        function m=private_simplify_and_sensors_tree(obj, m, gen_param)
+            m = simplify_and_sensors_tree(m, gen_param);
+        end
+        
+        function m=private_tree_complexity(obj, m, gen_param)
+            m = tree_complexity(m, gen_param);
+        end
+        
+        function res=private_generate_indiv_regressive_tree(obj, m, gen_param, type)
+            res = generate_indiv_regressive_tree(m,gen_param,type);
+        end
+
     end
 end
