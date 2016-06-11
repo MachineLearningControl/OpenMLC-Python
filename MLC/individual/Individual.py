@@ -73,7 +73,41 @@ class Individual(object):
         return self._mlc_ind
 
     def generate(self, mlc_parameters, varargin):
-        return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
+        """
+        generate individual from scratch or from unfinished individual.
+
+        MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using mode MODE.
+        MODE is a number which interpretation depends on the MLCIND.type property.
+        (Not designed to be played with by user, code dive for details)
+
+        MLCIND.generate(MLC_PARAMETERS,VALUE) creates an individual with MLCIND.value VALUE.
+
+        matlab_impl: return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
+        """
+
+         # TODO: refactor MLCParameters access
+        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
+        param_controls = int(self._eng.eval('wmlc.parameters.controls'))
+
+        if param_individual_type == 'tree':
+            self.set_type('tree')
+
+            if type(varargin) == int:
+                value = '(root @' + ' @' * (param_controls - 1) + ')'
+                for i in range(1, param_controls+1):
+                    value = self.__generate_indiv_regressive_tree(value, mlc_parameters, varargin)
+                self.set_value(value)
+            else:
+                self.set_value(varargin)
+
+            self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
+            string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object()) #string_hash = DataHash(mlcind.value);
+            self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
+            self.set_formal(self._eng.readmylisp_to_formal_MLC(self.get_value(), mlc_parameters))
+            self.set_complexity(self.__tree_complexity(self.get_value(), mlc_parameters))
+            return
+
+        raise NotImplementedError("Individual::generate() is not implemented for type %s" % self.get_type())
 
     def evaluate(self, mlc_parameters, varargin):
         return self._eng.evaluate(self._mlc_ind, mlc_parameters, varargin)
@@ -91,7 +125,14 @@ class Individual(object):
         return Individual(mlc_ind=new_ind), Individual(mlc_ind=new_ind2), fail
 
     def compare(self, other_individual):
-        return self._eng.compare(self._mlc_ind, other_individual.get_matlab_object())
+        """
+        Compare two MLCind value properties.
+        ISEQUAL=COMPARE(MLCIND1,MLCIND2) returns 1 if both values are equal.
+        """
+        if self.get_type() == 'tree':
+            return self.get_value() == other_individual.get_value()
+
+        raise NotImplementedError("Individual::compare() is not implemented for type %s" % self.get_type())
 
     def textoutput(self):
         return self._eng.textoutput(self._mlc_ind)
@@ -102,8 +143,14 @@ class Individual(object):
     def get_value(self):
         return self._eng.get_value(self._mlc_ind)
 
+    def set_value(self, value):
+        return self._eng.set_value(self._mlc_ind, value)
+
     def get_type(self):
         return self._eng.get_type(self._mlc_ind)
+
+    def set_type(self, type):
+        return self._eng.set_type(self._mlc_ind, type)
 
     def get_cost(self):
         return int(self._eng.get_cost(self._mlc_ind))
@@ -120,11 +167,29 @@ class Individual(object):
     def get_hash(self):
         return self._eng.get_hash(self._mlc_ind)
 
+    def set_hash(self, hash):
+        return self._eng.set_hash(self._mlc_ind, hash)
+
     def get_formal(self):
         return self._eng.get_formal(self._mlc_ind)
 
+    def set_formal(self, formal):
+        return self._eng.set_formal(self._mlc_ind, formal)
+
     def get_complexity(self):
         return int(self._eng.get_complexity(self._mlc_ind))
+
+    def set_complexity(self, complexity):
+        return self._eng.set_complexity(self._mlc_ind, complexity)
+
+    def __simplify_and_sensors_tree(self, value, mlc_parameters):
+        return self._eng.private_simplify_and_sensors_tree(self.get_matlab_object(), value, mlc_parameters)
+
+    def __tree_complexity(self, value, mlc_parameters):
+        return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters)
+
+    def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type):
+        return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(), value, mlc_parameters, indiv_type)
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
