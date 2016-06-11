@@ -78,6 +78,43 @@ classdef MLCind < handle
             obj.formal='';
             obj.complexity=0;
             obj.evaluation_time=[];
-        end     
+        end
+        
+        %% getters for python tests
+        function value=get_value(obj)
+            value=obj.value;
+        end
+        
+        function value=get_type(obj)
+            value=obj.type;
+        end
+
+        function value=get_cost(obj)
+            value=obj.cost;
+        end
+        
+        function value=get_cost_history(obj)
+            value=obj.cost_history;
+        end
+        
+        function value=get_evaluation_time(obj)
+            value=obj.evaluation_time;
+        end
+        
+        function value=get_appearences(obj)
+            value=obj.appearences;
+        end
+        
+        function value=get_hash(obj)
+            value=obj.hash;
+        end
+        
+        function value=get_formal(obj)
+            value=obj.formal;
+        end
+        
+        function value=get_complexity(obj)
+            value=obj.complexity;
+        end
     end
 end
