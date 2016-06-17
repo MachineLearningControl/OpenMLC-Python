@@ -125,11 +125,12 @@ class Individual(object):
         param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
 
         if param_individual_type == 'tree':
-            new_ind1 = new_ind2 = None
-
             m1, m2, fail = self.__crossover_tree(self.get_value(),
                                                  other_individual.get_value(),
                                                  mlc_parameters)
+            if fail:
+                return None, None, fail
+
             new_ind1 = Individual()
             new_ind1.generate(mlc_parameters, m1)
 
@@ -209,8 +210,7 @@ class Individual(object):
 
     def __crossover_tree(self, value_1, value_2, gen_param):
         res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
-        fail = res[2] != 0
-        return res[0], res[1], fail
+        return res[0], res[1], res[2] != 0
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
