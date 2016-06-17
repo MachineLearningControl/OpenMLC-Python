@@ -290,8 +290,8 @@ class Population(object):
                     individuals_created += 1
 
                 elif op == 'crossover':
-                    fail = 1
-                    while fail == 1:
+                    fail = True
+                    while fail:
                         idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                         idv_orig2 = idv_orig
 
