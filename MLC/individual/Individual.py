@@ -85,7 +85,7 @@ class Individual(object):
         matlab_impl: return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
         """
 
-         # TODO: refactor MLCParameters access
+        # TODO: refactor MLCParameters access
         param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
         param_controls = int(self._eng.eval('wmlc.parameters.controls'))
 
@@ -107,7 +107,7 @@ class Individual(object):
             self.set_complexity(self.__tree_complexity(self.get_value(), mlc_parameters))
             return
 
-        raise NotImplementedError("Individual::generate() is not implemented for type %s" % self.get_type())
+        raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
 
     def evaluate(self, mlc_parameters, varargin):
         return self._eng.evaluate(self._mlc_ind, mlc_parameters, varargin)
@@ -117,12 +117,28 @@ class Individual(object):
         return Individual(mlc_ind=new_ind), fail
 
     def crossover(self, other_individual, mlc_parameters):
-        new_ind, new_ind2, fail = self._eng.crossover(self._mlc_ind,
-                                                      other_individual.get_matlab_object(),
-                                                      mlc_parameters,
-                                                      nargout=3)
+        """
+        CROSSOVER crosses two MLCind individuals.
+        [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
+        """
+        # TODO: refactor MLCParameters access
+        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
 
-        return Individual(mlc_ind=new_ind), Individual(mlc_ind=new_ind2), fail<0
+        if param_individual_type == 'tree':
+            new_ind1 = new_ind2 = None
+
+            m1, m2, fail = self.__crossover_tree(self.get_value(),
+                                                 other_individual.get_value(),
+                                                 mlc_parameters)
+            new_ind1 = Individual()
+            new_ind1.generate(mlc_parameters, m1)
+
+            new_ind2 = Individual()
+            new_ind2.generate(mlc_parameters, m2)
+
+            return new_ind1, new_ind2, fail
+
+        raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
 
     def compare(self, other_individual):
         """
@@ -190,6 +206,11 @@ class Individual(object):
 
     def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type):
         return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(), value, mlc_parameters, indiv_type)
+
+    def __crossover_tree(self, value_1, value_2, gen_param):
+        res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
+        fail = res[2] != 0
+        return res[0], res[1], fail
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
