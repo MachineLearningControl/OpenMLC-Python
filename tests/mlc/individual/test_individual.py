@@ -161,18 +161,10 @@ class IndividualTest(unittest.TestCase):
         individual_2.generate(self._params, "(root S0)")
         new_ind_1, new_ind_2, fail = individual_1.crossover(individual_2, self._params)
 
-        self.assertFalse(fail)
-
-        self._assert_individual(new_ind_1, complexity=95,
-                                hash=4.898063300212213e+71,
-                                value="(root (log (exp (sin (cos (* (+ (* (/ (+ (cos (log 3.113)) (/ 9.393 (- (+ (* (+ 2.025 -8.685) -3.622) -8.237) (* (sin (- S0 S0)) (sin 6.027))))) (sin (tanh 2.864))) (* S0 (* (* -5.973 (sin -1.406)) (/ (* (/ S0 2.662) (- (sin -5.211) (- (/ -6.843 -5.642) -8.966))) -8.152)))) S0) (log (sin 8.464))))))))",
-                                formal="my_log(exp(sin(cos(((((my_div((cos(my_log(3.113)) + (my_div(9.393,((((2.025 + (-8.685)) .* (-3.622)) + (-8.237)) - (sin((S0 - S0)) .* sin(6.027)))))),sin(tanh(2.864)))) .* (S0 .* (((-5.973) .* sin((-1.406))) .* (my_div(((my_div(S0,2.662)) .* (sin((-5.211)) - ((my_div((-6.843),(-5.642))) - (-8.966)))),(-8.152)))))) + S0) .* my_log(sin(8.464)))))))")
-
-        self._assert_individual(new_ind_2, complexity=64,
-                                hash=2.3291845968853802e+33,
-                                value="(root (* (/ (- S0 (log S0)) 6.178) (* (log (* -4.795 (cos (log (log (log (sin (log (cos (- -2.622 (* (log S0) (exp -4.598)))))))))))) 0.2069)))",
-                                formal="((my_div((S0 - my_log(S0)),6.178)) .* (my_log(((-4.795) .* cos(my_log(my_log(my_log(sin(my_log(cos(((-2.622) - (my_log(S0) .* exp((-4.598))))))))))))) .* 0.2069))")
-
+        # crossover with individual type 4 should fail
+        self.assertTrue(fail)
+        self.assertIsNone(new_ind_1)
+        self.assertIsNone(new_ind_2)
 
     def test_crossover_same_individual(self):
         self._engine.rand('seed', 60.0, nargout=0)
@@ -238,17 +230,11 @@ class IndividualTest(unittest.TestCase):
         self._engine.rand('seed', 60.0, nargout=0)
         new_ind_1, new_ind_2, fail = self._individual_l0.crossover(self._individual_l4, self._params)
 
-        self.assertFalse(fail)
+        # crossover with individual type 4 should fail
+        self.assertTrue(fail)
+        self.assertIsNone(new_ind_1)
+        self.assertIsNone(new_ind_2)
 
-        self._assert_individual(new_ind_1, complexity=1,
-                                hash=9.119656738056542e-243,
-                                value="(root @)",
-                                formal="@")
-
-        self._assert_individual(new_ind_2, complexity=4,
-                                hash=-3.927594530762412e-153,
-                                value="(root (sin -8.597))",
-                                formal="sin((-8.597))")
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
