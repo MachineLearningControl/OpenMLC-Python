@@ -230,6 +230,6 @@ class Individual(object):
                "cost_history: %s\n" % self.get_cost_history() + \
                "evaluation_time: %s\n" % self.get_evaluation_time() + \
                "appearences: %s\n" % self.get_appearences() + \
-               "hash: %s\n" % self.get_hash() + \
+               "hash: %s\n" % self.get_hash().__repr__() + \
                "formal: %s\n" % self.get_formal() + \
                "complexity: %s\n" % self.get_complexity()
