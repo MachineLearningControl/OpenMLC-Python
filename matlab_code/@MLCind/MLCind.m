@@ -61,7 +61,7 @@ classdef MLCind < handle
     methods
         obj=generate(obj,MLC_parameters,varargin);
         obj=evaluate(obj,MLC_parameters,varargin);
-        [obj_out,fail]=mutate(obj,MLC_parameters);
+        [obj_out,fail]=mutate(obj,MLC_parameters, mutate_type);
         [obj_out1,obj_out2,fail]=crossover(obj,obj2,MLC_parameters);
         out=compare(obj,obj2);
         textoutput(obj);
