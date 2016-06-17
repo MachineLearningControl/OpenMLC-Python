@@ -270,8 +270,8 @@ class Population(object):
 
                 elif op == 'mutation':
                     new_ind = None
-                    fail = 1
-                    while fail == 1:
+                    fail = True
+                    while fail:
                         idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
                         idv_dest = idxsubgen2[i][individuals_created]
                         # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' %

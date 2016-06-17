@@ -158,5 +158,14 @@ classdef MLCind < handle
             [res_m1, res_m2, fail] = crossover_tree(m1, m2, gen_param);
             res = {res_m1, res_m2, fail};
         end
+        
+        function res=private_mutate_tree(obj, m, gen_param, forcetype)
+            if forcetype == 0
+                [m, fail] = mutate_tree(m, gen_param);
+            else
+                [m, fail] = mutate_tree(m, gen_param, forcetype);
+            end
+            res = {m, fail};
+        end
     end
 end

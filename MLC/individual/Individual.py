@@ -121,12 +121,20 @@ class Individual(object):
         return self._eng.evaluate(self._mlc_ind, mlc_parameters, varargin)
 
     def mutate(self, mlc_parameters, mutation_type=MUTATION_ANY):
-        if mutation_type == Individual.MUTATION_ANY:
-            new_ind, fail = self._eng.mutate(self._mlc_ind, mlc_parameters, nargout=2)
-        else:
-            new_ind, fail = self._eng.mutate(self._mlc_ind, mlc_parameters, mutation_type, nargout=2)
+        # TODO: refactor MLCParameters access
+        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
 
-        return Individual(mlc_ind=new_ind), fail!=0
+        if param_individual_type == 'tree':
+            new_value, fail = self.__mutate_tree(self.get_value(), mlc_parameters, mutation_type)
+
+            if fail:
+                return None, fail
+
+            new_individual = Individual()
+            new_individual.generate(mlc_parameters, new_value)
+            return new_individual, fail
+
+        raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
 
     def crossover(self, other_individual, mlc_parameters):
         """
@@ -223,6 +231,10 @@ class Individual(object):
     def __crossover_tree(self, value_1, value_2, gen_param):
         res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
         return res[0], res[1], res[2] != 0
+
+    def __mutate_tree(self, value, gen_param, mutation_type):
+        res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param, mutation_type)
+        return res[0], res[1] != 0
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \

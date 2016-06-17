@@ -116,7 +116,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="S0")
 
 
-    def test_crossover_equal_level_0(self):
+    def test_crossover_same_level_0(self):
         self._engine.rand('seed', 50.0, nargout=0)
 
         individual_1 = Individual()
@@ -137,7 +137,7 @@ class IndividualTest(unittest.TestCase):
                                 value="(root (cos 5.046))",
                                 formal="cos(5.046)")
 
-    def test_crossover_equal_level_2(self):
+    def test_crossover_same_level_2(self):
         individual_1 = Individual()
         individual_1.generate(self._params, "(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))")
         individual_2 = Individual()
@@ -154,7 +154,7 @@ class IndividualTest(unittest.TestCase):
                                 value="(root (cos (* (+ (* -1.912 -9.178) (+ (* -1.912 -9.178) (cos S0))) 3.113)))",
                                 formal="cos(((((-1.912) .* (-9.178)) + (((-1.912) .* (-9.178)) + cos(S0))) .* 3.113))")
 
-    def test_crossover_equal_level_4(self):
+    def test_crossover_same_level_4(self):
         individual_1 = Individual()
         individual_1.generate(self._params, "(root S0)")
         individual_2 = Individual()
@@ -311,6 +311,33 @@ class IndividualTest(unittest.TestCase):
                                 hash=1.2070346203022018e+173,
                                 value="(root (log (/ (* (sin 4.37) S0) (log (+ 2.025 -8.685)))))",
                                 formal="my_log((my_div((sin(4.37) .* S0),my_log((2.025 + (-8.685))))))")
+
+    def mutate_random_choice(self):
+        self._engine.rand('seed', 60.0, nargout=0)
+
+        # mutate random: 4
+        new_ind, fail = self._individual_l3.mutate(self._params)
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=20,
+                                hash=1.2070346203022018e+173,
+                                value="(root (log (/ (* (sin 4.37) S0) (log (+ 2.025 -8.685)))))",
+                                formal="my_log((my_div((sin(4.37) .* S0),my_log((2.025 + (-8.685))))))")
+
+        # mutate random: 1
+        new_ind, fail = self._individual_l3.mutate(self._params)
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=24,
+                                hash=-9.739328993463583e+261,
+                                value="(root (log (/ (* (log S0) (- -8.815 -3.902)) (log (+ 2.025 -8.685)))))",
+                                formal="my_log((my_div((my_log(S0) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
+
+        # mutate random: 2
+        new_ind, fail = self._individual_l3.mutate(self._params)
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=22,
+                                hash=1.5210419679169233e+36,
+                                value="(root (log (/ (* (sin 3.907) (- -8.597 4.057)) (log (+ 8.244 5.242)))))",
+                                formal="my_log((my_div((sin(3.907) .* ((-8.597) - 4.057)),my_log((8.244 + 5.242)))))")
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
