@@ -122,7 +122,7 @@ class Individual(object):
                                                       mlc_parameters,
                                                       nargout=3)
 
-        return Individual(mlc_ind=new_ind), Individual(mlc_ind=new_ind2), fail
+        return Individual(mlc_ind=new_ind), Individual(mlc_ind=new_ind2), fail<0
 
     def compare(self, other_individual):
         """
