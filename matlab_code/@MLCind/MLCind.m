@@ -154,5 +154,9 @@ classdef MLCind < handle
             res = generate_indiv_regressive_tree(m,gen_param,type);
         end
 
+        function res=private_crossover_tree(obj, m1, m2, gen_param)
+            [res_m1, res_m2, fail] = crossover_tree(m1, m2, gen_param);
+            res = {res_m1, res_m2, fail};
+        end
     end
 end
