@@ -235,6 +235,82 @@ class IndividualTest(unittest.TestCase):
         self.assertIsNone(new_ind_1)
         self.assertIsNone(new_ind_2)
 
+    def test_mutate_remove_subtree_and_replace(self):
+        self._engine.rand('seed', 60.0, nargout=0)
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind,complexity=138,
+                                hash=-1.3367784216959267e-151,
+                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) (+ (+ (tanh (- -4.368 (+ (tanh (sin (/ (- (- (* (tanh S0) -6.729) -0.1076) S0) 8.669))) (log 5.463)))) (* (+ (- (/ (- 2.524 (log (cos (/ (* (- -2.225 -2.147) (* -5.252 0.2113)) -3.195)))) (cos (cos S0))) (sin S0)) (sin (cos S0))) (+ (- (cos -2.682) (/ -0.3451 (tanh (exp (sin (/ (- 3.137 S0) (* S0 (log -0.5594)))))))) (cos (tanh S0))))) (/ -4.114 -9.877)))))",
+                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),((tanh(((-4.368) - (tanh(sin((my_div((((tanh(S0) .* (-6.729)) - (-0.1076)) - S0),8.669)))) + my_log(5.463)))) + ((((my_div((2.524 - my_log(cos((my_div((((-2.225) - (-2.147)) .* ((-5.252) .* 0.2113)),(-3.195)))))),cos(cos(S0)))) - sin(S0)) + sin(cos(S0))) .* ((cos((-2.682)) - (my_div((-0.3451),tanh(exp(sin((my_div((3.137 - S0),(S0 .* my_log((-0.5594))))))))))) + cos(tanh(S0))))) + (my_div((-4.114),(-9.877)))))))")
+
+        # do a second mutation
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=25,
+                                hash=-3.1357260586196107e+180,
+                                value="(root (log (/ (* (sin (sin 6.721)) (- -8.815 -3.902)) (log (+ 2.025 -8.685)))))",
+                                formal="my_log((my_div((sin(sin(6.721)) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
+
+    def test_mutate_reparametrization(self):
+        self._engine.rand('seed', 60.0, nargout=0)
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REPARAMETRIZATION)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=22,
+                                hash=14269175.128717355,
+                                value="(root (log (/ (* (sin 5.491) (- 2.581 -9.526)) (log (+ 4.055 -9.595)))))",
+                                formal="my_log((my_div((sin(5.491) .* (2.581 - (-9.526))),my_log((4.055 + (-9.595))))))")
+
+
+        # do a second mutation
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REPARAMETRIZATION)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=22,
+                                hash=-1.116096220690224e+75,
+                                value="(root (log (/ (* (sin 1.082) (- 9.162 3.702)) (log (+ -6.897 -9.646)))))",
+                                formal="my_log((my_div((sin(1.082) .* (9.162 - 3.702)),my_log(((-6.897) + (-9.646))))))")
+
+    def test_mutate_hoist(self):
+        self._engine.rand('seed', 60.0, nargout=0)
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_HOIST)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=17,
+                                hash=2.066009957759577e+180,
+                                value="(root (/ (* (sin 4.37) (- -8.815 -3.902)) (log (+ 2.025 -8.685))))",
+                                formal="(my_div((sin(4.37) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685)))))")
+
+        # do a second mutation
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_HOIST)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=3,
+                                hash=1.4944726960633078e+183,
+                                value="(root (- -8.815 -3.902))",
+                                formal="((-8.815) - (-3.902))")
+
+    def test_mutate_shrink(self):
+        self._engine.rand('seed', 60.0, nargout=0)
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_SHRINK)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=15,
+                                hash=-2.277899705381213e+222,
+                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) -9.526)))",
+                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),(-9.526))))")
+
+        # do a second mutation
+        new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_SHRINK)
+
+        self.assertFalse(fail)
+        self._assert_individual(new_ind, complexity=20,
+                                hash=1.2070346203022018e+173,
+                                value="(root (log (/ (* (sin 4.37) S0) (log (+ 2.025 -8.685)))))",
+                                formal="my_log((my_div((sin(4.37) .* S0),my_log((2.025 + (-8.685))))))")
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
