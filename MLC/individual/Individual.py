@@ -1,6 +1,7 @@
 import numpy as np
 from MLC.matlab_engine import MatlabEngine
 
+
 class Individual(object):
     """
     MLCind constructor of the Machine Learning Control individual class.
@@ -57,6 +58,13 @@ class Individual(object):
 
     See also MLCPARAMETERS, MLCTABLE, MLCPOP, MLC2
     """
+
+    MUTATION_ANY = 0
+    MUTATION_REMOVE_SUBTREE_AND_REPLACE = 1
+    MUTATION_REPARAMETRIZATION = 2
+    MUTATION_HOIST = 3
+    MUTATION_SHRINK = 4
+
     def __init__(self, config=None, mlc_ind=None, value=None):
         self._eng = MatlabEngine.engine()
         self._config = config
@@ -112,9 +120,13 @@ class Individual(object):
     def evaluate(self, mlc_parameters, varargin):
         return self._eng.evaluate(self._mlc_ind, mlc_parameters, varargin)
 
-    def mutate(self, mlc_parameters):
-        new_ind, fail = self._eng.mutate(self._mlc_ind, mlc_parameters, nargout=2)
-        return Individual(mlc_ind=new_ind), fail
+    def mutate(self, mlc_parameters, mutation_type=MUTATION_ANY):
+        if mutation_type == Individual.MUTATION_ANY:
+            new_ind, fail = self._eng.mutate(self._mlc_ind, mlc_parameters, nargout=2)
+        else:
+            new_ind, fail = self._eng.mutate(self._mlc_ind, mlc_parameters, mutation_type, nargout=2)
+
+        return Individual(mlc_ind=new_ind), fail!=0
 
     def crossover(self, other_individual, mlc_parameters):
         """
