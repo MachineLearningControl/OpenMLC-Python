@@ -238,38 +238,52 @@
 
     \newpage
     \section{Alcance}
-    \subsection{Requerimientos Funcionales}
+    \subsection{Requerimientos Funcionales} \label{sec:functional}
         \begin{itemize}
             \item Migrar el sistema completo de \textit{MATLAB} a \textit{Python} a través de un modo de trabajo vertical. Esto implica
-            ir reemplazando código \textit{MATLAB} a \textit{Python} de forma gradual, verificando en cada paso el correcto 
-
-            \item Diseñar e implementar un modelo de persistencia de la aplicación basado en Base de Datos.
-            \item Re-diseñar e implementar el sistema de control (componente que se ejecuta sobre la plataforma Arduino). Se debe analizar
-            la implementación actual del componente. Las mejoras deben enfocarse principalmente en la performance del componente.
-            \item Diseñar e implementar un protocolo de comunicación que permita configurar el sistema de control, enviar los individuos de
-            la población, correr el algoritmo y obtener los resultados desde el programa principal.
+            ir reemplazando código \textit{MATLAB} a \textit{Python} de forma gradual, verificando en cada paso el correcto funcionamiento
+            del sistema.
+            \item Utilizar el MLC desde Python con \textit{Simulink} de forma opcional. Debido a que gran cantidad de los experimentos
+            realizados por \textit{Thomas} son diseñados en \textit{Simulink}, y dado que no existe una reemplazo a esta herramienta, se
+            debe respetar esta compatibilidad.
+            \item Diseñar e implementar un modelo de persistencia de la aplicación basado en Base de Datos. En estos momentos los datos
+            de las simulaciones realizadas se almacenan en formato binario. Se debe permitir poder manipular varios experimentos a la vez
+            sin la necesidad de estar cambiando los archivos de configuración como se está realizando actualmente.
+            \item Rediseñar el procesamiento de las leyes de control. Esto es lo que actualmente se está realizando de forma desprolija
+            en el \textit{Arduino}
+            \item Diseñar e implementar un protocolo de comunicación que permita configurar y evaluar las leyes de control. Esto implica
+            transformar los individuos de un \textit{recursive function tree} a un formato que pueda interpretado por los dispositivos
+            \textit{Arduino} u otro dipositivo que respete el protocolo en cuestión. Se debe evitar, siempre que se pueda lograr, tener
+            que quemar el \textit{Arduino} en cada iteración. 
             \item Desarrollar una API genérica que permita comunicar al sistema MLC con el sistema embebido. De esta forma se busca
             desacoplar al sistema en su totalidad de algún dispositivo de hardware específico, dejando abierta la posibilidad de poder
             cambiar el mismo por alguna otra plaqueta (Raspberry, beagleboard, etc.) en un futuro.
             \item Implementar una interfaz gráfica que permita configurar los parámetros de entrada del sistema.
-            \item Implementar una interfaz gráfica para la visualización y el análisis de los resultados de las corridas.
+            \item Implementar una interfaz gráfica para la visualización y el análisis de los resultados de las simulaciones realizadas.
         \end{itemize}
 
-    \subsection{Requerimientos No Funcionales}
+    \subsection{Requerimientos No Funcionales} \label{sec:no_functional}
         \begin{itemize}
-            \item El sistema debe ser multiplataforma y debe estar implementado con tecnologías de software libre.
-            \item Definir un conjunto de métricas de calidad a aplicarse a lo largo del proyecto.
+            \item El sistema debe ser multiplataforma y debe estar implementado con tecnologías de \textit{Open Source}. Una excepción a 
+            esto es el uso de \textit{Simulink}, como se explicó en la sección \ref{sec:functional}.
+        \item Se debe garantizar que la velocidad de procesamiento de cada individuo ($\mathit{control law}$) sea menor al tiempo de 
+            actuación del sistema físico. Esto es de vital importancia a la hora de realizar el refactor sobre la evaluación de las leyes
+            de control.
             \item Generar un set de pruebas de integración que permitan validar el funcionamiento del sistema con el cliente.
             \item Implementar un conjunto de test unitarios que garanticen la cobertura de código de los módulos del sistema de acuerdo
             a las métricas de calidad definidas.
             \item Relevar qué métricas se están usando en el laboratorio para medir la performance y qué números está manejando Thomas en
             este momento.
             \item Realizar un estudio de mercado sobre las tecnologías embebidas comerciales existentes, de forma de encontrar el producto
-            óptimo que cumpla con la relación velocidad de comunicación / precio.
+            óptimo que cumpla con la relación velocidad de comunicación / precio. Uno de los objetivos que se busca a través del MLC, es 
+            lograr que los dispositivos físicos a utilizar para el sensado de parámetros y actuación sea barato y fácil de conseguir
+            en cualquier parte del mundo. 
         \end{itemize}
 
-    \section{Hardware}
-    \subsection{MLC}
+    \newpage
+    \section{Especificaciones del Sistema}
+    \subsection{Hardware}
+    \subsubsection{MLC}
         MLC no posee limitaciones de hardware conocidas. Por esta razón, se toma como mínimo hardware requerido para ejecutar la
         aplicación el mínimo requerido por un sistema Unix. Los requerimientos mínimos se listan a continuación:
 
@@ -277,22 +291,41 @@
             \item Procesador x86 de 1 GHZ
             \item 512 MB RAM (1 GB recomendado)
             \item 20 GB de espacio en disco (la mayoría de este espacio está destinado a la instalación del MATLAB. En un futuro cuando
-            se remueva la dependencia con MATLAB podrá reducirse este número)
+                se remueva la dependencia con MATLAB podrá reducirse este número, siempre y cuando no se utilice $\mathit{Simulink}$)
         \end{itemize}
 
-    \subsection{Sistema de Control}
-        Los dispositivos utilizados para realizar el sensado de magnitudes físicas y la actuación de dispositivos físicos son Arduinos.
-        El modelo utilizado del mismo por el momento no se sabe con exactitud, pero se están realizando con el modelo Due.
+    \subsubsection{Sensado y Actuación}
+        Los dispositivos utilizados para realizar el sensado de magnitudes físicas y la actuación de dispositivos físicos son 
+        \textit{Arduinos}. El modelo utilizado del mismo no ha sido definido aún, pero se están realizando con pruebas con el modelo 
+        \textit{Due}. Es posible que este modelo se cambie por otro \textit{Arduino} o por otro dispositivo embebido que cumpla con los
+        requerimientos necesarios.
 
-    \section{Software}
-        En su versión terminada, el sistema correrá enteramente en Python 2.7. Durante la migración, se deberá utilizar MATLAB en una
-        versión superior a la R2014B debido al módulo Python Engine requerido para poder establecer una comunicación entre ambos lenguajes
-        de programación. La base de datos a utilizar será SQLite, debido a la simplicidad de los datos a almacenar y lo fácil, flexible y
-        ligero que resulta este motor de BD embebido.
+    \subsection{Software}
+    \subsubsection{MLC}
+        En su versión terminada, el sistema correrá enteramente en \textbf{Python 2.7}. Se utilizarán todas las bibliotecas matemáticas 
+        necesarias para reemplazar la funcionalidad de MATLAB en Python. A priori, se supone que con el conjunto provisto por el 
+        \textit{Scipy Stack} debería ser suficiente, pero no se descarta tener que agregar alguna otra dependencia al proyecto. \\
+        \indent Para realizar la migración a Python, se utilizará el módulo \textit{Python Engine}. El mismo permite ejecutar código
+        MATLAB en Python. Este módulo es provisto por MATLAB a partir de la versión \textbf{R2014 B}. Como se bien se ha comentado, en su
+        versión final MATLAB no será necesario para utilizar MLC, pero existen algunas herramientas provistas por \textit{Mathworks} como
+        \textit{Simulink} que no poseen un reemplazo. Por esta razón es que se agrega como una de las dependencias de software a MATLAB. \\
+        \indent Aún no se ha decidido que framework gráfico será utilizado para realizar la interfaz gráfica de la aplicación. Se debe
+        evaluar entre las diferentes versiones disponibles para Python (PyQT4, PyQT5, Pyside, PyGTK, wxWidgets, etc.) y elegir la que sea
+        más conveniente. \\  
+        \indent En lo que respecta a base de datos, tampoco se ha decidido aún que motor se utilizará. Debido a que el volumen de datos
+        manejados por experimento es baja (cota superior de 500 MB) se analizará utilizar algún motor ligero como SQLite. En caso que se 
+        necesite un motor más robusto, se analizará el uso de otras opciones como pueden llegar a ser MySQL, Postgres, MariaDB o algún tipo 
+        de motor No SQL. 
+
+    \subsubsection{Sensado y Actuación}
+        El software utilizado para el desarrollo de los dispositivos embebidos está fuertemente atado al SDK liberado por cada fabricante.
+        En el caso de \textit{Arduino}, los mismos proveen un IDE que viene integrado con un cross-compiler compatible con el hardware
+        disponible en cada una de las placas a disposición (\textit{Arduino Uno, Due, Mega, etc.}). Habiendo dicho esto, todo el desarrollo
+        con \textit{Arduino} se realizará en C y C++.
 
     \newpage
     \section{Metodología}
-
+          
     \newpage
     \section{Cronograma}
 
