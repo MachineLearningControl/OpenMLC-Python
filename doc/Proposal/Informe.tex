@@ -58,7 +58,7 @@
             \includegraphics[width=12cm,origin=c]{Imagenes/open_loop.png}
             \caption{\textbf{Fig. 1} Open-Loop Control System, siendo $\mathbf{w_r}$ la señal de referencia, \textbf{b} la señal de
             actuación, $\mathbf{w_d}$ perturbaciones externas, $\mathbf{w_n}$ ruido introducido por los sensores involucrados y
-            \textbf{s} la señal de salida} \label{fig001}
+            \textbf{s} la señal de salida. Imagen tomada de \cite{Duriez2016}} \label{fig001}
         \end{figure}
 
         \begin{figure}[!Hhtb]
@@ -66,7 +66,7 @@
             \includegraphics[width=12cm,origin=c]{Imagenes/closed_loop.png}
             \caption{\textbf{Fig. 2} Closed-Loop Control System, siendo $\mathbf{w_r}$ la señal de referencia, \textbf{b} la señal
             de actuación, $\bm{\varepsilon}$ la función de error, $\mathbf{w_r}$ perturbaciones externas, wn ruido introducido por los
-            sensores involucrados y \textbf{s} la señal de salida} \label{fig002}
+            sensores involucrados y \textbf{s} la señal de salida. Imagen tomada de \cite{Duriez2016}} \label{fig002}
         \end{figure}
 
         Si bien los sistemas de control a lazo cerrado son complejos de diseñar y mantener, son los únicos que permiten estabilizar
@@ -82,7 +82,8 @@
         \begin{figure}[!Hhtb]
             \centering
             \includegraphics[width=12cm,origin=c]{Imagenes/control_loop.png}
-            \caption{\textbf{Fig. 3} Sistema de Control a Lazo Cerrado de Costo \textbf{J}} \label{fig003}
+            \caption{\textbf{Fig. 3} Sistema de Control a Lazo Cerrado de Costo \textbf{J}.
+            Imagen tomada de \cite{Duriez2016}} \label{fig003}
         \end{figure}
 
         \subsection{Motivación} \label{sec:motiv}
@@ -116,7 +117,7 @@
         \begin{figure}[!Hhtb]
             \centering
             \includegraphics[width=12cm,origin=c]{Imagenes/MLC_architecture.png}
-            \caption{\textbf{Fig. 4} Arquitectura del MLC} \label{fig004}
+            \caption{\textbf{Fig. 4} Arquitectura del MLC. Imagen tomada de \cite{Duriez2016}} \label{fig004}
         \end{figure}
 
         \indent Comparando las figuras \ref{fig003} y \ref{fig004}, se puede observar como la ley de control es reemplazada por el MLC,
@@ -146,7 +147,7 @@
         \begin{figure}[!Hhtb]
             \centering
             \includegraphics[width=9cm,origin=c]{Imagenes/MLC_block_diagram.png}
-            \caption{\textbf{Fig. 5} Generación de nuevas leyes de control} \label{fig005}
+            \caption{\textbf{Fig. 5} Generación de nuevas leyes de control. Imagen tomada de \cite{Duriez2016}} \label{fig005}
         \end{figure}
 
         Un individuo se encuentra modelizado dentro del MLC como un conjunto de funciones y parámetros que poseen la forma de un
@@ -160,15 +161,15 @@
         \begin{figure}[!Hhtb]
             \centering
             \includegraphics[width=6cm,origin=c]{Imagenes/individual_tree.png}
-            \caption{\textbf{Fig. 6} Individuo $\mathbf{b = K(s_1, s_2, s_3)}$ visto como un \textit{recursive funcion tree}
-            } \label{fig006}
+            \caption{\textbf{Fig. 6} Individuo $\mathbf{b = K(s_1, s_2, s_3)}$ visto como un \textit{recursive funcion tree}. Imagen
+            tomada de \cite{Duriez2016}} \label{fig006}
         \end{figure}
 
 
     \subsubsection{Generación de nuevas Leyes de Control} \label{sec:law_gen}
         \indent La primera población de individuos es generada de forma aleatoria en función de los sensores, constantes y funciones
         matemáticas a disposición y la misma no posee un costo asociado a priori. La población luego es evaluada (el proceso de evaluación
-        es explicado en la sección \ref{sec:mlc_gp}), con lo cual se obtiene el \textit{fitness} asociado a cada individuo. A partir de
+        es explicado en la sección \ref{sec:mlc_and_gp}), con lo cual se obtiene el \textit{fitness} asociado a cada individuo. A partir de
         este punto se procede a evolucionar la población. Dicha evolución se lleva a cabo a través de los siguientes algoritmos
         \cite{Duriez2016}:
 
@@ -191,36 +192,58 @@
         \begin{figure}[!Hhtb]
             \centering
             \includegraphics[width=6cm,origin=c]{Imagenes/flow_diagram.png}
-            \caption{\textbf{Fig. 7} Diagrama de Flujo del proceso de Generación de Poblaciones} \label{fig007}
+            \caption{\textbf{Fig. 7} Diagrama de Flujo del proceso de Generación de Poblaciones.
+            Imagen tomada de \cite{Duriez2016}} \label{fig007}
         \end{figure}
-
 
     \newpage
     \section{Objetivo}
-        Durante los años que Thomas ha estado trabajando en el sistema MLC se ha encontrado con una serie de dificultades técnicas y
-        funcionales. Durante el segundo cuatrimestre del 2015, como parte de un trabajo práctico de la asignatura 75.61 Taller de
-        Programación III, se trabajó sobre el sistema MLC, relevando los requerimientos e implementando en forma parcial alguno de ellos.
-        Los mismos se listan a continuación:
+        Durante los años que Thomas ha estado trabajando en MLC se ha encontrado con una serie de dificultades técnicas y
+        funcionales. Durante el segundo cuatrimestre del 2015, como parte de un trabajo práctico de la asignatura \textit{75.61 Taller de
+        Programación III} se trabajó sobre el sistema MLC, relevando requerimientos e implementando en forma parcial alguno de ellos. 
+        Debido al corto período tiempo dispuesto en la asignatura y la cantidad de tareas a realizar, se decidió continuar con el mismo
+        como parte del presente Trabajo Profesional. Con más recursos a disposición y luego de diferentes reuniones que hemos tenido con
+        Thomas, se llegó a una lista de objetivos en común. La misma se exhibe a continuación:
 
         \begin{itemize}
-            \item Migrar el sistema de MATLAB a Python.
-            \item Generar un set de pruebas unitarias, de integración y funcionales.
-            \item Refactorizar el código existente de manera de lograr un diseño más flexible y extensible que el actual.
-            Se espera que la nueva solución sea capaz de abarcar una mayor cantidad de problemas sin necesidad que el usuario deba
-            modificar en forma sustancial el código del programa.
-            \item Analizar los cuellos de botella presentes en la versión actual del programa. Los tiempos de uso del laboratorio son
-            acotados por lo tanto se espera que la nueva implementación mejore esos tiempos permitiendo ejecutar una mayor cantidad de
-            pruebas.
-            \item Implementar una interfaz gráfica para la configuración del sistema y el análisis de los resultados.
+            \item \textbf{Migrar el sistema de MATLAB a Python:} MLC se encuentra desarrollado enteramente en MATLAB, con excepción del
+            código que es utilizado en los dipositivos \textit{Arduino}. Las principales razones por las cuales se desea realizar esta
+            migración son:
+            \begin{itemize}
+                \item Gracias a la cantidad de bibliotecas científicas robustas que dispone el lenguaje (\textit{numpy, matplotlib,
+                SciPy Stack, etc.}), Python permite desarrollar aplicaciones de procesamiento numérico y matemático de 100\% Open
+                Source
+                \item Si bien MATLAB es el lenguaje más utilizado en la comunidad científica, no es un buen
+                lenguaje para diseñar aplicaciones de software complejas. Entre las principales desventajas que posee, se pueden listar
+                el limitado soporte a OOP (\textit{Object Oriented Programming}) y estructuras de datos y sintaxis a medida para el
+                procesamiento de matrices.
+            \end{itemize}
+
+            \item \textbf{Pruebas unitarias, de integración y funcionales:} El software no posee ningún tipo de testing. Hoy en día el
+            correcto funcionamiento del software es validado de forma manual por Thomas. Es de interés
+            MLC es de interés agregar tests que permitan tener una medida de la cobertura de código alcanzada, como así definir métricas
+            automáticas que permitan a futuro ponderar la calidad del sistema.
+            \item \textbf{Refactorización de Código:} Gran cantidad del proyecto se encuentra realizado con las herramientas que MATLAB
+            brinda a nuestra disposición. La migración a Python abre la posibilidad de cambiar el diseño actual del sistema por uno más
+            flexible y robusto. 
+            \item \textbf{Cuellos de Botella:} Actualmente la forma en la evalúan los individuos (o su equivalente, \textit{Control Laws})
+            es poco flexible. El procedimiento implica reprogramar los dispositivos \textit{Arduino} ante cada población a ser evaluada.
+            Esto último es llevado a cabo por temas de \textit{performance}, debido a que ha sido imposible para Thomas evaluar cada 
+            individuo por separado. Se desea identificar y reproducir las limitaciones encontradas por Thomas y encontrar soluciones a
+            las mismas, siempre que estas existan. 
+            \item \textbf{Interfaz Gráfica:} MLC no posee interfaz gráfica alguna. Se desea crear una interfaz de escritorio
+            con una correcta usabilidad que permita a usuarios de la comunidad científica aprovechar al máximo las virtudes del presente
+            framework.
         \end{itemize}
 
     \newpage
     \section{Alcance}
     \subsection{Requerimientos Funcionales}
         \begin{itemize}
-            \item Migrar el sistema completo de matlab a python. Esto incluye la implementación del algoritmo genético y la comunicación
-            con el sistema de control.
-            \item Diseñar e implementar un modelo de persistencia de la aplicación basado en base de datos.
+            \item Migrar el sistema completo de \textit{MATLAB} a \textit{Python} a través de un modo de trabajo vertical. Esto implica
+            ir reemplazando código \textit{MATLAB} a \textit{Python} de forma gradual, verificando en cada paso el correcto 
+
+            \item Diseñar e implementar un modelo de persistencia de la aplicación basado en Base de Datos.
             \item Re-diseñar e implementar el sistema de control (componente que se ejecuta sobre la plataforma Arduino). Se debe analizar
             la implementación actual del componente. Las mejoras deben enfocarse principalmente en la performance del componente.
             \item Diseñar e implementar un protocolo de comunicación que permita configurar el sistema de control, enviar los individuos de
