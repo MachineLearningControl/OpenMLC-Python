@@ -11,7 +11,9 @@
 \usepackage{listings}
 \usepackage{pdfpages}
 \usepackage{float}
+\usepackage{longtable}
 \usepackage{bm}
+\usepackage{changepage}
 \usepackage[font={footnotesize}]{caption}
 \usepackage[labelformat=empty]{caption}
 % Paquetes de macros de Circuitos
@@ -200,7 +202,7 @@
     \section{Objetivo}
         Durante los años que Thomas ha estado trabajando en MLC se ha encontrado con una serie de dificultades técnicas y
         funcionales. Durante el segundo cuatrimestre del 2015, como parte de un trabajo práctico de la asignatura \textit{75.61 Taller de
-        Programación III} se trabajó sobre el sistema MLC, relevando requerimientos e implementando en forma parcial alguno de ellos. 
+        Programación III} se trabajó sobre el sistema MLC, relevando requerimientos e implementando en forma parcial alguno de ellos.
         Debido al corto período tiempo dispuesto en la asignatura y la cantidad de tareas a realizar, se decidió continuar con el mismo
         como parte del presente Trabajo Profesional. Con más recursos a disposición y luego de diferentes reuniones que hemos tenido con
         Thomas, se llegó a una lista de objetivos en común. La misma se exhibe a continuación:
@@ -225,12 +227,12 @@
             automáticas que permitan a futuro ponderar la calidad del sistema.
             \item \textbf{Refactorización de Código:} Gran cantidad del proyecto se encuentra realizado con las herramientas que MATLAB
             brinda a nuestra disposición. La migración a Python abre la posibilidad de cambiar el diseño actual del sistema por uno más
-            flexible y robusto. 
+            flexible y robusto.
             \item \textbf{Cuellos de Botella:} Actualmente la forma en la evalúan los individuos (o su equivalente, \textit{Control Laws})
             es poco flexible. El procedimiento implica reprogramar los dispositivos \textit{Arduino} ante cada población a ser evaluada.
-            Esto último es llevado a cabo por temas de \textit{performance}, debido a que ha sido imposible para Thomas evaluar cada 
+            Esto último es llevado a cabo por temas de \textit{performance}, debido a que ha sido imposible para Thomas evaluar cada
             individuo por separado. Se desea identificar y reproducir las limitaciones encontradas por Thomas y encontrar soluciones a
-            las mismas, siempre que estas existan. 
+            las mismas, siempre que estas existan.
             \item \textbf{Interfaz Gráfica:} MLC no posee interfaz gráfica alguna. Se desea crear una interfaz de escritorio
             con una correcta usabilidad que permita a usuarios de la comunidad científica aprovechar al máximo las virtudes del presente
             framework.
@@ -254,7 +256,7 @@
             \item Diseñar e implementar un protocolo de comunicación que permita configurar y evaluar las leyes de control. Esto implica
             transformar los individuos de un \textit{recursive function tree} a un formato que pueda interpretado por los dispositivos
             \textit{Arduino} u otro dipositivo que respete el protocolo en cuestión. Se debe evitar, siempre que se pueda lograr, tener
-            que quemar el \textit{Arduino} en cada iteración. 
+            que quemar el \textit{Arduino} en cada iteración.
             \item Desarrollar una API genérica que permita comunicar al sistema MLC con el sistema embebido. De esta forma se busca
             desacoplar al sistema en su totalidad de algún dispositivo de hardware específico, dejando abierta la posibilidad de poder
             cambiar el mismo por alguna otra plaqueta (Raspberry, beagleboard, etc.) en un futuro.
@@ -264,9 +266,9 @@
 
     \subsection{Requerimientos No Funcionales} \label{sec:no_functional}
         \begin{itemize}
-            \item El sistema debe ser multiplataforma y debe estar implementado con tecnologías de \textit{Open Source}. Una excepción a 
+            \item El sistema debe ser multiplataforma y debe estar implementado con tecnologías de \textit{Open Source}. Una excepción a
             esto es el uso de \textit{Simulink}, como se explicó en la sección \ref{sec:functional}.
-        \item Se debe garantizar que la velocidad de procesamiento de cada individuo ($\mathit{control law}$) sea menor al tiempo de 
+        \item Se debe garantizar que la velocidad de procesamiento de cada individuo ($\mathit{control law}$) sea menor al tiempo de
             actuación del sistema físico. Esto es de vital importancia a la hora de realizar el refactor sobre la evaluación de las leyes
             de control.
             \item Generar un set de pruebas de integración que permitan validar el funcionamiento del sistema con el cliente.
@@ -275,9 +277,9 @@
             \item Relevar qué métricas se están usando en el laboratorio para medir la performance y qué números está manejando Thomas en
             este momento.
             \item Realizar un estudio de mercado sobre las tecnologías embebidas comerciales existentes, de forma de encontrar el producto
-            óptimo que cumpla con la relación velocidad de comunicación / precio. Uno de los objetivos que se busca a través del MLC, es 
+            óptimo que cumpla con la relación velocidad de comunicación / precio. Uno de los objetivos que se busca a través del MLC, es
             lograr que los dispositivos físicos a utilizar para el sensado de parámetros y actuación sea barato y fácil de conseguir
-            en cualquier parte del mundo. 
+            en cualquier parte del mundo.
         \end{itemize}
 
     \newpage
@@ -295,15 +297,15 @@
         \end{itemize}
 
     \subsubsection{Sensado y Actuación}
-        Los dispositivos utilizados para realizar el sensado de magnitudes físicas y la actuación de dispositivos físicos son 
-        \textit{Arduinos}. El modelo utilizado del mismo no ha sido definido aún, pero se están realizando con pruebas con el modelo 
+        Los dispositivos utilizados para realizar el sensado de magnitudes físicas y la actuación de dispositivos físicos son
+        \textit{Arduinos}. El modelo utilizado del mismo no ha sido definido aún, pero se están realizando con pruebas con el modelo
         \textit{Due}. Es posible que este modelo se cambie por otro \textit{Arduino} o por otro dispositivo embebido que cumpla con los
         requerimientos necesarios.
 
     \subsection{Software}
     \subsubsection{MLC}
-        En su versión terminada, el sistema correrá enteramente en \textbf{Python 2.7}. Se utilizarán todas las bibliotecas matemáticas 
-        necesarias para reemplazar la funcionalidad de MATLAB en Python. A priori, se supone que con el conjunto provisto por el 
+        En su versión terminada, el sistema correrá enteramente en \textbf{Python 2.7}. Se utilizarán todas las bibliotecas matemáticas
+        necesarias para reemplazar la funcionalidad de MATLAB en Python. A priori, se supone que con el conjunto provisto por el
         \textit{Scipy Stack} debería ser suficiente, pero no se descarta tener que agregar alguna otra dependencia al proyecto. \\
         \indent Para realizar la migración a Python, se utilizará el módulo \textit{Python Engine}. El mismo permite ejecutar código
         MATLAB en Python. Este módulo es provisto por MATLAB a partir de la versión \textbf{R2014 B}. Como se bien se ha comentado, en su
@@ -311,11 +313,11 @@
         \textit{Simulink} que no poseen un reemplazo. Por esta razón es que se agrega como una de las dependencias de software a MATLAB. \\
         \indent Aún no se ha decidido que framework gráfico será utilizado para realizar la interfaz gráfica de la aplicación. Se debe
         evaluar entre las diferentes versiones disponibles para Python (PyQT4, PyQT5, Pyside, PyGTK, wxWidgets, etc.) y elegir la que sea
-        más conveniente. \\  
+        más conveniente. \\
         \indent En lo que respecta a base de datos, tampoco se ha decidido aún que motor se utilizará. Debido a que el volumen de datos
-        manejados por experimento es baja (cota superior de 500 MB) se analizará utilizar algún motor ligero como SQLite. En caso que se 
-        necesite un motor más robusto, se analizará el uso de otras opciones como pueden llegar a ser MySQL, Postgres, MariaDB o algún tipo 
-        de motor No SQL. 
+        manejados por experimento es baja (cota superior de 500 MB) se analizará utilizar algún motor ligero como SQLite. En caso que se
+        necesite un motor más robusto, se analizará el uso de otras opciones como pueden llegar a ser MySQL, Postgres, MariaDB o algún tipo
+        de motor No SQL.
 
     \subsubsection{Sensado y Actuación}
         El software utilizado para el desarrollo de los dispositivos embebidos está fuertemente atado al SDK liberado por cada fabricante.
@@ -325,9 +327,90 @@
 
     \newpage
     \section{Metodología}
-          
+        La metodología de trabajo elegida para trabajar en el proyecto es \textit{Scrum}. El uso de esta metodología es ideal para el tipo
+        de desarrollo a realizar, debido a que se posee un cliente real con el cual trabajar. La duración de cada uno de
+        los sprints variará entre dos y tres semanas, dependendiendo de las tareas definidas en el sprint. En la finalización de cada
+        sprint, se realizará una demo con el cliente mostrando los avances realizados. \\
+        \indent Se utilizará \textbf{Trello} como herramienta de gestión de proyecto. En el mismo se encontrará el \textit{backlog} y
+        cada uno de los \textit{sprints} realizados durante el transcurso del proyecto. A través de los plugins \textbf{Ollert} y
+        \textbf{BurndownChartForTrello} se mantendrá el registro de las horas trabajadas en cada tarea, así como también se tomarán
+        estadísticas de la eficiencia del equipo de trabajo. \\
+        \indent El hosting del proyecto se encontrará en un repositorio privado por pedido expreso de Thomas. Al finalizar el presente
+        trabajo se liberará el código a la comunidad. El hosting utilizado actualmente es \textbf{www.github.com}, y el mismo se utilizará
+        además para mantener trazabilidad entre las tareas definidas en \textbf{Trello} y las modificaciones de código realizadas.
+
+
+
     \newpage
     \section{Cronograma}
+        La asignatura \textit{75.99 Trabajo Profesional} posee asociados 12 créditos en el plan de estudios de la carrera Ingeniería en
+        Informática. Esto impĺica que, según el estatuto de la facultad, la misma posee una carga horaria de 24 horas semanales (12 de
+        cursada + 12 horas de trabajo por cuenta del alumno). Teniendo en cuenta que la duración de un cuatrimestre es de 16 semanas,
+        la cantidad de horas asignadas a cada alumno equivale a 384 horas. Este número por 3 (la cantidad de integrantes del presente
+        proyecto), da como resultado el número total de horas del proyecto: 1152. Se redondea este número de horas a 1200 para realizar
+        la planificación del proyecto. A continuación se define el cronograma tentativo de tareas:
+
+        \begin{center}
+        \hspace*{-1.5cm}
+        \begin{longtable}{|p{3.5cm}|p{7cm}|c|}
+            \hline
+            \textbf{Tarea} & \textbf{Descripción} & \textbf{Horas} \\
+            \hline
+            Gestión de Proyecto & Seguimiento de tareas, análisis de métricas, planeamiento de sprints y
+            desarrollo del proyecto & 75 \\
+            \hline
+            Reuniones de Avance & Tiempo dedicado a las reuniones a tener tanto con el cliente como con los tutores. Esto último incluye
+            las demos a realizar en la finalización de cada \textit{sprint} & 50 \\
+            \hline
+            Migración algoritmos genéticos & Migrar de MATLAB a Python la generación y evolución de individuos & 200 \\
+            \hline
+            Diseño e Implementación del modelo de persistencia & Se debe modelar tipos de datos a fin de persistir los experimentos
+            en algún esquema de base de datos a definir & 45 \\
+            \hline
+            Análisis e Implementación de Gráficos & Se debe analizar que herramientas provistas por Python se amoldan a los requerimientos
+            gráficos de la aplicación, que incluye la implementación de los gráficos existentes & 40 \\
+            \hline
+            Obtención de métricas y análisis de disp. \textit{Arduino} & Se realizarán pruebas de desempeño de hardware de comunicación
+            para dispositivos \textit{Arduino}, a fin de determinar la viabilidad del procesamiento de las leyes de control en Python
+            & 30 \\
+            \hline
+            Diseño e Implementación de Protocolo de Comunicación & El protocolo debe ser capaz de configurar los sensores y actuadores
+            a utilizar en un experimento dado. También debe ser capaz de obtener lecturas de los sensores previamente configurados y
+            manipular los actuadores & 100 \\
+            \hline
+            Confección de Pruebas de Integración & Se debe generar un conjunto de pruebas que permitan validar el correcto funcionamiento
+            entre las diferentes partes que componen al MLC & 30 \\
+            \hline
+            Diseño y Armado de Entorno de Prueba Real & Se debe implementar un experimento de laboratorio que permita evaluar el correcto
+            funcionamiento y desempeño del MLC & 60 \\
+            \hline
+            Análisis y Diseño de Mejoras de Arquitectura & Una vez que se haya migrado el MLC a Python, se procederá a evaluar
+            mejoras en el diseño del sistema & 90 \\
+            \hline
+            Implementación de Mejoras de Arquitectura & Con la nueva arquitectura y diseño en mente, se procederá a implementar
+            la nueva solución propuesta & 270 \\
+            \hline
+            Documentación Interna de diseño & Documentación que describa el diseño y arquitectura del sistema. La misma debe incluir
+            diagramas clases, secuencia, etc., como así también el detalle del protocolo de comunicación implementado & 60 \\
+            \hline
+            Diseño e Implementación de Interfaz Gráfica & Se debe desarrollar una interfaz gráfica agradable para el usuario que permita
+            la administración y configuración del sistema. La misma debe incluir configurar y visualizar los experimentos a realizar
+            & 30 \\
+            \hline
+            Implementación de Instaladores & Se deben crear instaladores para los sistemas operativos más conocidos
+            (Windows, MAC, Linux flavors) con el fin de facilitar el uso del MLC en la comunidad científica & 60 \\
+            \hline
+            Elaboración de Manual de Usuario & Se deben confeccionar los manuales de usuario para el uso y extensión de la versión final
+            del sistema & 60 \\
+            \hline
+            \multicolumn{2}{|c|}{\textbf{Total Horas:}} & \textbf{1200} \\
+            \hline
+        \end{longtable}
+        \end{center}
+
+    \newpage
+    % \section{Datos Integrantes}
+    %    \input{CVs/TorresFeyuk.tex}
 
     \newpage
     \bibliography{mybib}{}
