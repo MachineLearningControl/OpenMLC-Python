@@ -127,3 +127,7 @@ To run all the tests, enter to the [tests](tests) folder and execute the script 
 ```
 user@hostname:/path/to/MLC_Project/tests$ ./run_tests.sh
 ```
+In order to enable test coverage coverage python module should be installed:
+```
+user@hostname:/opt/mlc-python-2.7.11/bin/mlc_pip install coverage
+```
