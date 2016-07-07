@@ -37,8 +37,9 @@
     \section{Introducción Teórica} \label{sec:intro}
         El presente trabajo se propone el análisis, diseño e implementación de un conjunto de mejoras requeridas por Thomas Duriéz,
         investigador del laboratorio de fluidodinámica de la facultad de ingeniería, a aplicarse sobre el sistema MLC, desarrollado por él,
-        y utilizado como herramienta en su trabajo de investigación. El siguiente capítulo fue realizado basado en la información obtenida
-        en \cite{Duriez2016}.
+        y utilizado como herramienta en su trabajo de investigación. El mismo es un sistema que permite encontrar leyes de control de 
+        sistemas complejos de forma automática, dentro del cual es de especial interés la estabilización de flujos turbulentos.
+        El siguiente capítulo fue realizado basado en la información obtenida en \cite{Duriez2016}.
 
         \subsection{Control a Lazo Cerrado optimizado a través de Función de Costo} \label{sec:close_loop}
         La teoría de control clásica categoriza los sistemas de control en \textbf{Open-Loop Control Systems} y
@@ -99,7 +100,7 @@
             modelización del sistema físico}
             \item La naturaleza no lineal de esta clase de flujos impide aplicar el principio de superposición sobre los efectos producidos
             por cada actuador.
-            \item Perturbaciones externas como el \textit{frequency crosstalk} \textbf{impiden encontrar una ley de control que lleve a la
+            \item Perturbaciones externas como el \textbf{impiden encontrar una ley de control que lleve a la
             convergencia del sistema}, aún cuando se haya realizado una correcta modelización del mismo.
             \item Los flujos turbulentos poseen \textbf{estabilidad estacionaria} (existen valores definidos para variables estadísticas
             como la media y varianza). Esto permite que el sistema vuelva a su estado original luego de ser estimulado, haciendo posible
@@ -126,6 +127,10 @@
         el cual recibe como entrada los valores sensados \textbf{s} y el valor \textbf{J}, resultante de la aplicación de la función de
         costo ante la salida del sistema físico excitado. En función de estas muestras, MLC genera una nueva ley de control la cual es
         evaluada, obteniendo un nuevo valor de \textbf{J}.
+
+        \indent La \textit{función de costo} debe ser definida por el usuario del MLC. La misma debe adecuarse al tipo de problema que se 
+        desea resolver. Se puede pensar como ejemplo la estabilización de un flujo turbulento: se puede considerar que el sistema converge 
+        si la velocidad del mismo en diferentes puntos es semejante (deja de ser turbulento para pasar a ser laminar).
 
     \subsubsection{Machine Learning y Programación Genética} \label{sec:mlc_and_gp}
         \textbf{Machine Learning} es una subrama de las ciencias de la computación basada en las campos de \textit{Pattern Recognition} y
@@ -268,9 +273,9 @@
         \begin{itemize}
             \item El sistema debe ser multiplataforma y debe estar implementado con tecnologías de \textit{Open Source}. Una excepción a
             esto es el uso de \textit{Simulink}, como se explicó en la sección \ref{sec:functional}.
-        \item Se debe garantizar que la velocidad de procesamiento de cada individuo ($\mathit{control law}$) sea menor al tiempo de
-            actuación del sistema físico. Esto es de vital importancia a la hora de realizar el refactor sobre la evaluación de las leyes
-            de control.
+            \item Se debe evaluar que la velocidad de procesamiento de cada individuo \textit{control law} sea menor al tiempo de actuación 
+            del sistema físico luego de la refactorización. En caso de no cumplirse este objetivo, se debe utilizar el esquema de trabajo 
+            actual y pensar en futuras implementaciones y tecnologías que permitan resolver este problema.
             \item Generar un set de pruebas de integración que permitan validar el funcionamiento del sistema con el cliente.
             \item Implementar un conjunto de test unitarios que garanticen la cobertura de código de los módulos del sistema de acuerdo
             a las métricas de calidad definidas.
@@ -329,8 +334,8 @@
     \section{Metodología}
         La metodología de trabajo elegida para trabajar en el proyecto es \textit{Scrum}. El uso de esta metodología es ideal para el tipo
         de desarrollo a realizar, debido a que se posee un cliente real con el cual trabajar. La duración de cada uno de
-        los sprints variará entre dos y tres semanas, dependendiendo de las tareas definidas en el sprint. En la finalización de cada
-        sprint, se realizará una demo con el cliente mostrando los avances realizados. \\
+        los sprints variará entre dos y tres semanas. En la finalización de cada sprint, se realizará una demo con el cliente mostrando 
+        los avances realizados. \\
         \indent Se utilizará \textbf{Trello} como herramienta de gestión de proyecto. En el mismo se encontrará el \textit{backlog} y
         cada uno de los \textit{sprints} realizados durante el transcurso del proyecto. A través de los plugins \textbf{Ollert} y
         \textbf{BurndownChartForTrello} se mantendrá el registro de las horas trabajadas en cada tarea, así como también se tomarán
