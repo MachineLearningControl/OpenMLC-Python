@@ -26,7 +26,7 @@ class MixedRampedGauss(BaseCreation):
         while j < len(distrib) - 1:
             # MATLAB_COMPAT_ONLY
             param = self._eng.eval('wmlc.parameters')
-            self._eng.set_maxdepthfirst(param, ramp[j])
+            self._eng.set_maxdepthfirst(param, float(ramp[j]))
 
             aux = distrib[j] + round((distrib[j + 1] - distrib[j]) / 2)
             # Numpy ranges doesn't include the last element as in python.

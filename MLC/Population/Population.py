@@ -35,7 +35,7 @@ class Population(object):
     def create(self, table=None):
         if table is None:
             self._eng.workspace['wtable'] = self._eng.MLCtable(
-                self._gen_size * 50)
+                int(self._gen_size) * 50)
 
         gen_method = self._config.get_param('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
@@ -94,7 +94,7 @@ class Population(object):
                                      self._individuals[index], jj[index]))
 
             self._eng.update_individual(
-                table, self._individuals[index], jj[index])
+                table, int(self._individuals[index]), jj[index])
             self._eng.set_cost(matlab_pop, mlab_index, jj[index])
 
         self._costs = jj
@@ -130,7 +130,7 @@ class Population(object):
 
     def set_individuals(self, indiv_list):
         for x in indiv_list:
-            self._individuals[x[0]] = x[1]
+            self._individuals[x[0]] = int(x[1])
 
     def get_individuals(self):
         return self._individuals

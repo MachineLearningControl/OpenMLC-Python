@@ -42,4 +42,4 @@ def toy_problem(eng, config, indiv):
     except TypeError:
         np_y3 = np.repeat(y3, len(x))
 
-    return np.sum((np_y3 - y2)**2)
+    return float(np.sum((np_y3 - y2)**2))
