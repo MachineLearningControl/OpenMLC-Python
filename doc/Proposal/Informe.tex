@@ -414,8 +414,12 @@
         \end{center}
 
     \newpage
-    % \section{Datos Integrantes}
-    %    \input{CVs/TorresFeyuk.tex}
+    \includepdf[scale=0.8,clip,trim=0cm 0cm 0cm -3cm,pages={1},pagecommand={\section{Datos Integrantes}\subsection{Ezequiel Torres Feyuk}\subsubsection{CV}}]{CVs/TorresFeyuk/CV.pdf} 
+        \includepdf[scale=0.8,clip,trim=0cm 0cm 0cm 2cm,pages={2},pagecommand={}]{CVs/TorresFeyuk/CV.pdf}
+        % \includepdf[pages={1,2}]{CVs/TorresFeyuk/CV.pdf}
+        \newpage
+    \subsubsection{Listado de Materias}
+        \input{CVs/TorresFeyuk/Subjects.tex}
 
     \newpage
     \bibliography{mybib}{}
