@@ -14,11 +14,22 @@ class MatlabEngine:
     def engine():
         if MatlabEngine._engine_instance is None:
             matlab_code_dir = mlcv3_config.get_matlab_path()
-            MatlabEngine._engine_instance = matlab.engine.start_matlab()
+
+            # Check if a MATLAB session exists.
+            try:
+                sessions = matlab.engine.find_matlab()
+                if len(sessions) > 0:
+                    MatlabEngine._engine_instance = matlab.engine.connect_matlab(sessions[0])
+                    print "Using Shared Session {}".format(sessions[0])
+                else:
+                    MatlabEngine._engine_instance = matlab.engine.start_matlab()
+            except AttributeError:
+                # This version of MATLAB is not compatible with Shared sessions
+                # Init the MATLAB engine in the regular way
+                MatlabEngine._engine_instance = matlab.engine.start_matlab()
+
             MatlabEngine._engine_instance.addpath(matlab_code_dir)
-            MatlabEngine._engine_instance.addpath(
-                os.path.join(matlab_code_dir, "MLC_tools"))
-            MatlabEngine._engine_instance.addpath(
-                os.path.join(matlab_code_dir, "MLC_tools/Demo"))
+            MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools"))
+            MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools/Demo"))
 
         return MatlabEngine._engine_instance
