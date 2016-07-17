@@ -143,13 +143,14 @@
         evolucionarios, los cuales han demostrado ser óptimos a la hora de resolver este tipo de problemas. \\
 
         \indent La \textit{Programación Genética} y los \textit{Algoritmos Genéticos} se basan en la propagación de generaciones de
-        individuos, llamadas poblaciones, los cuales son seleccionados en función del valor de su \textit{fitness}. Cada individuo tiene
-        asociado un \textit{costo} o \textit{fitness} el cual es obtenido luego de evaluar el mismo a través de una función de costo.
+        individuos, llamadas poblaciones, los cuales son seleccionados en función del valor de su costo, también llamado \textit{fitness}. 
+        Cada individuo tiene asociado un \textit{costo} o \textit{fitness} el cual es obtenido luego de evaluar el mismo 
+        a través de una función de costo.
         Un individuo en este ámbito \textit{tiene una correspondencia directa con la estructura y parámetros que definen
         a una ley de control}. En la figura \ref{fig005} se exhibe un diagrama detallado del uso de estos algoritmos dentro de la solución
         implementada en MLC. Un individuo $\mathbf{b = K(s)}$ es evaluado en el sistema dinámico. De dicha evaluación, se obtiene su
         \textit{fitness} \textbf{J}. Al terminar de evaluar una población entera, MLC genera una nueva población a través del uso de
-        diferentes técnicas de \textit{Programación Genética}. Este proceso se exhibe en detalle en la sección \ref{sec:law_gen}.
+        diferentes técnicas de \textit{Programación Genética}. Este proceso se exhibe en detalle en la sección \ref{sec:law_gen}. \\
 
         \begin{figure}[!Hhtb]
             \centering
@@ -175,8 +176,9 @@
 
     \subsubsection{Generación de nuevas Leyes de Control} \label{sec:law_gen}
         \indent La primera población de individuos es generada de forma aleatoria en función de los sensores, constantes y funciones
-        matemáticas a disposición y la misma no posee un costo asociado a priori. La población luego es evaluada (el proceso de evaluación
-        es explicado en la sección \ref{sec:mlc_and_gp}), con lo cual se obtiene el \textit{fitness} asociado a cada individuo. A partir de
+        matemáticas a disposición y la misma no posee un costo asociado a priori. La población luego es evaluada. Este proceso consiste en 
+        tomar muestras de los sensores involucrados en la ley de control y reemplazarlas en la función matemática que define a un 
+        individuo. De dicha evaluación se obtiene el \textit{fitness} asociado a cada individuo. A partir de
         este punto se procede a evolucionar la población. Dicha evolución se lleva a cabo a través de los siguientes algoritmos
         \cite{Duriez2016}:
 
