@@ -3,6 +3,7 @@ import numpy as np
 
 from MLC.individual.Individual import Individual
 
+
 class BaseCreation(object):
     def __init__(self, eng, config):
         self._eng = eng

@@ -67,7 +67,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng = MatlabEngine.engine()
 
         # Load the config
-        config = Config()
+        config = Config.get_instance()
         config.read(config_file)
 
         # Fix seed and run program

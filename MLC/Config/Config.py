@@ -4,6 +4,12 @@ import MLC.Log.log as lg
 
 
 class Config(ConfigParser.ConfigParser):
+    """
+    Singleton class that parse and manipulates the Config file of the MLC
+    """
+
+    _instance = None
+
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self)
         self._dispatcher = {'common': self.__get_common,
@@ -44,3 +50,10 @@ class Config(ConfigParser.ConfigParser):
     def __get_array(self, section, param, **kwargs):
         # TODO: Research how to use dtype to create ranges from different types
         return np.fromstring(self.get(section, param), dtype=int, sep=',')
+
+    @staticmethod
+    def get_instance():
+        if Config._instance is None:
+            Config._instance = Config()
+
+        return Config._instance
