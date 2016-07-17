@@ -1,5 +1,6 @@
 import numpy as np
 from MLC.matlab_engine import MatlabEngine
+from MLC.Config.Config import Config
 
 
 class Individual(object):
@@ -65,9 +66,9 @@ class Individual(object):
     MUTATION_HOIST = 3
     MUTATION_SHRINK = 4
 
-    def __init__(self, config=None, mlc_ind=None, value=None):
+    def __init__(self, mlc_ind=None, value=None):
         self._eng = MatlabEngine.engine()
-        self._config = config
+        self._config = Config.get_instance()
 
         if mlc_ind:
             self._mlc_ind = mlc_ind
@@ -94,8 +95,8 @@ class Individual(object):
         """
 
         # TODO: refactor MLCParameters access
-        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
-        param_controls = int(self._eng.eval('wmlc.parameters.controls'))
+        param_individual_type = self._config.get_param('POPULATION', 'individual_type')
+        param_controls = int(self._config.get_param('POPULATION', 'controls'))
 
         if param_individual_type == 'tree':
             self.set_type('tree')
@@ -109,7 +110,8 @@ class Individual(object):
                 self.set_value(varargin)
 
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
-            string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object()) #string_hash = DataHash(mlcind.value);
+            #string_hash = DataHash(mlcind.value);
+            string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
             self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
             self.set_formal(self._eng.readmylisp_to_formal_MLC(self.get_value(), mlc_parameters))
             self.set_complexity(self.__tree_complexity(self.get_value(), mlc_parameters))

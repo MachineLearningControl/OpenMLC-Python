@@ -169,7 +169,7 @@ class Population(object):
         return Population.amount_population
 
     @staticmethod
-    def evolve(mlcpop, mlc_parameters, matlab_mlctable, mlcpop2=None, config=None):
+    def evolve(mlcpop, mlc_parameters, matlab_mlctable, config, mlcpop2=None):
         """
         # uncomment this section to use MLC original evolve implementation
         from matlab

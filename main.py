@@ -6,7 +6,7 @@ from MLC.matlab_engine import MatlabEngine
 
 
 def initialize_config():
-    config = Config()
+    config = Config.get_instance()
     config.read('conf/configuration.ini')
     return config
 

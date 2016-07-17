@@ -160,7 +160,7 @@ class Application(object):
         n = Population.generations()
         table = self._eng.eval('wmlc.table')
         current_pop = Population.population(n)
-        next_pop = Population.evolve(current_pop, self._params, table, config = self._config)
+        next_pop = Population.evolve(current_pop, self._params, table, self._config)
 
         # Increase both counters. MATLAB and Python pops counters
         n += 1
@@ -181,7 +181,7 @@ class Application(object):
                     nulls.append(idx + 1)
 
             while len(nulls):
-                next_pop = Population.evolve(current_pop, self._params, table, next_pop, config = self._config)
+                next_pop = Population.evolve(current_pop, self._params, table, self._config, next_pop)
                 self._eng.remove_duplicates(next_pop)
                 indivs = Population.get_gen_individuals(n)
 
