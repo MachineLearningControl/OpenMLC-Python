@@ -123,14 +123,18 @@
             \caption{\textbf{Fig. 4} Arquitectura del MLC. Imagen tomada de \cite{Duriez2016}} \label{fig004}
         \end{figure}
 
-        \indent Comparando las figuras \ref{fig003} y \ref{fig004}, se puede observar como la ley de control es reemplazada por el MLC,
-        el cual recibe como entrada los valores sensados \textbf{s} y el valor \textbf{J}, resultante de la aplicación de la función de
-        costo ante la salida del sistema físico excitado. En función de estas muestras, MLC genera una nueva ley de control la cual es
-        evaluada, obteniendo un nuevo valor de \textbf{J}.
+        \indent Comparando las figuras \ref{fig003} y \ref{fig004}, se puede observar como la ley de control es reemplazada por el MLC, 
+        el cual recibe como entrada los valores sensados \textbf{s} y un costo asociado a la ley de control, resultante de la aplicación 
+        de la función de costo \textbf{J} ante la salida del sistema físico excitado. En función de estas muestras, MLC genera una nueva 
+        ley de control con el objetivo de \textit{minimizar/maximizar} el resultado de la evaluación de la función de costo 
+        \textbf{J}.
 
         \indent La \textit{función de costo} debe ser definida por el usuario del MLC. La misma debe adecuarse al tipo de problema que se 
         desea resolver. Se puede pensar como ejemplo la estabilización de un flujo turbulento: se puede considerar que el sistema converge 
-        si la velocidad del mismo en diferentes puntos es semejante (deja de ser turbulento para pasar a ser laminar).
+        si la velocidad del mismo en diferentes puntos es semejante (deja de ser turbulento para pasar a ser laminar). Una 
+        \textit{función de costo} válida en este contexto sería aquella que arroje un número que tienda a cero en cuanto las velocidades 
+        tienden a ser homogéneas.
+        
 
     \subsubsection{Machine Learning y Programación Genética} \label{sec:mlc_and_gp}
         \textbf{Machine Learning} es una subrama de las ciencias de la computación basada en las campos de \textit{Pattern Recognition} y
@@ -143,13 +147,13 @@
         evolucionarios, los cuales han demostrado ser óptimos a la hora de resolver este tipo de problemas. \\
 
         \indent La \textit{Programación Genética} y los \textit{Algoritmos Genéticos} se basan en la propagación de generaciones de
-        individuos, llamadas poblaciones, los cuales son seleccionados en función del valor de su costo, también llamado \textit{fitness}. 
-        Cada individuo tiene asociado un \textit{costo} o \textit{fitness} el cual es obtenido luego de evaluar el mismo 
-        a través de una función de costo.
+        individuos, llamadas poblaciones, los cuales son seleccionados en función del resultado de la evaluación de una 
+        \textit{función de costo} \textbf{J}, también llamada \textit{función de fitness}. Dicho resultado es conocido como \textit{costo}
+        o \textit{fitness}. 
         Un individuo en este ámbito \textit{tiene una correspondencia directa con la estructura y parámetros que definen
         a una ley de control}. En la figura \ref{fig005} se exhibe un diagrama detallado del uso de estos algoritmos dentro de la solución
         implementada en MLC. Un individuo $\mathbf{b = K(s)}$ es evaluado en el sistema dinámico. De dicha evaluación, se obtiene su
-        \textit{fitness} \textbf{J}. Al terminar de evaluar una población entera, MLC genera una nueva población a través del uso de
+        \textit{fitness}. Al terminar de evaluar una población entera, MLC genera una nueva población a través del uso de
         diferentes técnicas de \textit{Programación Genética}. Este proceso se exhibe en detalle en la sección \ref{sec:law_gen}. \\
 
         \begin{figure}[!Hhtb]
