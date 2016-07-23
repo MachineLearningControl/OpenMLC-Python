@@ -379,28 +379,25 @@ class Individual(object):
         mutmindepth = self._eng.eval('wmlc.parameters.mutmindepth')
         maxdepth = self._eng.eval('wmlc.parameters.maxdepth')
 
-        om1 = value_1
-        om2 = value_2
         correct = False
         count = 0
 
+        tmp_value_1 = value_1
+        tmp_value_2 = value_2
+
         while not correct and count < maxtries:
             # Extracting subtrees
-            value_1, sm1, n = self.__extract_subtree(om1, mutmindepth, maxdepth, maxdepth)  # check extract_subtree comments
-            value_2, sm2, n2 = self.__extract_subtree(om2, mutmindepth, n, maxdepth-n+1)
-
-            count += 1
+            value_1, sm1, n = self.__extract_subtree(tmp_value_1, mutmindepth, maxdepth, maxdepth)  # check extract_subtree comments
+            value_2, sm2, n2 = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth-n+1)
 
             # n or n2 < 0 indicates the extraction was not correct for any reason.
-            if n > 0 and n2 > 0:
-                correct = True
+            correct = n > 0 and n2 > 0
+            count += 1
 
         if correct:
-            fail = False
             # Replacing subtrees
             value_1 = value_1.replace('@', sm2)
             value_2 = value_2.replace('@', sm1)
-
             """
             %if gen_param.preevaluation
             %   eval(['peval=@' gen_param.preev_function ';']);
@@ -410,12 +407,10 @@ class Individual(object):
             %   fail=1-preevok1*preevok2;
             %end
             """
-        else:
-            # we could not find a candidate substitution in maxtries tests.
-            # We will select other individuals.
-            fail = True
+        # correct == false means that we could not find a candidate substitution
+        # in maxtries tests. We will select other individuals.
 
-        return value_1, value_2, fail
+        return value_1, value_2, not correct
 
     def __mutate_tree(self, value, gen_param, mutation_type):
         res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param, mutation_type)
