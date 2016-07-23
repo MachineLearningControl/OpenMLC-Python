@@ -359,12 +359,71 @@ class Individual(object):
         return new_value
 
     def __crossover_tree(self, value_1, value_2, gen_param):
-        res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
-        return res[0], res[1], res[2] != 0
+        """
+            Extract a subtree out of a tree, extract a correct subtree out of
+            another tree (with depth that can fit into maxdepth). Then interchange
+            the two subtrees inputs:
+
+            :param value_1: first tree (lisp ascii expression)
+            :param value_2: second tree (lisp ascii expression)
+            :param gen_param: a parameters structure for genetic programming as
+            returned by set_GP_parameters.m
+            :return:
+            m1: first new tree (lisp ascii expression)                              %
+            m2: second new tree (lisp ascii expression)
+        """
+        # res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
+        # return res[0], res[1], res[2] != 0
+        # TODO: refactor MLCParameters access
+        maxtries = self._eng.eval('wmlc.parameters.maxtries')
+        mutmindepth = self._eng.eval('wmlc.parameters.mutmindepth')
+        maxdepth = self._eng.eval('wmlc.parameters.maxdepth')
+
+        om1 = value_1
+        om2 = value_2
+        correct = False
+        count = 0
+
+        while not correct and count < maxtries:
+            # Extracting subtrees
+            value_1, sm1, n = self.__extract_subtree(om1, mutmindepth, maxdepth, maxdepth)  # check extract_subtree comments
+            value_2, sm2, n2 = self.__extract_subtree(om2, mutmindepth, n, maxdepth-n+1)
+
+            count += 1
+
+            # n or n2 < 0 indicates the extraction was not correct for any reason.
+            if n > 0 and n2 > 0:
+                correct = True
+
+        if correct:
+            fail = False
+            # Replacing subtrees
+            value_1 = value_1.replace('@', sm2)
+            value_2 = value_2.replace('@', sm1)
+
+            """
+            %if gen_param.preevaluation
+            %   eval(['peval=@' gen_param.preev_function ';']);
+            %   f=peval;
+            %   preevok1=feval(f,m1);
+            %   preevok2=feval(f,m2);
+            %   fail=1-preevok1*preevok2;
+            %end
+            """
+        else:
+            # we could not find a candidate substitution in maxtries tests.
+            # We will select other individuals.
+            fail = True
+
+        return value_1, value_2, fail
 
     def __mutate_tree(self, value, gen_param, mutation_type):
         res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param, mutation_type)
         return res[0], res[1] != 0
+
+    def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
+        res = self._eng.extract_subtree(self.get_matlab_object(), m, mindepth, subtreedepthmax, maxdepth)
+        return res[0], res[1], res[2]
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
