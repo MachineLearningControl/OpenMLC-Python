@@ -1,7 +1,7 @@
 import unittest
 import matlab.engine
 import numpy as np
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import MLCParameters
 from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
@@ -67,7 +67,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng = MatlabEngine.engine()
 
         # Load the config
-        config = Config()
+        config = MLCParameters()
         config.read(config_file)
 
         # Fix seed and run program

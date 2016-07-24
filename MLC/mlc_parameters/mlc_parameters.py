@@ -1,6 +1,7 @@
 import ConfigParser
 import numpy as np
 import MLC.Log.log as lg
+from MLC.matlab_engine import MatlabEngine
 
 
 class MLCParameters(ConfigParser.ConfigParser):
@@ -10,6 +11,9 @@ class MLCParameters(ConfigParser.ConfigParser):
                             'array': self.__get_array,
                             'arange': self.__get_arange}
         self._log_prefix = '[CONFIG] '
+
+    def get_matlab_object(self):
+        return MatlabEngine.engine().eval('wmlc.parameters')
 
     def __get_common(self, section, param):
         return self.get(section, param)
