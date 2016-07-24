@@ -1,6 +1,10 @@
 import numpy as np
+import math
+import MLC.Log.log as lg
+from collections import Counter
 from MLC.matlab_engine import MatlabEngine
 from MLC.Config.Config import Config
+from MLC.Common.Operations import Operations
 
 
 class Individual(object):
@@ -103,7 +107,7 @@ class Individual(object):
 
             if type(varargin) == int:
                 value = '(root @' + ' @' * (param_controls - 1) + ')'
-                for i in range(1, param_controls+1):
+                for i in range(1, param_controls + 1):
                     value = self.__generate_indiv_regressive_tree(value, mlc_parameters, varargin)
                 self.set_value(value)
             else:
@@ -227,8 +231,99 @@ class Individual(object):
     def __tree_complexity(self, value, mlc_parameters):
         return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters)
 
-    def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type):
-        return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(), value, mlc_parameters, indiv_type)
+    def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
+        # return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(), value, mlc_parameters, indiv_type)
+
+        min_depth = 0
+        max_depth = 0
+        new_value = ""
+
+        # FIXME: Don't use the config to generate the depth values because the mlc_parameters has altered parameters
+        # compared to the defaults values
+        """
+        if indiv_type:
+            if indiv_type == 1:
+                min_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
+                max_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
+            elif indiv_type == 2 or indiv_type == 3:
+                min_depth = int(self._config.get_param('GP', 'mindepth'))
+                max_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
+            elif indiv_type == 4:
+                min_depth = int(self._config.get_param('GP', 'mindepth'))
+                max_depth = 1
+            else:
+                min_depth = int(self._config.get_param('GP', 'mindepth'))
+                max_depth = int(self._config.get_param('GP', 'maxdepth'))
+
+        else:
+            min_depth = int(self._config.get_param('GP', 'mindepth'))
+            max_depth = int(self._config.get_param('GP', 'maxdepth'))
+        """
+
+        if indiv_type:
+            if indiv_type == 1:
+                min_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
+                max_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
+            elif indiv_type == 2 or indiv_type == 3:
+                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
+                max_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
+            elif indiv_type == 4:
+                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
+                max_depth = 1
+            else:
+                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
+                max_depth = int(self._eng.eval('wmlc.parameters.maxdepth'))
+
+        else:
+            min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
+            max_depth = int(self._eng.eval('wmlc.parameters.maxdepth'))
+
+        # Check if the seed character is in the string
+        index = value.find('@')
+        if index == -1:
+            return
+
+        # Split the value in two strings, not containing the first seed character
+        begin_str = value[:index]
+        end_str = value[index+1:]
+
+        # Count the amounts of '(' until the first seed character (This is the depth of the seed)
+        counter = Counter(begin_str)
+        begin_depth = counter['('] - counter[')']
+
+        leaf_node = False
+        if begin_depth >= max_depth:
+            leaf_node = True
+        elif (begin_depth < min_depth and end_str.find('@') == -1) or indiv_type == 3:
+            leaf_node = False
+        else:
+            leaf_node = MatlabEngine.rand() < float(self._config.get_param('POPULATION', 'leaf_prob'))
+
+        if leaf_node:
+            use_sensor = MatlabEngine.rand() < float(self._config.get_param('POPULATION', 'sensor_prob'))
+            if use_sensor:
+                sensor_number = math.ceil(MatlabEngine.rand() * int(self._config.get_param('POPULATION', 'sensors'))) - 1
+                new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
+            else:
+                range = float(self._config.get_param('POPULATION', 'range'))
+                precision = str(int(self._config.get_param('POPULATION', 'precision')))
+                # Generate a float number between -range and +range with a precision of 'precision'
+                new_exp = (("%." + precision + "f") % ((MatlabEngine.rand() - 0.5) * 2 * range))
+                new_value = begin_str + new_exp + end_str
+        else:
+            # Create a node
+            op_num = math.ceil(MatlabEngine.rand() * Operations.get_instance().length())
+            op = Operations.get_instance().get_operation(op_num)
+            if (op["nbarg"] == 1):
+                new_value = begin_str + '(' + op["op"] + ' @)' + end_str
+                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+            else:
+                # nbrag == 2
+                new_value = begin_str + '(' + op["op"] + ' @ @)' + end_str
+                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+
+        return new_value
 
     def __crossover_tree(self, value_1, value_2, gen_param):
         res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)

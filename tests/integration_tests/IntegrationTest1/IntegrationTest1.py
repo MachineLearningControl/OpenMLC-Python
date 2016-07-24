@@ -89,6 +89,7 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_1(self):
         self._run_x_generation(1)
 
+    # @unittest.skip
     def test_generation_2(self):
         self._run_x_generation(2)
 
