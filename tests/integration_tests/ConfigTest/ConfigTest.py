@@ -2,7 +2,7 @@ import sys
 sys.path.insert(1, '../.')
 
 import unittest
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import MLCParameters
 import os
 import numpy as np
 
@@ -17,7 +17,7 @@ class ConfigTest(unittest.TestCase):
         self._file.write('arange_float = 1:5:0.5\n')
         self._file.write('array = 1,2,3,4\n')
         self._file.close()
-        self._config = Config()
+        self._config = MLCParameters()
         self._config.read('test')
 
     def tearDown(self):
