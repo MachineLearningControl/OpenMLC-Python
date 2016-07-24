@@ -7,7 +7,6 @@ class Config(ConfigParser.ConfigParser):
     """
     Singleton class that parse and manipulates the Config file of the MLC
     """
-
     _instance = None
 
     def __init__(self):
