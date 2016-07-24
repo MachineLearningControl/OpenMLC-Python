@@ -25,6 +25,8 @@ function [m]=generate_indiv_regressive_tree(m,gen_param,type)
 %   Copyright (C) 2013 Thomas Duriez (thomas.duriez@gmail.com)
 %   This file is part of the TUCOROM MLC Toolbox
 %% What kind of tree
+% fprintf('Value: %s\n', m);
+
 if isempty(type)
     type=-1;
 end
@@ -64,6 +66,9 @@ end
         currank=(m=='@').*(leftpar-rightpar); %% detecting the depth of the seed.
         %% Choose next node.
         nbop=length(gen_param.opset);
+
+        % fprintf('String to be processed: %s - Maxdepth: %s \n', m, maxdepth);
+
         if max(currank)>=maxdepth   %% Cannot go deeper => leaf
             choice=1;
         elseif (max(currank)<mindepth && isempty(strfind(endstr,'@')))...
@@ -74,17 +79,24 @@ end
         end
         %% Create node or leaf.
             if choice
-                choice2=rand<gen_param.sensor_prob;
+                sensor_rand = rand;
+                choice2=sensor_rand<gen_param.sensor_prob;
                 if choice2
                     choice3=ceil(rand*gen_param.sensors)-1;
                     m=[begstr 'z' num2str(choice3) endstr];
                 else
-                    newexp=num2str((rand-0.5)*2*gen_param.range,gen_param.precision);
+                    str_format = '';
+                    str_format = strcat(str_format, '% .');
+                    str_format = strcat(str_format, num2str(gen_param.precision));
+                    str_format = strcat(str_format, 'f');
+                    newexp = num2str((rand-0.5) * 2 * gen_param.range, str_format);
                     m=[begstr newexp endstr];
                 end
             else
                 nbop=length(gen_param.opset);
-                choice2=ceil(rand*(nbop));
+                op_prob = rand;
+                choice2=ceil(op_prob*(nbop));
+                % fprintf('Op prob: %d - Operation choosen: %d\n', op_prob, choice2);
                 if gen_param.opset(choice2).nbarg==1
                     m=[begstr '(' gen_param.opset(choice2).op ' @)' endstr];
                     m=generate_indiv_regressive_tree(m,gen_param,type);
