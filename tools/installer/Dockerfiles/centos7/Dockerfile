@@ -75,7 +75,7 @@ chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib pyside scipy
 
 # Create .sh who will load the desired enviroment to run nosetests within it
-RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
 echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
 echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
