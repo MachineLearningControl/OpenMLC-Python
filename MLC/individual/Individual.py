@@ -99,7 +99,6 @@ class Individual(object):
 
         matlab_impl: return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
         """
-
         # TODO: refactor MLCParameters access
         param_individual_type = self._config.get_param('POPULATION', 'individual_type')
         param_controls = int(self._config.get_param('POPULATION', 'controls'))
@@ -128,11 +127,10 @@ class Individual(object):
         raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
 
     def evaluate(self, mlc_parameters, varargin):
-        return self._eng.evaluate(self._mlc_ind, mlc_parameters, varargin)
+        return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
 
     def mutate(self, mlc_parameters, mutation_type=MUTATION_ANY):
-        # TODO: refactor MLCParameters access
-        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
+        param_individual_type = mlc_parameters.get("POPULATION", "individual_type")
 
         if param_individual_type == 'tree':
             new_value, fail = self.__mutate_tree(self.get_value(), mlc_parameters, mutation_type)
@@ -151,8 +149,7 @@ class Individual(object):
         CROSSOVER crosses two MLCind individuals.
         [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
-        # TODO: refactor MLCParameters access
-        param_individual_type = self._eng.eval('wmlc.parameters.individual_type')
+        param_individual_type = mlc_parameters.get("POPULATION", "individual_type")
 
         if param_individual_type == 'tree':
             m1, m2, fail = self.__crossover_tree(self.get_value(),
@@ -259,7 +256,7 @@ class Individual(object):
         return self._eng.simplify_my_LISP(value, mlc_parameters)
 
     def __tree_complexity(self, value, mlc_parameters):
-        return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters)
+        return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters.get_matlab_object())
 
     def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
         return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
@@ -372,12 +369,9 @@ class Individual(object):
             m1: first new tree (lisp ascii expression)                              %
             m2: second new tree (lisp ascii expression)
         """
-        # res = self._eng.private_crossover_tree(self.get_matlab_object(), value_1, value_2, gen_param)
-        # return res[0], res[1], res[2] != 0
-        # TODO: refactor MLCParameters access
-        maxtries = self._eng.eval('wmlc.parameters.maxtries')
-        mutmindepth = self._eng.eval('wmlc.parameters.mutmindepth')
-        maxdepth = self._eng.eval('wmlc.parameters.maxdepth')
+        maxtries = gen_param.getint("GP", "maxtries")
+        mutmindepth = gen_param.getint("GP", "mutmindepth")
+        maxdepth = gen_param.getint("GP", "maxdepth")
 
         correct = False
         count = 0
@@ -413,7 +407,7 @@ class Individual(object):
         return value_1, value_2, not correct
 
     def __mutate_tree(self, value, gen_param, mutation_type):
-        res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param, mutation_type)
+        res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param.get_matlab_object(), mutation_type)
         return res[0], res[1] != 0
 
     def __find(self, condition):

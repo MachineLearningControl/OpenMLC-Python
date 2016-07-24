@@ -4,7 +4,9 @@ from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 from MLC.Config.Config import Config
+import MLC.config
 
+import os
 
 class IndividualTest(unittest.TestCase):
 
@@ -17,7 +19,8 @@ class IndividualTest(unittest.TestCase):
     def setUp(self):
         self._engine = MatlabEngine.engine()
         self._engine.workspace['wmlc'] = self._engine.MLC2()
-        self._params = self._engine.eval('wmlc.parameters')
+        self._params = MLCParameters()
+        self._params.read(os.path.join(MLC.config.get_config_path(), "configuration.ini"))
 
         self._individual_l0 = Individual()
         self._individual_l0.generate(self._params, "(root (cos 5.046))")
