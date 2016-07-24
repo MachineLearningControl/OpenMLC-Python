@@ -1,7 +1,7 @@
 import unittest
 import matlab.engine
 import numpy as np
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
