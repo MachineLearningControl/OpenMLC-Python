@@ -416,9 +416,52 @@ class Individual(object):
         res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param, mutation_type)
         return res[0], res[1] != 0
 
+    def __find(self, condition):
+        return np.where(condition)[0]
+
     def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
-        res = self._eng.extract_subtree(self.get_matlab_object(), m, mindepth, subtreedepthmax, maxdepth)
-        return res[0], res[1], res[2]
+        subtreedepthmin = 2
+        leftpar = np.cumsum([1 if c == '(' else 0 for c in m])
+        rightpar = np.cumsum([1 if c == ')' else 0 for c in m])
+        cdepth = leftpar - rightpar
+
+        if len(m) == 0:
+            raise Exception("m could not be an empty string")
+
+        rankpar = np.array([1 if c == '(' else 0 for c in m] * cdepth)
+        rankpar2 = np.array([1 if c == ')' else 0 for c in m] * (cdepth+1))
+        idx1 = self.__find(rankpar != 0)
+        # idx2 = self.__find(rankpar != 0)
+        subtreedepth = rankpar * 0
+
+        for i in range(len(idx1)):
+            # idx1(i);
+            crank = rankpar[idx1[i]]
+            icendpar = self.__find(rankpar2 == crank)
+            icendpar = icendpar[icendpar > idx1[i]]
+            icendpar = icendpar[0]
+            subtreedepth[idx1[i]] = max(rankpar[range(idx1[i]-1, icendpar+1)])
+
+        search_par = (rankpar >= mindepth)*(subtreedepth-rankpar <= (subtreedepthmax - 1))*(rankpar <= maxdepth)
+        eligiblepar = self.__find(search_par)
+
+        if len(eligiblepar) > 0:
+            rand_number = MatlabEngine.engine().rand()
+            n = np.ceil(rand_number * len(eligiblepar))-1
+            n = eligiblepar[n]
+            n2 = self.__find(rankpar[n] == rankpar2)
+            idx = self.__find(n2*(n2 > n))
+            n2 = n2[idx[0]]
+            sm = m[n-1:n2+1]
+            leftpar = np.cumsum([1 if c == '(' else 0 for c in sm])
+            rightpar = np.cumsum([1 if c == ')' else 0 for c in sm])
+            cdepth = leftpar - rightpar
+            stdepth = max(cdepth)
+            m = m[0:n-1]+'@'+m[n2+1:]
+        else:
+            return [], [], -1
+
+        return m, sm, stdepth
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
