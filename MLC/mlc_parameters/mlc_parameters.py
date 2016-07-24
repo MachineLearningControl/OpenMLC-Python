@@ -3,7 +3,7 @@ import numpy as np
 import MLC.Log.log as lg
 
 
-class Config(ConfigParser.ConfigParser):
+class MLCParameters(ConfigParser.ConfigParser):
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self)
         self._dispatcher = {'common': self.__get_common,
