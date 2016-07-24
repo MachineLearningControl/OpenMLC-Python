@@ -22,8 +22,7 @@ class BaseCreation(object):
         while index < len(individuals):
 
             indiv = Individual()
-            param = self._eng.eval('wmlc.parameters')
-            indiv.generate(param, type)
+            indiv.generate(self._config, type)
 
             table = self._eng.eval('wtable')
             # Returns (individual, number, repeated)
@@ -41,7 +40,7 @@ class BaseCreation(object):
                                  str(indiv_number) +
                                  ' - Value: ' + self._eng.eval('windiv.value'))
 
-                if self._eng.preev(indiv.get_matlab_object(), param, nargout=1):
+                if self._eng.preev(indiv.get_matlab_object(), self._config.get_matlab_object(), nargout=1):
                     self._individuals.append((index, response[1]))
                     index += 1
                 else:
