@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import MLC.Log.log as lg
+import re
 from collections import Counter
 from MLC.matlab_engine import MatlabEngine
 from MLC.Config.Config import Config
@@ -226,20 +227,51 @@ class Individual(object):
         return self._eng.set_complexity(self._mlc_ind, complexity)
 
     def __simplify_and_sensors_tree(self, value, mlc_parameters):
-        return self._eng.private_simplify_and_sensors_tree(self.get_matlab_object(), value, mlc_parameters)
+        """
+        return self._eng.private_simplify_and_sensors_tree(self.get_matlab_object(),
+                                                           value,
+                                                           mlc_parameters)
+        """
+        sensor_list = ()
+        replace_list = ()
+
+        if int(self._config.get_param('POPULATION', 'sensor_spec')):
+            # TODO: Get the sensors as a list. Not tested for obvious reasons
+            config_sensor_list = sorted((1, 9, 4))
+            sensor_list = ['S' + str(x) for x in config_sensor_list]
+            replace_list = ['z' + str(x) for x in config_sensor_list]
+        else:
+            amount_sensors = int(self._config.get_param('POPULATION', 'sensors'))
+            # Replace the available sensors in the individual expression
+            sensor_list = ['S' + str(x) for x in range(amount_sensors)]
+            replace_list = ['z' + str(x) for x in range(amount_sensors)]
+
+        for i in range(len(replace_list)):
+            value = value.replace(replace_list[i], sensor_list[i])
+
+        if int(self._config.get_param('OPTIMIZATION', 'simplify')):
+            return self.__simplify_my_LISP(value, mlc_parameters)
+
+        return value
+
+    def __simplify_my_LISP(self, value, mlc_parameters):
+        return self._eng.simplify_my_LISP(value, mlc_parameters)
 
     def __tree_complexity(self, value, mlc_parameters):
         return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters)
 
     def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
-        # return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(), value, mlc_parameters, indiv_type)
+        return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
+                                                                value,
+                                                                mlc_parameters,
+                                                                indiv_type)
 
         min_depth = 0
         max_depth = 0
         new_value = ""
 
-        # FIXME: Don't use the config to generate the depth values because the mlc_parameters has altered parameters
-        # compared to the defaults values
+        # FIXME: Don't use the config to generate the depth values because the mlc_parameters has altered
+        # parameters compared to the defaults values
         """
         if indiv_type:
             if indiv_type == 1:
