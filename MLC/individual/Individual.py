@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import MLC.Log.log as lg
-import re
+import MLC.Common.LISP_Simplification
 from collections import Counter
 from MLC.matlab_engine import MatlabEngine
 from MLC.Config.Config import Config
