@@ -22,7 +22,7 @@ class Operations(object):
         # FIXME: Hardcoded, ugly. Change it for a config file
         op = {}
         op["op"] = "+"
-        op["nbarg"] = 2
+        op["nbarg"] = 2}
         op["complexity"] = 1
         self._ops[1] = op
 
@@ -92,6 +92,13 @@ class Operations(object):
             raise IndexError("get_operation", str_error)
 
         return self._ops[op_num]
+
+    def get_operation(self, op):
+        for op in self._ops:
+            if op["op"] == op:
+                return op
+
+        raise KeyError('Operations', 'Key was not found')
 
     def length(self):
         """ Number of operations loaded into the Singleton
