@@ -1,11 +1,11 @@
 import numpy as np
 import math
 import MLC.Log.log as lg
-import MLC.Common.LISP_Simplification
 from collections import Counter
 from MLC.matlab_engine import MatlabEngine
 from MLC.Config.Config import Config
 from MLC.Common.Operations import Operations
+from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
 
 
 class Individual(object):
@@ -250,7 +250,9 @@ class Individual(object):
             value = value.replace(replace_list[i], sensor_list[i])
 
         if int(self._config.get_param('OPTIMIZATION', 'simplify')):
-            return self.__simplify_my_LISP(value, mlc_parameters)
+            # return self.__simplify_my_LISP(value, mlc_parameters)
+            tree = Lisp_Tree_Expr(value)
+            return tree.get_simplified_tree_as_string()
 
         return value
 
@@ -345,7 +347,7 @@ class Individual(object):
         else:
             # Create a node
             op_num = math.ceil(MatlabEngine.rand() * Operations.get_instance().length())
-            op = Operations.get_instance().get_operation(op_num)
+            op = Operations.get_instance().get_operation_from_op_num(op_num)
             if (op["nbarg"] == 1):
                 new_value = begin_str + '(' + op["op"] + ' @)' + end_str
                 new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)

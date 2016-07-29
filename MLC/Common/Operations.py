@@ -22,7 +22,7 @@ class Operations(object):
         # FIXME: Hardcoded, ugly. Change it for a config file
         op = {}
         op["op"] = "+"
-        op["nbarg"] = 2}
+        op["nbarg"] = 2
         op["complexity"] = 1
         self._ops[1] = op
 
@@ -86,16 +86,16 @@ class Operations(object):
         op["complexity"] = 10
         self._ops[11] = op
 
-    def get_operation(self, op_num):
+    def get_operation_from_op_num(self, op_num):
         if not op_num in self._range:
             str_error = "Index of an operation must be one of the following values: " + str(self._range)
             raise IndexError("get_operation", str_error)
 
         return self._ops[op_num]
 
-    def get_operation(self, op):
-        for op in self._ops:
-            if op["op"] == op:
+    def get_operation_from_op_string(self, str_op):
+        for k, op in self._ops.iteritems():
+            if op["op"] == str_op:
                 return op
 
         raise KeyError('Operations', 'Key was not found')

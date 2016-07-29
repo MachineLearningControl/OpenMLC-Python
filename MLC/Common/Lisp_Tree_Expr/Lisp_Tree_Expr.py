@@ -1,22 +1,25 @@
 import MLC.Log.log as lg
 from MLC.Config.Config import Config
 from MLC.Common.Operations import Operations
-from MLC.LISP_Tree_Expr.Leaf_Node import leaf_node
-from MLC.LISP_Tree_Expr.Internal_Node import Internal_Node
+from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
+from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
+from MLC.Common.Lisp_Tree_Expr.Operation_Nodes import Op_Node_Factory
 
 
-class LISP_Tree_Expr(object):
+class Lisp_Tree_Expr(object):
+
     def __init__(self, expr):
         self._expanded_tree = expr
-        self._root = self._generate_node(expr)
-        self._simplified_tree = self
+
+        # Remove the root part of the node
+        nonroot_expr = expr[expr.find('root') + 5:-1]
+        lg.logger_.debug("[LISP_TREE_EXPR] NonRoot Expression: " + nonroot_expr)
+        self._root, offset = self._generate_node(nonroot_expr)
+        self._simplified_tree = '(root ' + self._root.to_string() + ')'
+        lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
     def get_root_node(self):
         return self._root
-
-    def simplify(self):
-        self._root = self._root.simplify()
-        self._simplified_tree = self._root.to_string()
 
     def get_expanded_tree_as_string(self):
         return self._expanded_tree
@@ -28,12 +31,12 @@ class LISP_Tree_Expr(object):
         pos = -1
         expr_op = None
         # Get operation string
-        str_op = expr[:expr.find(' ')
+        str_op = expr[1:expr.find(' ')]
 
         # If the operation doesn not exists, an exception is thrown. This
         # shouldn't happen if the expression is valid
         try:
-            expr_op = Operations.get_instance().get_operation(str_op)
+            expr_op = Operations.get_instance().get_operation_from_op_string(str_op)
         except KeyError:
             lg.logger_.error('[LISP_TREE_EXPR] Invalid operation found. Op: ', str_op)
             raise
@@ -58,13 +61,13 @@ class LISP_Tree_Expr(object):
     # As a precondition, the expression must be well-formed
     def _generate_node(self, expr):
         if expr[0] != '(':
-            return generate_leaf_node(exp)
+            return self._generate_leaf_node(exp)
 
         # We are in the presence of an internal node. Get the operation
-        op = get_operation(expr)
+        op = self._get_operation(expr)
 
         # Generate the arguments of the internal node as Child Nodes
-        node = create_node[op["op"]()
+        node = Op_Node_Factory.make(op["op"])
         expr_offset = 0
         offset = 0
         child_node = None
@@ -74,9 +77,9 @@ class LISP_Tree_Expr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = generate_node(expr[next_arg_pos:])
+                child_node, offset = self._generate_node(expr[next_arg_pos:])
             else:
-                child_node, offset = generate_leaf_node(expr[next_arg_pos:])
+                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:])
 
             node.add_child(child_node)
             # print "Offset: " + str(offset)
