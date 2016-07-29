@@ -9,8 +9,8 @@ class Tree_Node(object):
     def simplify(self):
         raise NotImplementedError('Tree_Node', 'simplify is an abstract method')
 
-    def can_simplify(self):
-        raise NotImplementedError('Tree_Node', 'can_simplify is an abstract method')
+    # def can_simplify(self):
+    #     raise NotImplementedError('Tree_Node', 'can_simplify is an abstract method')
 
     def is_leaf(self):
         raise NotImplementedError('Tree_Node', 'leaf is an abstract method')
@@ -34,12 +34,12 @@ class Leaf_Node(Tree_Node):
     def is_leaf(self):
         return True
 
-    def can_simplify(self):
+    def is_sensor(self):
         try:
             float(self._arg)
-            return True
-        except ValueError:
             return False
+        except ValueError:
+            return True
 
 
 class Internal_Node(Tree_Node):
@@ -48,6 +48,18 @@ class Internal_Node(Tree_Node):
         Tree_Node.__init__(self)
         self._op = op
         self._nodes = []
+
+    """
+    { Returns true if the argument of the node x is y. False in other case }
+    """
+    def _node_arg_x_is_y(self, index, value):
+        try:
+            if float(self._nodes[index].to_string()) == value:
+                return True
+        except ValueError:
+            return False
+
+        return False
 
     def add_child(self, node):
         self._nodes.append(node)
@@ -72,14 +84,11 @@ class Internal_Node(Tree_Node):
 
         for node in self._nodes:
             # print type(node).__name__
-            if not node.is_leaf() or not node.can_simplify():
+            if not node.is_leaf():
                 # print "YO MAMMA"
                 return self
 
         return self.op_simplify()
-
-    def can_simplify(self):
-        raise NotImplementedError('Internal_Node', "can_simplify shouldn't be called")
 
     def is_leaf(self):
         # Check if the list is empty
