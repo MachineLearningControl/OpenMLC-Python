@@ -22,7 +22,6 @@ class MatlabEngine:
                 sessions = matlab.engine.find_matlab()
                 if len(sessions) > 0:
                     MatlabEngine._engine_instance = matlab.engine.connect_matlab(sessions[0])
-                    print "Using Shared Session {}".format(sessions[0])
                 else:
                     MatlabEngine._engine_instance = matlab.engine.start_matlab()
             except AttributeError:
