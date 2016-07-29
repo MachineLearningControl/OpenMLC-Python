@@ -15,6 +15,7 @@ class Lisp_Tree_Expr(object):
         nonroot_expr = expr[expr.find('root') + 5:-1]
         lg.logger_.debug("[LISP_TREE_EXPR] NonRoot Expression: " + nonroot_expr)
         self._root, offset = self._generate_node(nonroot_expr)
+        self._root = self._root.simplify()
         self._simplified_tree = '(root ' + self._root.to_string() + ')'
         lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
@@ -61,7 +62,7 @@ class Lisp_Tree_Expr(object):
     # As a precondition, the expression must be well-formed
     def _generate_node(self, expr):
         if expr[0] != '(':
-            return self._generate_leaf_node(exp)
+            return self._generate_leaf_node(expr)
 
         # We are in the presence of an internal node. Get the operation
         op = self._get_operation(expr)
