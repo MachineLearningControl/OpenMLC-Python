@@ -1,4 +1,5 @@
 class Tree_Node(object):
+
     def __init__(self):
         pass
 
@@ -19,6 +20,7 @@ class Tree_Node(object):
 
 
 class Leaf_Node(Tree_Node):
+
     def __init__(self, arg):
         Tree_Node.__init__(self)
         self._arg = arg
@@ -41,6 +43,7 @@ class Leaf_Node(Tree_Node):
 
 
 class Internal_Node(Tree_Node):
+
     def __init__(self, op):
         Tree_Node.__init__(self)
         self._op = op
