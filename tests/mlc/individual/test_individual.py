@@ -2,9 +2,15 @@ import unittest
 
 from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
+from MLC.Config.Config import Config
 
 
 class IndividualTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        config = Config.get_instance()
+        config.read('configuration.ini')
+
     def setUp(self):
         self._engine = MatlabEngine.engine()
         self._engine.workspace['wmlc'] = self._engine.MLC2()
@@ -14,7 +20,7 @@ class IndividualTest(unittest.TestCase):
         self._individual_l0.generate(self._params, "(root (cos 5.046))")
 
         self._individual_l1 = Individual()
-        self._individual_l1.generate(self._params, "(root (log (sin (exp (tanh 3.628)))))")
+        self._individual_l1.generate(self._params, "(root (log (sin (exp (tanh 3.6284)))))")
 
         self._individual_l2 = Individual()
         self._individual_l2.generate(self._params, "(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))")
@@ -44,13 +50,13 @@ class IndividualTest(unittest.TestCase):
         individual = Individual()
         individual.generate(self._params, 3)
 
-        self.assertEquals(individual.get_value(),"(root (cos (+ (sin (log -0.7648)) (exp (tanh 3.628)))))")
+        self.assertEquals(individual.get_value(),"(root (cos (+ (sin (log -0.7648)) (exp (tanh 3.6284)))))")
         self.assertEquals(individual.get_type(), 'tree')
         self.assertEquals(len(individual.get_cost_history()), 0)
         self.assertEquals(len(individual.get_evaluation_time()), 0)
         self.assertEquals(individual.get_appearences(), 1)
         self.assertEquals(individual.get_hash(), -1.4777973157426358e-58)
-        self.assertEquals(individual.get_formal(),"cos((sin(my_log((-0.7648))) + exp(tanh(3.628))))")
+        self.assertEquals(individual.get_formal(),"cos((sin(my_log((-0.7648))) + exp(tanh(3.6284))))")
         self.assertEquals(individual.get_complexity(), 24)
 
     def test_compare(self):
@@ -64,7 +70,7 @@ class IndividualTest(unittest.TestCase):
         self.assertEquals(individual_1.get_hash(), individual_2.get_hash())
 
         individual_different = Individual()
-        individual_different.generate(self._params, "(root (cos (+ (sin (log -0.7648)) (exp (tanh 3.628)))))")
+        individual_different.generate(self._params, "(root (cos (+ (sin (log -0.7648)) (exp (tanh 3.6284)))))")
 
         self.assertFalse(individual_1.compare(individual_different))
         self.assertNotEquals(individual_1.get_hash(), individual_different.get_hash())
@@ -88,14 +94,14 @@ class IndividualTest(unittest.TestCase):
         individual.generate(self._params, 0)
         self._assert_individual(individual, complexity=4,
                                 hash=3.9424597980921636e+70,
-                                value="(root (cos 5.046))",
-                                formal="cos(5.046)")
+                                value="(root (cos 5.0457))",
+                                formal="cos(5.0457)")
 
         individual.generate(self._params, 1)
         self._assert_individual(individual, complexity=19,
                                 hash=3.4383822393862387e+193,
-                                value="(root (log (sin (exp (tanh 3.628)))))",
-                                formal="my_log(sin(exp(tanh(3.628))))")
+                                value="(root (log (sin (exp (tanh 3.6284)))))",
+                                formal="my_log(sin(exp(tanh(3.6284))))")
 
         individual.generate(self._params, 2)
         self._assert_individual(individual, complexity=13,
@@ -242,8 +248,8 @@ class IndividualTest(unittest.TestCase):
         self.assertFalse(fail)
         self._assert_individual(new_ind,complexity=138,
                                 hash=-1.3367784216959267e-151,
-                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) (+ (+ (tanh (- -4.368 (+ (tanh (sin (/ (- (- (* (tanh S0) -6.729) -0.1076) S0) 8.669))) (log 5.463)))) (* (+ (- (/ (- 2.524 (log (cos (/ (* (- -2.225 -2.147) (* -5.252 0.2113)) -3.195)))) (cos (cos S0))) (sin S0)) (sin (cos S0))) (+ (- (cos -2.682) (/ -0.3451 (tanh (exp (sin (/ (- 3.137 S0) (* S0 (log -0.5594)))))))) (cos (tanh S0))))) (/ -4.114 -9.877)))))",
-                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),((tanh(((-4.368) - (tanh(sin((my_div((((tanh(S0) .* (-6.729)) - (-0.1076)) - S0),8.669)))) + my_log(5.463)))) + ((((my_div((2.524 - my_log(cos((my_div((((-2.225) - (-2.147)) .* ((-5.252) .* 0.2113)),(-3.195)))))),cos(cos(S0)))) - sin(S0)) + sin(cos(S0))) .* ((cos((-2.682)) - (my_div((-0.3451),tanh(exp(sin((my_div((3.137 - S0),(S0 .* my_log((-0.5594))))))))))) + cos(tanh(S0))))) + (my_div((-4.114),(-9.877)))))))")
+                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) (+ (+ (tanh (- -4.3682 (+ (tanh (sin (/ (- (- (* (tanh S0) -6.7287) -0.1076) S0) 8.6688))) (log 5.4626)))) (* (+ (- (/ (- 2.5242 (log (cos (/ (* (- -2.2247 -2.1467) (* -5.2521 0.2113)) -3.1952)))) (cos (cos S0))) (sin S0)) (sin (cos S0))) (+ (- (cos -2.6823) (/ -0.3451 (tanh (exp (sin (/ (- 3.1365 S0) (* S0 (log -0.5594)))))))) (cos (tanh S0))))) (/ -4.1140 -9.8769)))))",
+                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),((tanh(((-4.3682) - (tanh(sin((my_div((((tanh(S0) .* (-6.7287)) - (-0.1076)) - S0),8.6688)))) + my_log(5.4626)))) + ((((my_div((2.5242 - my_log(cos((my_div((((-2.2247) - (-2.1467)) .* ((-5.2521) .* 0.2113)),(-3.1952)))))),cos(cos(S0)))) - sin(S0)) + sin(cos(S0))) .* ((cos((-2.6823)) - (my_div((-0.3451),tanh(exp(sin((my_div((3.1365 - S0),(S0 .* my_log((-0.5594))))))))))) + cos(tanh(S0))))) + (my_div((-4.1140),(-9.8769)))))))")
 
         # do a second mutation
         new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
@@ -300,8 +306,8 @@ class IndividualTest(unittest.TestCase):
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=15,
                                 hash=-2.277899705381213e+222,
-                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) -9.526)))",
-                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),(-9.526))))")
+                                value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) -9.5256)))",
+                                formal="my_log((my_div((sin(4.37) .* ((-8.815) - (-3.902))),(-9.5256))))")
 
         # do a second mutation
         new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_SHRINK)
