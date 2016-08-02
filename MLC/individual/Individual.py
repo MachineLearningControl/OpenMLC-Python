@@ -74,6 +74,7 @@ class Individual(object):
     def __init__(self, mlc_ind=None, value=None):
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
+        self._tree = None
 
         if mlc_ind:
             self._mlc_ind = mlc_ind
@@ -119,7 +120,7 @@ class Individual(object):
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
             self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
             self.set_formal(self._eng.readmylisp_to_formal_MLC(self.get_value(), mlc_parameters))
-            self.set_complexity(self.__tree_complexity(self.get_value(), mlc_parameters))
+            self.set_complexity(self._tree.complexity())
             return
 
         raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
@@ -249,10 +250,11 @@ class Individual(object):
         for i in range(len(replace_list)):
             value = value.replace(replace_list[i], sensor_list[i])
 
+        # Create the Individual Tree after the sensor replacement
+        self._tree = Lisp_Tree_Expr(value)
+
         if int(self._config.get_param('OPTIMIZATION', 'simplify')):
-            # return self.__simplify_my_LISP(value, mlc_parameters)
-            tree = Lisp_Tree_Expr(value)
-            return tree.get_simplified_tree_as_string()
+            return self._tree.get_simplified_tree_as_string()
 
         return value
 

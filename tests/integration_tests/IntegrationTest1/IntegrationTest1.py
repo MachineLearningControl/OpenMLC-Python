@@ -139,6 +139,10 @@ class IntegrationTest1(unittest.TestCase):
 
             self.assertEqual(self._eng.eval(value),
                              self._indivs[int(index) - 1]['value'])
+
+            value = 'wmlc.table.individuals(' + str(index) + ').complexity'
+            self.assertEqual(int(self._eng.eval(value)),
+                             int(self._indivs[int(index) - 1]['complexity']))
             print "Individual N# ", i, " OK!"
             i += 1
 

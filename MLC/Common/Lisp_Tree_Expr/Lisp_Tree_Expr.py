@@ -15,9 +15,15 @@ class Lisp_Tree_Expr(object):
         nonroot_expr = expr[expr.find('root') + 5:-1]
         lg.logger_.debug("[LISP_TREE_EXPR] NonRoot Expression: " + nonroot_expr)
         self._root, offset = self._generate_node(nonroot_expr)
-        self._root = self._root.simplify()
-        self._simplified_tree = '(root ' + self._root.to_string() + ')'
-        lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
+
+        # Get the complexity of the tree before simplifying
+        self._complexity = self._root.complexity()
+
+        # Now, simplify the tree
+        if int(Config.get_instance().get_param('OPTIMIZATION', 'simplify')) != 0:
+            self._root = self._root.simplify()
+            self._simplified_tree = '(root ' + self._root.to_string() + ')'
+            lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
     def get_root_node(self):
         return self._root
@@ -27,6 +33,13 @@ class Lisp_Tree_Expr(object):
 
     def get_simplified_tree_as_string(self):
         return self._simplified_tree
+
+    def complexity(self):
+        """
+        The complexity of the tree is a number given by the weight of every operation and
+        the amount of constants/sensors stored
+        """
+        return self._complexity
 
     def _get_operation(self, expr):
         pos = -1
