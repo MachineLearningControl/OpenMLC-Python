@@ -5,6 +5,11 @@ from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
 from MLC.Config.Config import Config
 
 
+def process_float(arg):
+    str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
+    return str_arg
+
+
 class Plus_Node(Internal_Node):
 
     def __init__(self):
@@ -20,8 +25,7 @@ class Plus_Node(Internal_Node):
         # Non of the arguments are zero. Make the operation if they are not sensors
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) + float(self._nodes[1].to_string())
-            str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-            return Leaf_Node(str_arg)
+            return Leaf_Node(process_float(arg))
         else:
             return self
 
@@ -39,8 +43,7 @@ class Minus_Node(Internal_Node):
         # Non of the arguments are zero. Make the operation if they are not sensors
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) - float(self._nodes[1].to_string())
-            str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-            return Leaf_Node(str_arg)
+            return Leaf_Node(process_float(arg))
         else:
             return self
 
@@ -53,7 +56,7 @@ class Mult_Node(Internal_Node):
     def op_simplify(self):
         # If one or both of the arguments are zero, return zero
         if self._node_arg_x_is_y(0, 0) or self._node_arg_x_is_y(1, 0):
-            return Leaf_Node("0")
+            return Leaf_Node(process_float(0))
 
         # If one of the arguments is zero, avoid the operation
         if self._node_arg_x_is_y(0, 1):
@@ -63,8 +66,7 @@ class Mult_Node(Internal_Node):
 
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) * float(self._nodes[1].to_string())
-            str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-            return Leaf_Node(str_arg)
+            return Leaf_Node(process_float(arg))
         else:
             return self
 
@@ -77,7 +79,7 @@ class Division_Node(Internal_Node):
     def op_simplify(self):
         # If the first argument is zero, return zero
         if self._node_arg_x_is_y(0, 0):
-            return Leaf_Node("0")
+            return Leaf_Node(process_float(0))
 
         # If the second argument is one, return the first argument
         if self._node_arg_x_is_y(1, 1):
@@ -86,11 +88,10 @@ class Division_Node(Internal_Node):
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             # FIXME: Harcoded number. Change it
             if float(self._nodes[1].to_string()) < 0.01:
-                return Leaf_Node("0")
+                return Leaf_Node(process_float(0))
             else:
                 arg = float(self._nodes[0].to_string()) / float(self._nodes[1].to_string())
-                str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-                return Leaf_Node(str_arg)
+                return Leaf_Node(process_float(arg))
         else:
             return self
 
@@ -101,9 +102,11 @@ class Sine_Node(Internal_Node):
         Internal_Node.__init__(self, "sin")
 
     def op_simplify(self):
-        arg = math.sin(float(self._nodes[0].to_string()))
-        str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-        return Leaf_Node(str_arg)
+        if not self._nodes[0].is_sensor():
+            arg = math.sin(float(self._nodes[0].to_string()))
+            return Leaf_Node(process_float(arg))
+        else:
+            return self
 
 
 class Cosine_Node(Internal_Node):
@@ -112,9 +115,11 @@ class Cosine_Node(Internal_Node):
         Internal_Node.__init__(self, "cos")
 
     def op_simplify(self):
-        arg = math.cos(float(self._nodes[0].to_string()))
-        str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-        return Leaf_Node(str_arg)
+        if not self._nodes[0].is_sensor():
+            arg = math.cos(float(self._nodes[0].to_string()))
+            return Leaf_Node(process_float(arg))
+        else:
+            return self
 
 
 class Logarithm_Node(Internal_Node):
@@ -123,9 +128,15 @@ class Logarithm_Node(Internal_Node):
         Internal_Node.__init__(self, "log")
 
     def op_simplify(self):
-        arg = math.cos(float(self._nodes[0].to_string()))
-        str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-        return Leaf_Node(str_arg)
+        if not self._nodes[0].is_sensor():
+            if float(self._nodes[0].to_string()) < 0.01:
+                arg = math.log(0.01)
+            else:
+                arg = math.log(float(self._nodes[0].to_string()))
+
+            return Leaf_Node(process_float(arg))
+        else:
+            return self
 
 
 class Exponential_Node(Internal_Node):
@@ -134,9 +145,11 @@ class Exponential_Node(Internal_Node):
         Internal_Node.__init__(self, "exp")
 
     def op_simplify(self):
-        arg = math.exp(float(self._nodes[0].to_string()))
-        str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-        return Leaf_Node(str_arg)
+        if not self._nodes[0].is_sensor():
+            arg = math.exp(float(self._nodes[0].to_string()))
+            return Leaf_Node(process_float(arg))
+        else:
+            return self
 
 
 class Tanh_Node(Internal_Node):
@@ -145,9 +158,11 @@ class Tanh_Node(Internal_Node):
         Internal_Node.__init__(self, "tanh")
 
     def op_simplify(self):
-        arg = math.tanh(float(self._nodes[0].to_string()))
-        str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
-        return Leaf_Node(str_arg)
+        if not self._nodes[0].is_sensor():
+            arg = math.tanh(float(self._nodes[0].to_string()))
+            return Leaf_Node(process_float(arg))
+        else:
+            return self
 
 
 class Op_Node_Factory:

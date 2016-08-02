@@ -95,7 +95,7 @@ class SimplificationTest(unittest.TestCase):
         expression = '(root (* 3.4092 4.2123))'
         self._assert_expressions(expression)
 
-    ########################### DIV NODE #####################################
+    ########################### DIV NODE ######################################
     def test_simplify_div_node_number_and_sensor(self):
         expression = '(root (/ 3.4092 S0))'
         self._assert_expressions(expression)
@@ -113,7 +113,7 @@ class SimplificationTest(unittest.TestCase):
         self._assert_expressions(expression)
 
     def test_simplify_div_node_sensor_left_identity(self):
-        expression = '(root (* 0 S0))'
+        expression = '(root (* 1 S0))'
         self._assert_expressions(expression)
 
     def test_simplify_div_node_both_numbers(self):
@@ -123,3 +123,53 @@ class SimplificationTest(unittest.TestCase):
     def test_simplify_div_node_number_and_zero(self):
         expression = '(root (/ 3.4092 0))'
         self._assert_expressions(expression)
+
+    ########################### SIN NODE ######################################
+    def test_simplify_sin_node_number(self):
+        expression = '(root (sin 1.7124))'
+        self._assert_expressions(expression)
+
+    def test_simplify_sin_node_sensor(self):
+        expression = '(root (sin S0))'
+        self._assert_expressions(expression)
+
+    ########################### COS NODE ######################################
+    def test_simplify_cos_node_number(self):
+        expression = '(root (cos 1.7124))'
+        self._assert_expressions(expression)
+
+    def test_simplify_cos_node_sensor(self):
+        expression = '(root (cos S0))'
+        self._assert_expressions(expression)
+
+    ########################### LOG NODE ######################################
+    def test_simplify_log_node_number(self):
+        expression = '(root (log 1.7124))'
+        self._assert_expressions(expression)
+
+    def test_simplify_log_node_sensor(self):
+        expression = '(root (log S0))'
+        self._assert_expressions(expression)
+
+    def test_simplify_log_node_zero(self):
+        expression = '(root (log 0))'
+        self._assert_expressions(expression)
+
+    ########################### EXP NODE ######################################
+    def test_simplify_exp_node_number(self):
+        expression = '(root (exp 1.7124))'
+        self._assert_expressions(expression)
+
+    def test_simplify_exp_node_sensor(self):
+        expression = '(root (exp S0))'
+        self._assert_expressions(expression)
+
+    ########################### TANH NODE ######################################
+    def test_simplify_tanh_node_number(self):
+        expression = '(root (tanh 1.7124))'
+        self._assert_expressions(expression)
+
+    def test_simplify_tanh_node_sensor(self):
+        expression = '(root (tanh S0))'
+        self._assert_expressions(expression)
+
