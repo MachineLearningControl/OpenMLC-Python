@@ -140,9 +140,14 @@ class IntegrationTest1(unittest.TestCase):
             self.assertEqual(self._eng.eval(value),
                              self._indivs[int(index) - 1]['value'])
 
-            value = 'wmlc.table.individuals(' + str(index) + ').complexity'
-            self.assertEqual(int(self._eng.eval(value)),
+            complexity = 'wmlc.table.individuals(' + str(index) + ').complexity'
+            self.assertEqual(int(self._eng.eval(complexity)),
                              int(self._indivs[int(index) - 1]['complexity']))
+
+            formal = 'wmlc.table.individuals(' + str(index) + ').formal'
+            self.assertEqual(self._eng.eval(formal),
+                             self._indivs[int(index) - 1]['formal'])
+
             print "Individual N# ", i, " OK!"
             i += 1
 
