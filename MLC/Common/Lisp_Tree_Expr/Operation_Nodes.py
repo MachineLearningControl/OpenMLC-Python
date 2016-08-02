@@ -16,6 +16,9 @@ class Plus_Node(Internal_Node):
     def __init__(self):
         Internal_Node.__init__(self, "+", 1)
 
+    def formal(self):
+        return "(" + self._nodes[0].formal() + " + " + self._nodes[1].formal() + ")"
+
     def op_simplify(self):
         # If one of the arguments is zero, avoid the operation
         if self._node_arg_x_is_y(0, 0):
@@ -36,6 +39,9 @@ class Minus_Node(Internal_Node):
     def __init__(self):
         Internal_Node.__init__(self, "-", 1)
 
+    def formal(self):
+        return "(" + self._nodes[0].formal() + " - " + self._nodes[1].formal() + ")"
+
     def op_simplify(self):
         # If the second argument is zero, avoid the operation.
         if self._node_arg_x_is_y(1, 0):
@@ -53,6 +59,9 @@ class Mult_Node(Internal_Node):
 
     def __init__(self):
         Internal_Node.__init__(self, "*", 1)
+
+    def formal(self):
+        return "(" + self._nodes[0].formal() + " .* " + self._nodes[1].formal() + ")"
 
     def op_simplify(self):
         # If one or both of the arguments are zero, return zero
@@ -76,6 +85,9 @@ class Division_Node(Internal_Node):
 
     def __init__(self):
         Internal_Node.__init__(self, "/", 1)
+
+    def formal(self):
+        return "(my_div(" + self._nodes[0].formal() + "," + self._nodes[1].formal() + "))"
 
     def op_simplify(self):
         # If the first argument is zero, return zero
@@ -102,6 +114,9 @@ class Sine_Node(Internal_Node):
     def __init__(self):
         Internal_Node.__init__(self, "sin", 3)
 
+    def formal(self):
+        return "sin(" + self._nodes[0].formal() + ")"
+
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
             arg = math.sin(float(self._nodes[0].to_string()))
@@ -115,6 +130,9 @@ class Cosine_Node(Internal_Node):
     def __init__(self):
         Internal_Node.__init__(self, "cos", 3)
 
+    def formal(self):
+        return "cos(" + self._nodes[0].formal() + ")"
+
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
             arg = math.cos(float(self._nodes[0].to_string()))
@@ -127,6 +145,9 @@ class Logarithm_Node(Internal_Node):
 
     def __init__(self):
         Internal_Node.__init__(self, "log", 5)
+
+    def formal(self):
+        return "my_log(" + self._nodes[0].formal() + ")"
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
@@ -144,6 +165,9 @@ class Exponential_Node(Internal_Node):
 
     def __init__(self):
         Internal_Node.__init__(self, "exp", 5)
+
+    def formal(self):
+        return "exp(" + self._nodes[0].formal() + ")"
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
@@ -164,6 +188,9 @@ class Tanh_Node(Internal_Node):
 
     def __init__(self):
         Internal_Node.__init__(self, "tanh", 5)
+
+    def formal(self):
+        return "tanh(" + self._nodes[0].formal() + ")"
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():

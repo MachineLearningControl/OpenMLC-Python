@@ -18,6 +18,7 @@ class Lisp_Tree_Expr(object):
 
         # Get the complexity of the tree before simplifying
         self._complexity = self._root.complexity()
+        self._formal = self._root.formal()
 
         # Now, simplify the tree
         if int(Config.get_instance().get_param('OPTIMIZATION', 'simplify')) != 0:
@@ -40,6 +41,12 @@ class Lisp_Tree_Expr(object):
         the amount of constants/sensors stored
         """
         return self._complexity
+
+    def formal(self):
+        """
+        Return the tree as a MATLAB expression, in order to calculate the value of the individual
+        """
+        return self._formal
 
     def _get_operation(self, expr):
         pos = -1

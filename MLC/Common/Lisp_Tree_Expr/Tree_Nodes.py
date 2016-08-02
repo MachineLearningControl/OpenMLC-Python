@@ -21,6 +21,9 @@ class Tree_Node(object):
     # def value(self):
     #     raise NotImplementedError('Tree_Node', 'value is an abstract method')
 
+    def formal(self):
+        raise NotImplementedError('Tree_Node', 'formal is an abstract method')
+
 
 class Leaf_Node(Tree_Node):
 
@@ -47,6 +50,16 @@ class Leaf_Node(Tree_Node):
         except ValueError:
             return True
 
+    def formal(self):
+        try:
+            value = float(self._arg)
+            if value < 0:
+                return "(" + self._arg + ")"
+        except ValueError:
+            pass
+
+        return str(self._arg)
+
 
 class Internal_Node(Tree_Node):
 
@@ -56,10 +69,10 @@ class Internal_Node(Tree_Node):
         self._complexity = complexity
         self._nodes = []
 
-    """
-    { Returns true if the argument of the node x is y. False in other case }
-    """
     def _node_arg_x_is_y(self, index, value):
+        """
+        Returns true if the argument of the node x is y. False in other case
+        """
         try:
             if float(self._nodes[index].to_string()) == value:
                 return True
@@ -103,6 +116,9 @@ class Internal_Node(Tree_Node):
             counter += node.complexity()
 
         return counter + self._complexity
+
+    def formal(self):
+        raise NotImplementedError('Internal_Node', "formal is an abstract method")
 
     def op_simplify(self):
         raise NotImplementedError('Internal_Node', "op_simplify shouldn't be called")

@@ -117,9 +117,10 @@ class Individual(object):
 
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
             #string_hash = DataHash(mlcind.value);
+
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
             self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
-            self.set_formal(self._eng.readmylisp_to_formal_MLC(self.get_value(), mlc_parameters))
+            self.set_formal(self._tree.formal())
             self.set_complexity(self._tree.complexity())
             return
 
