@@ -35,6 +35,10 @@ function newlisp = simplify_my_LISP(oldlisp,parameters)
         parameters.precision=4;
     end
 
+    str_format = '';
+    str_format = strcat(str_format, '% .');
+    str_format = strcat(str_format, num2str(parameters.precision));
+    str_format = strcat(str_format, 'f');
 
     fvig=find(oldlisp==' ');
     if isempty(fvig);       %% no space => no arguments => no simplification
