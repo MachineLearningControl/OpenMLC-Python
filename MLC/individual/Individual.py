@@ -116,10 +116,11 @@ class Individual(object):
                 self.set_value(varargin)
 
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
-            #string_hash = DataHash(mlcind.value);
 
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
             self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
+            # self.set_hash(self._tree.calculate_hash())
+
             self.set_formal(self._tree.formal())
             self.set_complexity(self._tree.complexity())
             return
@@ -322,7 +323,7 @@ class Individual(object):
 
         # Split the value in two strings, not containing the first seed character
         begin_str = value[:index]
-        end_str = value[index+1:]
+        end_str = value[index + 1:]
 
         # Count the amounts of '(' until the first seed character (This is the depth of the seed)
         counter = Counter(begin_str)
