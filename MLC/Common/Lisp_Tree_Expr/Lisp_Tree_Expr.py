@@ -1,4 +1,6 @@
 import MLC.Log.log as lg
+import md5
+from ctypes import *
 from MLC.Config.Config import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
@@ -47,6 +49,21 @@ class Lisp_Tree_Expr(object):
         Return the tree as a MATLAB expression, in order to calculate the value of the individual
         """
         return self._formal
+
+    def calculate_hash(self):
+        """
+        Generate a hash with the Individual as a string, and convert that hash to a float value
+        """
+        # http://stackoverflow.com/questions/1592158/convert-hex-to-float
+        expr_hash = md5.new(self._expanded_tree).hexdigest()
+        # convert from hex to a Python int
+        i = int(expr_hash, 16)
+        # make this into a c integer
+        cp = pointer(c_int(i))
+        # cast the int pointer to a float pointer
+        fp = cast(cp, POINTER(c_float))
+        # dereference the pointer, get the float
+        return fp.contents.value
 
     def _get_operation(self, expr):
         pos = -1
