@@ -230,11 +230,6 @@ class Individual(object):
         return self._eng.set_complexity(self._mlc_ind, complexity)
 
     def __simplify_and_sensors_tree(self, value, mlc_parameters):
-        """
-        return self._eng.private_simplify_and_sensors_tree(self.get_matlab_object(),
-                                                           value,
-                                                           mlc_parameters)
-        """
         sensor_list = ()
         replace_list = ()
 
