@@ -114,6 +114,7 @@ class Individual(object):
             else:
                 self.set_value(varargin)
 
+            print "GENERATE:%s" % self.get_value()
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
 
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
@@ -407,8 +408,151 @@ class Individual(object):
         return value_1, value_2, not correct
 
     def __mutate_tree(self, value, gen_param, mutation_type):
-        res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param.get_matlab_object(), mutation_type)
-        return res[0], res[1] != 0
+        fail = False
+        mutmindepth = gen_param.getint("GP", "mutmindepth")
+        maxdepth = gen_param.getint("GP", "maxdepth")
+        sensor_spec = gen_param.getint("POPULATION", "sensor_spec") != 0
+        sensors = gen_param.getint("POPULATION", 'sensors')
+
+        # TODO: refactor parameters
+        mutation_types = gen_param.get_param("GP", 'mutation_types', type='arange')
+        mutation_types = [1, 2, 3, 4]
+
+        # equi probability for each mutation type selected.
+        if mutation_type == Individual.MUTATION_ANY:
+            rand_number = rand_number = MatlabEngine.engine().rand()
+            mutation_type = mutation_types[int(np.floor(rand_number*len(mutation_types)))]
+
+        if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
+            preevok = False
+            while not preevok:
+                # remove subtree.
+                value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
+                print "GROW:%s" % value
+                # grow new subtree
+                value = self.__generate_indiv_regressive_tree(value, gen_param, 0)
+
+                if value:
+                    if sensor_spec:
+                        # TODO: ver este caso
+                        #slist=sort(gen_param.sensor_list);
+                        #for i=length(slist):-1:1
+                        #    m=strrep(m,['z' num2str(i-1)],['S' num2str(slist(i))]);
+                        #end
+                        pass
+                    else:
+                        print "ORIG:%s" % value
+                        for i in range(sensors, 0, -1):
+                            value = value.replace("z%d" %(i-1), "S%d" %(i-1))
+                    preevok = True
+                    # if gen_param.preevaluation
+                    #   eval(['peval=@' gen_param.preev_function ';']);
+                    #   f=peval;
+                    #   preevok=feval(f,m);
+                    # end
+                else:
+                    preevok = True
+
+            return value, not value
+
+
+        else:
+            res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param.get_matlab_object(), mutation_type)
+            return res[0], res[1] != 0
+
+        """
+
+
+
+        switch type_mut
+            %% mutation 'remove subtree and replace'
+            case 1
+
+            preevok=0;
+            while preevok==0
+                %% remove subtree.
+                [m]=extract_subtree(m,gen_param.mutmindepth,gen_param.maxdepth,gen_param.maxdepth);
+                %% grow new subtree
+                [m]=generate_indiv_regressive_tree(m,gen_param,0);
+                if isempty(m)
+                    preevok=1;
+                else
+                if gen_param.sensor_spec
+                    slist=sort(gen_param.sensor_list);
+                    for i=length(slist):-1:1
+                        m=strrep(m,['z' num2str(i-1)],['S' num2str(slist(i))]);
+                    end
+                else
+                    for i=gen_param.sensors:-1:1
+                        m=strrep(m,['z' num2str(i-1)],['S' num2str(i-1)]);
+                    end
+
+                end
+                preevok=1;
+    %             if gen_param.preevaluation
+    %                 eval(['peval=@' gen_param.preev_function ';']);
+    %                 f=peval;
+    %                 preevok=feval(f,m);
+    %             end
+                end
+            end
+            %% mutation 'reparametrization'
+            case 2
+                [m]=reparam_tree(m,gen_param);
+            %% mutation 'hoist' : subtree becomes the tree
+            case 3
+
+                    % each control law has a 1/gen_param.controls chance to be
+                    % croped
+                    prob_threshold=1/gen_param.controls;
+                    stru=[find(((cumsum(double(double(m)=='('))-cumsum(double(double(m)==')'))).*double(double(m==' '))==1)) length(m+1)];
+                    cl=cell(1,gen_param.controls);
+                    for nc=1:(gen_param.controls)
+                        cl{nc}=m(stru(nc)+1:stru(nc+1)-1); % each control law is extracted
+                    end
+                    changed=0;
+                    k=0;
+                    for nc=randperm(gen_param.controls) % order is randomized so that the last one is not always the same
+                        k=k+1;
+                        if (rand<prob_threshold) || (k==gen_param.controls && changed==0) % control law is cropped if it is the last one and no change happend before
+                            changed=1;
+                            [~,ind]=extract_subtree(cl{nc},gen_param.mutmindepth,gen_param.maxdepth,gen_param.maxdepth);
+                            if isempty(ind)
+                                changed=0;
+                            else
+                                cl{nc}=ind;
+                            end
+                        end
+                    end
+                    m='(root';
+                    for i=1:gen_param.controls
+                        m=[m ' ' cl{i}];
+                    end
+                    m=[m ')'];
+
+            %% mutation 'shrink' cut subtree, introduce leaf.
+            case 4
+                m=extract_subtree(m,gen_param.mutmindepth,gen_param.maxdepth,gen_param.maxdepth);
+                m=generate_indiv_regressive_tree(m,gen_param,4);
+                if ~isempty(m)
+                if gen_param.sensor_spec
+                    slist=sort(gen_param.sensor_list);
+                    for i=length(slist):-1:1
+                        m=strrep(m,['z' num2str(i-1)],['S' num2str(slist(i))]);
+                    end
+                else
+                    for i=gen_param.sensors:-1:1
+                        m=strrep(m,['z' num2str(i-1)],['S' num2str(i-1)]);
+                    end
+
+                end
+                end
+        end
+        if isempty(m)
+            fail=1;
+        end
+    end
+    """
 
     def __find(self, condition):
         return np.where(condition)[0]
@@ -446,12 +590,12 @@ class Individual(object):
             n2 = self.__find(rankpar[n] == rankpar2)
             idx = self.__find(n2*(n2 > n))
             n2 = n2[idx[0]]
-            sm = m[n-1:n2+1]
+            sm = m[n:n2+1]
             leftpar = np.cumsum([1 if c == '(' else 0 for c in sm])
             rightpar = np.cumsum([1 if c == ')' else 0 for c in sm])
             cdepth = leftpar - rightpar
             stdepth = max(cdepth)
-            m = m[0:n-1]+'@'+m[n2+1:]
+            m = m[0:n]+'@'+m[n2+1:]
         else:
             return [], [], -1
 
