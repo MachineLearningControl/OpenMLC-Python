@@ -455,6 +455,9 @@ class Individual(object):
 
             return value, not value
 
+        elif mutation_type == Individual.MUTATION_REPARAMETRIZATION:
+            value = self.__reparam_tree(value, gen_param)
+            return value, False
 
         else:
             res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param.get_matlab_object(), mutation_type)
@@ -600,6 +603,21 @@ class Individual(object):
             return [], [], -1
 
         return m, sm, stdepth
+
+    def __reparam_tree(self, value, mlc_parameters):
+        preevok = False
+        while not preevok:
+            value = self.__change_const_tree(value, mlc_parameters)
+            preevok = True
+            #if gen_param.preevaluation
+            # eval(['peval=@' gen_param.preev_function ';']);
+            # f=peval;
+            #preevok=feval(f,m);
+        return value
+
+    def __change_const_tree(self, expression, gen_param):
+        [m] = self._eng.private_change_const_tree(self.get_matlab_object(), expression, gen_param.get_matlab_object() )
+        return m
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
