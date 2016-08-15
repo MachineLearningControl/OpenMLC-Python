@@ -8,6 +8,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC import config as mlc_config_path
 
 import os
+from nose.tools import nottest
 
 class IndividualTest(unittest.TestCase):
 
@@ -270,8 +271,8 @@ class IndividualTest(unittest.TestCase):
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
                                 hash=14269175.128717355,
-                                value="(root (log (/ (* (sin 5.491) (- 2.581 -9.526)) (log (+ 4.055 -9.595)))))",
-                                formal="my_log((my_div((sin(5.491) .* (2.581 - (-9.526))),my_log((4.055 + (-9.595))))))")
+                                value="(root (log (/ (* (sin 5.4907) (- 2.5805 -9.5256)) (log (+ 4.0549 -9.5947)))))",
+                                formal="my_log((my_div((sin(5.4907) .* (2.5805 - (-9.5256))),my_log((4.0549 + (-9.5947))))))")
 
         # do a second mutation
         new_ind, fail = self._individual_l3.mutate(self._params, Individual.MUTATION_REPARAMETRIZATION)
@@ -279,8 +280,8 @@ class IndividualTest(unittest.TestCase):
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
                                 hash=-1.116096220690224e+75,
-                                value="(root (log (/ (* (sin 1.082) (- 9.162 3.702)) (log (+ -6.897 -9.646)))))",
-                                formal="my_log((my_div((sin(1.082) .* (9.162 - 3.702)),my_log(((-6.897) + (-9.646))))))")
+                                value="(root (log (/ (* (sin 1.0822) (- 9.1619 3.7016)) (log (+ -6.8965 -9.6459)))))",
+                                formal="my_log((my_div((sin(1.0822) .* (9.1619 - 3.7016)),my_log(((-6.8965) + (-9.6459))))))")
 
     def test_mutate_hoist(self):
         self._engine.rand('seed', 60.0, nargout=0)
@@ -354,5 +355,5 @@ class IndividualTest(unittest.TestCase):
         self.assertEquals(len(individual.get_evaluation_time()), 0)
         self.assertEquals(individual.get_appearences(), 1)
         # self.assertEquals(individual.get_hash(), hash)
-        # self.assertEquals(individual.get_formal(), formal)
+        self.assertEquals(individual.get_formal(), formal)
         self.assertEquals(individual.get_complexity(), complexity)

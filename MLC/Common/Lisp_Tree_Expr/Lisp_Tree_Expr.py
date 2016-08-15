@@ -35,7 +35,7 @@ class Lisp_Tree_Expr(object):
         return self._root
 
     def get_expanded_tree_as_string(self):
-        return self._expanded_tree
+        return '(root ' + self._root.to_string() + ')'
 
     def get_simplified_tree_as_string(self):
         return self._simplified_tree
@@ -94,8 +94,10 @@ class Lisp_Tree_Expr(object):
         # Find the first space or colon
         if find_space != -1 and find_space < find_close_parenthesis:
             param_len = find_space
-        else:
+        elif find_close_parenthesis != -1:
             param_len = find_close_parenthesis
+        else:
+            param_len = len(expr)
 
         return Leaf_Node(expr[:param_len]), param_len + 1
 
@@ -128,3 +130,11 @@ class Lisp_Tree_Expr(object):
 
         next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset + 1
         return node, next_arg_pos
+
+
+class TreeVisitor:
+    def visit_internal_node(self, node):
+        pass
+
+    def visit_leaf_node(self, ndoe):
+        pass
