@@ -1,12 +1,14 @@
 import numpy as np
 import math
+
 import MLC.Log.log as lg
 from collections import Counter
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
-from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr, TreeVisitor
 
+import re
 
 class Individual(object):
     """
@@ -115,7 +117,6 @@ class Individual(object):
                 self.set_value(varargin)
 
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
-
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
             self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
             # self.set_hash(self._tree.calculate_hash())
@@ -613,8 +614,25 @@ class Individual(object):
         return value
 
     def __change_const_tree(self, expression, gen_param):
-        [m] = self._eng.private_change_const_tree(self.get_matlab_object(), expression, gen_param.get_matlab_object() )
-        return m
+        class ChangeConsTreeVisitor(TreeVisitor):
+            def __init__(self, pop_range, precision):
+                self._range = pop_range
+                self._precision = precision
+
+            def visit_internal_node(self, node):
+                pass
+
+            def visit_leaf_node(self, node):
+                if not node.is_sensor():
+                    node_value = (MatlabEngine.rand()-0.5) * 2 * self._range
+                    node._arg = "%0.*f" % (self._precision, node_value)
+
+        pop_range = gen_param.getint("POPULATION", "range")
+        precision = gen_param.getint("POPULATION", "precision")
+
+        expression_tree = Lisp_Tree_Expr(expression)
+        expression_tree.get_root_node().accept(ChangeConsTreeVisitor(pop_range, precision))
+        return expression_tree.get_expanded_tree_as_string()
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \

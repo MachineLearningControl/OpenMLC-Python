@@ -14,7 +14,9 @@ class Config(ConfigParser.ConfigParser):
         ConfigParser.ConfigParser.__init__(self)
         self._dispatcher = {'common': self.__get_common,
                             'array': self.__get_array,
-                            'arange': self.__get_arange}
+                            'arange': self.__get_arange,
+                            'range': self.__get_range}
+
         self._log_prefix = '[CONFIG] '
 
     def get_matlab_object(self):
@@ -49,6 +51,10 @@ class Config(ConfigParser.ConfigParser):
         elif len(arg_range) == 3:
             return np.arange(arg_range[0], arg_range[1],
                              arg_range[2], dtype=type)
+
+    def __get_range(self, section, param, **kwargs):
+        [base, addr] = self.get(section, param).split(":")
+        return range(int(base), int(addr)+1)
 
     def __get_array(self, section, param, **kwargs):
         # TODO: Research how to use dtype to create ranges from different types
