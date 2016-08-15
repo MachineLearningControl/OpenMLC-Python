@@ -4,7 +4,9 @@ from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
 from MLC.Config.Config import Config
 from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC import config as config_path
 
+import os
 
 class SimplificationTest(unittest.TestCase):
 
@@ -12,7 +14,7 @@ class SimplificationTest(unittest.TestCase):
     def setUpClass(cls):
         set_logger("testing")
         config = Config.get_instance()
-        config.read('configuration.ini')
+        config.read(os.path.join(config_path.get_test_path(), 'mlc/individual/configuration.ini'))
 
     def setUp(self):
         self._eng = MatlabEngine.engine()
@@ -20,6 +22,7 @@ class SimplificationTest(unittest.TestCase):
     def _assert_expressions(self, expression):
         expected = self._eng.simplify_my_LISP(expression)
         tree = Lisp_Tree_Expr(expression)
+        tree.simplify_tree()
         obtained = tree.get_simplified_tree_as_string()
 
         self.assertEquals(obtained, expected)

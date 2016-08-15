@@ -1,7 +1,7 @@
 import MLC.Log.log as lg
 import md5
 from ctypes import *
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
@@ -24,9 +24,12 @@ class Lisp_Tree_Expr(object):
 
         # Now, simplify the tree
         if int(Config.get_instance().get_param('OPTIMIZATION', 'simplify')) != 0:
-            self._root = self._root.simplify()
-            self._simplified_tree = '(root ' + self._root.to_string() + ')'
-            lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
+            self.simplify_tree()
+
+    def simplify_tree(self):
+        self._root = self._root.simplify()
+        self._simplified_tree = '(root ' + self._root.to_string() + ')'
+        lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
     def get_root_node(self):
         return self._root
