@@ -1,6 +1,6 @@
 import numpy as np
 import MLC.Log.log as lg
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 
 
 class Operations(object):

@@ -3,7 +3,7 @@ import MLC.Log.log as lg
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Tree_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 
 
 def process_float(arg):

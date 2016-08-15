@@ -3,7 +3,7 @@ import math
 import MLC.Log.log as lg
 from collections import Counter
 from MLC.matlab_engine import MatlabEngine
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
 
@@ -114,7 +114,6 @@ class Individual(object):
             else:
                 self.set_value(varargin)
 
-            print "GENERATE:%s" % self.get_value()
             self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
 
             string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
@@ -262,7 +261,7 @@ class Individual(object):
     def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
         return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
                                                                 value,
-                                                                mlc_parameters,
+                                                                mlc_parameters.get_matlab_object(),
                                                                 indiv_type)
 
         min_depth = 0
@@ -428,7 +427,6 @@ class Individual(object):
             while not preevok:
                 # remove subtree.
                 value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
-                print "GROW:%s" % value
                 # grow new subtree
                 value = self.__generate_indiv_regressive_tree(value, gen_param, 0)
 
@@ -441,7 +439,6 @@ class Individual(object):
                         #end
                         pass
                     else:
-                        print "ORIG:%s" % value
                         for i in range(sensors, 0, -1):
                             value = value.replace("z%d" %(i-1), "S%d" %(i-1))
                     preevok = True
