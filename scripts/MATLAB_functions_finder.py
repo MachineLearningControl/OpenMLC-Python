@@ -6,9 +6,13 @@ from tabulate import tabulate
 
 def usage():
     print """
-./MATLAB_functions_finder.py [-d|--MLC_dir]
-    -d|--MLC_dir: Absolute or Relative Path to the directory containing the Python implementation of MLC
-""" 
+./MATLAB_functions_finder.py [-d|MLC_dir] OPTIONS
+    -d|--MLC_dir:                Absolute or Relative Path to the directory containing the Python implementation of MLC. Mandatory!!
+    -a|--show_all:               Show all the functions matched without any filter
+    -n|--no_getters_and_setters: Don't show getters and setters calls
+    -e|--no_eval:                Don't show getters and setters and eval calls 
+"""
+
 
 def retrieve_python_files(mlc_dir):
     list = []
@@ -60,26 +64,50 @@ def draw_methods(methods, blacklist=None):
 # Parse program arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--MLC_dir', required=True)
+parser.add_argument('-a', '--show_all', required=False, action='store_true')
+parser.add_argument('-g', '--no_getters_and_setters', required=False, action='store_true')
+parser.add_argument('-e', '--no_eval', required=False, action='store_true')
 args = parser.parse_args()
 args = vars(args)
-mlc_dir = args['MLC_dir']
 
-# If the path is not valid, 
+mlc_dir = args['MLC_dir']
+show_all = args['show_all']
+no_getters_and_setters = args['no_getters_and_setters']
+no_eval = args['no_eval']
+nothing_to_show = False
+
+if not show_all and \
+        not no_getters_and_setters and \
+        not no_eval:
+    nothing_to_show = True
+
+# If the path is not valid,
 if not os.path.isdir(mlc_dir):
-    print "MLC_Dir must be a valid path. Aborting program"
+    print "MLC_Dir must be a valid path. Aborting program."
     usage()
     exit(-1)
 
+# Load in a dict the different posibilities
+to_draw = {}
+show_all_string = "Draw all methods"
+to_draw[show_all_string] = (draw_methods,
+                              None,
+                              nothing_to_show or show_all)
+
+no_get_and_set_string = "Draw all methods filtering getters and setters"
+to_draw[no_get_and_set_string] = (draw_methods,
+                                  ["get_", "set_"],
+                                  nothing_to_show or no_getters_and_setters)
+
+no_eval_string = "Draw all methods filtering getters and setters and eval calls"
+to_draw[no_eval_string] = (draw_methods,
+                           ["get_", "set_", "eval"],
+                           nothing_to_show or no_eval)
+
+# Show the results
 methods = retrieve_methods()
-print "Draw all methods"
-draw_methods(methods)
-print "\n\n\n"
-
-print "Draw all methods filtering getters and setters"
-blacklist = ["get_", "set_"]
-draw_methods(methods, blacklist)
-print "\n\n\n"
-
-blacklist.append("eval")
-print "Draw all methods filtering getters and setters and eval calls"
-draw_methods(methods, blacklist)
+for key, value in to_draw.iteritems():
+    if value[2]:
+        print "\n\n"
+        print key
+        value[0](methods, value[1])
