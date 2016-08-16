@@ -7,7 +7,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 
 def process_float(arg):
-    str_arg = ("%." + Config.get_instance().get_param('POPULATION', 'precision') + "f") % (arg)
+    str_arg = ("%." + Config.get_instance().get('POPULATION', 'precision') + "f") % (arg)
     return str_arg
 
 
