@@ -23,7 +23,7 @@ class Lisp_Tree_Expr(object):
         self._formal = self._root.formal()
 
         # Now, simplify the tree
-        if int(Config.get_instance().get_param('OPTIMIZATION', 'simplify')) != 0:
+        if Config.get_instance().getboolean('OPTIMIZATION', 'simplify'):
             self.simplify_tree()
 
     def simplify_tree(self):

@@ -20,8 +20,8 @@ class Population(object):
         self._gen = gen
         self._costs = []
 
-        cascade = config.get_param('OPTIMIZATION', 'cascade', type='array')
-        size = config.get_param('POPULATION', 'size', type='array')
+        cascade = config.get_list('OPTIMIZATION', 'cascade')
+        size = config.get_list('POPULATION', 'size')
 
         self._subgen = 1 if cascade[1] == 0 else cascade[1]
         self._gen_size = cascade[1] if (
@@ -37,7 +37,7 @@ class Population(object):
             self._eng.workspace['wtable'] = self._eng.MLCtable(
                 int(self._gen_size) * 50)
 
-        gen_method = self._config.get_param('GP', 'generation_method')
+        gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
         gen_creator.create(self._gen_size)
