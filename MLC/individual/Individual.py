@@ -102,8 +102,8 @@ class Individual(object):
         matlab_impl: return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
         """
         # TODO: refactor MLCParameters access
-        param_individual_type = self._config.get('POPULATION', 'individual_type')
-        param_controls = int(self._config.getint('POPULATION', 'controls'))
+        param_individual_type = self._config.get_param('POPULATION', 'individual_type')
+        param_controls = int(self._config.get_param('POPULATION', 'controls'))
 
         if param_individual_type == 'tree':
             self.set_type('tree')
@@ -231,13 +231,13 @@ class Individual(object):
         sensor_list = ()
         replace_list = ()
 
-        if self._config.getboolean('POPULATION', 'sensor_spec'):
+        if int(self._config.get_param('POPULATION', 'sensor_spec')):
             # TODO: Get the sensors as a list. Not tested for obvious reasons
-            config_sensor_list = self._config.get_list('POPULATION', 'sensor_list')
+            config_sensor_list = sorted((1, 9, 4))
             sensor_list = ['S' + str(x) for x in config_sensor_list]
             replace_list = ['z' + str(x) for x in config_sensor_list]
         else:
-            amount_sensors = self._config.getint('POPULATION', 'sensors')
+            amount_sensors = int(self._config.get_param('POPULATION', 'sensors'))
             # Replace the available sensors in the individual expression
             sensor_list = ['S' + str(x) for x in range(amount_sensors)]
             replace_list = ['z' + str(x) for x in range(amount_sensors)]
@@ -248,7 +248,7 @@ class Individual(object):
         # Create the Individual Tree after the sensor replacement
         self._tree = Lisp_Tree_Expr(value)
 
-        if self._config.getboolean('OPTIMIZATION', 'simplify'):
+        if int(self._config.get_param('OPTIMIZATION', 'simplify')):
             return self._tree.get_simplified_tree_as_string()
 
         return value
@@ -328,16 +328,16 @@ class Individual(object):
         elif (begin_depth < min_depth and end_str.find('@') == -1) or indiv_type == 3:
             leaf_node = False
         else:
-            leaf_node = MatlabEngine.rand() < self._config.getfloat('POPULATION', 'leaf_prob')
+            leaf_node = MatlabEngine.rand() < float(self._config.get_param('POPULATION', 'leaf_prob'))
 
         if leaf_node:
-            use_sensor = MatlabEngine.rand() < self._config.getfloat('POPULATION', 'sensor_prob')
+            use_sensor = MatlabEngine.rand() < float(self._config.get_param('POPULATION', 'sensor_prob'))
             if use_sensor:
-                sensor_number = math.ceil(MatlabEngine.rand() * self._config.getint('POPULATION', 'sensors')) - 1
+                sensor_number = math.ceil(MatlabEngine.rand() * int(self._config.get_param('POPULATION', 'sensors'))) - 1
                 new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
             else:
-                range = self._config.getfloat('POPULATION', 'range')
-                precision = self._config.get('POPULATION', 'precision')
+                range = float(self._config.get_param('POPULATION', 'range'))
+                precision = str(int(self._config.get_param('POPULATION', 'precision')))
                 # Generate a float number between -range and +range with a precision of 'precision'
                 new_exp = (("%." + precision + "f") % ((MatlabEngine.rand() - 0.5) * 2 * range))
                 new_value = begin_str + new_exp + end_str
@@ -411,10 +411,12 @@ class Individual(object):
         fail = False
         mutmindepth = gen_param.getint("GP", "mutmindepth")
         maxdepth = gen_param.getint("GP", "maxdepth")
-        sensor_spec = gen_param.getboolean("POPULATION", "sensor_spec")
+        sensor_spec = gen_param.getint("POPULATION", "sensor_spec") != 0
         sensors = gen_param.getint("POPULATION", 'sensors')
 
-        mutation_types = gen_param.get_list("GP", 'mutation_types')
+        # TODO: refactor parameters
+        mutation_types = gen_param.get_param("GP", 'mutation_types', type='arange')
+        mutation_types = [1, 2, 3, 4]
 
         # equi probability for each mutation type selected.
         if mutation_type == Individual.MUTATION_ANY:
