@@ -9,8 +9,7 @@ class MixedRampedGauss(BaseCreation):
         BaseCreation.__init__(self, eng, config)
 
     def create(self, gen_size):
-        ramp = self._config.get_param('GP', 'ramp',
-                                      type='arange', dtype='float')
+        ramp = np.array(self._config.get_list('GP', 'ramp', item_type=float))
         center = (np.max(ramp) + np.amin(ramp)) / 2
         sigma = self._config.getint('GP', 'gaussigma')
         distrib = self.__create_gaussian_distribution(ramp, center,

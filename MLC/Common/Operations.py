@@ -16,7 +16,7 @@ class Operations(object):
         self._ops = {}
         self._load_operations()
 
-        self._range = self._config.get_param('POPULATION', 'opsetrange', type='range')
+        self._range = self._config.get_list('POPULATION', 'opsetrange')
 
     def _load_operations(self):
         # FIXME: Hardcoded, ugly. Change it for a config file
