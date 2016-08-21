@@ -44,7 +44,7 @@ def retrieve_methods():
     return methods
 
 
-def draw_methods(methods, blacklist=None):
+def draw_methods(methods, blacklist=None, whitelist=None):
     # First, show all the methods
     columns = ["File", "Line", "Method"]
     rows = []
@@ -52,10 +52,16 @@ def draw_methods(methods, blacklist=None):
     for method in methods:
         word_found = False
         if blacklist is not None:
-            for word in blacklist:
-                if method[2].find(word) != -1:
-                    word_found = True
-                    break
+            for black_word in blacklist:
+                black_pos = method[2].find(black_word)
+                if black_pos != -1:
+                    # Check if the get founded is in the whitelist. In that case,
+                    # don't filter the word
+                    for white_word in whitelist:
+                        white_pos = method[2].find(white_word)
+                        if white_pos != black_pos: 
+                            word_found = True
+                            break
         if not word_found:
             rows.append([method[0], method[1], method[2]])
 
@@ -97,11 +103,13 @@ to_draw[show_all_string] = (draw_methods,
 no_get_and_set_string = "Draw all methods filtering getters and setters"
 to_draw[no_get_and_set_string] = (draw_methods,
                                   ["get_", "set_"],
+                                  ["get_matlab_object"],
                                   nothing_to_show or no_getters_and_setters)
 
 no_eval_string = "Draw all methods filtering getters and setters and eval calls"
 to_draw[no_eval_string] = (draw_methods,
                            ["get_", "set_", "eval"],
+                           ["get_matlab_object"],
                            nothing_to_show or no_eval)
 
 # Show the results
@@ -110,4 +118,4 @@ for key, value in to_draw.iteritems():
     if value[2]:
         print "\n\n"
         print key
-        value[0](methods, value[1])
+        value[0](methods, value[1], value[2])
