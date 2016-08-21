@@ -167,5 +167,15 @@ classdef MLCind < handle
             end
             res = {m, fail};
         end
+        
+        function res=extract_subtree(obj, m, mindepth, subtreedepthmax, maxdepth)
+            [m, sm, stdepth] = extract_subtree(m, mindepth, subtreedepthmax, maxdepth);
+            res = {m, sm, stdepth};
+        end
+        
+        function value=private_change_const_tree(obj, expression, gen_param)
+            [m] = change_const_tree(expression, gen_param);
+            value = {m};
+        end
     end
 end

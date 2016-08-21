@@ -20,8 +20,8 @@ class Population(object):
         self._gen = gen
         self._costs = []
 
-        cascade = config.get_param('OPTIMIZATION', 'cascade', type='array')
-        size = config.get_param('POPULATION', 'size', type='array')
+        cascade = config.get_list('OPTIMIZATION', 'cascade')
+        size = config.get_list('POPULATION', 'size')
 
         self._subgen = 1 if cascade[1] == 0 else cascade[1]
         self._gen_size = cascade[1] if (
@@ -37,7 +37,7 @@ class Population(object):
             self._eng.workspace['wtable'] = self._eng.MLCtable(
                 int(self._gen_size) * 50)
 
-        gen_method = self._config.get_param('GP', 'generation_method')
+        gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
         gen_creator.create(self._gen_size)
@@ -169,7 +169,7 @@ class Population(object):
         return Population.amount_population
 
     @staticmethod
-    def evolve(mlcpop, mlc_parameters, matlab_mlctable, mlcpop2=None, config=None):
+    def evolve(mlcpop, mlc_parameters, matlab_mlctable, mlcpop2=None):
         """
         # uncomment this section to use MLC original evolve implementation
         from matlab
@@ -196,13 +196,13 @@ class Population(object):
 
         new_mlcpop2 = mlcpop2 is None
         if new_mlcpop2:
-            mlcpop2 = eng.MLCpop(mlc_parameters, ngen + 1)
+            mlcpop2 = eng.MLCpop(mlc_parameters.get_matlab_object(), ngen + 1)
 
         if verb:
             lg.logger_.info('Evolving population')
 
-        idxsubgen = eng.subgen(mlcpop, mlc_parameters)[0]
-        cell_idxsubgen2 = eng.subgen(mlcpop2, mlc_parameters)
+        idxsubgen = eng.subgen(mlcpop, mlc_parameters.get_matlab_object())[0]
+        cell_idxsubgen2 = eng.subgen(mlcpop2, mlc_parameters.get_matlab_object())
         idxsubgen2 = cell_idxsubgen2[0]
 
         for i in range(0, len(idxsubgen2)):
@@ -227,7 +227,7 @@ class Population(object):
 
             individuals_created = 0
 
-            param_elitism = config.getint('OPTIMIZATION', 'elitism')
+            param_elitism = mlc_parameters.getint('OPTIMIZATION', 'elitism')
 
             # elitism
             if new_mlcpop2:
@@ -249,11 +249,11 @@ class Population(object):
             # completing population
             while individuals_created < len(idxsubgen2[i]):
                 lg.logger_.debug('LEN idx_sub: %s' % (len(idxsubgen2[i]) - individuals_created))
-                op = eng.choose_genetic_operation(mlcpop, mlc_parameters,
+                op = eng.choose_genetic_operation(mlcpop, mlc_parameters.get_matlab_object(),
                                                   len(idxsubgen2[i]) - individuals_created)
 
                 if op == 'replication':
-                    idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                    idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
                     idv_dest = idxsubgen2[i][individuals_created]
 
                     # print 'REPLICATION - IDV_ORIG: %s - IDV_DEST: %s' %
@@ -272,7 +272,7 @@ class Population(object):
                     new_ind = None
                     fail = True
                     while fail:
-                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
                         idv_dest = idxsubgen2[i][individuals_created]
                         # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' %
                         # (idv_orig, idv_dest)
@@ -292,11 +292,11 @@ class Population(object):
                 elif op == 'crossover':
                     fail = True
                     while fail:
-                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
                         idv_orig2 = idv_orig
 
                         while idv_orig2 == idv_orig:
-                            idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters, idx_source_pool)
+                            idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
 
                         idv_dest = idxsubgen2[i][individuals_created]
                         idv_dest2 = idxsubgen2[i][individuals_created + 1]

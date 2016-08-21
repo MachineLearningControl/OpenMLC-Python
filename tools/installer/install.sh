@@ -38,7 +38,7 @@ function get_linux_flavor() {
     # grep return 0 if any line was selected
     if egrep -q -i "centos|rhel|fedora" /etc/os-release; then
         PACKAGE_SYSTEM="RPM"
-    elif egrep -q -i "centos" /etc/os-release; then
+    elif egrep -q -i "ubuntu|debian" /etc/os-release; then
         # TODO: Find out how to identify another RPM OSs like Debian or Mint
         PACKAGE_SYSTEM="DEB"
     fi

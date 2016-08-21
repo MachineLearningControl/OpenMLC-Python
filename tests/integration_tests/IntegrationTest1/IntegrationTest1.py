@@ -1,7 +1,7 @@
 import unittest
 import matlab.engine
 import numpy as np
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
@@ -67,7 +67,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng = MatlabEngine.engine()
 
         # Load the config
-        config = Config()
+        config = Config.get_instance()
         config.read(config_file)
 
         # Fix seed and run program
@@ -89,6 +89,7 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_1(self):
         self._run_x_generation(1)
 
+    # @unittest.skip
     def test_generation_2(self):
         self._run_x_generation(2)
 
@@ -138,6 +139,15 @@ class IntegrationTest1(unittest.TestCase):
 
             self.assertEqual(self._eng.eval(value),
                              self._indivs[int(index) - 1]['value'])
+
+            complexity = 'wmlc.table.individuals(' + str(index) + ').complexity'
+            self.assertEqual(int(self._eng.eval(complexity)),
+                             int(self._indivs[int(index) - 1]['complexity']))
+
+            formal = 'wmlc.table.individuals(' + str(index) + ').formal'
+            self.assertEqual(self._eng.eval(formal),
+                             self._indivs[int(index) - 1]['formal'])
+
             print "Individual N# ", i, " OK!"
             i += 1
 
