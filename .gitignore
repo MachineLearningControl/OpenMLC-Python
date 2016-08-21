@@ -2,6 +2,9 @@
 *.pyc
 *.swp
 
+matlab_code/@MLCparameters/private/save_GP/
+tests/.coverage
+
 # Ctags folders
 .tags
 .tags_sorted_by_file
