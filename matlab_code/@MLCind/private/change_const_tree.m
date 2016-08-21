@@ -21,7 +21,11 @@ ops=gen_param.opset;
     fvig=find(expr==' ');
     if isempty(fvig);
         if any(strcmp(expr(1),pattern))
-            a=num2str((rand-0.5)*2*gen_param.range,gen_param.precision);
+            str_format = '';
+            str_format = strcat(str_format, '% .');
+            str_format = strcat(str_format, num2str(gen_param.precision));
+            str_format = strcat(str_format, 'f');
+            a=num2str((rand-0.5)*2*gen_param.range, str_format);
         else
             a=expr;   
         end;
