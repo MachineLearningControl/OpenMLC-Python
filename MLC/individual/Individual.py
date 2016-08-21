@@ -259,10 +259,12 @@ class Individual(object):
         return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters.get_matlab_object())
 
     def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
+        """
         return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
                                                                 value,
                                                                 mlc_parameters.get_matlab_object(),
                                                                 indiv_type)
+        """
 
         min_depth = 0
         max_depth = 0
