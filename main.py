@@ -1,12 +1,12 @@
 #!/usr/bin/python2.7
 import numpy as np
 from MLC.Application import Application
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.matlab_engine import MatlabEngine
 
 
 def initialize_config():
-    config = Config()
+    config = Config.get_instance()
     config.read('conf/configuration.ini')
     return config
 

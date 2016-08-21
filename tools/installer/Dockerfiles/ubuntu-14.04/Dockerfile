@@ -1,5 +1,5 @@
 # Set the base image
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Update the current system
 RUN apt-get update && apt-get upgrade -y
@@ -16,18 +16,18 @@ RUN cd Python-2.7.11 && ./configure --enable-shared --enable-unicode=ucs4 --pref
 RUN cd Python-2.7.11 && make && make install
 
 # Create .sh who will load the desired enviroment to run python within it
-RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_python
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo 'PYTHON="/opt/mlc-python-2.7.11/bin/python2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo "# Run the dynamically compiled python for matlab" >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo '        $PYTHON $@' >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo '        $PYTHON' >> /opt/mlc-python-2.7.11/bin/mlc_python \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_python \
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo 'PYTHON="/opt/mlc-python-2.7.11/bin/python2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "# Run the dynamically compiled python for matlab" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo '        $PYTHON $@' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo '        $PYTHON' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
 chmod 755 /opt/mlc-python-2.7.11/bin/mlc_python
 
 
@@ -43,18 +43,18 @@ RUN tar xzvf pip-8.0.2.tar.gz
 RUN cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install 
 
 # Create .sh who will load the desired enviroment to run pip within it
-RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo 'PIP="/opt/mlc-python-2.7.11/bin/pip2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo "# Run the dynamically compiled pip" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo '        $PIP $@' >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo '        $PIP' >> /opt/mlc-python-2.7.11/bin/mlc_pip \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip \
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo 'PIP="/opt/mlc-python-2.7.11/bin/pip2.7"' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "# Run the dynamically compiled pip" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo '        $PIP $@' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo '        $PIP' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
 chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 
 
@@ -62,18 +62,18 @@ chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy
 
 # Create .sh who will load the desired enviroment to run nosetests within it
-RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo 'NOSETESTS="/opt/mlc-python-2.7.11/bin/nosetests"' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo "# Run the dynamically compiled nosetests" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo 'NOSETESTS="/opt/mlc-python-2.7.11/bin/nosetests"' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "# Run the dynamically compiled nosetests" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
 
 # Install fpm

@@ -1,6 +1,7 @@
 import matlab.engine
 import config as mlcv3_config
 import os
+import MLC.Log.log as lg
 
 
 class MatlabEngine:
@@ -9,6 +10,7 @@ class MatlabEngine:
     matlab engine.
     """
     _engine_instance = None
+    _rand_counter = 0
 
     @staticmethod
     def engine():
@@ -20,7 +22,6 @@ class MatlabEngine:
                 sessions = matlab.engine.find_matlab()
                 if len(sessions) > 0:
                     MatlabEngine._engine_instance = matlab.engine.connect_matlab(sessions[0])
-                    print "Using Shared Session {}".format(sessions[0])
                 else:
                     MatlabEngine._engine_instance = matlab.engine.start_matlab()
             except AttributeError:
@@ -33,3 +34,13 @@ class MatlabEngine:
             MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools/Demo"))
 
         return MatlabEngine._engine_instance
+
+    @staticmethod
+    def rand():
+        if MatlabEngine._engine_instance is None:
+            raise UnboundLocalError('rand', 'Engine was not initialized')
+
+        rand_value = MatlabEngine._engine_instance.rand()
+        MatlabEngine._rand_counter += 1
+        # lg.logger_.debug("[ENGINE] Rand #%d - Value: %f" % (MatlabEngine._rand_counter, rand_value))
+        return rand_value

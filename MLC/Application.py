@@ -19,7 +19,6 @@ class Application(object):
         set_logger(log_mode)
 
         self._mlc = self._eng.eval('wmlc')
-        self._params = self._eng.eval('wmlc.parameters')
         self._pop = None
 
     def go(self, ngen, fig):
@@ -79,7 +78,7 @@ class Application(object):
         The creation algorithm is implemented in the MLCpop class.
         """
 
-        population = self._eng.MLCpop(self._params)
+        population = self._eng.MLCpop(self._config.get_matlab_object())
         self._pop = Population(self._config)
 
         self._eng.workspace["wpopulation"] = population
@@ -107,8 +106,6 @@ class Application(object):
         and updates the MLC2 object.
         The evaluation algorithm is implemented in the MLCpop class.
         """
-        params = self._eng.eval('wmlc.parameters')
-
         # First evaluation
         pop_index = Population.generations()
         actual_pop = Population.population(pop_index)
@@ -132,7 +129,7 @@ class Application(object):
                                          len(self._pop.get_individuals())+1))
                 ret = self._pop.remove_bad_individuals()
 
-        self._eng.sort(actual_pop, params)
+        self._eng.sort(actual_pop, self._config.get_matlab_object())
         self._set_pop_individuals()
 
         # Enforce reevaluation
@@ -143,7 +140,7 @@ class Application(object):
                 self._pop.evaluate(range(1, ev_again_nb + 1))
 
                 self._set_pop_individuals()
-                self._eng.sort(actual_pop, params)
+                self._eng.sort(actual_pop, self._config.get_matlab_object())
 
         self._eng.set_state(actual_pop, 'evaluated')
 
@@ -160,7 +157,7 @@ class Application(object):
         n = Population.generations()
         table = self._eng.eval('wmlc.table')
         current_pop = Population.population(n)
-        next_pop = Population.evolve(current_pop, self._params, table, config = self._config)
+        next_pop = Population.evolve(current_pop, self._config, table)
 
         # Increase both counters. MATLAB and Python pops counters
         n += 1
@@ -181,7 +178,7 @@ class Application(object):
                     nulls.append(idx + 1)
 
             while len(nulls):
-                next_pop = Population.evolve(current_pop, self._params, table, next_pop, config = self._config)
+                next_pop = Population.evolve(current_pop, self._config, table, next_pop)
                 self._eng.remove_duplicates(next_pop)
                 indivs = Population.get_gen_individuals(n)
 
