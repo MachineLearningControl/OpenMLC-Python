@@ -10,7 +10,7 @@ def usage():
     -d|--MLC_dir:                Absolute or Relative Path to the directory containing the Python implementation of MLC. Mandatory!!
     -a|--show_all:               Show all the functions matched without any filter
     -n|--no_getters_and_setters: Don't show getters and setters calls
-    -e|--no_eval:                Don't show getters and setters and eval calls 
+    -e|--no_eval:                Don't show getters and setters and eval calls
 """
 
 
@@ -96,7 +96,6 @@ def get_lines_with_comments_per_file(mlc_dir):
             if simplecomment_regex.match(line):
                 file_lines.append(i)
 
-
         comments_dict[python_file] = file_lines
     return comments_dict
 
@@ -116,9 +115,7 @@ no_getters_and_setters = args['no_getters_and_setters']
 no_eval = args['no_eval']
 nothing_to_show = False
 
-if not show_all and \
-        not no_getters_and_setters and \
-        not no_eval:
+if not show_all and not no_getters_and_setters and not no_eval:
     nothing_to_show = True
 
 # If the path is not valid,
@@ -132,6 +129,7 @@ to_draw = {}
 comments_dict = get_lines_with_comments_per_file(mlc_dir)
 show_all_string = "Draw all methods"
 to_draw[show_all_string] = (draw_methods,
+                            None,
                             None,
                             nothing_to_show or show_all)
 
@@ -150,7 +148,7 @@ to_draw[no_eval_string] = (draw_methods,
 # Show the results
 methods = retrieve_methods(mlc_dir)
 for key, value in to_draw.iteritems():
-    if value[2]:
+    if value[3]:
         print "\n\n"
         print key
         value[0](methods, comments_dict, value[1], value[2])
