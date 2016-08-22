@@ -28,7 +28,7 @@ def retrieve_python_files(mlc_dir):
     return list
 
 
-def retrieve_methods():
+def retrieve_methods(mlc_dir):
     engine_regex = re.compile("^.*(self\._eng\..*)$")
     methods = []
 
@@ -44,7 +44,7 @@ def retrieve_methods():
     return methods
 
 
-def draw_methods(methods, blacklist=None, whitelist=None):
+def draw_methods(methods, comments_dict, blacklist=None, whitelist=None):
     # First, show all the methods
     columns = ["File", "Line", "Method"]
     rows = []
@@ -59,13 +59,47 @@ def draw_methods(methods, blacklist=None, whitelist=None):
                     # don't filter the word
                     for white_word in whitelist:
                         white_pos = method[2].find(white_word)
-                        if white_pos != black_pos: 
+                        if white_pos != black_pos:
                             word_found = True
                             break
         if not word_found:
-            rows.append([method[0], method[1], method[2]])
+            # Check if the line is in a comment or it is a comment
+            if not method[1] in comments_dict[method[0]]:
+                rows.append([method[0], method[1], method[2]])
 
     print tabulate(rows, columns, tablefmt="fancy_grid")
+
+
+def get_lines_with_comments_per_file(mlc_dir):
+    comments_dict = {}
+
+    for python_file in retrieve_python_files(mlc_dir):
+        f = open(python_file, "r")
+        i = 0
+
+        # Use this variable as a toggle. When -1, we are inside a multicomment
+        toggle_multicomment = 1
+        multicomment_regex = re.compile("^ .*\"\"\"")
+        simplecomment_regex = re.compile("^ .*#")
+        file_lines = []
+        for line in f:
+            i += 1
+            # Check if multicomment
+            if multicomment_regex.match(line):
+                toggle_multicomment *= -1
+
+            if toggle_multicomment == -1:
+                file_lines.append(i)
+                continue
+
+            # Check if simplecomment
+            if simplecomment_regex.match(line):
+                file_lines.append(i)
+
+
+        comments_dict[python_file] = file_lines
+    return comments_dict
+
 
 # Parse program arguments
 parser = argparse.ArgumentParser()
@@ -95,10 +129,11 @@ if not os.path.isdir(mlc_dir):
 
 # Load in a dict the different posibilities
 to_draw = {}
+comments_dict = get_lines_with_comments_per_file(mlc_dir)
 show_all_string = "Draw all methods"
 to_draw[show_all_string] = (draw_methods,
-                              None,
-                              nothing_to_show or show_all)
+                            None,
+                            nothing_to_show or show_all)
 
 no_get_and_set_string = "Draw all methods filtering getters and setters"
 to_draw[no_get_and_set_string] = (draw_methods,
@@ -113,9 +148,9 @@ to_draw[no_eval_string] = (draw_methods,
                            nothing_to_show or no_eval)
 
 # Show the results
-methods = retrieve_methods()
+methods = retrieve_methods(mlc_dir)
 for key, value in to_draw.iteritems():
     if value[2]:
         print "\n\n"
         print key
-        value[0](methods, value[1], value[2])
+        value[0](methods, comments_dict, value[1], value[2])
