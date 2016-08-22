@@ -5,15 +5,19 @@ from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-from MLC.Scripts.toy_problem import toy_problem
-from MLC.Scripts.arduino import arduino
+from MLC.Common.PreevaluationManager import PreevaluationManager
+from MLC.Scripts.Evaluation.toy_problem import toy_problem
+from MLC.Scripts.Evaluation.arduino import arduino
+from MLC.Scripts.Preevaluation.default import default
 
 
 class Application(object):
+
     def __init__(self, eng, config, log_mode='console'):
         self._eng = eng
         self._config = config
         self._set_ev_callbacks()
+        self._set_preev_callbacks()
 
         # Set logger mode of the App
         set_logger(log_mode)
@@ -47,8 +51,7 @@ class Application(object):
         while Population.get_actual_pop_number() <= ngen:
             # ok we can do something
             state = self._eng.get_population_state(self._mlc,
-                                                   Population.
-                                                   get_actual_pop_number())
+                                                   Population.get_actual_pop_number())
             if state == 'init':
                 if Population.get_actual_pop_number() == 1:
                     self.generate_population()
@@ -109,7 +112,7 @@ class Application(object):
         # First evaluation
         pop_index = Population.generations()
         actual_pop = Population.population(pop_index)
-        self._pop.evaluate(range(1, len(self._pop.get_individuals())+1))
+        self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
 
         # Remove bad individuals
         elim = False
@@ -126,7 +129,7 @@ class Application(object):
                 # There are bad individuals, recreate the population
                 self._pop.create()
                 self._pop.evaluate(range(1,
-                                         len(self._pop.get_individuals())+1))
+                                         len(self._pop.get_individuals()) + 1))
                 ret = self._pop.remove_bad_individuals()
 
         self._eng.sort(actual_pop, self._config.get_matlab_object())
@@ -207,3 +210,8 @@ class Application(object):
         # FIXME: To this dynamically searching .pys in the directory
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
         EvaluatorFactory.set_ev_callback('arduino', arduino)
+
+    def _set_preev_callbacks(self):
+        # Set the callbacks to be called at the moment of the preevaluation
+        # FIXME: To this dynamically searching .pys in the directory
+        PreevaluationManager.set_callback('default', default)

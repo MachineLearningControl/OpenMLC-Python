@@ -24,18 +24,15 @@ class Population(object):
         size = config.get_list('POPULATION', 'size')
 
         self._subgen = 1 if cascade[1] == 0 else cascade[1]
-        self._gen_size = cascade[1] if (
-            self._gen > 1 and len(size) > 1) else size[0]
+        self._gen_size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
         self._individuals = np.zeros(self._gen_size, dtype=int)
         self._state = 'init'
 
-        lg.logger_.debug("Population created. Number: %s - Size: %s" %
-                         (self._gen, self._gen_size))
+        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._gen_size))
 
     def create(self, table=None):
         if table is None:
-            self._eng.workspace['wtable'] = self._eng.MLCtable(
-                int(self._gen_size) * 50)
+            self._eng.workspace['wtable'] = self._eng.MLCtable(int(self._gen_size) * 50)
 
         gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
@@ -90,11 +87,9 @@ class Population(object):
 
             lg.logger_.debug('[POP][EVALUATE] Idx: {0} '
                              '- Indiv N#: {1} - Cost: {2}'
-                             .format(index,
-                                     self._individuals[index], jj[index]))
+                             .format(index, self._individuals[index], jj[index]))
 
-            self._eng.update_individual(
-                table, int(self._individuals[index]), jj[index])
+            self._eng.update_individual(table, int(self._individuals[index]), jj[index])
             self._eng.set_cost(matlab_pop, mlab_index, jj[index])
 
         self._costs = jj

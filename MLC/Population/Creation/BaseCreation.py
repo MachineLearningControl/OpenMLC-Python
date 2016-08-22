@@ -2,9 +2,11 @@ import MLC.Log.log as lg
 import numpy as np
 
 from MLC.individual.Individual import Individual
+from MLC.Common.PreevaluationManager import PreevaluationManager
 
 
 class BaseCreation(object):
+
     def __init__(self, eng, config):
         self._eng = eng
         self._config = config
@@ -40,13 +42,17 @@ class BaseCreation(object):
                                  str(indiv_number) +
                                  ' - Value: ' + self._eng.eval('windiv.value'))
 
-                if self._eng.preev(indiv.get_matlab_object(), self._config.get_matlab_object(), nargout=1):
-                    self._individuals.append((index, response[1]))
-                    index += 1
-                else:
-                    lg.logger_.info('[FILL_CREATION] Preevaluation failed'
-                                    '. Individual value: ' +
-                                    self._eng.eval('windiv.value'))
+                # Call the preevaluation function
+                callback = PreevaluationManager.get_callback()
+                if callback is not None:
+                    if not callback(indiv):
+                        lg.logger_.info('[FILL_CREATION] Preevaluation failed'
+                                        '. Individual value: ' +
+                                        self._eng.eval('windiv.value'))
+                        continue
+
+                self._individuals.append((index, response[1]))
+                index += 1
             else:
                 lg.logger_.debug('[FILL_CREATION] Replica created.')
 
