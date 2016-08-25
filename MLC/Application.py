@@ -1,11 +1,13 @@
 import matlab.engine
-
 import MLC.Log.log as lg
-from MLC.Log.log import set_logger
-from MLC.Population.Population import Population
 
-from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Common.PreevaluationManager import PreevaluationManager
+from MLC.Log.log import set_logger
+from MLC.matlab_engine import MatlabEngine
+from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.mlc_table.MLCTable import MLCTable
+from MLC.Population.Population import Population
+from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Scripts.Evaluation.toy_problem import toy_problem
 from MLC.Scripts.Evaluation.arduino import arduino
 from MLC.Scripts.Preevaluation.default import default
@@ -13,9 +15,9 @@ from MLC.Scripts.Preevaluation.default import default
 
 class Application(object):
 
-    def __init__(self, eng, config, log_mode='console'):
-        self._eng = eng
-        self._config = config
+    def __init__(self, log_mode='console'):
+        self._eng = MatlabEngine.engine()
+        self._config = Config.get_instance()
         self._set_ev_callbacks()
         self._set_preev_callbacks()
 
@@ -23,7 +25,7 @@ class Application(object):
         set_logger(log_mode)
 
         self._mlc = self._eng.eval('wmlc')
-        self._pop = None
+        self._pop_container = {}
 
     def go(self, ngen, fig):
         """
@@ -42,25 +44,26 @@ class Application(object):
                              + ngen)
             return
 
-        # curgen=length(mlc.population);
-        if Population.get_actual_pop_number() == 0:
+        # The first generation it's a special case, since it must
+        # be generated from scratch
+        if Population.get_current_pop_number() == 0:
             # population is empty, we have to create it
-            Population.inc_pop_number()
             self.generate_population()
 
-        while Population.get_actual_pop_number() <= ngen:
-            # ok we can do something
-            state = self._eng.get_population_state(self._mlc,
-                                                   Population.get_actual_pop_number())
+        # Keep on generating new population while the cut condition is not fulfilled
+        while Population.get_current_pop_number() <= ngen:
+            current_pop = self._pop_container[Population.get_current_pop_number()]
+
+            # state = self._eng.get_population_state(self._mlc, Population.get_current_pop_number())
+            state = current_pop.get_state()
+
             if state == 'init':
-                if Population.get_actual_pop_number() == 1:
+                if Population.get_current_pop_number() == 1:
                     self.generate_population()
                 else:
                     self.evolve_population()
-
             elif state == 'created':
                 self.evaluate_population()
-
             elif state == 'evaluated':
                 if fig > 0:
                     self._eng.show_best(self._mlc)
@@ -68,7 +71,7 @@ class Application(object):
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
 
-                if Population.get_actual_pop_number() <= ngen:
+                if Population.get_current_pop_number() <= ngen:
                     self.evolve_population()
 
     def generate_population(self):
@@ -81,26 +84,29 @@ class Application(object):
         The creation algorithm is implemented in the MLCpop class.
         """
 
+        # REMOVE: Create the MATLAB Population
         population = self._eng.MLCpop(self._config.get_matlab_object())
-        self._pop = Population(self._config)
-
         self._eng.workspace["wpopulation"] = population
-        print self._eng.eval("wpopulation.state")
 
-        self._pop.create()
+        # Create it's equivalent in Python
+        Population.inc_pop_number()
+        py_pop = Population()
+        self._pop_container[Population.get_current_pop_number()] = py_pop
+
+        # Create the first population
+        py_pop.create()
+
         # Table created inside population create
-        self._eng.set_table(self._mlc, self._eng.eval('wtable'))
+        # FIXME: It is okay to create the table here?
+        self._eng.set_table(self._mlc, MLCTable.get_instance().get_matlab_object())
 
-        matlab_array = matlab.double(self._pop.get_individuals().tolist())
-        self._eng.set_individuals(population,
-                                  matlab_array,
-                                  nargout=0)
+        matlab_array = matlab.double(py_pop.get_individuals().tolist())
+        self._eng.set_individuals(population, matlab_array, nargout=0)
 
         self._eng.set_state(population, 'created')
         lg.logger_.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
 
-        self._eng.add_population(self._mlc, population,
-                                 Population.get_actual_pop_number())
+        self._eng.add_population(self._mlc, population, Population.get_current_pop_number())
 
     def evaluate_population(self):
         """
@@ -128,8 +134,7 @@ class Application(object):
             while ret:
                 # There are bad individuals, recreate the population
                 self._pop.create()
-                self._pop.evaluate(range(1,
-                                         len(self._pop.get_individuals()) + 1))
+                self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
                 ret = self._pop.remove_bad_individuals()
 
         self._eng.sort(actual_pop, self._config.get_matlab_object())
@@ -168,8 +173,7 @@ class Application(object):
         self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
 
         # Remove duplicates
-        look_for_dup = self._config.getboolean('OPTIMIZATION',
-                                               'lookforduplicates')
+        look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
         if look_for_dup:
             self._eng.remove_duplicates(next_pop)
@@ -196,11 +200,11 @@ class Application(object):
     def _set_pop_new_individuals(self):
         # Create a new population with the indexes updated
         self._pop = Population(self._config,
-                               Population.get_actual_pop_number())
+                               Population.get_current_pop_number())
         self._set_pop_individuals()
 
     def _set_pop_individuals(self):
-        gen_number = Population.get_actual_pop_number()
+        gen_number = Population.get_current_pop_number()
         indivs = Population.get_gen_individuals(gen_number)
         self._pop.set_individuals(
             [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])

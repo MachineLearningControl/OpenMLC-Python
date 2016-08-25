@@ -1,6 +1,7 @@
-from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
 import MLC.Log.log as lg
 import sys
+
+from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
 
 
 class EvaluatorFactory(object):
@@ -20,10 +21,10 @@ class EvaluatorFactory(object):
                              "Aborting program...")
 
     @staticmethod
-    def make(eng, config, strategy):
+    def make(strategy):
         if strategy == "mfile_standalone":
             ev_callback = EvaluatorFactory.get_ev_callback(config)
-            return StandaloneEvaluator(eng, config, ev_callback)
+            return StandaloneEvaluator(ev_callback)
         else:
             lg.logger_.error("[CREATION_FACTORY] Evaluation method " +
                              strategy + " is not valid. Aborting program")
