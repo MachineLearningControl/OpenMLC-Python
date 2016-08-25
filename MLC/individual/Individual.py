@@ -456,8 +456,31 @@ class Individual(object):
             return value, False
 
         elif mutation_type == Individual.MUTATION_HOIST:
-            res = self._eng.private_mutate_tree(self.get_matlab_object(), value, gen_param.get_matlab_object(), mutation_type)
-            return res[0], res[1] != 0
+            controls = gen_param.getint("POPULATION", "controls")
+            prob_threshold = 1 / controls
+            cl = []
+
+            # Revisar con Thomas la logica de este codigo
+            expression_tree = Lisp_Tree_Expr(value)
+            for stree in [expression_tree.get_root_node()]:
+                cl.append(stree.to_string())
+
+            changed = False
+            k = 0
+
+            for nc in MatlabEngine.randperm(controls):
+                k += 1
+                # control law is cropped if it is the last one and no change happend before
+                if (MatlabEngine.engine().rand() < prob_threshold) or (k == controls and not changed):
+                    _, sm, _, = self.__extract_subtree(cl[nc-1], mutmindepth, maxdepth, maxdepth)
+
+                    if sm:
+                        cl[nc-1] = sm
+
+                    changed = not sm is None
+
+            value = "(root %s)" % " ".join(cl[:controls])
+            return value, False
 
         elif mutation_type == Individual.MUTATION_SHRINK:
             # remove subtree.

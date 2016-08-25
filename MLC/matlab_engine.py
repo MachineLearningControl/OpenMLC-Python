@@ -44,3 +44,13 @@ class MatlabEngine:
         MatlabEngine._rand_counter += 1
         # lg.logger_.debug("[ENGINE] Rand #%d - Value: %f" % (MatlabEngine._rand_counter, rand_value))
         return rand_value
+
+    @staticmethod
+    def randperm(n):
+        if MatlabEngine._engine_instance is None:
+            raise UnboundLocalError('rand', 'Engine was not initialized')
+        MatlabEngine._rand_counter += n
+        if n == 1:
+            return [int(MatlabEngine._engine_instance.randperm(n))]
+        else:
+            return [int(x) for x in MatlabEngine._engine_instance.randperm(n)[0]]
