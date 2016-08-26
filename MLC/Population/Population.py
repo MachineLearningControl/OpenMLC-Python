@@ -19,26 +19,30 @@ class Population(object):
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
 
-        self._gen = Population.get_current_pop_number()
-        self._costs = []
-
         cascade = self._config.get_list('OPTIMIZATION', 'cascade')
         size = self._config.get_list('POPULATION', 'size')
 
-        self._subgen = 1 if cascade[1] == 0 else cascade[1]
-        self._gen_size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
-        self._individuals = np.zeros(self._gen_size, dtype=int)
+        self._gen = Population.get_current_pop_number()
+        self._size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
         self._state = 'init'
-        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._gen_size))
+        self._subgen = 1 if cascade[1] == 0 else cascade[1]
+
+        # Declare MATLAB attributes
+        self._individuals = [-1] * self._size
+        self._costs = [-1] * self._size
+        self._gen_method = [-1] * self._size
+        self._parents = [-1] * self._size
+
+        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
 
     def create(self, table=None):
         gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
-        gen_creator.create(self._gen_size)
+        gen_creator.create(self._size)
         self.set_individuals(gen_creator.individuals())
 
-    def evaluate(self, eval_idx):
+    def evaluate(self):
         """
         Evaluates cost of individuals and update the MLC object MLC_OBJ.
         All options are set in the MLC object.
@@ -58,18 +62,16 @@ class Population(object):
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
         lg.logger_.info('Evaluation method: ' + ev_method)
 
-        # TODO: Serialization of the population.
-
         evaluator = EvaluatorFactory.make(self._eng, self._config, ev_method)
-        jj = evaluator.evaluate(eval_idx, self._individuals, gen)
+        jj = evaluator.evaluate(self._individuals, gen)
 
         # Update table individuals and MATLAB Population indexes and costs
-        matlab_pop = Population.population(gen)
+        # matlab_pop = Population.population(gen)
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
 
-        for i in xrange(len(eval_idx)):
+        for i in xrange(self._size):
             index = eval_idx[i] - 1
-            mlab_index = eval_idx[i]
+            # mlab_index = eval_idx[i]
 
             if str(jj[index]) == 'nan' or \
                str(jj[index]) == 'inf' or \
@@ -84,10 +86,8 @@ class Population(object):
                              '- Indiv N#: {1} - Cost: {2}'
                              .format(index, self._individuals[index], jj[index]))
 
-            self._eng.update_individual(MLCTable.get_instance().get_matlab_object(),
-                                        int(self._individuals[index]),
-                                        jj[index])
-            self._eng.set_cost(matlab_pop, mlab_index, jj[index])
+            MLCTable.get_instance().update_individual(int(self._individuals[index]), jj[index])
+            # self._eng.set_cost(matlab_pop, mlab_index, jj[index])
 
         self._costs = jj
 
@@ -104,7 +104,7 @@ class Population(object):
         else:
             return []
 
-    def remove_duplicates(self):
+    def _remove_duplicates(self):
         # TODO:
         pass
 
@@ -142,14 +142,6 @@ class Population(object):
         Return the total amount of generations.
         """
         return int(MatlabEngine.engine().eval('length(wmlc.population)'))
-
-    @staticmethod
-    def get_gen_individuals(generation_id):
-        if generation_id > Population.generations():
-            raise IndexError('generation index out of range')
-
-        return MatlabEngine.engine().eval('wmlc.population(%s).individuals'
-                                          % generation_id)
 
     @staticmethod
     def inc_pop_number():
@@ -321,8 +313,63 @@ class Population(object):
 
         return mlcpop2
 
+    def sort(self):
+        # Calculate subgenerations
+        subgens = self.__subgen()
+
+        indivs = []
+        costs = []
+        gen_method = []
+        parents = []
+
+        # Order the MATLAB population attributes per subgeneration
+        for subgen in subgens:
+            lg.logger_.debug("[POPULATION] Begin: " + str(subgen[0]) + " - End: " + str(subgen[1]))
+            lg.logger_.debug("[POPULATION] Costs length: " + str(len(self._costs)))
+            indexes = [i[0] for i in sorted(enumerate(self._costs[subgen[0]:subgen[1]+1]), key=lambda x:x[1])]
+            lg.logger_.debug("[POPULATION] Indexes length: " + str(len(indexes)))
+
+            for i in xrange(subgen[1] - subgen[0] + 1):
+                # lg.logger_.debug("[POPULATION] index: " + str(i + subgen[0]))
+                # lg.logger_.debug("[POPULATION] indexes: " + str(indexes[i]))
+                # lg.logger_.debug("[POPULATION] indexes size: " + str(len(indexes)))
+
+                indivs.append(self._individuals[indexes[i]])
+                costs.append(self._costs[indexes[i]])
+                gen_method.append(self._gen_method[indexes[i]])
+                parents.append(self._parents[indexes[i]])
+
+        self._individuals = indivs
+        self._costs = costs
+        self._gen_method = gen_method
+        self._parents = parents
+
+    def __subgen(self):
+        # Create subgenerations from the actual Population
+        subgens = []
+        indivs_per_subgen = math.floor(float(self._size) / self._subgen)
+        begin = 1
+        end = indivs_per_subgen
+        i = 1
+
+        # Create the subgen as intervals of the full list of indivis
+        # Example: If size = 100 and subgen = 3, then 3 subgenerations will be
+        # created. [1:33] [34:66] [67:100]
+        while i < self._subgen:
+            subgen = (int(begin - 1), int(end - 1))
+            subgens.append(subgen)
+            begin = end + 1
+            end += indivs_per_subgen
+            i += 1
+
+        subgens.append((int(begin), int(self._size)))
+        return subgens
+
     def get_state(self):
         return self._state
 
     def set_state(self, rhs_state):
         self._state = rhs_state
+
+    def get_size(self):
+        return self._size

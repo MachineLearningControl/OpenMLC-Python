@@ -98,15 +98,16 @@ class Application(object):
 
         # Table created inside population create
         # FIXME: It is okay to create the table here?
-        self._eng.set_table(self._mlc, MLCTable.get_instance().get_matlab_object())
+        # self._eng.set_table(self._mlc, MLCTable.get_instance().get_matlab_object())
 
-        matlab_array = matlab.double(py_pop.get_individuals().tolist())
-        self._eng.set_individuals(population, matlab_array, nargout=0)
+        # matlab_array = matlab.double(py_pop.get_individuals().tolist())
+        # self._eng.set_individuals(population, matlab_array, nargout=0)
 
-        self._eng.set_state(population, 'created')
-        lg.logger_.debug('[EV_POP] ' + self._eng.eval("wpopulation.state"))
+        py_pop.set_state("created")
+        # self._eng.set_state(population, 'created')
+        lg.logger_.debug('[EV_POP] ' + py_pop.get_state())
 
-        self._eng.add_population(self._mlc, population, Population.get_current_pop_number())
+        # self._eng.add_population(self._mlc, population, Population.get_current_pop_number())
 
     def evaluate_population(self):
         """
@@ -116,9 +117,10 @@ class Application(object):
         The evaluation algorithm is implemented in the MLCpop class.
         """
         # First evaluation
-        pop_index = Population.generations()
-        actual_pop = Population.population(pop_index)
-        self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
+        # pop_index = Population.generations()
+        # actual_pop = Population.population(pop_index)
+        # self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
+        current_pop = self._pop_container[Population.get_current_pop_number()]
 
         # Remove bad individuals
         elim = False
@@ -126,31 +128,31 @@ class Application(object):
         if bad_values == 'all':
             elim = True
         elif bad_values == 'first':
-            if pop_index == 1:
+            if Population.get_current_pop_number() == 1:
                 elim = True
 
         if elim:
-            ret = self._pop.remove_bad_individuals()
+            ret = current_pop.remove_bad_individuals()
             while ret:
                 # There are bad individuals, recreate the population
-                self._pop.create()
-                self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
-                ret = self._pop.remove_bad_individuals()
+                current_pop.create()
+                current_pop.evaluate()
+                ret = current_pop.remove_bad_individuals()
 
-        self._eng.sort(actual_pop, self._config.get_matlab_object())
-        self._set_pop_individuals()
+        current_pop.sort()
+        # self._set_pop_individuals()
 
         # Enforce reevaluation
         if self._config.getboolean('EVALUATOR', 'ev_again_best'):
             ev_again_times = self._config.getint('EVALUATOR', 'ev_again_times')
             for i in range(1, ev_again_times):
                 ev_again_nb = self._config.getint('EVALUATOR', 'ev_again_nb')
-                self._pop.evaluate(range(1, ev_again_nb + 1))
+                current_pop.evaluate()
 
-                self._set_pop_individuals()
-                self._eng.sort(actual_pop, self._config.get_matlab_object())
+                # self._set_pop_individuals()
+                current_pop.sort()
 
-        self._eng.set_state(actual_pop, 'evaluated')
+        current_pop.set_state('evaluated')
 
     def evolve_population(self):
         """

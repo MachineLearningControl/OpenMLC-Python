@@ -13,11 +13,10 @@ class StandaloneEvaluator(object):
         self._config = Config.get_instance()
         self._callback = callback
 
-    def evaluate(self, eval_idx, indivs, pop_number):
+    def evaluate(self, indivs, pop_number):
         jj = []
 
-        for i in xrange(len(eval_idx)):
-            index = eval_idx[i]
+        for index in indivs:
             lg.logger_.info('[POP][STAND_EVAL] Individual N#' + str(index) +
                             ' from generation ' + str(pop_number))
 
