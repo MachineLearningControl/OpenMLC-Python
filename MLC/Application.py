@@ -5,9 +5,10 @@ from MLC.Log.log import set_logger
 from MLC.Population.Population import Population
 
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-from MLC.Scripts.toy_problem import toy_problem
-from MLC.Scripts.arduino import arduino
+#from MLC.Scripts import *
 
+from MLC.Scripts import toy_problem
+from MLC.Scripts import arduino
 
 class Application(object):
     def __init__(self, eng, config, log_mode='console'):
@@ -32,6 +33,7 @@ class Application(object):
             OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
         """
+        print dir(self._mlc)
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
                              'positive decimal number. Value provided: '
@@ -44,6 +46,7 @@ class Application(object):
             Population.inc_pop_number()
             self.generate_population()
 
+
         while Population.get_actual_pop_number() <= ngen:
             # ok we can do something
             state = self._eng.get_population_state(self._mlc,
@@ -54,14 +57,14 @@ class Application(object):
                     self.generate_population()
                 else:
                     self.evolve_population()
-
+   
             elif state == 'created':
                 self.evaluate_population()
 
             elif state == 'evaluated':
                 if fig > 0:
-                    self._eng.show_best(self._mlc)
-
+                    #self._eng.show_best(self._mlc)
+                    self.show_best()
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
 
@@ -190,6 +193,24 @@ class Application(object):
             self._eng.set_state(next_pop, 'created')
             self._set_pop_new_individuals()
 
+    def show_best(self):
+        #FIXME Use local python population
+        #index = self._eng.eval('min(wmlc.population(length(wmlc.population)).costs)')
+        #length(wmlc.population)
+        pop_idx = Population.generations()
+        #wmlc.population(length(wmlc.population))
+        population = Population.population(pop_idx)
+        #FIXME Is "population" a list??
+        index = population.index(min(population))
+        #FIXME returns a Matlab.double instead of a integer
+        #indiv_idx = Population.get_gen_individuals(pop_idx)[index]
+        
+        indiv_idx = int(self._eng.eval('wmlc.population(' + str(index) +')')) #Matlab always returns double?
+        
+        table = self._eng.eval('wmlc.table')
+        individual = table.individuals(indiv_idx)
+        EvaluatorFactory.get_ev_callback(self._config).show_best(self._eng, self._config, individual)
+
     def _set_pop_new_individuals(self):
         # Create a new population with the indexes updated
         self._pop = Population(self._config,
@@ -204,6 +225,6 @@ class Application(object):
 
     def _set_ev_callbacks(self):
         # Set the callbacks to be called at the moment of the evaluation
-        # FIXME: To this dynamically searching .pys in the directory
+        # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
         EvaluatorFactory.set_ev_callback('arduino', arduino)
