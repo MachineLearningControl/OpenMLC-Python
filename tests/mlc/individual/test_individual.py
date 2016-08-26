@@ -4,7 +4,7 @@ from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 
-from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.mlc_parameters.mlc_parameters import Config, saved
 from MLC import config as mlc_config_path
 
 import os
@@ -347,6 +347,28 @@ class IndividualTest(unittest.TestCase):
                                 hash=1.5210419679169233e+36,
                                 value="(root (log (/ (* (sin 3.907) (- -8.597 4.057)) (log (+ 8.244 5.242)))))",
                                 formal="my_log((my_div((sin(3.907) .* ((-8.597) - 4.057)),my_log((8.244 + 5.242)))))")
+
+    def test_sensor_list(self):
+        # save and restore original configuration
+        with saved(Config.get_instance()):
+            self._engine.rand('seed', 40.0, nargout=0)
+            Config.get_instance().set("POPULATION", "sensor_list", "7,5,6,9,8,14")
+            Config.get_instance().set("POPULATION", "sensors", "6")
+            Config.get_instance().set("POPULATION", "sensor_spec", "true")
+            Config.get_instance().set("POPULATION", "sensor_prob", "1.0")
+
+            individual = Individual()
+            individual.generate(self._params, 3)
+            self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S7) (cos S9)) (/ (log S9) (log S6)))))')
+
+            individual.generate(self._params, 3)
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S7) (tanh S9)) (- (/ S7 S7) (/ S7 S6)))))')
+
+            individual.generate(self._params, 3)
+            self.assertEqual(individual.get_value(), '(root (+ (log (+ (/ S8 S5) (exp S8))) (cos (exp (* S5 S9)))))')
+
+            # TODO: test sensor list with mutation type:MUTATION_REMOVE_SUBTREE_AND_REPLACE
+            # TODO: test sensor list with mutation type:MUTATION_SHRINK
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
