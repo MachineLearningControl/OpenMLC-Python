@@ -27,8 +27,16 @@ class MLCTable:
         try:
             return self._individuals[individual_id]
         except KeyError:
-            lg.logger_.error("[MLC_TABLE] Individual does not exists. Indiv N#:", individual_id)
+            lg.logger_.error("[MLC_TABLE] get_individual - Individual does not exists. Indiv N#:", individual_id)
             raise
+
+    def update_individual(self, individual_id, cost, ev_time=None):
+        try:
+            indiv = self._individuals[individual_id]
+            indiv.set_cost(cost)
+            self._costlist[individual_id] = cost
+        except KeyError:
+            lg.logger_.error("[MLC_TABLE] update_individual - Individual does not exists. Indiv N#:", individual_id)
 
     def add_individual(self, individual):
         """

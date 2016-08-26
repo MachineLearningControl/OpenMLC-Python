@@ -122,12 +122,12 @@ class Individual(object):
             if type(varargin) == int:
                 value = '(root @' + ' @' * (param_controls - 1) + ')'
                 for i in range(1, param_controls + 1):
-                    value = self.__generate_indiv_regressive_tree(value, mlc_parameters, varargin)
+                    value = self.__generate_indiv_regressive_tree(value, varargin)
                 self._value = value
             else:
                 self._value = varargin
 
-            self._value = self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters)
+            self._value = self.__simplify_and_sensors_tree(self.get_value())
             self._hash = self._tree.calculate_hash()
             self._formal = self._tree.formal()
             self._complexity = self._tree.complexity()
@@ -349,12 +349,12 @@ class Individual(object):
             op = Operations.get_instance().get_operation_from_op_num(op_num)
             if (op["nbarg"] == 1):
                 new_value = begin_str + '(' + op["op"] + ' @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
             else:
                 # nbrag == 2
                 new_value = begin_str + '(' + op["op"] + ' @ @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
 
         return new_value
 
