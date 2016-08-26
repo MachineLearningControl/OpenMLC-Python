@@ -4,6 +4,18 @@ import MLC.Log.log as lg
 from MLC.matlab_engine import MatlabEngine
 
 
+class saved():
+    def __init__(self, cr):
+        self.cr = cr
+
+    def __enter__(self):
+        self.cr.save()
+        return self.cr
+
+    def __exit__(self, type, value, traceback):
+        self.cr.restore()
+
+
 class Config(ConfigParser.ConfigParser):
     """
     Singleton class that parse and manipulates the Config file of the MLC
@@ -33,3 +45,15 @@ class Config(ConfigParser.ConfigParser):
             Config._instance = Config()
 
         return Config._instance
+
+    def save(self):
+        self._dictionary = {}
+        for section in self.sections():
+            self._dictionary[section] = {}
+            for option in self.options(section):
+                self._dictionary[section][option] = self.get(section, option)
+
+    def restore(self):
+        for section, options in self._dictionary.iteritems():
+            for opt, value in options.iteritems():
+                self.set(section, opt, value)

@@ -231,10 +231,9 @@ class Individual(object):
         replace_list = ()
 
         if self._config.getboolean('POPULATION', 'sensor_spec'):
-            # TODO: Get the sensors as a list. Not tested for obvious reasons
             config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
             sensor_list = ['S' + str(x) for x in config_sensor_list]
-            replace_list = ['z' + str(x) for x in config_sensor_list]
+            replace_list = ['z' + str(x) for x in range(len(config_sensor_list))]
         else:
             amount_sensors = self._config.getint('POPULATION', 'sensors')
             # Replace the available sensors in the individual expression
@@ -431,12 +430,9 @@ class Individual(object):
 
                 if value:
                     if sensor_spec:
-                        # TODO: ver este caso
-                        #slist=sort(gen_param.sensor_list);
-                        #for i=length(slist):-1:1
-                        #    m=strrep(m,['z' num2str(i-1)],['S' num2str(slist(i))]);
-                        #end
-                        pass
+                        config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
+                        for i in range(len(config_sensor_list)):
+                            value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
                     else:
                         for i in range(sensors, 0, -1):
                             value = value.replace("z%d" %(i-1), "S%d" %(i-1))
@@ -490,12 +486,9 @@ class Individual(object):
 
             if value:
                 if sensor_spec:
-                    # TODO: ver este caso
-                    # slist=sort(gen_param.sensor_list);
-                    # for i=length(slist):-1:1
-                    #    m=strrep(m,['z' num2str(i-1)],['S' num2str(slist(i))]);
-                    # end
-                    pass
+                    config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
+                    for i in range(len(config_sensor_list)):
+                        value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
                 else:
                     for i in range(sensors, 0, -1):
                         value = value.replace("z%d" % (i - 1), "S%d" % (i - 1))
