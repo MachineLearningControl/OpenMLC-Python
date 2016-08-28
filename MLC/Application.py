@@ -91,7 +91,6 @@ class Application(object):
         self._eng.workspace["wpopulation"] = population
 
         # Create it's equivalent in Python
-        Population.inc_pop_number()
         py_pop = Population()
         self._pop_container[Population.get_current_pop_number()] = py_pop
 
