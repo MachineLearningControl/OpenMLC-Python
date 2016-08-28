@@ -172,12 +172,9 @@ class Application(object):
         look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
         if look_for_dup:
-            # Remove the duplicates in the last evolution
-            duplicate_list = next_pop.remove_duplicates()
-
-            while len(duplicate_list) > 0:
+            # Remove the duplicates in the last evolve
+            while next_pop.remove_duplicates() > 0:
                 next_pop = current_pop.evolve()
-                duplicate_list = next_pop.remove_duplicates()
 
         next_pop.set_state("created")
         self._pop_container[Population.get_current_pop_number()] = next_pop
