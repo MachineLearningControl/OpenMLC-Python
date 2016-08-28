@@ -182,7 +182,7 @@ class Population(object):
         if new_pop is None:
             new_pop = Population()
 
-        lg.logger_.info('[POPULATION] Evolving population N#: ' + str(self._gen))
+        lg.logger_.info('[POPULATION] Evolving population N#' + str(self._gen))
 
         # FIXME: It's not necessary to compute the creation of both subgenerations
         # The ranges of both of them will be the same
@@ -202,12 +202,12 @@ class Population(object):
             # Amount of individuals per subgeneration. Take into consideration that
             # the last subgeneration could differ from the others
             # (that's why we're calculating the value on each iteration)
-            indivs_per_subgen2 = subgen2_end - subgen2_begin - 1
+            indivs_per_subgen2 = subgen2_end - subgen2_begin + 1
 
             # IMPORTANT: Before the first evolution of the new Population, all the elements are invalid. In the
             # second evolution of Population is when all this algorithm will have any sense
             not_valid_indexes = [x[0] + subgen2_begin
-                                 for x in enumerate(new_pop.get_individuals()[subgen2_begin:subgen2_end])
+                                 for x in enumerate(new_pop.get_individuals()[subgen2_begin:subgen2_end + 1])
                                  if x[1] == -1]
 
             individuals_created = 0
@@ -319,6 +319,7 @@ class Population(object):
                                               Population.GEN_METHOD_CROSSOVER, -1)
                     individuals_created += 2
 
+        print new_pop.get_individuals()
         return new_pop
 
     def sort(self):
