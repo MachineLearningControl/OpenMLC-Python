@@ -65,8 +65,10 @@ class Application(object):
             elif state == 'created':
                 self.evaluate_population()
             elif state == 'evaluated':
+                # TODO: Move this method to Python in order to work properly
                 if fig > 0:
-                    self._eng.show_best(self._mlc)
+                    pass
+                    # self._eng.show_best(self._mlc)
 
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
@@ -93,13 +95,14 @@ class Application(object):
         py_pop = Population()
         self._pop_container[Population.get_current_pop_number()] = py_pop
 
-        # Create the first population
-        py_pop.create()
-
         # Table created inside population create
         # FIXME: It is okay to create the table here?
         # self._eng.set_table(self._mlc, MLCTable.get_instance().get_matlab_object())
 
+        # Create the first population
+        py_pop.create()
+
+        # REMOVE:
         # matlab_array = matlab.double(py_pop.get_individuals().tolist())
         # self._eng.set_individuals(population, matlab_array, nargout=0)
 
@@ -121,6 +124,7 @@ class Application(object):
         # actual_pop = Population.population(pop_index)
         # self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
         current_pop = self._pop_container[Population.get_current_pop_number()]
+        current_pop.evaluate()
 
         # Remove bad individuals
         elim = False
@@ -140,7 +144,6 @@ class Application(object):
                 ret = current_pop.remove_bad_individuals()
 
         current_pop.sort()
-        # self._set_pop_individuals()
 
         # Enforce reevaluation
         if self._config.getboolean('EVALUATOR', 'ev_again_best'):
@@ -148,8 +151,6 @@ class Application(object):
             for i in range(1, ev_again_times):
                 ev_again_nb = self._config.getint('EVALUATOR', 'ev_again_nb')
                 current_pop.evaluate()
-
-                # self._set_pop_individuals()
                 current_pop.sort()
 
         current_pop.set_state('evaluated')
@@ -164,52 +165,22 @@ class Application(object):
         """
 
         # Evolve the current population and add it to the MLC MATLAB object
-        n = Population.generations()
-        table = self._eng.eval('wmlc.table')
-        current_pop = Population.population(n)
-        next_pop = Population.evolve(current_pop, self._config, table)
-
-        # Increase both counters. MATLAB and Python pops counters
-        n += 1
-        Population.inc_pop_number()
-        self._eng.add_population(self._eng.eval('wmlc'), next_pop, n)
+        current_pop = self._pop_container[Population.get_current_pop_number()]
+        next_pop = current_pop.evolve()
 
         # Remove duplicates
         look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
         if look_for_dup:
-            self._eng.remove_duplicates(next_pop)
-            indivs = Population.get_gen_individuals(n)
+            # Remove the duplicates in the last evolution
+            duplicate_list = next_pop.remove_duplicates()
 
-            nulls = []
-            for idx in xrange(len(indivs[0])):
-                if indivs[0][idx] == -1:
-                    nulls.append(idx + 1)
+            while len(duplicate_list) > 0:
+                next_pop = current_pop.evolve()
+                duplicate_list = next_pop.remove_duplicates()
 
-            while len(nulls):
-                next_pop = Population.evolve(current_pop, self._config, table, next_pop)
-                self._eng.remove_duplicates(next_pop)
-                indivs = Population.get_gen_individuals(n)
-
-                nulls = []
-                for idx in xrange(len(indivs[0])):
-                    if indivs[0][idx] == -1:
-                        nulls.append(idx + 1)
-
-            self._eng.set_state(next_pop, 'created')
-            self._set_pop_new_individuals()
-
-    def _set_pop_new_individuals(self):
-        # Create a new population with the indexes updated
-        self._pop = Population(self._config,
-                               Population.get_current_pop_number())
-        self._set_pop_individuals()
-
-    def _set_pop_individuals(self):
-        gen_number = Population.get_current_pop_number()
-        indivs = Population.get_gen_individuals(gen_number)
-        self._pop.set_individuals(
-            [(x, indivs[0][x]) for x in xrange(len(indivs[0]))])
+        next_pop.set_state("created")
+        self._pop_container[Population.get_current_pop_number()] = next_pop
 
     def _set_ev_callbacks(self):
         # Set the callbacks to be called at the moment of the evaluation

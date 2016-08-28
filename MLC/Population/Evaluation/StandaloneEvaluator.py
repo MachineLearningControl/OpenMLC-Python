@@ -21,7 +21,7 @@ class StandaloneEvaluator(object):
                             ' from generation ' + str(pop_number))
 
             # Retrieve the individual to be evaluated
-            py_indiv = MLCTable.get_individual(index)
+            py_indiv = MLCTable.get_instance().get_individual(index)
             lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
                              ' Value: ' + py_indiv.get_value())
 

@@ -1,6 +1,7 @@
 import MLC.Log.log as lg
 import sys
 
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
 
 
@@ -12,8 +13,8 @@ class EvaluatorFactory(object):
         EvaluatorFactory.callback[callback_name] = ev_callback
 
     @staticmethod
-    def get_ev_callback(config):
-        callback_name = config.get('EVALUATOR', 'evaluation_function')
+    def get_ev_callback():
+        callback_name = Config.get_instance().get('EVALUATOR', 'evaluation_function')
         try:
             return EvaluatorFactory.callback[callback_name]
         except KeyError:
@@ -23,7 +24,7 @@ class EvaluatorFactory(object):
     @staticmethod
     def make(strategy):
         if strategy == "mfile_standalone":
-            ev_callback = EvaluatorFactory.get_ev_callback(config)
+            ev_callback = EvaluatorFactory.get_ev_callback()
             return StandaloneEvaluator(ev_callback)
         else:
             lg.logger_.error("[CREATION_FACTORY] Evaluation method " +
