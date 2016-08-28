@@ -215,6 +215,9 @@ class Individual(object):
     def get_appearences(self):
         return self._appearences
 
+    def inc_appearences(self):
+        self._appearences += 1
+
     def get_hash(self):
         return self._hash
 
@@ -232,6 +235,9 @@ class Individual(object):
 
     def set_complexity(self, complexity):
         self._complexity = complexity
+
+    def set_cost(self, cost):
+        self._cost = cost
 
     def __simplify_and_sensors_tree(self, value):
         sensor_list = ()
