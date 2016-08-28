@@ -135,20 +135,20 @@ class Individual(object):
 
         raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
 
-    def evaluate(self, mlc_parameters, varargin):
-        return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
+    # def evaluate(self, mlc_parameters, varargin):
+    #     return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
 
-    def mutate(self, mlc_parameters, mutation_type=MUTATION_ANY):
-        param_individual_type = mlc_parameters.get("POPULATION", "individual_type")
+    def mutate(self, mutation_type=MUTATION_ANY):
+        param_individual_type = self._config.get("POPULATION", "individual_type")
 
         if param_individual_type == 'tree':
-            new_value, fail = self.__mutate_tree(self.get_value(), mlc_parameters, mutation_type)
+            new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
 
             if fail:
                 return None, fail
 
             new_individual = Individual()
-            new_individual.generate(mlc_parameters, new_value)
+            new_individual.generate(new_value)
             return new_individual, fail
 
         raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
@@ -166,10 +166,10 @@ class Individual(object):
                 return None, None, fail
 
             new_ind1 = Individual()
-            new_ind1.generate(mlc_parameters, m1)
+            new_ind1.generate(m1)
 
             new_ind2 = Individual()
-            new_ind2.generate(mlc_parameters, m2)
+            new_ind2.generate(m2)
 
             return new_ind1, new_ind2, fail
 

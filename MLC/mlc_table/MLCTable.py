@@ -1,4 +1,6 @@
 import MLC.Log.log as lg
+import sys
+
 from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -27,7 +29,7 @@ class MLCTable:
         try:
             return self._individuals[individual_id]
         except KeyError:
-            lg.logger_.error("[MLC_TABLE] get_individual - Individual does not exists. Indiv N#:", individual_id)
+            lg.logger_.error("[MLC_TABLE] get_individual - Individual does not exists. Indiv N#:" + str(individual_id))
             raise
 
     def update_individual(self, individual_id, cost, ev_time=None):
@@ -36,7 +38,9 @@ class MLCTable:
             indiv.set_cost(cost)
             self._costlist[individual_id] = cost
         except KeyError:
-            lg.logger_.error("[MLC_TABLE] update_individual - Individual does not exists. Indiv N#:", individual_id)
+            lg.logger_.error("[MLC_TABLE] update_individual - Individual does not exists. Indiv N#:" + str(individual_id))
+            raise
+            # sys.exit(-1)
 
     def add_individual(self, individual):
         """
