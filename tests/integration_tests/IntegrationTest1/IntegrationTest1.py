@@ -5,6 +5,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
+from MLC.mlc_table.MLCTable import MLCTable
 
 """
 This test run the application setting the seed to a fix number. The output of
@@ -73,10 +74,10 @@ class IntegrationTest1(unittest.TestCase):
         # Fix seed and run program
         cls._eng.rand('seed', 20.0, nargout=0)
         cls._eng.workspace['wmlc'] = cls._eng.MLC2()
-        cls._app = Application(cls._eng, config, "testing")
-        cls._app.go(6, 0)
+        cls._app = Application("testing")
+        cls._app.go(2, 0)
 
-        a = Population.generations()
+        a = Population.get_current_pop_number()
         print "Number of populations: " + str(a)
 
         # List with individuals data
@@ -93,19 +94,19 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_2(self):
         self._run_x_generation(2)
 
-    # @unittest.skip
+    @unittest.skip
     def test_generation_3(self):
         self._run_x_generation(3)
 
-    # @unittest.skip
+    @unittest.skip
     def test_generation_4(self):
         self._run_x_generation(4)
 
-    # @unittest.skip
+    @unittest.skip
     def test_generation_5(self):
         self._run_x_generation(5)
 
-    # @unittest.skip
+    @unittest.skip
     def test_generation_6(self):
         self._run_x_generation(6)
 
@@ -114,43 +115,30 @@ class IntegrationTest1(unittest.TestCase):
         self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
+        # Check indiv properties
         self._check_indiv_values(gen_number)
-        self._check_indiv_property(gen_number, 'individuals',
-                                   'index', 'int')
-        self._check_indiv_property(gen_number, 'costs',
-                                   'cost', 'float')
-        self._check_indiv_property(gen_number, 'gen_method',
-                                   'gen_method', 'int')
-        self._check_cellarray_property(gen_number, 'parents', 'parents')
+
+        # Check population properties
+        pop = self._app.get_population(gen_number)
+        self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
+        self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
+        self._check_indiv_property(gen_number, pop.get_gen_methods(), 'gen_method', 'int')
+        # self._check_cellarray_property(gen_number, 'parents', 'parents')
 
     def _check_indiv_values(self, gen_number):
-        indexes = \
-            self._eng.eval('wmlc.population(' +
-                           str(gen_number) + ').individuals')
-
-        '''
-        Stupid matlab arrays notation..., everything is a matrix,
-        ALSO an array and not viceversa
-        '''
+        indexes = self._app.get_population(gen_number).get_individuals()
         i = 1
 
-        for index in indexes[0]:
-            value = 'wmlc.table.individuals(' + str(index) + ').value'
+        for index in indexes:
+            indiv = MLCTable.get_instance().get_individual(index)
 
-            self.assertEqual(self._eng.eval(value),
-                             self._indivs[int(index) - 1]['value'])
-
-            complexity = 'wmlc.table.individuals(' + str(index) + ').complexity'
-            self.assertEqual(int(self._eng.eval(complexity)),
-                             int(self._indivs[int(index) - 1]['complexity']))
-
-            formal = 'wmlc.table.individuals(' + str(index) + ').formal'
-            self.assertEqual(self._eng.eval(formal),
-                             self._indivs[int(index) - 1]['formal'])
-
+            self.assertEqual(indiv.get_value(), self._indivs[int(index) - 1]['value'])
+            self.assertEqual(indiv.get_complexity(), int(self._indivs[int(index) - 1]['complexity']))
+            self.assertEqual(indiv.get_formal(), self._indivs[int(index) - 1]['formal'])
             print "Individual N# ", i, " OK!"
             i += 1
 
+    """
     def _check_cellarray_property(self, gen_number, property, map_property):
         property_string = ('wmlc.population(' +
                            str(gen_number) +
@@ -164,44 +152,37 @@ class IntegrationTest1(unittest.TestCase):
                 obtained = values_obtained[i]
             elif type(values_obtained[i]) is float:
                 obtained = [values_obtained[i]]
-            """
-            else:
-                print type(values_obtained[i])
-                if len(values_obtained[i]) > 0:
-                    obtained = [float(item)
-                                for item in values_obtained[i][0]]
-            """
+
+            # else:
+            #     print type(values_obtained[i])
+            #     if len(values_obtained[i]) > 0:
+            #         obtained = [float(item)
+            #                     for item in values_obtained[i][0]]
+
             print "Value obtained: " + str(obtained)
             print "Value expected: " + str(pop[i][map_property])
             self.assertEqual(obtained, pop[i][map_property])
+    """
 
-    def _check_indiv_property(self,
-                              gen_number,
-                              property,
-                              map_property,
-                              type=None):
-        property_string = ('wmlc.population(' +
-                           str(gen_number) + ').' + property)
-        values_obtained = self._eng.eval(property_string)
-
+    def _check_indiv_property(self, gen_number, values, map_property, type=None):
         # List of dictionaries with the values of every individual
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-            print "Value obtained: " + str(values_obtained[0][i])
+            print "Value obtained: " + str(values[i])
             print "Value expected: " + str(pop[i][map_property])
 
             if type == 'int':
-                self.assertEqual(int(values_obtained[0][i]),
+                self.assertEqual(int(values[i]),
                                  int(pop[i][map_property]))
             elif type == 'float':
-                obtained = float(values_obtained[0][i])
+                obtained = float(values[i])
                 expected = float(pop[i][map_property])
                 if (not np.isclose(obtained, expected)):
                     self.assertEqual(True, False)
                 else:
                     self.assertEqual(True, True)
             else:
-                self.assertEqual(values_obtained[0][i], pop[i][map_property])
+                self.assertEqual(values[i], pop[i][map_property])
 
 
 def suite():
