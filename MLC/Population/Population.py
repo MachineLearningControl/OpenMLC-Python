@@ -298,18 +298,21 @@ class Population(object):
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
                     lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest, number))
+                    lg.logger_.debug("[POPULATION] Indiv1 value: {0}".format(new_ind.get_value()))
                     new_pop.update_individual(pop_idv_index_dest, self,
                                               pop_idv_index_orig, number,
                                               Population.GEN_METHOD_CROSSOVER, -1)
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind2)
                     lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest2, number))
+                    lg.logger_.debug("[POPULATION] Indiv2 value: {0}".format(new_ind2.get_value()))
                     new_pop.update_individual(pop_idv_index_dest2, self,
                                               pop_idv_index_orig2, number,
                                               Population.GEN_METHOD_CROSSOVER, -1)
                     individuals_created += 2
 
-        # print new_pop.get_individuals()
+        print new_pop.get_individuals()
+        print len(new_pop.get_individuals())
         return new_pop
 
     def sort(self):
