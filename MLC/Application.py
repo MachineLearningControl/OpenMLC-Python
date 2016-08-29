@@ -47,14 +47,11 @@ class Application(object):
         # The first generation it's a special case, since it must
         # be generated from scratch
         if Population.get_current_pop_number() == 0:
-            # population is empty, we have to create it
             self.generate_population()
 
         # Keep on generating new population while the cut condition is not fulfilled
         while Population.get_current_pop_number() <= ngen:
             current_pop = self._pop_container[Population.get_current_pop_number()]
-
-            # state = self._eng.get_population_state(self._mlc, Population.get_current_pop_number())
             state = current_pop.get_state()
 
             if state == 'init':
@@ -76,6 +73,9 @@ class Application(object):
                 if Population.get_current_pop_number() <= ngen:
                     self.evolve_population()
 
+    def get_population(self, number):
+        return self._pop_container[number]
+
     def generate_population(self):
         """
         Initializes the population. (MLC2 Toolbox)
@@ -85,31 +85,13 @@ class Application(object):
         launch its creation method according to the OBJ.PARAMETERS content.
         The creation algorithm is implemented in the MLCpop class.
         """
-
-        # REMOVE: Create the MATLAB Population
-        population = self._eng.MLCpop(self._config.get_matlab_object())
-        self._eng.workspace["wpopulation"] = population
-
-        # Create it's equivalent in Python
         py_pop = Population()
         self._pop_container[Population.get_current_pop_number()] = py_pop
 
-        # Table created inside population create
-        # FIXME: It is okay to create the table here?
-        # self._eng.set_table(self._mlc, MLCTable.get_instance().get_matlab_object())
-
         # Create the first population
         py_pop.create()
-
-        # REMOVE:
-        # matlab_array = matlab.double(py_pop.get_individuals().tolist())
-        # self._eng.set_individuals(population, matlab_array, nargout=0)
-
         py_pop.set_state("created")
-        # self._eng.set_state(population, 'created')
-        lg.logger_.debug('[EV_POP] ' + py_pop.get_state())
-
-        # self._eng.add_population(self._mlc, population, Population.get_current_pop_number())
+        lg.logger_.debug('[APPLICATION] First population state' + py_pop.get_state())
 
     def evaluate_population(self):
         """
@@ -173,7 +155,7 @@ class Application(object):
         if look_for_dup:
             # Remove the duplicates in the last evolve
             while next_pop.remove_duplicates() > 0:
-                next_pop = current_pop.evolve()
+                next_pop = current_pop.evolve(next_pop)
 
         next_pop.set_state("created")
         self._pop_container[Population.get_current_pop_number()] = next_pop
