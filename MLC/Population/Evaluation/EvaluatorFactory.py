@@ -23,7 +23,7 @@ class EvaluatorFactory(object):
     def make(eng, config, strategy):
         if strategy == "mfile_standalone":
             ev_callback = EvaluatorFactory.get_ev_callback(config)
-            return StandaloneEvaluator(eng, config, ev_callback)
+            return StandaloneEvaluator(eng, config, ev_callback.cost)
         else:
             lg.logger_.error("[CREATION_FACTORY] Evaluation method " +
                              strategy + " is not valid. Aborting program")
