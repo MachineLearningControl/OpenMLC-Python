@@ -50,7 +50,7 @@ class Application(object):
             self.generate_population()
 
         # Keep on generating new population while the cut condition is not fulfilled
-        while Population.get_current_pop_number() <= ngen:
+        while Population.get_current_pop_number() < ngen:
             current_pop = self._pop_container[Population.get_current_pop_number()]
             state = current_pop.get_state()
 
@@ -62,7 +62,6 @@ class Application(object):
             elif state == 'created':
                 self.evaluate_population()
             elif state == 'evaluated':
-                # TODO: Move this method to Python in order to work properly
                 if fig > 0:
                     pass
                     # self._eng.show_best(self._mlc)
@@ -70,8 +69,11 @@ class Application(object):
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
 
-                if Population.get_current_pop_number() <= ngen:
+                if Population.get_current_pop_number() < ngen:
                     self.evolve_population()
+
+        # Evaluate the last population
+        self.evaluate_population()
 
     def get_population(self, number):
         return self._pop_container[number]
