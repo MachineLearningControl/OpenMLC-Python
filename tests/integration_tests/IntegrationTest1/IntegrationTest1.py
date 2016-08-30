@@ -75,7 +75,7 @@ class IntegrationTest1(unittest.TestCase):
         cls._eng.rand('seed', 20.0, nargout=0)
         cls._eng.workspace['wmlc'] = cls._eng.MLC2()
         cls._app = Application("testing")
-        cls._app.go(2, 0)
+        cls._app.go(7, 0)
 
         a = Population.get_current_pop_number()
         print "Number of populations: " + str(a)
@@ -94,23 +94,23 @@ class IntegrationTest1(unittest.TestCase):
     def test_generation_2(self):
         self._run_x_generation(2)
 
-    @unittest.skip
+    # @unittest.skip
     def test_generation_3(self):
         self._run_x_generation(3)
 
-    @unittest.skip
+    # @unittest.skip
     def test_generation_4(self):
         self._run_x_generation(4)
 
-    @unittest.skip
+    # @unittest.skip
     def test_generation_5(self):
         self._run_x_generation(5)
 
-    @unittest.skip
+    # @unittest.skip
     def test_generation_6(self):
         self._run_x_generation(6)
 
-    @unittest.skip
+    # @unittest.skip
     def test_generation_7(self):
         self._run_x_generation(7)
 
