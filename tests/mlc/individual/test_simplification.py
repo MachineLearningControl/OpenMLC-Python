@@ -2,7 +2,7 @@ import unittest
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
-from MLC.Config.Config import Config
+from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
 from MLC import config as config_path
 

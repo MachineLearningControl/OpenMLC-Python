@@ -58,15 +58,15 @@ class Lisp_Tree_Expr(object):
         Generate a hash with the Individual as a string, and convert that hash to a float value
         """
         # http://stackoverflow.com/questions/1592158/convert-hex-to-float
-        expr_hash = md5.new(self._expanded_tree).hexdigest()
+        return md5.new(self._expanded_tree).hexdigest()
         # convert from hex to a Python int
-        i = int(expr_hash, 16)
+        # i = int(expr_hash, 16)
         # make this into a c integer
-        cp = pointer(c_int(i))
+        # cp = pointer(c_int(i))
         # cast the int pointer to a float pointer
-        fp = cast(cp, POINTER(c_float))
+        # fp = cast(cp, POINTER(c_float))
         # dereference the pointer, get the float
-        return fp.contents.value
+        # return fp.contents.value
 
     def _get_operation(self, expr):
         pos = -1

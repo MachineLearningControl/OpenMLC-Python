@@ -10,6 +10,7 @@ from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr, TreeVisitor
 
 import re
 
+
 class Individual(object):
     """
     MLCind constructor of the Machine Learning Control individual class.
@@ -78,6 +79,17 @@ class Individual(object):
         self._config = Config.get_instance()
         self._tree = None
 
+        # For the moment is the only type available
+        self._type = "tree"
+        self._value = value
+        self._cost = 1e36
+        self._cost_history = []
+        self._evaluation_time = 0.0
+        self._appearences = 1
+        self._hash = ""
+        self._formal = ""
+        self._complexity = 0
+
         if mlc_ind:
             self._mlc_ind = mlc_ind
         else:
@@ -89,7 +101,7 @@ class Individual(object):
     def get_matlab_object(self):
         return self._mlc_ind
 
-    def generate(self, mlc_parameters, varargin):
+    def generate(self, varargin):
         """
         generate individual from scratch or from unfinished individual.
 
@@ -99,70 +111,65 @@ class Individual(object):
 
         MLCIND.generate(MLC_PARAMETERS,VALUE) creates an individual with MLCIND.value VALUE.
 
-        matlab_impl: return self._eng.generate(self._mlc_ind, mlc_parameters, varargin)
+        matlab_impl: return self._eng.generate(self._mlc_ind, varargin)
         """
         param_individual_type = self._config.get('POPULATION', 'individual_type')
         param_controls = int(self._config.getint('POPULATION', 'controls'))
 
-        if param_individual_type == 'tree':
-            self.set_type('tree')
+        if param_individual_type == "tree":
+            self._type = "tree"
 
             if type(varargin) == int:
                 value = '(root @' + ' @' * (param_controls - 1) + ')'
                 for i in range(1, param_controls + 1):
-                    value = self.__generate_indiv_regressive_tree(value, mlc_parameters, varargin)
-                self.set_value(value)
+                    value = self.__generate_indiv_regressive_tree(value, varargin)
+                self._value = value
             else:
-                self.set_value(varargin)
+                self._value = varargin
 
-            self.set_value(self.__simplify_and_sensors_tree(self.get_value(), mlc_parameters))
-            string_hash = self._eng.calculate_hash_from_value(self.get_matlab_object())
-            self.set_hash(self._eng.eval("hex2num('%s')" % string_hash[0:16]))
-            # self.set_hash(self._tree.calculate_hash())
-
-            self.set_formal(self._tree.formal())
-            self.set_complexity(self._tree.complexity())
+            self._value = self.__simplify_and_sensors_tree(self.get_value())
+            self._hash = self._tree.calculate_hash()
+            self._formal = self._tree.formal()
+            self._complexity = self._tree.complexity()
             return
 
         raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
 
-    def evaluate(self, mlc_parameters, varargin):
-        return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
+    # def evaluate(self, mlc_parameters, varargin):
+    #     return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
 
-    def mutate(self, mlc_parameters, mutation_type=MUTATION_ANY):
-        param_individual_type = mlc_parameters.get("POPULATION", "individual_type")
+    def mutate(self, mutation_type=MUTATION_ANY):
+        param_individual_type = self._config.get("POPULATION", "individual_type")
 
         if param_individual_type == 'tree':
-            new_value, fail = self.__mutate_tree(self.get_value(), mlc_parameters, mutation_type)
+            new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
 
             if fail:
                 return None, fail
 
             new_individual = Individual()
-            new_individual.generate(mlc_parameters, new_value)
+            new_individual.generate(new_value)
             return new_individual, fail
 
         raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
 
-    def crossover(self, other_individual, mlc_parameters):
+    def crossover(self, other_individual):
         """
         CROSSOVER crosses two MLCind individuals.
         [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
-        param_individual_type = mlc_parameters.get("POPULATION", "individual_type")
+        param_individual_type = self._config.get("POPULATION", "individual_type")
 
         if param_individual_type == 'tree':
-            m1, m2, fail = self.__crossover_tree(self.get_value(),
-                                                 other_individual.get_value(),
-                                                 mlc_parameters)
+            m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
             if fail:
                 return None, None, fail
 
             new_ind1 = Individual()
-            new_ind1.generate(mlc_parameters, m1)
+            new_ind1.generate(m1)
 
             new_ind2 = Individual()
-            new_ind2.generate(mlc_parameters, m2)
+            new_ind2.generate(m2)
 
             return new_ind1, new_ind2, fail
 
@@ -178,55 +185,61 @@ class Individual(object):
 
         raise NotImplementedError("Individual::compare() is not implemented for type %s" % self.get_type())
 
-    def textoutput(self):
-        return self._eng.textoutput(self._mlc_ind)
+    # def textoutput(self):
+    #    return self._eng.textoutput(self._mlc_ind)
 
-    def preev(self, mlc_patameters):
-        return self._eng.textoutput(self._mlc_ind, mlc_patameters)
+    # def preev(self, mlc_patameters):
+    #    return self._eng.textoutput(self._mlc_ind, mlc_patameters)
 
     def get_value(self):
-        return self._eng.get_value(self._mlc_ind)
+        return self._value
 
     def set_value(self, value):
-        return self._eng.set_value(self._mlc_ind, value)
+        self._value = value
 
     def get_type(self):
-        return self._eng.get_type(self._mlc_ind)
+        return self._type
 
     def set_type(self, type):
-        return self._eng.set_type(self._mlc_ind, type)
+        self._type = type
 
     def get_cost(self):
-        return int(self._eng.get_cost(self._mlc_ind))
+        return self._cost
 
     def get_cost_history(self):
-        return self._eng.get_cost_history(self._mlc_ind)
+        return self._cost_history
 
     def get_evaluation_time(self):
-        return self._eng.get_evaluation_time(self._mlc_ind)
+        return self._evaluation_time
 
     def get_appearences(self):
-        return int(self._eng.get_appearences(self._mlc_ind))
+        return self._appearences
+
+    def inc_appearences(self):
+        self._appearences += 1
 
     def get_hash(self):
-        return self._eng.get_hash(self._mlc_ind)
+        return self._hash
 
     def set_hash(self, hash):
-        return self._eng.set_hash(self._mlc_ind, hash)
+        self._hash = hash
 
     def get_formal(self):
-        return self._eng.get_formal(self._mlc_ind)
+        return self._formal
 
     def set_formal(self, formal):
-        return self._eng.set_formal(self._mlc_ind, formal)
+        self._formal = formal
 
     def get_complexity(self):
-        return int(self._eng.get_complexity(self._mlc_ind))
+        return self._complexity
 
     def set_complexity(self, complexity):
-        return self._eng.set_complexity(self._mlc_ind, complexity)
+        self._complexity = complexity
 
-    def __simplify_and_sensors_tree(self, value, mlc_parameters):
+    def set_cost(self, cost):
+        self._cost = cost
+
+    def __simplify_and_sensors_tree(self, value):
         sensor_list = ()
         replace_list = ()
 
@@ -251,13 +264,7 @@ class Individual(object):
 
         return value
 
-    def __simplify_my_LISP(self, value, mlc_parameters):
-        return self._eng.simplify_my_LISP(value, mlc_parameters)
-
-    def __tree_complexity(self, value, mlc_parameters):
-        return self._eng.private_tree_complexity(self.get_matlab_object(), value, mlc_parameters.get_matlab_object())
-
-    def __generate_indiv_regressive_tree(self, value, mlc_parameters, indiv_type=None):
+    def __generate_indiv_regressive_tree(self, value, indiv_type=None):
         """
         return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
                                                                 value,
@@ -347,16 +354,16 @@ class Individual(object):
             op = Operations.get_instance().get_operation_from_op_num(op_num)
             if (op["nbarg"] == 1):
                 new_value = begin_str + '(' + op["op"] + ' @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
             else:
                 # nbrag == 2
                 new_value = begin_str + '(' + op["op"] + ' @ @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
-                new_value = self.__generate_indiv_regressive_tree(new_value, mlc_parameters, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
+                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
 
         return new_value
 
-    def __crossover_tree(self, value_1, value_2, gen_param):
+    def __crossover_tree(self, value_1, value_2):
         """
             Extract a subtree out of a tree, extract a correct subtree out of
             another tree (with depth that can fit into maxdepth). Then interchange
@@ -364,15 +371,14 @@ class Individual(object):
 
             :param value_1: first tree (lisp ascii expression)
             :param value_2: second tree (lisp ascii expression)
-            :param gen_param: a parameters structure for genetic programming as
             returned by set_GP_parameters.m
             :return:
             m1: first new tree (lisp ascii expression)                              %
             m2: second new tree (lisp ascii expression)
         """
-        maxtries = gen_param.getint("GP", "maxtries")
-        mutmindepth = gen_param.getint("GP", "mutmindepth")
-        maxdepth = gen_param.getint("GP", "maxdepth")
+        maxtries = self._config.getint("GP", "maxtries")
+        mutmindepth = self._config.getint("GP", "mutmindepth")
+        maxdepth = self._config.getint("GP", "maxdepth")
 
         correct = False
         count = 0
@@ -383,7 +389,7 @@ class Individual(object):
         while not correct and count < maxtries:
             # Extracting subtrees
             value_1, sm1, n = self.__extract_subtree(tmp_value_1, mutmindepth, maxdepth, maxdepth)  # check extract_subtree comments
-            value_2, sm2, n2 = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth-n+1)
+            value_2, sm2, n2 = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth - n + 1)
 
             # n or n2 < 0 indicates the extraction was not correct for any reason.
             correct = n > 0 and n2 > 0
@@ -407,18 +413,19 @@ class Individual(object):
 
         return value_1, value_2, not correct
 
-    def __mutate_tree(self, value, gen_param, mutation_type):
+    def __mutate_tree(self, value, mutation_type):
         fail = False
-        mutmindepth = gen_param.getint("GP", "mutmindepth")
-        maxdepth = gen_param.getint("GP", "maxdepth")
-        sensor_spec = gen_param.getboolean("POPULATION", "sensor_spec")
-        sensors = gen_param.getint("POPULATION", 'sensors')
-        mutation_types = gen_param.get_list("GP", 'mutation_types')
+
+        mutmindepth = self._config.getint("GP", "mutmindepth")
+        maxdepth = self._config.getint("GP", "maxdepth")
+        sensor_spec = self._config.getboolean("POPULATION", "sensor_spec")
+        sensors = self._config.getint("POPULATION", 'sensors')
+        mutation_types = self._config.get_list("GP", 'mutation_types')
 
         # equi probability for each mutation type selected.
         if mutation_type == Individual.MUTATION_ANY:
             rand_number = rand_number = MatlabEngine.engine().rand()
-            mutation_type = mutation_types[int(np.floor(rand_number*len(mutation_types)))]
+            mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
         if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
             preevok = False
@@ -426,7 +433,7 @@ class Individual(object):
                 # remove subtree.
                 value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
                 # grow new subtree
-                value = self.__generate_indiv_regressive_tree(value, gen_param, 0)
+                value = self.__generate_indiv_regressive_tree(value, 0)
 
                 if value:
                     if sensor_spec:
@@ -435,7 +442,7 @@ class Individual(object):
                             value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
                     else:
                         for i in range(sensors, 0, -1):
-                            value = value.replace("z%d" %(i-1), "S%d" %(i-1))
+                            value = value.replace("z%d" % (i - 1), "S%d" % (i - 1))
                     preevok = True
                     # if gen_param.preevaluation
                     #   eval(['peval=@' gen_param.preev_function ';']);
@@ -448,11 +455,11 @@ class Individual(object):
             return value, not value
 
         elif mutation_type == Individual.MUTATION_REPARAMETRIZATION:
-            value = self.__reparam_tree(value, gen_param)
+            value = self.__reparam_tree(value)
             return value, False
 
         elif mutation_type == Individual.MUTATION_HOIST:
-            controls = gen_param.getint("POPULATION", "controls")
+            controls = self._config.getint("POPULATION", "controls")
             prob_threshold = 1 / controls
             cl = []
 
@@ -477,12 +484,11 @@ class Individual(object):
 
             value = "(root %s)" % " ".join(cl[:controls])
             return value, False
-
         elif mutation_type == Individual.MUTATION_SHRINK:
             # remove subtree.
             value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
             # grow new subtree
-            value = self.__generate_indiv_regressive_tree(value, gen_param, 4)
+            value = self.__generate_indiv_regressive_tree(value, 4)
 
             if value:
                 if sensor_spec:
@@ -516,7 +522,7 @@ class Individual(object):
             raise Exception("m could not be an empty string")
 
         rankpar = np.array([1 if c == '(' else 0 for c in m] * cdepth)
-        rankpar2 = np.array([1 if c == ')' else 0 for c in m] * (cdepth+1))
+        rankpar2 = np.array([1 if c == ')' else 0 for c in m] * (cdepth + 1))
         idx1 = self.__find(rankpar != 0)
         # idx2 = self.__find(rankpar != 0)
         subtreedepth = rankpar * 0
@@ -527,42 +533,43 @@ class Individual(object):
             icendpar = self.__find(rankpar2 == crank)
             icendpar = icendpar[icendpar > idx1[i]]
             icendpar = icendpar[0]
-            subtreedepth[idx1[i]] = max(rankpar[range(idx1[i]-1, icendpar+1)])
+            subtreedepth[idx1[i]] = max(rankpar[range(idx1[i] - 1, icendpar + 1)])
 
-        search_par = (rankpar >= mindepth)*(subtreedepth-rankpar <= (subtreedepthmax - 1))*(rankpar <= maxdepth)
+        search_par = (rankpar >= mindepth) * (subtreedepth - rankpar <= (subtreedepthmax - 1)) * (rankpar <= maxdepth)
         eligiblepar = self.__find(search_par)
 
         if len(eligiblepar) > 0:
             rand_number = MatlabEngine.engine().rand()
-            n = np.ceil(rand_number * len(eligiblepar))-1
+            n = np.ceil(rand_number * len(eligiblepar)) - 1
             n = eligiblepar[n]
             n2 = self.__find(rankpar[n] == rankpar2)
-            idx = self.__find(n2*(n2 > n))
+            idx = self.__find(n2 * (n2 > n))
             n2 = n2[idx[0]]
-            sm = m[n:n2+1]
+            sm = m[n:n2 + 1]
             leftpar = np.cumsum([1 if c == '(' else 0 for c in sm])
             rightpar = np.cumsum([1 if c == ')' else 0 for c in sm])
             cdepth = leftpar - rightpar
             stdepth = max(cdepth)
-            m = m[0:n]+'@'+m[n2+1:]
+            m = m[0:n] + '@' + m[n2 + 1:]
         else:
             return [], [], -1
 
         return m, sm, stdepth
 
-    def __reparam_tree(self, value, mlc_parameters):
+    def __reparam_tree(self, value):
         preevok = False
         while not preevok:
-            value = self.__change_const_tree(value, mlc_parameters)
+            value = self.__change_const_tree(value)
             preevok = True
-            #if gen_param.preevaluation
+            # if gen_param.preevaluation
             # eval(['peval=@' gen_param.preev_function ';']);
             # f=peval;
-            #preevok=feval(f,m);
+            # preevok=feval(f,m);
         return value
 
-    def __change_const_tree(self, expression, gen_param):
+    def __change_const_tree(self, expression):
         class ChangeConsTreeVisitor(TreeVisitor):
+
             def __init__(self, pop_range, precision):
                 self._range = pop_range
                 self._precision = precision
@@ -572,11 +579,11 @@ class Individual(object):
 
             def visit_leaf_node(self, node):
                 if not node.is_sensor():
-                    node_value = (MatlabEngine.rand()-0.5) * 2 * self._range
+                    node_value = (MatlabEngine.rand() - 0.5) * 2 * self._range
                     node._arg = "%0.*f" % (self._precision, node_value)
 
-        pop_range = gen_param.getint("POPULATION", "range")
-        precision = gen_param.getint("POPULATION", "precision")
+        pop_range = self._config.getint("POPULATION", "range")
+        precision = self._config.getint("POPULATION", "precision")
 
         expression_tree = Lisp_Tree_Expr(expression)
         expression_tree.get_root_node().accept(ChangeConsTreeVisitor(pop_range, precision))

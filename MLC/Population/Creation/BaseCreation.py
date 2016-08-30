@@ -1,13 +1,18 @@
 import MLC.Log.log as lg
 import numpy as np
 
+from MLC.Common.PreevaluationManager import PreevaluationManager
 from MLC.individual.Individual import Individual
+from MLC.matlab_engine import MatlabEngine
+from MLC.mlc_table.MLCTable import MLCTable
+from MLC.mlc_parameters.mlc_parameters import Config
 
 
 class BaseCreation(object):
-    def __init__(self, eng, config):
-        self._eng = eng
-        self._config = config
+
+    def __init__(self):
+        self._eng = MatlabEngine.engine()
+        self._config = Config.get_instance()
 
         # A list of tuples (index, number)
         self._individuals = []
@@ -22,31 +27,27 @@ class BaseCreation(object):
         while index < len(individuals):
 
             indiv = Individual()
-            indiv.generate(self._config, type)
+            indiv.generate(type)
+            response = MLCTable.get_instance().add_individual(indiv)
 
-            table = self._eng.eval('wtable')
-            # Returns (individual, number, repeated)
-            response = self._eng.add_individual(table, indiv.get_matlab_object(), nargout=3)
-
-            if not response[2]:
+            if not response[1]:
                 # The individual didn't exist
-                indiv_number = individuals[response[1] - 1]
+                indiv_number = individuals[response[0] - 1]
 
-                lg.logger_.info('[FILL_CREATION] Generating individual N#' +
-                                str(indiv_number))
+                lg.logger_.info('[FILL_CREATION] Generating individual N#' + str(indiv_number))
+                lg.logger_.debug('[FILL_CREATION] Individual N#' + str(indiv_number) +
+                                 ' - Value: ' + indiv.get_value())
 
-                self._eng.workspace['windiv'] = indiv.get_matlab_object()
-                lg.logger_.debug('[FILL_CREATION] Individual N#' +
-                                 str(indiv_number) +
-                                 ' - Value: ' + self._eng.eval('windiv.value'))
+                # Call the preevaluation function
+                callback = PreevaluationManager.get_callback()
+                if callback is not None:
+                    if not callback(indiv):
+                        lg.logger_.info('[FILL_CREATION] Preevaluation failed'
+                                        '. Individual value: ' + indiv.get_value())
+                        continue
 
-                if self._eng.preev(indiv.get_matlab_object(), self._config.get_matlab_object(), nargout=1):
-                    self._individuals.append((index, response[1]))
-                    index += 1
-                else:
-                    lg.logger_.info('[FILL_CREATION] Preevaluation failed'
-                                    '. Individual value: ' +
-                                    self._eng.eval('windiv.value'))
+                self._individuals.append((index, response[0]))
+                index += 1
             else:
                 lg.logger_.debug('[FILL_CREATION] Replica created.')
 
