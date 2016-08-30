@@ -129,7 +129,7 @@ class Population(object):
                                  "N#{indiv} from Population N#{pop_number})"
                                  .format(indiv=indexes[i], pop_number=self._gen))
                 amount_indivs_removed += 1
-                self._remove_individual(indexes[i])
+                self._remove_individual(indexes[i + 1])
             i += 1
 
         lg.logger_.info("[POPULATION] Individuals removed: " + str(amount_indivs_removed))
@@ -209,11 +209,11 @@ class Population(object):
                         # This could cause a IndexError
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
 
+                        indiv_index = self._individuals[pop_idv_index_orig]
                         lg.logger_.debug("[POPULATION] Elitism - Orig indiv {0} - Dest indiv {1}"
-                                         .format(pop_idv_index_orig + 1, pop_idv_index_dest + 1))
+                                         .format(indiv_index, pop_idv_index_dest + 1))
 
                         # Update the individual in the new population with the first param_elitism
-                        indiv_index = self._individuals[pop_idv_index_orig]
                         new_pop.update_individual(pop_idv_index_dest, self,
                                                   pop_idv_index_orig, indiv_index,
                                                   Population.GEN_METHOD_ELITISM)
@@ -236,10 +236,11 @@ class Population(object):
                 if op == "replication":
                     pop_idv_index_orig = self._choose_individual(pop_subgen[i])
                     pop_idv_index_dest = not_valid_indexes[individuals_created]
-                    lg.logger_.debug("[POPULATION] Replication - Orig indiv {0} - Dest indiv {1}"
-                                     .format(pop_idv_index_orig + 1, pop_idv_index_dest + 1))
 
                     indiv_index = self._individuals[pop_idv_index_orig]
+                    lg.logger_.debug("[POPULATION] Replication - Orig indiv {0} - Dest indiv {1}"
+                                     .format(indiv_index, pop_idv_index_dest + 1))
+
                     new_pop.update_individual(pop_idv_index_dest, self,
                                               pop_idv_index_orig, indiv_index,
                                               Population.GEN_METHOD_REPLICATION)
@@ -253,10 +254,10 @@ class Population(object):
                         pop_idv_index_orig = self._choose_individual(pop_subgen[i])
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
 
-                        lg.logger_.debug("[POPULATION] Mutation - Orig indiv {0} - Dest indiv {1}"
-                                         .format(pop_idv_index_orig + 1, pop_idv_index_dest + 1))
-
                         indiv_index = self._individuals[pop_idv_index_orig]
+                        lg.logger_.debug("[POPULATION] Mutation - Orig indiv {0} - Dest indiv {1}"
+                                         .format(indiv_index, pop_idv_index_dest + 1))
+
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
                         new_ind, fail = old_indiv.mutate()
 
@@ -284,35 +285,32 @@ class Population(object):
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
                         pop_idv_index_dest2 = not_valid_indexes[individuals_created + 1]
 
-                        lg.logger_.debug("[POPULATION] Crossover (Pair 1) - Orig indiv {0} - Dest indiv {1} - "
-                                         "Crossover (Pair 2) - Orig indiv {2} - Dest indiv {3}"
-                                         .format(pop_idv_index_orig + 1, pop_idv_index_dest + 1,
-                                                 pop_idv_index_orig2 + 1, pop_idv_index_dest2 + 1))
+                        indiv_index = self._individuals[pop_idv_index_orig]
+                        indiv_index2 = self._individuals[pop_idv_index_orig2]
+                        lg.logger_.debug("[POPULATION] Crossover (Pair 1) - Orig indiv {0} - Dest index {1} - "
+                                         "Crossover (Pair 2) - Orig indiv {2} - Dest index {3}"
+                                         .format(indiv_index, pop_idv_index_dest + 1,
+                                                 indiv_index2, pop_idv_index_dest2 + 1))
 
                         # Get the two individuals involved and call the crossover function
-                        indiv_index = self._individuals[pop_idv_index_orig]
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
-                        indiv_index2 = self._individuals[pop_idv_index_orig2]
                         old_indiv2 = MLCTable.get_instance().get_individual(indiv_index2)
                         new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
-                    lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest, number))
-                    lg.logger_.debug("[POPULATION] Indiv1 value: {0}".format(new_ind.get_value()))
+                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest, number))
+                    # lg.logger_.debug("[POPULATION] Indiv1 value: {0}".format(new_ind.get_value()))
                     new_pop.update_individual(pop_idv_index_dest, self,
                                               pop_idv_index_orig, number,
                                               Population.GEN_METHOD_CROSSOVER, -1)
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind2)
-                    lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest2, number))
-                    lg.logger_.debug("[POPULATION] Indiv2 value: {0}".format(new_ind2.get_value()))
+                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest2, number))
+                    # lg.logger_.debug("[POPULATION] Indiv2 value: {0}".format(new_ind2.get_value()))
                     new_pop.update_individual(pop_idv_index_dest2, self,
                                               pop_idv_index_orig2, number,
                                               Population.GEN_METHOD_CROSSOVER, -1)
                     individuals_created += 2
-
-        print new_pop.get_individuals()
-        print len(new_pop.get_individuals())
         return new_pop
 
     def sort(self):
