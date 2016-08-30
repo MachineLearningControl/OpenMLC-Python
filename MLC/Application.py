@@ -33,7 +33,8 @@ class Application(object):
             OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
         """
-        print dir(self._mlc)
+        # Enables/Disable graph of the best individual of every iteration
+        show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
                              'positive decimal number. Value provided: '
@@ -62,7 +63,7 @@ class Application(object):
                 self.evaluate_population()
 
             elif state == 'evaluated':
-                if fig > 0:
+                if (Population.get_actual_pop_number() >= ngen or show_all_bests) and fig > 0:
                     #self._eng.show_best(self._mlc)
                     self.show_best()
                 # if (fig > 1):
@@ -197,19 +198,28 @@ class Application(object):
         #FIXME Use local python population
         #index = self._eng.eval('min(wmlc.population(length(wmlc.population)).costs)')
         #length(wmlc.population)
+        #FIXME generations returns incorrect value
         pop_idx = Population.generations()
+        #pop_idx = self._eng.eval('length(wmlc.population)')
+        print pop_idx
+
         #wmlc.population(length(wmlc.population))
-        population = Population.population(pop_idx)
-        #FIXME Is "population" a list??
-        index = population.index(min(population))
+        #population = Population.population(pop_idx)
+        #FIXME cost is a list of lists??
+        cost=self._eng.eval('wmlc.population(length(wmlc.population)).costs')
+        mini = min(cost[0])
+        index = cost[0].index(mini)
+        print "minimo: ", mini, "indice: ", index
+        #index = population.index(min(population))
         #FIXME returns a Matlab.double instead of a integer
         #indiv_idx = Population.get_gen_individuals(pop_idx)[index]
+       
+        #mlc.population(length(mlc.population)).individuals(idx) 
+        #FIXME plus one in the 'index' due to python to matlab index translation
+        indiv_idx = int(self._eng.eval('wmlc.population(' + str(pop_idx) +').individuals(' + str(index+1) +')')) #Matlab always returns double?
         
-        indiv_idx = int(self._eng.eval('wmlc.population(' + str(index) +')')) #Matlab always returns double?
-        
-        table = self._eng.eval('wmlc.table')
-        individual = table.individuals(indiv_idx)
-        EvaluatorFactory.get_ev_callback(self._config).show_best(self._eng, self._config, individual)
+        individual = self._eng.eval('wmlc.table.individuals('+ str(indiv_idx) + ')')
+        EvaluatorFactory.get_ev_callback(self._config).show_best(self._eng, self._config, individual, self._config.getboolean('BEHAVIOUR', 'stopongraph'))
 
     def _set_pop_new_individuals(self):
         # Create a new population with the indexes updated
@@ -227,4 +237,4 @@ class Application(object):
         # Set the callbacks to be called at the moment of the evaluation
         # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
-        EvaluatorFactory.set_ev_callback('arduino', arduino)
+        EvaluatorFactory.set_ev_callback('arduino', arduino.cost)

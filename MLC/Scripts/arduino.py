@@ -20,7 +20,7 @@ def initialize_pyserial(config):
     return local_ser
 
 
-def show_best(eng, config, indiv):
+def cost(eng, config, indiv):
     global ser
     if not ser:
         ser = initialize_pyserial(config)

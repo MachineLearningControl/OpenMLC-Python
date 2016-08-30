@@ -25,6 +25,7 @@ class StandaloneEvaluator(object):
                              ' Value: ' + value)
 
             try:
+                print indivs
                 jj.append(self._callback(self._eng, self._config, indiv))
             except KeyError:
                 lg.logger_.error("[POP][STAND_EVAL] Evaluation Function " +
