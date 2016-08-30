@@ -1,50 +1,55 @@
 import numpy as np
 import math
-
 import MLC.Log.log as lg
-from MLC.Population.Creation.CreationFactory import CreationFactory
-from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-from MLC.matlab_engine import MatlabEngine
+import sys
 
 from MLC.individual.Individual import Individual
+from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
+from MLC.Population.Creation.CreationFactory import CreationFactory
+from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.mlc_parameters.mlc_parameters import Config
 
 
 class Population(object):
     amount_population = 0
+    GEN_METHOD_REPLICATION = 1
+    GEN_METHOD_MUTATION = 2
+    GEN_METHOD_CROSSOVER = 3
+    GEN_METHOD_ELITISM = 4
 
-    def __init__(self, config, gen=1):
+    def __init__(self):
+        Population.inc_pop_number()
+        # Set global parameters as variables for easier use in the class
         self._eng = MatlabEngine.engine()
+        self._config = Config.get_instance()
 
-        self._config = config
-        self._gen = gen
-        self._costs = []
+        cascade = self._config.get_list('OPTIMIZATION', 'cascade')
+        size = self._config.get_list('POPULATION', 'size')
 
-        cascade = config.get_list('OPTIMIZATION', 'cascade')
-        size = config.get_list('POPULATION', 'size')
-
-        self._subgen = 1 if cascade[1] == 0 else cascade[1]
-        self._gen_size = cascade[1] if (
-            self._gen > 1 and len(size) > 1) else size[0]
-        self._individuals = np.zeros(self._gen_size, dtype=int)
+        self._gen = Population.get_current_pop_number()
+        self._size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
         self._state = 'init'
+        self._subgen = 1 if cascade[1] == 0 else cascade[1]
 
-        lg.logger_.debug("Population created. Number: %s - Size: %s" %
-                         (self._gen, self._gen_size))
+        # Declare MATLAB attributes
+        self._individuals = [-1] * self._size
+        self._costs = [-1] * self._size
+        self._gen_method = [-1] * self._size
+
+        # TODO: Parents impl
+        self._parents = [-1] * self._size
+
+        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
 
     def create(self, table=None):
-        if table is None:
-            self._eng.workspace['wtable'] = self._eng.MLCtable(
-                int(self._gen_size) * 50)
-
         gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
         gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
-        gen_creator.create(self._gen_size)
-
+        gen_creator.create(self._size)
         self.set_individuals(gen_creator.individuals())
 
-    def evaluate(self, eval_idx):
+    def evaluate(self):
         """
         Evaluates cost of individuals and update the MLC object MLC_OBJ.
         All options are set in the MLC object.
@@ -58,277 +63,387 @@ class Population(object):
                 evaluation are repeated (for experiments or
                 numerics with random noise).
         """
-        gen = Population.get_actual_pop_number()
+        gen = Population.get_current_pop_number()
         lg.logger_.info('Evaluation of generation %s' % gen)
 
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
         lg.logger_.info('Evaluation method: ' + ev_method)
 
-        # TODO: Serialization of the population.
-
-        evaluator = EvaluatorFactory.make(self._eng, self._config, ev_method)
-        jj = evaluator.evaluate(eval_idx, self._individuals, gen)
+        evaluator = EvaluatorFactory.make(ev_method)
+        jj = evaluator.evaluate(self._individuals, gen)
 
         # Update table individuals and MATLAB Population indexes and costs
-        table = self._eng.eval('wtable')
-        matlab_pop = Population.population(gen)
+        # matlab_pop = Population.population(gen)
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
 
-        for i in xrange(len(eval_idx)):
-            index = eval_idx[i] - 1
-            mlab_index = eval_idx[i]
+        for i in xrange(self._size):
+            if str(jj[i]) == 'nan' or \
+               str(jj[i]) == 'inf' or \
+               jj[i] > bad_value:
+                lg.logger_.debug(('[POP][EVALUATE] Individual N#: {0}.'
+                                  ' Invalid value found: {1}')
+                                 .format(self._individuals[i], jj[i]))
 
-            if str(jj[index]) == 'nan' or \
-               str(jj[index]) == 'inf' or \
-               jj[index] > bad_value:
-                lg.logger_.debug(
-                    ('[POP][EVALUATE] Individual N#: {0}.'
-                     ' Invalid value found: {1}')
-                    .format(self._individuals[index], jj[index]))
-
-                jj[index] = bad_value
+                jj[i] = bad_value
 
             lg.logger_.debug('[POP][EVALUATE] Idx: {0} '
                              '- Indiv N#: {1} - Cost: {2}'
-                             .format(index,
-                                     self._individuals[index], jj[index]))
+                             .format(i, self._individuals[i], jj[i]))
 
-            self._eng.update_individual(
-                table, int(self._individuals[index]), jj[index])
-            self._eng.set_cost(matlab_pop, mlab_index, jj[index])
+            MLCTable.get_instance().update_individual(int(self._individuals[i]), jj[i])
 
         self._costs = jj
 
     def remove_bad_individuals(self):
+        # Get the individuals which value is the same as the
+        # badvalue defined in the configuration
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
-        bad_list = [x for x in xrange(len(self._costs)) if self._costs[
-            x] == bad_value]
+        bad_list = [x for x in xrange(len(self._costs)) if self._costs[x] == bad_value]
 
         if len(bad_list) > 0.4 * len(self._individuals):
-            lg.logger_.info(
-                '[POP][BAD_INDIVS] %s '
-                'individuals will be removed.' % len(bad_list))
-            # TODO: Remove the individuals
-            return
+            lg.logger_.info('[POP][BAD_INDIVS] %s '
+                            'individuals will be removed.' % len(bad_list))
+
+            # The threshold was surpassed. Remove the individuals and return the
+            # list of individuals removed
+            for indiv_index in bad_list:
+                self._remove_individual(indiv_index)
+
+            return bad_list
         else:
             return []
 
     def remove_duplicates(self):
-        # TODO:
-        pass
+        # Sort the individual array and get the indexes of every element
+        # in the original list
+        indexes = [i[0] for i in sorted(enumerate(self._individuals), key=lambda x:x[1])]
+        sorted_indivs = sorted(self._individuals)
+
+        # Compare every element in the list with the following one. If they are the same,
+        # remove the individual
+        i = 0
+        amount_indivs_removed = 0
+        while i < (self._size - 1):
+            if sorted_indivs[i] == sorted_indivs[i + 1]:
+                lg.logger_.debug("[POPULATION] Proceed to remove Individual "
+                                 "N#{indiv} from Population N#{pop_number})"
+                                 .format(indiv=indexes[i], pop_number=self._gen))
+                amount_indivs_removed += 1
+                self._remove_individual(indexes[i + 1])
+            i += 1
+
+        lg.logger_.info("[POPULATION] Individuals removed: " + str(amount_indivs_removed))
+        return amount_indivs_removed
 
     def _remove_individual(self, index):
-        '''
-        function mlcpop=remove_individual(mlcpop,idx_to_remove)
-        mlcpop.individuals(idx_to_remove)=-1;
-        mlcpop.costs(idx_to_remove)=-1;
-        mlcpop.gen_method(idx_to_remove)=-1;
-        mlcpop.parents(idx_to_remove)=cell(1,length(idx_to_remove));
-        '''
-        # TODO:
-        pass
+        self._individuals[index] = -1
+        self._costs[index] = -1
+        self._gen_method[index] = -1
+        # TODO: Parents impl
+        # self._parents[index] = -1
 
-    def set_individuals(self, indiv_list):
-        for x in indiv_list:
-            self._individuals[x[0]] = int(x[1])
-
-    def get_individuals(self):
-        return self._individuals
-
-    @staticmethod
-    def population(generation_id):
+    def update_individual(self, dest_index, rhs_pop, rhs_index,
+                          indiv_index, gen_method, cost=None):
         """
-        Return a generation object from the list (index starts from 1)
+        Replace one individual with another.
         """
-        if generation_id > Population.generations():
-            raise IndexError('generation index out of range')
-        return MatlabEngine.engine().eval('wmlc.population(' +
-                                          str(generation_id) + ')')
-
-    @staticmethod
-    def generations():
-        """
-        Return the total amount of generations.
-        """
-        return int(MatlabEngine.engine().eval('length(wmlc.population)'))
-
-    @staticmethod
-    def get_gen_individuals(generation_id):
-        if generation_id > Population.generations():
-            raise IndexError('generation index out of range')
-
-        return MatlabEngine.engine().eval('wmlc.population(%s).individuals'
-                                          % generation_id)
+        self._individuals[dest_index] = indiv_index
+        if not cost:
+            self._costs[dest_index] = rhs_pop.get_costs()[rhs_index]
+        else:
+            self._costs[dest_index] = cost
+        self._gen_method[dest_index] = gen_method
+        # TODO: Parents logical
+        # self._parents[dest_index] = rhs_pop.get_parents()[rhs_index]
 
     @staticmethod
     def inc_pop_number():
         Population.amount_population += 1
 
     @staticmethod
-    def get_actual_pop_number():
+    def get_current_pop_number():
         return Population.amount_population
 
-    @staticmethod
-    def evolve(mlcpop, mlc_parameters, matlab_mlctable, mlcpop2=None):
-        """
-        # uncomment this section to use MLC original evolve implementation
-        from matlab
-        if mlcpop2 is None:
-            return MatlabEngine.engine().evolve(mlcpop,
-                                                mlc_parameters,
-                                                matlab_mlctable,
-                                                nargout=1)
-        else:
-            return MatlabEngine.engine().evolve(mlcpop,
-                                                mlc_parameters,
-                                                matlab_mlctable,
-                                                mlcpop2,
-                                                nargout=1)
-        """
-        # wrap matlab MLCtable in a python object
-        mlctable = MLCTable(matlab_mlctable)
+    def evolve(self, mlcpop2=None):
+        ngen = Population.get_current_pop_number()
+        mlctable = MLCTable.get_instance()
 
-        eng = MatlabEngine.engine()
-        ngen = eng.get_gen(mlcpop)
+        new_pop = mlcpop2
+        if new_pop is None:
+            new_pop = Population()
 
-        # verb = mlc_parameters.verbose;
-        verb = True
+        lg.logger_.info('[POPULATION] Evolving population N#' + str(self._gen))
 
-        new_mlcpop2 = mlcpop2 is None
-        if new_mlcpop2:
-            mlcpop2 = eng.MLCpop(mlc_parameters.get_matlab_object(), ngen + 1)
+        # FIXME: It's not necessary to compute the creation of both subgenerations
+        # The ranges of both of them will be the same
+        pop_subgen = self.create_subgen()
+        pop_subgen2 = new_pop.create_subgen()
+        subgen_amount = len(pop_subgen)
 
-        if verb:
-            lg.logger_.info('Evolving population')
+        for i in range(len(pop_subgen)):
+            lg.logger_.info("[POPULATION] Evolving subpopulation {0} of {1}".format(i + 1, subgen_amount))
+            # Get the indexes of the non valid elements in this subpopulation
+            subgen_begin = pop_subgen[i][0]
+            subgen_end = pop_subgen[i][1]
 
-        idxsubgen = eng.subgen(mlcpop, mlc_parameters.get_matlab_object())[0]
-        cell_idxsubgen2 = eng.subgen(mlcpop2, mlc_parameters.get_matlab_object())
-        idxsubgen2 = cell_idxsubgen2[0]
+            subgen2_begin = pop_subgen2[i][0]
+            subgen2_end = pop_subgen2[i][1]
 
-        for i in range(0, len(idxsubgen2)):
-
-            # TODO: Implements this strange line in python and remove
-            # @MLCpop::init_generation method
-            # idxsubgen2{i}=idxsubgen2{i}(mlcpop2.individuals(
-            #   idxsubgen2{i})==-1);
-            idxsubgen2 = eng.init_generation(mlcpop2, cell_idxsubgen2, i + 1)[0]
-            # if len(idxsubgen2) == 1, matlab return a float object instead
-            # of an array
-            if type(idxsubgen2) == float:
-                idxsubgen2 = [[idxsubgen2]]
-
-            if verb:
-                lg.logger_.info('Evolving sub-population %s/%s' % (i, eng.get_subgen(mlcpop2)))
-
-            if len(idxsubgen) == 1:
-                idx_source_pool = idxsubgen[0]
-            else:
-                idx_source_pool = idxsubgen[i]
+            # IMPORTANT: Before the first evolution of the new Population, all the elements are invalid. In the
+            # second evolution of Population is when all this algorithm will have any sense
+            not_valid_indexes = [x[0] + subgen2_begin
+                                 for x in enumerate(new_pop.get_individuals()[subgen2_begin:subgen2_end + 1])
+                                 if x[1] == -1]
 
             individuals_created = 0
+            param_elitism = self._config.getint('OPTIMIZATION', 'elitism')
 
-            param_elitism = mlc_parameters.getint('OPTIMIZATION', 'elitism')
+            # Apply the elitism algorithm only if we're NOT modifying a previously evolved population
+            if not mlcpop2:
+                try:
+                    elitism_indivs_per_subgen = int(math.ceil(param_elitism / subgen_amount))
+                    for j in range(elitism_indivs_per_subgen):
+                        subgen_indexes = range(subgen2_begin, subgen2_end)
 
-            # elitism
-            if new_mlcpop2:
-                for i_el in range(0, int(math.ceil(param_elitism / len(idxsubgen2)))):
-                    idv_orig = idx_source_pool[i_el]
-                    idv_dest = idxsubgen2[i][individuals_created]
-                    # print 'ELITISM - IDV_ORIG: %s - IDV_DEST: %s'
-                    # % (idv_orig, idv_dest)
-                    eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
-                    eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
-                    eng.set_parent(mlcpop2, idv_dest, idv_orig)
-                    eng.set_gen_method(mlcpop2, idv_dest, 4)
-                    # TODO: mlctable.individuals(mlcpop.individuals(
-                    #           idv_orig)).appearences=
-                    #       mlctable.individuals(mlcpop.individuals(
-                    #           idv_orig)).appearences+1;
-                    individuals_created += 1
+                        pop_idv_index_orig = subgen_indexes[j]
+                        # This could cause a IndexError
+                        pop_idv_index_dest = not_valid_indexes[individuals_created]
+
+                        indiv_index = self._individuals[pop_idv_index_orig]
+                        lg.logger_.debug("[POPULATION] Elitism - Orig indiv {0} - Dest indiv {1}"
+                                         .format(indiv_index, pop_idv_index_dest + 1))
+
+                        # Update the individual in the new population with the first param_elitism
+                        new_pop.update_individual(pop_idv_index_dest, self,
+                                                  pop_idv_index_orig, indiv_index,
+                                                  Population.GEN_METHOD_ELITISM)
+
+                        mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
+                        individuals_created += 1
+                except IndexError:
+                    lg.logger.error("[POPULATION] Elitism - More individuals to replace than empty ones."
+                                    "Stop elitism algorithm")
 
             # completing population
-            while individuals_created < len(idxsubgen2[i]):
-                lg.logger_.debug('LEN idx_sub: %s' % (len(idxsubgen2[i]) - individuals_created))
-                op = eng.choose_genetic_operation(mlcpop, mlc_parameters.get_matlab_object(),
-                                                  len(idxsubgen2[i]) - individuals_created)
+            indivs_to_be_completed = len(not_valid_indexes)
+            lg.logger_.info("[POPULATION] Number of Individuals to be completed: " + str(indivs_to_be_completed))
+            while individuals_created < indivs_to_be_completed:
+                indivs_left = indivs_to_be_completed - individuals_created
+                op = Population.choose_genetic_operation(indivs_left)
+                lg.logger_.debug("[POPULATION] Indivs left in subgen {0}: {1} "
+                                 "- Operation chosen: {2}".format(i + 1, indivs_left, op))
 
-                if op == 'replication':
-                    idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
-                    idv_dest = idxsubgen2[i][individuals_created]
+                if op == "replication":
+                    pop_idv_index_orig = self._choose_individual(pop_subgen[i])
+                    pop_idv_index_dest = not_valid_indexes[individuals_created]
 
-                    # print 'REPLICATION - IDV_ORIG: %s - IDV_DEST: %s' %
-                    # (idv_orig, idv_dest)
-                    eng.set_individual(mlcpop2, idv_dest, eng.get_individual(mlcpop, idv_orig))
-                    eng.set_cost(mlcpop2, idv_dest, eng.get_cost(mlcpop, idv_orig))
-                    eng.set_parent(mlcpop2, idv_dest, idv_orig)
-                    eng.set_gen_method(mlcpop2, idv_dest, 1)
-                    # TODO: mlctable.individuals(mlcpop.individuals(
-                    #           idv_orig)).appearences=
-                    #       mlctable.individuals(mlcpop.individuals(
-                    #           idv_orig)).appearences+1;
+                    indiv_index = self._individuals[pop_idv_index_orig]
+                    lg.logger_.debug("[POPULATION] Replication - Orig indiv {0} - Dest indiv {1}"
+                                     .format(indiv_index, pop_idv_index_dest + 1))
+
+                    new_pop.update_individual(pop_idv_index_dest, self,
+                                              pop_idv_index_orig, indiv_index,
+                                              Population.GEN_METHOD_REPLICATION)
+                    mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
-                elif op == 'mutation':
+                elif op == "mutation":
                     new_ind = None
                     fail = True
                     while fail:
-                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
-                        idv_dest = idxsubgen2[i][individuals_created]
-                        # print 'MUTATION - IDV_ORIG: %s - IDV_DEST: %s' %
-                        # (idv_orig, idv_dest)
-                        old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = mlctable.individuals(old_individual)
-                        new_ind, fail = old_ind.mutate(mlc_parameters)
+                        pop_idv_index_orig = self._choose_individual(pop_subgen[i])
+                        pop_idv_index_dest = not_valid_indexes[individuals_created]
 
-                    mlctable, number = mlctable.add_individual(new_ind)
-                    eng.set_individual(mlcpop2, idv_dest, number)
-                    eng.set_cost(mlcpop2, idv_dest, -1)
-                    eng.set_parent(mlcpop2, idv_dest, idv_orig)
-                    eng.set_gen_method(mlcpop2, idv_dest, 2)
-                    # mlctable.individuals(number).appearences =
-                    #   mlctable.individuals(number).appearences+1;
+                        indiv_index = self._individuals[pop_idv_index_orig]
+                        lg.logger_.debug("[POPULATION] Mutation - Orig indiv {0} - Dest indiv {1}"
+                                         .format(indiv_index, pop_idv_index_dest + 1))
+
+                        old_indiv = MLCTable.get_instance().get_individual(indiv_index)
+                        new_ind, fail = old_indiv.mutate()
+
+                    number, repeated = MLCTable.get_instance().add_individual(new_ind)
+                    new_pop.update_individual(pop_idv_index_dest, self,
+                                              pop_idv_index_orig, number,
+                                              Population.GEN_METHOD_MUTATION, -1)
+                    mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
-                elif op == 'crossover':
+                elif op == "crossover":
+                    # Boundaries are safe since the choose_op method only return crossover
+                    # if there are enough individuals to be replaced
                     fail = True
+                    new_ind = None
+                    new_ind2 = None
+
                     while fail:
-                        idv_orig = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
-                        idv_orig2 = idv_orig
+                        # We need to individuals for the crossover. Get two and check that they are not the same
+                        pop_idv_index_orig = self._choose_individual(pop_subgen[i])
+                        pop_idv_index_orig2 = pop_idv_index_orig
+                        while pop_idv_index_orig == pop_idv_index_orig2:
+                            pop_idv_index_orig2 = self._choose_individual(pop_subgen[i])
 
-                        while idv_orig2 == idv_orig:
-                            idv_orig2 = eng.choose_individual_(mlcpop, mlc_parameters.get_matlab_object(), idx_source_pool)
+                        pop_idv_index_dest = not_valid_indexes[individuals_created]
+                        pop_idv_index_dest2 = not_valid_indexes[individuals_created + 1]
 
-                        idv_dest = idxsubgen2[i][individuals_created]
-                        idv_dest2 = idxsubgen2[i][individuals_created + 1]
-                        lg.logger_.debug('CROSSOVER - IDV_ORIG 1 : %s - '
-                                         'IDV_DEST 1 : %s'
-                                         % (idv_orig, idv_dest) +
-                                         '- IDV_ORIG 2 : %s - IDV_DEST 2 : %s'
-                                         % (idv_orig2, idv_dest2))
-                        old_individual = eng.get_individual(mlcpop, idv_orig)
-                        old_ind = mlctable.individuals(old_individual)
-                        old_individual = eng.get_individual(mlcpop, idv_orig2)
-                        old_ind2 = mlctable.individuals(old_individual)
-                        new_ind, new_ind2, fail = old_ind.crossover(old_ind2, mlc_parameters)
+                        indiv_index = self._individuals[pop_idv_index_orig]
+                        indiv_index2 = self._individuals[pop_idv_index_orig2]
+                        lg.logger_.debug("[POPULATION] Crossover (Pair 1) - Orig indiv {0} - Dest index {1} - "
+                                         "Crossover (Pair 2) - Orig indiv {2} - Dest index {3}"
+                                         .format(indiv_index, pop_idv_index_dest + 1,
+                                                 indiv_index2, pop_idv_index_dest2 + 1))
 
-                    mlctable, number = mlctable.add_individual(new_ind)
-                    eng.set_individual(mlcpop2, idv_dest, number)
-                    eng.set_cost(mlcpop2, idv_dest, -1)
-                    eng.set_parent(mlcpop2, idv_dest, [idv_orig, idv_orig2])
-                    eng.set_gen_method(mlcpop2, idv_dest, 3)
-                    # TODO:
-                    # mlctable.individuals(number).appearences =
-                    #   mlctable.individuals(number).appearences+1;
-                    individuals_created += 1
+                        # Get the two individuals involved and call the crossover function
+                        old_indiv = MLCTable.get_instance().get_individual(indiv_index)
+                        old_indiv2 = MLCTable.get_instance().get_individual(indiv_index2)
+                        new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
 
-                    mlctable, number2 = mlctable.add_individual(new_ind2)
-                    eng.set_individual(mlcpop2, idv_dest2, number2)
-                    eng.set_cost(mlcpop2, idv_dest2, -1)
-                    eng.set_parent(mlcpop2, idv_dest2, [idv_orig, idv_orig2])
-                    eng.set_gen_method(mlcpop2, idv_dest2, 3)
-                    # TODO:
-                    # mlctable.individuals(number2).appearences =
-                    # mlctable.individuals(number2).appearences+1;
-                    individuals_created += 1
+                    number, repeated = MLCTable.get_instance().add_individual(new_ind)
+                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest, number))
+                    # lg.logger_.debug("[POPULATION] Indiv1 value: {0}".format(new_ind.get_value()))
+                    new_pop.update_individual(pop_idv_index_dest, self,
+                                              pop_idv_index_orig, number,
+                                              Population.GEN_METHOD_CROSSOVER, -1)
 
-        return mlcpop2
+                    number, repeated = MLCTable.get_instance().add_individual(new_ind2)
+                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest2, number))
+                    # lg.logger_.debug("[POPULATION] Indiv2 value: {0}".format(new_ind2.get_value()))
+                    new_pop.update_individual(pop_idv_index_dest2, self,
+                                              pop_idv_index_orig2, number,
+                                              Population.GEN_METHOD_CROSSOVER, -1)
+                    individuals_created += 2
+        return new_pop
+
+    def sort(self):
+        # Calculate subgenerations
+        subgens = self.create_subgen()
+
+        indivs = []
+        costs = []
+        gen_method = []
+        parents = []
+
+        # Order the MATLAB population attributes per subgeneration
+        for subgen in subgens:
+            # Sort the population by intervals. Reorder the population arrays
+            indexes = [i[0] for i in sorted(enumerate(self._costs[subgen[0]:subgen[1] + 1]), key=lambda x:x[1])]
+
+            for i in xrange(subgen[1] - subgen[0] + 1):
+                indivs.append(self._individuals[indexes[i]])
+                costs.append(self._costs[indexes[i]])
+                gen_method.append(self._gen_method[indexes[i]])
+                parents.append(self._parents[indexes[i]])
+
+        self._individuals = indivs
+        self._costs = costs
+        self._gen_method = gen_method
+        self._parents = parents
+
+    def create_subgen(self):
+        # Create subgenerations from the actual Population
+        subgens = []
+        indivs_per_subgen = math.floor(float(self._size) / self._subgen)
+        begin = 0
+        end = int(indivs_per_subgen)
+        i = 1
+
+        # Create the subgen as intervals of the full list of indivis
+        # Example: If size = 100 and subgen = 3, then 3 subgenerations will be
+        # created. [1:33] [34:66] [67:100]
+        while i < self._subgen:
+            subgen = (begin, end - 1)
+            subgens.append(subgen)
+            begin = end + 1
+            end += indivs_per_subgen
+            i += 1
+
+        subgens.append((begin, int(self._size - 1)))
+        return subgens
+
+    @staticmethod
+    def choose_genetic_operation(amount_indivs_left):
+        prob_rep = Config.get_instance().getfloat("OPTIMIZATION", "probrep")
+        prob_mut = Config.get_instance().getfloat("OPTIMIZATION", "probmut")
+        prob_cro = Config.get_instance().getfloat("OPTIMIZATION", "probcro")
+
+        if (prob_rep + prob_cro + prob_mut) != 1:
+            # FIXME: This validation should be done at the beggining of the program
+            lg.logger_.error("[POPULATION] Probabilities of genetic operations are not "
+                             "equal to one. Please adjust and relaunch")
+            sys.exit(-1)
+
+        op = None
+        rand_prob = MatlabEngine.rand()
+        if amount_indivs_left < 2:
+            # Crossover is not possible
+            rand_prob *= (prob_rep + prob_mut)
+            if rand_prob <= prob_rep:
+                op = "replication"
+            else:
+                op = "mutation"
+        else:
+            if rand_prob <= prob_rep:
+                op = "replication"
+            elif rand_prob > prob_rep and (rand_prob <= (prob_mut + prob_rep)):
+                op = "mutation"
+            else:
+                op = "crossover"
+
+        return op
+
+    def _choose_individual(self, subgen_range):
+        selection_method = Config.get_instance().get("OPTIMIZATION", "selectionmethod")
+
+        if selection_method == "tournament":
+            tournament_size = Config.get_instance().getint("OPTIMIZATION", "tournamentsize")
+            # Get randomly as many individuals as tournament_size property is set
+            indivs_chosen = []
+            subgen_len = subgen_range[1] - subgen_range[0] + 1
+
+            # FIXME: What happen if the size of the tournament is greater
+            # than the amount of individuals in the subgeneration?. Ask Thomas
+
+            for i in range(tournament_size):
+                # FIXME: This is soooo wrong. The individuals obtained will be always the ones
+                # in the first subgeneration. That's because we are working with the length of the
+                # subgeneration instead of the indexes
+                random_indiv = -1
+                while random_indiv == -1 or random_indiv in indivs_chosen:
+                    random_indiv = math.ceil(MatlabEngine.rand() * subgen_len) - 1
+                indivs_chosen.append(int(random_indiv))
+
+            # Got the random indivs. Grab the one with the minor cost
+            cost = 1e36
+            indiv_chosen = None
+            for index in indivs_chosen:
+                if self._costs[index] < cost:
+                    cost = self._costs[index]
+                    indiv_chosen = index
+
+            return indiv_chosen
+        else:
+            # FIXME: This validation must be done at the beginning of the program
+            lg.logger_.error("[POPULATION] choose_individual: Invalid selection method."
+                             "Correct it and relaunch the program.")
+            sys.exit(-1)
+
+    def get_state(self):
+        return self._state
+
+    def set_state(self, rhs_state):
+        self._state = rhs_state
+
+    def get_size(self):
+        return self._size
+
+    def get_individuals(self):
+        return self._individuals
+
+    def set_individuals(self, indiv_list):
+        for x in indiv_list:
+            self._individuals[x[0]] = int(x[1])
+
+    def get_costs(self):
+        return self._costs
+
+    def get_gen_methods(self):
+        return self._gen_method
