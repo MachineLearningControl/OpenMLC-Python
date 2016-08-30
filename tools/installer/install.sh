@@ -80,7 +80,7 @@ function check_run_as_root() {
         uid=0*) ;;
 
         *)
-        log_message 1 "ERROR: Must be root to run script. Aborting installation"
+        log_message 1 "ERROR: Must be root to run script (use -h for help). Aborting installation"
         exit 1
         ;;
     esac
@@ -265,7 +265,9 @@ function main() {
 
     check_os
     get_linux_flavor
-    check_run_as_root
+    if [ $# -ne 1 -o "$1" != "-h"  ]; then
+       check_run_as_root
+    fi
     parse_args $*
     check_previous_installation
 

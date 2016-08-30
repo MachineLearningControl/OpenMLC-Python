@@ -8,8 +8,8 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.mlc_table.MLCTable import MLCTable
 from MLC.Population.Population import Population
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-from MLC.Scripts.Evaluation.toy_problem import toy_problem
-from MLC.Scripts.Evaluation.arduino import arduino
+from MLC.Scripts.Evaluation import toy_problem
+from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
 
 
@@ -38,6 +38,8 @@ class Application(object):
             OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
         """
+        # Enables/Disable graph of the best individual of every iteration
+        show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         if ngen <= 0:
             lg.logger_.error('The amounts of generations must be a '
                              'positive decimal number. Value provided: '
@@ -53,7 +55,6 @@ class Application(object):
         while Population.get_current_pop_number() < ngen:
             current_pop = self._pop_container[Population.get_current_pop_number()]
             state = current_pop.get_state()
-
             if state == 'init':
                 if Population.get_current_pop_number() == 1:
                     self.generate_population()
@@ -62,10 +63,8 @@ class Application(object):
             elif state == 'created':
                 self.evaluate_population()
             elif state == 'evaluated':
-                if fig > 0:
-                    pass
-                    # self._eng.show_best(self._mlc)
-
+                if (Population.get_current_pop_number() >= ngen or show_all_bests) and fig > 0:
+                    self.show_best()
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
 
@@ -74,6 +73,7 @@ class Application(object):
 
         # Evaluate the last population
         self.evaluate_population()
+        self.show_best()
 
     def get_population(self, number):
         return self._pop_container[number]
@@ -162,11 +162,21 @@ class Application(object):
         next_pop.set_state("created")
         self._pop_container[Population.get_current_pop_number()] = next_pop
 
+    def show_best(self):
+        # Get the best
+        best_index = self._pop_container[Population.get_current_pop_number()].get_best_index()
+        best_indiv = self._pop_container[Population.get_current_pop_number()].get_best_individual()
+        lg.logger_.info("[APPLICATION] Proceed to show the best individual found.")
+        lg.logger_.debug("[APPLICATION] Individual N#{0} - Cost: {1}".format(best_index, best_indiv.get_cost()))
+
+        stop_no_graph = self._config.getboolean('BEHAVIOUR', 'stopongraph')
+        EvaluatorFactory.get_ev_callback().show_best(best_index, best_indiv, stop_no_graph)
+
     def _set_ev_callbacks(self):
         # Set the callbacks to be called at the moment of the evaluation
-        # FIXME: To this dynamically searching .pys in the directory
+        # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
-        EvaluatorFactory.set_ev_callback('arduino', arduino)
+        EvaluatorFactory.set_ev_callback('arduino', arduino.cost)
 
     def _set_preev_callbacks(self):
         # Set the callbacks to be called at the moment of the preevaluation
