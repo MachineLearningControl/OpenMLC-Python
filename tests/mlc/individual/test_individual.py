@@ -356,13 +356,13 @@ class IndividualTest(unittest.TestCase):
             Config.get_instance().set("POPULATION", "sensor_prob", "1.0")
 
             individual = Individual()
-            individual.generate(self._params, 3)
+            individual.generate(3)
             self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S7) (cos S9)) (/ (log S9) (log S6)))))')
 
-            individual.generate(self._params, 3)
+            individual.generate(3)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S7) (tanh S9)) (- (/ S7 S7) (/ S7 S6)))))')
 
-            individual.generate(self._params, 3)
+            individual.generate(3)
             self.assertEqual(individual.get_value(), '(root (+ (log (+ (/ S8 S5) (exp S8))) (cos (exp (* S5 S9)))))')
 
             # TODO: test sensor list with mutation type:MUTATION_REMOVE_SUBTREE_AND_REPLACE
