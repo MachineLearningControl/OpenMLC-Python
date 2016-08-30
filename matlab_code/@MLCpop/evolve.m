@@ -23,7 +23,7 @@ function [mlcpop2,mlctable]=evolve(mlcpop,mlc_parameters,mlctable,mlcpop2)
                 idv_orig=idx_source_pool(i_el);
                 idv_dest=idxsubgen2{i}(individuals_created+1);
 
-                % fprintf('ELITISM - IDV_ORIG: %d - IDV_DEST: %d \n', idv_orig, idv_dest);
+                fprintf('ELITISM - IDV_ORIG: %d - IDV_DEST: %d \n', mlcpop.individuals(idv_orig), idv_dest);
                 mlcpop2.individuals(idv_dest)=mlcpop.individuals(idv_orig);
                 mlcpop2.costs(idv_dest)=mlcpop.costs(idv_orig);
                 mlcpop2.parents{idv_dest}=idv_orig;
@@ -41,7 +41,7 @@ function [mlcpop2,mlctable]=evolve(mlcpop,mlc_parameters,mlctable,mlcpop2)
                 case 'replication'
                     idv_orig=choose_individual(mlcpop,mlc_parameters,idx_source_pool);
                     idv_dest=idxsubgen2{i}(individuals_created+1);
-                    % fprintf('REPLICATION - IDV_ORIG: %d - IDV_DEST: %d \n', idv_orig, idv_dest);
+                    fprintf('REPLICATION - IDV_ORIG: %d - IDV_DEST: %d \n', mlcpop.individuals(idv_orig), idv_dest);
                     mlcpop2.individuals(idv_dest)=mlcpop.individuals(idv_orig);
                     mlcpop2.costs(idv_dest)=mlcpop.costs(idv_orig);
                     mlcpop2.parents{idv_dest}=idv_orig;
@@ -54,7 +54,7 @@ function [mlcpop2,mlctable]=evolve(mlcpop,mlc_parameters,mlctable,mlcpop2)
                     while fail==1
                         idv_orig=choose_individual(mlcpop,mlc_parameters,idx_source_pool);
                         idv_dest=idxsubgen2{i}(individuals_created+1);
-                        % fprintf('MUTATION - IDV_ORIG: %d - IDV_DEST: %d \n', idv_orig, idv_dest);
+                        fprintf('MUTATION - IDV_ORIG: %d - IDV_DEST: %d \n', mlcpop.individuals(idv_orig), idv_dest);
                         old_ind=mlctable.individuals(mlcpop.individuals(idv_orig));
                         [new_ind,fail]=old_ind.mutate(mlc_parameters);                    
                     end
@@ -76,7 +76,7 @@ function [mlcpop2,mlctable]=evolve(mlcpop,mlc_parameters,mlctable,mlcpop2)
                         end
                         idv_dest=idxsubgen2{i}(individuals_created+1);
                         idv_dest2=idxsubgen2{i}(individuals_created+2);
-                        % fprintf('CROSSOVER - IDV_ORIG 1 : %d - IDV_DEST 1 : %d - IDV_ORIG 2 : %d - IDV_DEST 2 : %d\n', idv_orig, idv_dest, idv_orig2, idv_dest2);
+                        fprintf('CROSSOVER - IDV_ORIG 1 : %d - IDV_DEST 1 : %d - IDV_ORIG 2 : %d - IDV_DEST 2 : %d\n', mlcpop.individuals(idv_orig), idv_dest, mlcpop.individuals(idv_orig2), idv_dest2);
                         old_ind=mlctable.individuals(mlcpop.individuals(idv_orig));
                         old_ind2=mlctable.individuals(mlcpop.individuals(idv_orig2));
                         [new_ind,new_ind2,fail]=old_ind.crossover(old_ind2,mlc_parameters);
