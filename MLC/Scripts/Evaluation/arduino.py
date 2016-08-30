@@ -4,6 +4,9 @@ import sys
 import time
 import serial
 
+from MLC.matlab_engine import MatlabEngine
+from MLC.mlc_parameters.mlc_parameters import Config
+
 ser = None
 
 
@@ -20,10 +23,13 @@ def initialize_pyserial(config):
     return local_ser
 
 
-def arduino(eng, config, indiv):
+def cost(indiv):
     global ser
     if not ser:
         ser = initialize_pyserial(config)
+
+    eng = MatlabEngine.engine()
+    config = Config.get_instance()
 
     np.set_printoptions(precision=4, suppress=True)
     x = np.arange(-10, 10 + 0.1, 0.1)

@@ -27,14 +27,14 @@ echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
 echo '        $PYTHON $@' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
 echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
 echo '        $PYTHON' >> /opt/mlc-python-2.7.11/bin/mlc_python && \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_python && \
-chmod 755 /opt/mlc-python-2.7.11/bin/mlc_python
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_python
+
 
 
 # Install Python Setuptools
 RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1.1.tar.gz#md5=10a0f4feb9f2ea99acf634c8d7136d6d
 RUN tar xzvf setuptools-20.1.1.tar.gz
-RUN cd setuptools-20.1.1 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install
+RUN cd setuptools-20.1.1 && chmod 755 /opt/mlc-python-2.7.11/bin/mlc_python; sync ; /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install
 
 
 # Idem with pip
@@ -54,15 +54,13 @@ echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
 echo '        $PIP $@' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
 echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
 echo '        $PIP' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
-chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip 
+
 
 
 # Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy
-
 # Create .sh who will load the desired enviroment to run nosetests within it
-RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy && echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -73,8 +71,7 @@ echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
-echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
-chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
+echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests 
 
 # Install fpm
 RUN gem install fpm

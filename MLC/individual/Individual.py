@@ -74,7 +74,7 @@ class Individual(object):
     MUTATION_HOIST = 3
     MUTATION_SHRINK = 4
 
-    def __init__(self, mlc_ind=None, value=None):
+    def __init__(self, value=None):
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
         self._tree = None
@@ -89,14 +89,6 @@ class Individual(object):
         self._hash = ""
         self._formal = ""
         self._complexity = 0
-
-        if mlc_ind:
-            self._mlc_ind = mlc_ind
-        else:
-            if value:
-                self._mlc_ind = self._eng.MLCind(value)
-            else:
-                self._mlc_ind = self._eng.MLCind()
 
     def get_matlab_object(self):
         return self._mlc_ind
@@ -134,9 +126,6 @@ class Individual(object):
             return
 
         raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
-
-    # def evaluate(self, mlc_parameters, varargin):
-    #     return self._eng.evaluate(self._mlc_ind, mlc_parameters.get_matlab_object(), varargin)
 
     def mutate(self, mutation_type=MUTATION_ANY):
         param_individual_type = self._config.get("POPULATION", "individual_type")
@@ -184,12 +173,6 @@ class Individual(object):
             return self.get_value() == other_individual.get_value()
 
         raise NotImplementedError("Individual::compare() is not implemented for type %s" % self.get_type())
-
-    # def textoutput(self):
-    #    return self._eng.textoutput(self._mlc_ind)
-
-    # def preev(self, mlc_patameters):
-    #    return self._eng.textoutput(self._mlc_ind, mlc_patameters)
 
     def get_value(self):
         return self._value
@@ -265,13 +248,6 @@ class Individual(object):
         return value
 
     def __generate_indiv_regressive_tree(self, value, indiv_type=None):
-        """
-        return self._eng.private_generate_indiv_regressive_tree(self.get_matlab_object(),
-                                                                value,
-                                                                mlc_parameters.get_matlab_object(),
-                                                                indiv_type)
-        """
-
         min_depth = 0
         max_depth = 0
         new_value = ""

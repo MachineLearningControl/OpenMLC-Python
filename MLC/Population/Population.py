@@ -156,6 +156,16 @@ class Population(object):
         # TODO: Parents logical
         # self._parents[dest_index] = rhs_pop.get_parents()[rhs_index]
 
+    def get_best_index(self):
+        """
+        Return the index of the best individual
+        """
+        best_indivs = [x[0] for x in sorted(enumerate(self._costs), key=lambda x:x[1])]
+        return self._individuals[best_indivs[0]]
+
+    def get_best_individual(self):
+        return MLCTable.get_instance().get_individual(self.get_best_index())
+
     @staticmethod
     def inc_pop_number():
         Population.amount_population += 1

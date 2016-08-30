@@ -26,7 +26,7 @@ class StandaloneEvaluator(object):
                              ' Value: ' + py_indiv.get_value())
 
             try:
-                jj.append(self._callback(self._eng, self._config, py_indiv))
+                jj.append(self._callback.cost(py_indiv))
             except KeyError:
                 lg.logger_.error("[POP][STAND_EVAL] Evaluation Function " +
                                  "doesn't exists. Aborting progam.")
