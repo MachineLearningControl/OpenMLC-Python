@@ -85,7 +85,7 @@ class Individual(object):
         self._cost = 1e36
         self._cost_history = []
         self._evaluation_time = 0.0
-        self._appearences = 0
+        self._appearences = 1
         self._hash = ""
         self._formal = ""
         self._complexity = 0
