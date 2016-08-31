@@ -45,7 +45,7 @@ class Population(object):
     def create(self, table=None):
         gen_method = self._config.get('GP', 'generation_method')
         lg.logger_.info("Using %s to generate population" % gen_method)
-        gen_creator = CreationFactory.make(self._eng, self._config, gen_method)
+        gen_creator = CreationFactory.make(gen_method)
         gen_creator.create(self._size)
         self.set_individuals(gen_creator.individuals())
 
@@ -73,7 +73,6 @@ class Population(object):
         jj = evaluator.evaluate(self._individuals, gen)
 
         # Update table individuals and MATLAB Population indexes and costs
-        # matlab_pop = Population.population(gen)
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
 
         for i in xrange(self._size):
