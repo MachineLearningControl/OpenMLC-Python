@@ -23,8 +23,6 @@ class Application(object):
 
         # Set logger mode of the App
         set_logger(log_mode)
-
-        self._mlc = self._eng.eval('wmlc')
         self._pop_container = {}
 
     def go(self, ngen, fig):
@@ -103,9 +101,6 @@ class Application(object):
         The evaluation algorithm is implemented in the MLCpop class.
         """
         # First evaluation
-        # pop_index = Population.generations()
-        # actual_pop = Population.population(pop_index)
-        # self._pop.evaluate(range(1, len(self._pop.get_individuals()) + 1))
         current_pop = self._pop_container[Population.get_current_pop_number()]
         current_pop.evaluate()
 

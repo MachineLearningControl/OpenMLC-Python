@@ -5,7 +5,7 @@ import sys
 
 class CreationFactory(object):
     @staticmethod
-    def make(eng, config, strategy):
+    def make(strategy):
         if strategy == "mixed_ramped_gauss":
             return MixedRampedGauss()
         else:

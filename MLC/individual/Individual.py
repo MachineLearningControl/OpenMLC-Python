@@ -74,6 +74,8 @@ class Individual(object):
     MUTATION_HOIST = 3
     MUTATION_SHRINK = 4
 
+    _maxdepthfirst = None
+
     def __init__(self, value=None):
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
@@ -89,6 +91,10 @@ class Individual(object):
         self._hash = ""
         self._formal = ""
         self._complexity = 0
+
+    @staticmethod
+    def set_maxdepthfirst(value):
+        Individual._maxdepthfirst = value
 
     def get_matlab_object(self):
         return self._mlc_ind
@@ -252,45 +258,24 @@ class Individual(object):
         max_depth = 0
         new_value = ""
 
-        # FIXME: Don't use the config to generate the depth values because the mlc_parameters has altered
-        # parameters compared to the defaults values
-        """
+        # Maxdepthfirst change while we are creating the first population
         if indiv_type:
             if indiv_type == 1:
-                min_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
-                max_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
+                min_depth = Individual._maxdepthfirst
+                max_depth = Individual._maxdepthfirst
             elif indiv_type == 2 or indiv_type == 3:
-                min_depth = int(self._config.get_param('GP', 'mindepth'))
-                max_depth = int(self._config.get_param('GP', 'maxdepthfirst'))
+                min_depth = int(self._config.get('GP', 'mindepth'))
+                max_depth = Individual._maxdepthfirst
             elif indiv_type == 4:
-                min_depth = int(self._config.get_param('GP', 'mindepth'))
+                min_depth = int(self._config.get('GP', 'mindepth'))
                 max_depth = 1
             else:
-                min_depth = int(self._config.get_param('GP', 'mindepth'))
-                max_depth = int(self._config.get_param('GP', 'maxdepth'))
+                min_depth = int(self._config.get('GP', 'mindepth'))
+                max_depth = int(self._config.get('GP', 'maxdepth'))
 
         else:
-            min_depth = int(self._config.get_param('GP', 'mindepth'))
-            max_depth = int(self._config.get_param('GP', 'maxdepth'))
-        """
-
-        if indiv_type:
-            if indiv_type == 1:
-                min_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
-                max_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
-            elif indiv_type == 2 or indiv_type == 3:
-                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
-                max_depth = int(self._eng.eval('wmlc.parameters.maxdepthfirst'))
-            elif indiv_type == 4:
-                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
-                max_depth = 1
-            else:
-                min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
-                max_depth = int(self._eng.eval('wmlc.parameters.maxdepth'))
-
-        else:
-            min_depth = int(self._eng.eval('wmlc.parameters.mindepth'))
-            max_depth = int(self._eng.eval('wmlc.parameters.maxdepth'))
+            min_depth = int(self._config.get('GP', 'mindepth'))
+            max_depth = int(self._config.get('GP', 'maxdepth'))
 
         # Check if the seed character is in the string
         index = value.find('@')
@@ -451,10 +436,10 @@ class Individual(object):
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
                 if (MatlabEngine.engine().rand() < prob_threshold) or (k == controls and not changed):
-                    _, sm, _, = self.__extract_subtree(cl[nc-1], mutmindepth, maxdepth, maxdepth)
+                    _, sm, _, = self.__extract_subtree(cl[nc - 1], mutmindepth, maxdepth, maxdepth)
 
                     if sm:
-                        cl[nc-1] = sm
+                        cl[nc - 1] = sm
 
                     changed = not sm is None
 

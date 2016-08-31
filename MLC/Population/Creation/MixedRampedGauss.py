@@ -3,6 +3,7 @@ import MLC.Log.log as lg
 import numpy as np
 
 from BaseCreation import BaseCreation
+from MLC.individual.Individual import Individual
 
 
 class MixedRampedGauss(BaseCreation):
@@ -25,10 +26,8 @@ class MixedRampedGauss(BaseCreation):
         i = 0
         j = 0
         while j < len(distrib) - 1:
-            # REMOVE: MATLAB_COMPAT_ONLY
-            param = self._eng.eval('wmlc.parameters')
-            self._eng.set_maxdepthfirst(param, float(ramp[j]))
-
+            # Change th maxdepth propery while we generate the first generation
+            Individual.set_maxdepthfirst(ramp[j])
             aux = distrib[j] + round((distrib[j + 1] - distrib[j]) / 2)
 
             # Numpy ranges doesn't include the last element as in python.
