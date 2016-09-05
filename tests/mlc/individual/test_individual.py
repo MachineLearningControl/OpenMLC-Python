@@ -15,6 +15,11 @@ class IndividualTest(unittest.TestCase):
     def setUp(self):
         set_logger("testing")
         self._engine = MatlabEngine.engine()
+
+        # Load randoms from file
+        random_file = './mlc/unit_matlab_randoms.txt'
+        MatlabEngine.load_random_values(random_file)
+
         self._engine.workspace['wmlc'] = self._engine.MLC2()
         config = Config.get_instance()
         config.read(os.path.join(mlc_config_path.get_test_path(), 'mlc/individual/configuration.ini'))

@@ -64,17 +64,18 @@ class IntegrationTest1(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config_file = 'configuration.ini'
+        config_file = './configuration.ini'
         cls._eng = MatlabEngine.engine()
 
         # Load the config
         config = Config.get_instance()
         config.read(config_file)
 
-        # Fix seed and run program
-        cls._eng.rand('seed', 20.0, nargout=0)
-        cls._eng.workspace['wmlc'] = cls._eng.MLC2()
-        cls._app = Application("testing")
+        # Load randoms from file
+        random_file = '../matlab_randoms.txt'
+        MatlabEngine.load_random_values(random_file)
+
+        cls._app = Application("file")
         cls._app.go(7, 0)
 
         a = Population.get_current_pop_number()

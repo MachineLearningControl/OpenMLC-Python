@@ -385,7 +385,7 @@ class Individual(object):
 
         # equi probability for each mutation type selected.
         if mutation_type == Individual.MUTATION_ANY:
-            rand_number = rand_number = MatlabEngine.engine().rand()
+            rand_number = MatlabEngine.rand()
             mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
         if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
@@ -435,7 +435,7 @@ class Individual(object):
             for nc in MatlabEngine.randperm(controls):
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
-                if (MatlabEngine.engine().rand() < prob_threshold) or (k == controls and not changed):
+                if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
                     _, sm, _, = self.__extract_subtree(cl[nc - 1], mutmindepth, maxdepth, maxdepth)
 
                     if sm:
@@ -500,7 +500,7 @@ class Individual(object):
         eligiblepar = self.__find(search_par)
 
         if len(eligiblepar) > 0:
-            rand_number = MatlabEngine.engine().rand()
+            rand_number = MatlabEngine.rand()
             n = np.ceil(rand_number * len(eligiblepar)) - 1
             n = eligiblepar[n]
             n2 = self.__find(rankpar[n] == rankpar2)
