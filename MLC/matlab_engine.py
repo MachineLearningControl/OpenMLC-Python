@@ -90,3 +90,7 @@ class MatlabEngine:
         with open(randoms_file) as f:
             for line in f:
                 MatlabEngine._randoms.append(float(line))
+
+    @staticmethod
+    def clear_random_values():
+        MatlabEngine._randoms = []
