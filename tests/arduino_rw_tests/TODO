@@ -1,0 +1,3 @@
+Hacer un script para preparar entorno de pruebas
+
+Por ahora, el único camino para probar es abrir el ide de arduino, compilar el sketch de la prueba y cargar en el board. Con algo de magia se puede hacer que estos pasos se ejecuten desde un script...
