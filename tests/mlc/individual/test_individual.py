@@ -377,23 +377,30 @@ class IndividualTest(unittest.TestCase):
     def test_sensor_list(self):
         # save and restore original configuration
         with saved(Config.get_instance()):
-            Config.get_instance().set("POPULATION", "sensor_list", "7,5,6,9,8,14")
+            Config.get_instance().set("POPULATION", "sensor_list", "2,4,6,8,10,15")
             Config.get_instance().set("POPULATION", "sensors", "6")
             Config.get_instance().set("POPULATION", "sensor_spec", "true")
             Config.get_instance().set("POPULATION", "sensor_prob", "1.0")
 
+            # test generate and mutate using sensor list
             individual = Individual()
             individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S7) (cos S9)) (/ (log S9) (log S6)))))')
+            self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S6) (cos S10)) (/ (log S10) (log S4)))))')
 
             individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S7) (tanh S9)) (- (/ S7 S7) (/ S7 S6)))))')
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root (+ (log (+ (/ S8 S5) (exp S8))) (cos (exp (* S5 S9)))))')
+            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            # TODO: test sensor list with mutation type:MUTATION_REMOVE_SUBTREE_AND_REPLACE
-            # TODO: test sensor list with mutation type:MUTATION_SHRINK
+            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
+
+            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_SHRINK)
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
+
+            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_SHRINK)
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
