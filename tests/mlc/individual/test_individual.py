@@ -25,6 +25,7 @@ class IndividualTest(unittest.TestCase):
         cls._engine.workspace['wmlc'] = cls._engine.MLC2()
         config = Config.get_instance()
         config.read(os.path.join(mlc_config_path.get_test_path(), 'mlc/individual/configuration.ini'))
+        Individual._maxdepthfirst = config.getint('GP', 'maxdepthfirst')
 
         cls._individual_l0 = Individual()
         cls._individual_l0.generate("(root (cos 5.046))")
@@ -86,14 +87,14 @@ class IndividualTest(unittest.TestCase):
         individual = Individual()
         individual.generate(3)
 
-        self.assertEquals(individual.get_value(), "(root -1.6130)")
+        self.assertEquals(individual.get_value(), "(root (sin (/ (+ (exp -2.6118) (cos S0)) (/ (log 5.9383) (log -4.5037)))))")
         self.assertEquals(individual.get_type(), 'tree')
         self.assertEquals(len(individual.get_cost_history()), 0)
         self.assertEquals(individual.get_evaluation_time(), 0.0)
         self.assertEquals(individual.get_appearences(), 1)
-        self.assertEquals(individual.get_hash(), "3385097a57982bfc9a3a45810331c2e2")
-        self.assertEquals(individual.get_formal(), "(-1.6130)")
-        self.assertEquals(individual.get_complexity(), 1)
+        self.assertEquals(individual.get_hash(), "48dfadaf63d552523b58e42fadc7eab4")
+        self.assertEquals(individual.get_formal(), "sin((my_div((exp((-2.6118)) + cos(S0)),(my_div(my_log(5.9383),my_log((-4.5037)))))))")
+        self.assertEquals(individual.get_complexity(), 28)
 
     def test_compare(self):
         individual_1 = Individual()
@@ -133,28 +134,28 @@ class IndividualTest(unittest.TestCase):
                                 formal="sin(((my_div(cos((-3.0973)),exp(my_log((((-1.3423) .* tanh(my_log((-3.5094)))) .* ((my_div((my_div(((-9.1213) .* cos(exp(3.6199))),cos((S0 .* cos((5.0161 - sin(4.2656))))))),S0)) + (cos(((sin((-9.8591)) + exp(S0)) .* (-9.4159))) - my_log(((tanh((-8.5969)) - S0) .* (my_div(exp((my_div(8.2118,S0))),((S0 .* (1.6755 .* (-0.0699))) .* my_log(exp((-3.2288))))))))))))))) + S0))")
 
         individual.generate(1)
-        self._assert_individual(individual, complexity=1,
+        self._assert_individual(individual, complexity=24,
                                 hash=3.4383822393862387e+193,
-                                value="(root S0)",
-                                formal="S0")
+                                value="(root (- (sin (* (log -3.7260) (+ -5.0573 -6.2191))) (* 7.3027 (/ (cos S0) (* 4.7410 6.7097)))))",
+                                formal="(sin((my_log((-3.7260)) .* ((-5.0573) + (-6.2191)))) - (7.3027 .* (my_div(cos(S0),(4.7410 .* 6.7097)))))")
 
         individual.generate(2)
-        self._assert_individual(individual, complexity=1,
+        self._assert_individual(individual, complexity=15,
                                 hash=3.159746489284278e-200,
-                                value="(root 7.1349)",
-                                formal="7.1349")
+                                value="(root (tanh (cos (+ (+ 5.4434 -3.1258) (+ S0 5.1136)))))",
+                                formal="tanh(cos(((5.4434 + (-3.1258)) + (S0 + 5.1136))))")
 
         individual.generate(3)
-        self._assert_individual(individual, complexity=1,
+        self._assert_individual(individual, complexity=18,
                                 hash=-6.231379895727156e-22,
-                                value="(root S0)",
-                                formal="S0")
+                                value="(root (log (sin (+ (log -6.2620) (* 8.3709 -6.7676)))))",
+                                formal="my_log(sin((my_log((-6.2620)) + (8.3709 .* (-6.7676)))))")
 
         individual.generate(4)
         self._assert_individual(individual, complexity=1,
                                 hash=6.356047396756108e+217,
-                                value="(root -1.3782)",
-                                formal="(-1.3782)")
+                                value="(root -0.6212)",
+                                formal="(-0.6212)")
 
     def test_crossover_same_level_0(self):
         individual_1 = Individual()
@@ -383,13 +384,13 @@ class IndividualTest(unittest.TestCase):
 
             individual = Individual()
             individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root S7)')
+            self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S7) (cos S9)) (/ (log S9) (log S6)))))')
 
             individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root S9)')
+            self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S7) (tanh S9)) (- (/ S7 S7) (/ S7 S6)))))')
 
             individual.generate(3)
-            self.assertEqual(individual.get_value(), '(root S7)')
+            self.assertEqual(individual.get_value(), '(root (+ (log (+ (/ S8 S5) (exp S8))) (cos (exp (* S5 S9)))))')
 
             # TODO: test sensor list with mutation type:MUTATION_REMOVE_SUBTREE_AND_REPLACE
             # TODO: test sensor list with mutation type:MUTATION_SHRINK
