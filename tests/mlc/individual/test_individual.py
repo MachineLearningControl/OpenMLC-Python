@@ -377,7 +377,7 @@ class IndividualTest(unittest.TestCase):
     def test_sensor_list(self):
         # save and restore original configuration
         with saved(Config.get_instance()):
-            Config.get_instance().set("POPULATION", "sensor_list", "2,4,6,8,10,15")
+            Config.get_instance().set("POPULATION", "sensor_list", "6,15,2,8,4,10")
             Config.get_instance().set("POPULATION", "sensors", "6")
             Config.get_instance().set("POPULATION", "sensor_spec", "true")
             Config.get_instance().set("POPULATION", "sensor_prob", "1.0")
