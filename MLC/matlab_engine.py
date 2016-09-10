@@ -82,7 +82,7 @@ class MatlabEngine:
                 rand_list.append(MatlabEngine._randoms.pop(0))
 
         indexes = [x[0] for x in sorted(enumerate(rand_list), key=lambda x:x[1])]
-        return sorted(indexes)
+        return indexes
 
 
     @staticmethod

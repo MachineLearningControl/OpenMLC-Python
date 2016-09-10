@@ -470,6 +470,23 @@ class IndividualTest(unittest.TestCase):
             self.assertEqual(formal_exp[1], '((sin((-9.8591)) + exp(S0)) .* (-9.4159))')
             self.assertEqual(formal_exp[2], 'exp((my_div((my_div(8.0187,(-8.5969))),S0)))')
 
+    def test_parameter_controls_mutate_hoist(self):
+        # save and restore original configuration
+        with saved(Config.get_instance()):
+
+            Config.get_instance().set("POPULATION", "controls", "5")
+            individual = Individual()
+            individual.generate('(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))')
+
+            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            self.assertEqual(new_ind.get_value(), "(root (log (exp -3.2288)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
+
+            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            self.assertEqual(new_ind.get_value(), "(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (exp S0) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
+
+            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            self.assertEqual(new_ind.get_value(), "(root (* S0 (* 1.6755 -0.0699)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
+
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
         self.assertEquals(individual.get_type(), 'tree')

@@ -421,18 +421,19 @@ class Individual(object):
 
         elif mutation_type == Individual.MUTATION_HOIST:
             controls = self._config.getint("POPULATION", "controls")
-            prob_threshold = 1 / controls
+            prob_threshold = 1 / float(controls)
             cl = []
 
             # Revisar con Thomas la logica de este codigo
             expression_tree = Lisp_Tree_Expr(value)
-            for stree in [expression_tree.get_root_node()]:
+            for stree in expression_tree.get_root_node()._nodes:
                 cl.append(stree.to_string())
 
             changed = False
             k = 0
 
             for nc in MatlabEngine.randperm(controls):
+                print nc
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
                 if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
@@ -445,6 +446,7 @@ class Individual(object):
 
             value = "(root %s)" % " ".join(cl[:controls])
             return value, False
+
         elif mutation_type == Individual.MUTATION_SHRINK:
             # remove subtree.
             value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
