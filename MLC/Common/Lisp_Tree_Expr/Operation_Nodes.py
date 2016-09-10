@@ -100,7 +100,7 @@ class Division_Node(Internal_Node):
 
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             # FIXME: Harcoded number. Change it
-            if float(self._nodes[1].to_string()) < 0.01:
+            if abs(float(self._nodes[1].to_string())) < 0.01:
                 return Leaf_Node(process_float(0))
             else:
                 arg = float(self._nodes[0].to_string()) / float(self._nodes[1].to_string())
@@ -200,8 +200,30 @@ class Tanh_Node(Internal_Node):
             return self
 
 
+class RootNode(Internal_Node):
+    def __init__(self):
+        Internal_Node.__init__(self, "", 0)
+
+    def to_string(self):
+        return " ".join([n.to_string() for n in self._nodes])
+
+    def simplify(self):
+        self._nodes = [node.simplify() for node in self._nodes]
+        return self
+
+    def formal(self):
+        if len(self._nodes) == 1:
+            return self._nodes[0].formal()
+
+        return [n.formal() for n in self._nodes]
+
+    def accept(self, visitor):
+        for node in self._nodes:
+            node.accept(visitor)
+
 class Op_Node_Factory:
-    _nodes = {'+': Plus_Node,
+    _nodes = {'root': RootNode,
+              '+': Plus_Node,
               '-': Minus_Node,
               '*': Mult_Node,
               '/': Division_Node,

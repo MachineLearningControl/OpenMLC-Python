@@ -415,9 +415,9 @@ class IndividualTest(unittest.TestCase):
             formal_exp = individual.get_formal()
             self.assertIsInstance(formal_exp, list)
             self.assertEqual(len(formal_exp), 3)
-            self.assertEqual(len(formal_exp[0]), '(my_div((-3.0632),cos((-3.0973))))')
-            self.assertEqual(len(formal_exp[1]), 'exp(my_log(((S0 .* (-0.8182)) .* sin((-6.5057)))))')
-            self.assertEqual(len(formal_exp[2]), '(my_div((my_div((-1.4169),(my_div((S0 .* S0),cos((-7.5988)))))),my_log(cos((S0 .* 5.7489)))))')
+            self.assertEqual(formal_exp[0], '(my_div((-3.0632),cos((-3.0973))))')
+            self.assertEqual(formal_exp[1], 'exp(my_log(((S0 .* (-0.8182)) .* sin((-6.5057)))))')
+            self.assertEqual(formal_exp[2], '(my_div((my_div((-1.4169),(my_div((S0 .* S0),cos((-7.5988)))))),my_log(cos((S0 .* 5.7489)))))')
             self.assertEqual(individual.get_complexity(), 46)
 
             # generate individual with one control
@@ -436,9 +436,9 @@ class IndividualTest(unittest.TestCase):
             formal_exp = individual.get_formal()
             self.assertIsInstance(formal_exp, list)
             self.assertEqual(len(formal_exp), 3)
-            self.assertEqual(len(formal_exp[0]), 'exp(2.1314)')
-            self.assertEqual(len(formal_exp[1]), '((sin((-9.8591)) + exp(S0)) .* (-9.4159))')
-            self.assertEqual(len(formal_exp[2]), 'exp((my_div((my_div(8.0187,(-8.5969))),S0)))')
+            self.assertEqual(formal_exp[0], 'exp(2.1314)')
+            self.assertEqual(formal_exp[1], '((sin((-9.8591)) + exp(S0)) .* (-9.4159))')
+            self.assertEqual(formal_exp[2], 'exp((my_div((my_div(8.0187,(-8.5969))),S0)))')
             self.assertEqual(individual.get_complexity(), 29)
 
             # generate individual with 5 controls
@@ -449,14 +449,26 @@ class IndividualTest(unittest.TestCase):
             formal_exp = individual.get_formal()
             self.assertIsInstance(formal_exp, list)
             self.assertEqual(len(formal_exp), 5)
-            self.assertEqual(len(formal_exp[0]), '(my_div(exp((my_div(8.2118,S0))),((S0 .* (1.6755 .* (-0.0699))) .* my_log(exp((-3.2288))))))')
-            self.assertEqual(len(formal_exp[1]), 'S0')
-            self.assertEqual(len(formal_exp[2]), '0.0290')
-            self.assertEqual(len(formal_exp[3]), '(my_log((((-5.0573) + (-6.2191)) .* S0)) .* (my_div(cos(my_log(S0)),cos(tanh(2.2886)))))')
-            self.assertEqual(len(formal_exp[4]), 'my_log((-8.6795))')
+            self.assertEqual(formal_exp[0], '(my_div(exp((my_div(8.2118,S0))),((S0 .* (1.6755 .* (-0.0699))) .* my_log(exp((-3.2288))))))')
+            self.assertEqual(formal_exp[1], 'S0')
+            self.assertEqual(formal_exp[2], '0.0290')
+            self.assertEqual(formal_exp[3], '(my_log((((-5.0573) + (-6.2191)) .* S0)) .* (my_div(cos(my_log(S0)),cos(tanh(2.2886)))))')
+            self.assertEqual(formal_exp[4], 'my_log((-8.6795))')
             self.assertEqual(individual.get_complexity(), 64)
 
-            raise Exception("ERROR!")
+            # generate individual with multiple simplifications
+            Config.get_instance().set("POPULATION", "controls", "3")
+            Config.get_instance().set("OPTIMIZATION", "simplify", "true")
+            individual = Individual()
+            individual.generate('(root (exp 2.1314) (* (+ (sin -9.8591) (exp S0)) -9.4159) (exp (/ (/ 8.0187 -8.5969) S0)))')
+
+            self.assertEqual(individual.get_value(), "(root 8.4267 (* (+ 0.4208 (exp S0)) -9.4159) (exp (/ -0.9327 S0)))")
+            formal_exp = individual.get_formal()
+            self.assertIsInstance(formal_exp, list)
+            self.assertEqual(len(formal_exp), 3)
+            self.assertEqual(formal_exp[0], 'exp(2.1314)')
+            self.assertEqual(formal_exp[1], '((sin((-9.8591)) + exp(S0)) .* (-9.4159))')
+            self.assertEqual(formal_exp[2], 'exp((my_div((my_div(8.0187,(-8.5969))),S0)))')
 
     def _assert_individual(self, individual, value, hash, formal, complexity):
         self.assertEquals(individual.get_value(), value)
