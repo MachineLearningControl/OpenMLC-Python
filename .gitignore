@@ -3,6 +3,7 @@
 *.swp
 
 matlab_code/@MLCparameters/private/save_GP/
+matlab_code/pathdef.m
 tests/.coverage
 
 # Ctags folders
