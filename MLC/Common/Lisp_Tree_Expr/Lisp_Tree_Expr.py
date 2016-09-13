@@ -113,7 +113,7 @@ class Lisp_Tree_Expr(object):
 
         return expr_op
 
-    def _generate_leaf_node(self, expr):
+    def _generate_leaf_node(self, expr, parent_depth):
         # We found a Leaf Node
         param_len = 0
 
@@ -128,18 +128,21 @@ class Lisp_Tree_Expr(object):
         else:
             param_len = len(expr)
 
-        return Leaf_Node(expr[:param_len]), param_len + 1
-
+        leaf = Leaf_Node(expr[:param_len])
+        leaf.set_depth(parent_depth)
+        return leaf, param_len + 1
+    
     # As a precondition, the expression must be well-formed
-    def _generate_node(self, expr, is_root_expression=False):
+    def _generate_node(self, expr, is_root_expression=False, parent_depth=0):
         if expr[0] != '(':
-            return self._generate_leaf_node(expr)
+            return self._generate_leaf_node(expr, parent_depth)
 
         # We are in the presence of an internal node. Get the operation
         op = self._get_operation(expr, is_root_expression)
 
         # Generate the arguments of the internal node as Child Nodes
         node = Op_Node_Factory.make(op["op"])
+        node.set_depth(parent_depth+1)
         expr_offset = 0
         offset = 0
         child_node = None
@@ -149,9 +152,9 @@ class Lisp_Tree_Expr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = self._generate_node(expr[next_arg_pos:])
+                child_node, offset = self._generate_node(expr[next_arg_pos:], parent_depth=parent_depth+1)
             else:
-                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:])
+                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:], parent_depth=parent_depth+1)
 
             node.add_child(child_node)
             expr_offset += offset

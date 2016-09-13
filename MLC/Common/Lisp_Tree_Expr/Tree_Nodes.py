@@ -1,7 +1,13 @@
 class Tree_Node(object):
 
     def __init__(self):
-        pass
+        self._depth = -1
+
+    def get_depth(self):
+        return self._depth
+
+    def set_depth(self, depth):
+        self._depth = depth
 
     def to_string(self):
         raise NotImplementedError('Tree_Node', 'to_string is an abstract method')
