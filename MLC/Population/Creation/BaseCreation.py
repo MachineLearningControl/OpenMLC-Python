@@ -26,7 +26,7 @@ class BaseCreation(object):
     def _fill_creation(self, individuals, index, type):
         while index < len(individuals):
             indiv = Individual()
-            indiv.generate(type)
+            indiv.generate(individual_type=type)
             response = MLCTable.get_instance().add_individual(indiv)
 
             if not response[1]:

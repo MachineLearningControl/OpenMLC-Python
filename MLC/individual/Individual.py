@@ -99,7 +99,7 @@ class Individual(object):
     def get_matlab_object(self):
         return self._mlc_ind
 
-    def generate(self, varargin):
+    def generate(self, value=None, individual_type=None):
         """
         generate individual from scratch or from unfinished individual.
 
@@ -111,27 +111,28 @@ class Individual(object):
 
         matlab_impl: return self._eng.generate(self._mlc_ind, varargin)
         """
+        if value is None and individual_type is None:
+            raise Exception("Individual::generate() value or individual_type arguments should be passed to generate method")
+
         param_individual_type = self._config.get('POPULATION', 'individual_type')
-        param_controls = int(self._config.getint('POPULATION', 'controls'))
 
         if param_individual_type == "tree":
             self._type = "tree"
 
-            if type(varargin) == int:
-                value = '(root @' + ' @' * (param_controls - 1) + ')'
-                for i in range(1, param_controls + 1):
-                    value = self.__generate_indiv_regressive_tree(value, varargin)
+            if value:
                 self._value = value
             else:
-                self._value = varargin
+                controls = self._config.getint('POPULATION', 'controls')
+                self._value = '(root%s)' % (' @' * controls)
+                for i in range(controls):
+                    self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
 
-            self._value = self.__simplify_and_sensors_tree(self.get_value())
+            self._value = self.__simplify_and_sensors_tree(self._value)
             self._hash = self._tree.calculate_hash()
             self._formal = self._tree.formal()
             self._complexity = self._tree.complexity()
-            return
-
-        raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
+        else:
+            raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
 
     def mutate(self, mutation_type=MUTATION_ANY):
         param_individual_type = self._config.get("POPULATION", "individual_type")
