@@ -113,7 +113,7 @@ class Lisp_Tree_Expr(object):
 
         return expr_op
 
-    def _generate_leaf_node(self, expr, parent_depth):
+    def _generate_leaf_node(self, expr, parent_depth, expr_index):
         # We found a Leaf Node
         param_len = 0
 
@@ -130,12 +130,13 @@ class Lisp_Tree_Expr(object):
 
         leaf = Leaf_Node(expr[:param_len])
         leaf.set_depth(parent_depth)
+        leaf.set_expr_index(expr_index)
         return leaf, param_len + 1
     
     # As a precondition, the expression must be well-formed
-    def _generate_node(self, expr, is_root_expression=False, parent_depth=0):
+    def _generate_node(self, expr, is_root_expression=False, parent_depth=0, expr_index=0):
         if expr[0] != '(':
-            return self._generate_leaf_node(expr, parent_depth)
+            return self._generate_leaf_node(expr, parent_depth, expr_index)
 
         # We are in the presence of an internal node. Get the operation
         op = self._get_operation(expr, is_root_expression)
@@ -143,6 +144,7 @@ class Lisp_Tree_Expr(object):
         # Generate the arguments of the internal node as Child Nodes
         node = Op_Node_Factory.make(op["op"])
         node.set_depth(parent_depth+1)
+        node.set_expr_index(expr_index)
         expr_offset = 0
         offset = 0
         child_node = None
@@ -152,9 +154,9 @@ class Lisp_Tree_Expr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = self._generate_node(expr[next_arg_pos:], parent_depth=parent_depth+1)
+                child_node, offset = self._generate_node(expr[next_arg_pos:], parent_depth=parent_depth+1, expr_index=expr_index+next_arg_pos)
             else:
-                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:], parent_depth=parent_depth+1)
+                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:], parent_depth=parent_depth+1, expr_index=expr_index+next_arg_pos)
 
             node.add_child(child_node)
             expr_offset += offset

@@ -2,12 +2,19 @@ class Tree_Node(object):
 
     def __init__(self):
         self._depth = -1
+        self._expr_index = -1
 
     def get_depth(self):
         return self._depth
 
     def set_depth(self, depth):
         self._depth = depth
+
+    def get_expr_index(self):
+        return self._expr_index
+
+    def set_expr_index(self, expr_index):
+        self._expr_index = expr_index
 
     def to_string(self):
         raise NotImplementedError('Tree_Node', 'to_string is an abstract method')

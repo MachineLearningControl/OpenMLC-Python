@@ -440,7 +440,7 @@ class Individual(object):
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
                 if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
-                    _, sm, _, = self.__extract_subtree(cl[nc - 1], mutmindepth, maxdepth, maxdepth)
+                    _, sm, _, = self.__extract_subtree('(root '+cl[nc - 1]+')', mutmindepth+1, maxdepth, maxdepth+1)
 
                     if sm:
                         cl[nc - 1] = sm
@@ -479,48 +479,43 @@ class Individual(object):
         return np.where(condition)[0]
 
     def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
-        subtreedepthmin = 2
-        leftpar = np.cumsum([1 if c == '(' else 0 for c in m])
-        rightpar = np.cumsum([1 if c == ')' else 0 for c in m])
-        cdepth = leftpar - rightpar
-
         if len(m) == 0:
             raise Exception("m could not be an empty string")
 
-        rankpar = np.array([1 if c == '(' else 0 for c in m] * cdepth)
-        rankpar2 = np.array([1 if c == ')' else 0 for c in m] * (cdepth + 1))
-        idx1 = self.__find(rankpar != 0)
-        # idx2 = self.__find(rankpar != 0)
-        subtreedepth = rankpar * 0
+        class CalculateSubtreeDepth(TreeVisitor):
+            def __init__(self, mindepth, subtreedepthmax, maxdepth):
+                self._mindepth = mindepth
+                self._subtreedepthmax = subtreedepthmax
+                self._maxdepth = maxdepth
+                self._nodes = {}
+                self._candidates = []
 
-        for i in range(len(idx1)):
-            # idx1(i);
-            crank = rankpar[idx1[i]]
-            icendpar = self.__find(rankpar2 == crank)
-            icendpar = icendpar[icendpar > idx1[i]]
-            icendpar = icendpar[0]
-            subtreedepth[idx1[i]] = max(rankpar[range(idx1[i] - 1, icendpar + 1)])
+            def visit_internal_node(self, node):
+                self._nodes[node] = max([self._nodes[n] for n in node._nodes])+1
+                self._check_suitable_node(node)
 
-        search_par = (rankpar >= mindepth) * (subtreedepth - rankpar <= (subtreedepthmax - 1)) * (rankpar <= maxdepth)
-        eligiblepar = self.__find(search_par)
+            def visit_leaf_node(self, node):
+                self._nodes[node] = 0
+                # self._check_suitable_node(node)
 
-        if len(eligiblepar) > 0:
-            rand_number = MatlabEngine.rand()
-            n = np.ceil(rand_number * len(eligiblepar)) - 1
-            n = eligiblepar[n]
-            n2 = self.__find(rankpar[n] == rankpar2)
-            idx = self.__find(n2 * (n2 > n))
-            n2 = n2[idx[0]]
-            sm = m[n:n2 + 1]
-            leftpar = np.cumsum([1 if c == '(' else 0 for c in sm])
-            rightpar = np.cumsum([1 if c == ')' else 0 for c in sm])
-            cdepth = leftpar - rightpar
-            stdepth = max(cdepth)
-            m = m[0:n] + '@' + m[n2 + 1:]
-        else:
+            def _check_suitable_node(self, node):
+                if self._mindepth <= node.get_depth() <= self._maxdepth and self._nodes[node] <= subtreedepthmax:
+                    self._candidates.append(node)
+
+        expression_tree = Lisp_Tree_Expr(m)
+        visitor = CalculateSubtreeDepth(mindepth, subtreedepthmax, maxdepth)
+        expression_tree.get_root_node().accept(visitor)
+        visitor._candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
+
+        if not visitor._candidates:
             return [], [], -1
 
-        return m, sm, stdepth
+        n = int(np.ceil(MatlabEngine.rand() * len(visitor._candidates))) - 1
+        extracted_node = visitor._candidates[n]
+        index = visitor._candidates[n].get_expr_index()
+        new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
+        return new_value, visitor._candidates[int(n)].to_string(), visitor._nodes[visitor._candidates[int(n)]]
+
 
     def __reparam_tree(self, value):
         preevok = False
