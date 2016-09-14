@@ -1,8 +1,8 @@
-import numpy as np
-import MLC.Log.log as lg
+import yaml
 from MLC.mlc_parameters.mlc_parameters import Config
+from MLC import config as mlc_paths
 
-
+import os
 class Operations(object):
     """
     Singleton class gives information about the tree functions availables at
@@ -13,97 +13,31 @@ class Operations(object):
 
     def __init__(self):
         self._config = Config.get_instance()
+        operations_config_file = os.path.join(mlc_paths.get_config_path(), 'operations.yaml')
+        available_operations = yaml.load(open(operations_config_file))
+
+        opsetrange = self._config.get_list('POPULATION', 'opsetrange')
         self._ops = {}
-        self._load_operations()
+        for operation_id in opsetrange:
+            self._ops[operation_id] = available_operations[operation_id]
 
-        self._range = self._config.get_list('POPULATION', 'opsetrange')
-
-    def _load_operations(self):
-        # FIXME: Hardcoded, ugly. Change it for a config file
-        op = {}
-        op["op"] = "+"
-        op["nbarg"] = 2
-        op["complexity"] = 1
-        self._ops[1] = op
-
-        op = {}
-        op["op"] = "-"
-        op["nbarg"] = 2
-        op["complexity"] = 1
-        self._ops[2] = op
-
-        op = {}
-        op["op"] = "*"
-        op["nbarg"] = 2
-        op["complexity"] = 1
-        self._ops[3] = op
-
-        op = {}
-        op["op"] = "/"
-        op["nbarg"] = 2
-        op["complexity"] = 1
-        self._ops[4] = op
-
-        op = {}
-        op["op"] = "sin"
-        op["nbarg"] = 1
-        op["complexity"] = 3
-        self._ops[5] = op
-
-        op = {}
-        op["op"] = "cos"
-        op["nbarg"] = 1
-        op["complexity"] = 3
-        self._ops[6] = op
-
-        op = {}
-        op["op"] = "log"
-        op["nbarg"] = 1
-        op["complexity"] = 5
-        self._ops[7] = op
-
-        op = {}
-        op["op"] = "exp"
-        op["nbarg"] = 1
-        op["complexity"] = 5
-        self._ops[8] = op
-
-        op = {}
-        op["op"] = "tanh"
-        op["nbarg"] = 1
-        op["complexity"] = 5
-        self._ops[9] = op
-
-        op = {}
-        op["op"] = "mod"
-        op["nbarg"] = 2
-        op["complexity"] = 5
-        self._ops[10] = op
-
-        op = {}
-        op["op"] = "pow"
-        op["nbarg"] = 2
-        op["complexity"] = 10
-        self._ops[11] = op
 
     def get_operation_from_op_num(self, op_num):
-        if not op_num in self._range:
-            str_error = "Index of an operation must be one of the following values: " + str(self._range)
-            raise IndexError("get_operation", str_error)
-
-        return self._ops[op_num]
+        try:
+            return self._ops[op_num]
+        except KeyError:
+            raise IndexError("get_operation", "Index must be one of the following values: " + str(self._ops.keys()))
 
     def get_operation_from_op_string(self, str_op):
         for k, op in self._ops.iteritems():
             if op["op"] == str_op:
                 return op
-
-        raise KeyError('Operations', 'Key was not found')
+        raise KeyError('Operations', 'Key %s was not found' % str_op)
 
     def length(self):
         """ Number of operations loaded into the Singleton
         """
-        return len(self._range)
+        return len(self._ops)
 
     @staticmethod
     def get_instance():

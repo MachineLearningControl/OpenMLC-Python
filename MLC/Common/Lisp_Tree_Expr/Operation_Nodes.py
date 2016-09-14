@@ -1,4 +1,6 @@
 import math
+import importlib
+
 import MLC.Log.log as lg
 import numpy as np
 import sys
@@ -7,6 +9,7 @@ from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Tree_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
 from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.Common.Operations import Operations
 
 
 def process_float(arg):
@@ -284,17 +287,17 @@ class RootNode(Internal_Node):
 
 
 class Op_Node_Factory:
-    _nodes = {'root': RootNode,
-              '+': Plus_Node,
-              '-': Minus_Node,
-              '*': Mult_Node,
-              '/': Division_Node,
-              'sin': Sine_Node,
-              'cos': Cosine_Node,
-              'log': Logarithm_Node,
-              'exp': Exponential_Node,
-              'tanh': Tanh_Node}
-
     @staticmethod
     def make(op):
-        return Op_Node_Factory._nodes[op]()
+        if op == 'root':
+            return RootNode()
+
+        # instatiate node from string
+        operation = Operations.get_instance().get_operation_from_op_string(op)
+        node_module_name = ".".join(operation['tree_node_class'].split('.')[:-1])
+        node_class_name = ".".join(operation['tree_node_class'].split('.')[-1:])
+
+        node_module = importlib.import_module(node_module_name)
+        node_class = getattr(node_module, node_class_name)
+
+        return node_class()
