@@ -392,15 +392,27 @@ class Individual(object):
             rand_number = MatlabEngine.rand()
             mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
-        if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
+        if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE or mutation_type == Individual.MUTATION_SHRINK:
             preevok = False
             while not preevok:
-                # remove subtree.
+                # remove subtree and grow new subtree
                 value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
-                # grow new subtree
-                value = self.__generate_indiv_regressive_tree(value, 0)
+
+                if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
+                    value = self.__generate_indiv_regressive_tree(value, 0)
+                else:
+                    value = self.__generate_indiv_regressive_tree(value, 4)
 
                 if value:
+                    if sensor_spec:
+                        config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
+                    else:
+                        config_sensor_list = range(sensors-1, -1, -1)
+
+                    for i in range(len(config_sensor_list)):
+                        value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
+
+                    """
                     if sensor_spec:
                         config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
                         for i in range(len(config_sensor_list)):
@@ -408,6 +420,7 @@ class Individual(object):
                     else:
                         for i in range(sensors, 0, -1):
                             value = value.replace("z%d" % (i - 1), "S%d" % (i - 1))
+                    """
                     preevok = True
                     # if gen_param.preevaluation
                     #   eval(['peval=@' gen_param.preev_function ';']);
@@ -426,12 +439,9 @@ class Individual(object):
         elif mutation_type == Individual.MUTATION_HOIST:
             controls = self._config.getint("POPULATION", "controls")
             prob_threshold = 1 / float(controls)
-            cl = []
 
-            # Revisar con Thomas la logica de este codigo
             expression_tree = Lisp_Tree_Expr(value)
-            for stree in expression_tree.get_root_node()._nodes:
-                cl.append(stree.to_string())
+            cl = [stree.to_string() for stree in expression_tree.get_root_node()._nodes]
 
             changed = False
             k = 0
@@ -450,33 +460,8 @@ class Individual(object):
             value = "(root %s)" % " ".join(cl[:controls])
             return value, False
 
-        elif mutation_type == Individual.MUTATION_SHRINK:
-            # remove subtree.
-            value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
-            # grow new subtree
-            value = self.__generate_indiv_regressive_tree(value, 4)
-
-            if value:
-                if sensor_spec:
-                    config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
-                    for i in range(len(config_sensor_list)):
-                        value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
-                else:
-                    for i in range(sensors, 0, -1):
-                        value = value.replace("z%d" % (i - 1), "S%d" % (i - 1))
-                preevok = True
-                # if gen_param.preevaluation
-                #   eval(['peval=@' gen_param.preev_function ';']);
-                #   f=peval;
-                #   preevok=feval(f,m);
-                # end
-            return value, not value
-
         else:
             raise NotImplementedError("Mutation type %s not implemented" % mutation_type)
-
-    def __find(self, condition):
-        return np.where(condition)[0]
 
     def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
         if len(m) == 0:
@@ -530,7 +515,6 @@ class Individual(object):
 
     def __change_const_tree(self, expression):
         class ChangeConsTreeVisitor(TreeVisitor):
-
             def __init__(self, pop_range, precision):
                 self._range = pop_range
                 self._precision = precision
