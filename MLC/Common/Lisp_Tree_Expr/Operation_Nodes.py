@@ -1,5 +1,8 @@
 import math
 import MLC.Log.log as lg
+import numpy as np
+import sys
+
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Tree_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Internal_Node
@@ -33,6 +36,9 @@ class Plus_Node(Internal_Node):
         else:
             return self
 
+    def op_compute(self, arg_list):
+        return arg_list[0] + arg_list[1]
+
 
 class Minus_Node(Internal_Node):
 
@@ -53,6 +59,9 @@ class Minus_Node(Internal_Node):
             return Leaf_Node(process_float(arg))
         else:
             return self
+
+    def op_compute(self, arg_list):
+        return arg_list[0] - arg_list[1]
 
 
 class Mult_Node(Internal_Node):
@@ -80,14 +89,29 @@ class Mult_Node(Internal_Node):
         else:
             return self
 
+    def op_compute(self, arg_list):
+        return arg_list[0] * arg_list[1]
+
 
 class Division_Node(Internal_Node):
+    PROTECTION = 0.001
 
     def __init__(self):
         Internal_Node.__init__(self, "/", 1)
 
     def formal(self):
         return "(my_div(" + self._nodes[0].formal() + "," + self._nodes[1].formal() + "))"
+
+    def _process_division(self, dividend, divisor):
+        if type(divisor) == np.ndarray:
+            # Check if at least one element is below the protection value
+            if [x for x in divisor if abs(x) < Division_Node.PROTECTION] != []:
+                return np.sign(divisor) * dividend / np.repeat(Division_Node.PROTECTION, len(divisor))
+        else:
+            if abs(divisor) < Division_Node.PROTECTION:
+                return dividend / Division_Node.PROTECTION
+
+        return dividend / divisor
 
     def op_simplify(self):
         # If the first argument is zero, return zero
@@ -108,6 +132,9 @@ class Division_Node(Internal_Node):
         else:
             return self
 
+    def op_compute(self, arg_list):
+        return self._process_division(arg_list[0], arg_list[1])
+
 
 class Sine_Node(Internal_Node):
 
@@ -123,6 +150,9 @@ class Sine_Node(Internal_Node):
             return Leaf_Node(process_float(arg))
         else:
             return self
+
+    def op_compute(self, arg_list):
+        return np.sin(arg_list[0])
 
 
 class Cosine_Node(Internal_Node):
@@ -140,14 +170,29 @@ class Cosine_Node(Internal_Node):
         else:
             return self
 
+    def op_compute(self, arg_list):
+        return np.cos(arg_list[0])
+
 
 class Logarithm_Node(Internal_Node):
+    PROTECTION = 0.00001
 
     def __init__(self):
         Internal_Node.__init__(self, "log", 5)
 
     def formal(self):
         return "my_log(" + self._nodes[0].formal() + ")"
+
+    def _process_arg(self, arg):
+        if type(arg) == np.ndarray:
+            # Check if at least one element is below the protection value
+            if [x for x in arg if abs(x) < Logarithm_Node.PROTECTION] != []:
+                return np.repeat(Logarithm_Node.PROTECTION, len(arg))
+        else:
+            if abs(arg) < Logarithm_Node.PROTECTION:
+                return Logarithm_Node.PROTECTION
+
+        return abs(arg)
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
@@ -159,6 +204,9 @@ class Logarithm_Node(Internal_Node):
             return Leaf_Node(process_float(arg))
         else:
             return self
+
+    def op_compute(self, arg_list):
+        return np.log(self._process_arg(arg_list[0]))
 
 
 class Exponential_Node(Internal_Node):
@@ -176,12 +224,15 @@ class Exponential_Node(Internal_Node):
                 arg = math.exp(float(self._nodes[0].to_string()))
             except OverflowError:
                 # FIXME: See what to do with this expression, because there are problems with
-                # an infinite value is the argumento of a sinusoidal function 
+                # an infinite value is the argumento of a sinusoidal function
                 return Leaf_Node(process_float(float("inf")))
 
             return Leaf_Node(process_float(arg))
         else:
             return self
+
+    def op_compute(self, arg_list):
+        return np.exp(arg_list[0])
 
 
 class Tanh_Node(Internal_Node):
@@ -199,8 +250,12 @@ class Tanh_Node(Internal_Node):
         else:
             return self
 
+    def op_compute(self, arg_list):
+        return np.tanh(arg_list[0])
+
 
 class RootNode(Internal_Node):
+
     def __init__(self):
         Internal_Node.__init__(self, "", 0)
 
@@ -211,6 +266,12 @@ class RootNode(Internal_Node):
         self._nodes = [node.simplify() for node in self._nodes]
         return self
 
+    def compute(self):
+        if len(self._nodes) == 1:
+            return self._nodes[0].compute()
+
+        return [node.compute() for node in self._nodes]
+
     def formal(self):
         if len(self._nodes) == 1:
             return self._nodes[0].formal()
@@ -220,6 +281,7 @@ class RootNode(Internal_Node):
     def accept(self, visitor):
         for node in self._nodes:
             node.accept(visitor)
+
 
 class Op_Node_Factory:
     _nodes = {'root': RootNode,

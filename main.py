@@ -12,10 +12,10 @@ def initialize_config():
 
 
 def main():
-    np.set_printoptions(precision=4, suppress=True)
+    np.set_printoptions(precision=9)
     eng = MatlabEngine.engine()
     config = initialize_config()
-    # MatlabEngine.load_random_values("./tests/integration_tests/matlab_randoms.txt")
+    MatlabEngine.load_random_values("./tests/integration_tests/matlab_randoms.txt")
 
     # Create the MLC2 object and store it in the workspace. With this
     # feature we will be able to call every function of the MATLAB code

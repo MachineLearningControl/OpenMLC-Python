@@ -24,6 +24,9 @@ class Tree_Node(object):
     def formal(self):
         raise NotImplementedError('Tree_Node', 'formal is an abstract method')
 
+    def compute(self):
+        raise NotImplementedError('Tree_Node', 'compute is an abstract method')
+
     def accept(self, visitor):
         raise NotImplementedError('Tree_Node', 'accept is an abstract method')
 
@@ -31,7 +34,10 @@ class Leaf_Node(Tree_Node):
 
     def __init__(self, arg):
         Tree_Node.__init__(self)
+        # String value of the node
         self._arg = arg
+        # Numerical value of the node
+        self._value = None
 
     def to_string(self):
         return str(self._arg)
@@ -61,6 +67,9 @@ class Leaf_Node(Tree_Node):
             pass
 
         return str(self._arg)
+
+    def compute(self):
+        return self._value
 
     def accept(self, visitor):
         visitor.visit_leaf_node(self)
@@ -126,6 +135,16 @@ class Internal_Node(Tree_Node):
 
     def op_simplify(self):
         raise NotImplementedError('Internal_Node', "op_simplify shouldn't be called")
+
+    def op_compute(self):
+        raise NotImplementedError('Internal_Node', "op_compute shouldn't be called")
+
+    def compute(self):
+        arg_list = []
+        for node in self._nodes:
+            arg_list.append(node.compute())
+
+        return self.op_compute(arg_list)
 
     def accept(self, visitor):
         for node in self._nodes:
