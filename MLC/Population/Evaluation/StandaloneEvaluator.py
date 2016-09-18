@@ -16,8 +16,10 @@ class StandaloneEvaluator(object):
     def evaluate(self, indivs, pop_number):
         jj = []
 
+        lg.logger_.info("Evaluating %s individuals from generation %s" % (len(indivs), str(pop_number)))
+
         for index in indivs:
-            lg.logger_.info('[POP][STAND_EVAL] Individual N#' + str(index) +
+            lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
                             ' from generation ' + str(pop_number))
 
             # Retrieve the individual to be evaluated

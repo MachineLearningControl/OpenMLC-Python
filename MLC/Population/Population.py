@@ -131,7 +131,7 @@ class Population(object):
                 self._remove_individual(indexes[i + 1])
             i += 1
 
-        lg.logger_.info("[POPULATION] Individuals removed: " + str(amount_indivs_removed))
+        lg.logger_.info("[POPULATION] Duplicated Individuals removed: " + str(amount_indivs_removed))
         return amount_indivs_removed
 
     def _remove_individual(self, index):
@@ -181,7 +181,7 @@ class Population(object):
         if new_pop is None:
             new_pop = Population()
 
-        lg.logger_.info('[POPULATION] Evolving population N#' + str(self._gen))
+        lg.logger_.info('Evolving population N#' + str(self._gen))
 
         # FIXME: It's not necessary to compute the creation of both subgenerations
         # The ranges of both of them will be the same
@@ -190,7 +190,7 @@ class Population(object):
         subgen_amount = len(pop_subgen)
 
         for i in range(len(pop_subgen)):
-            lg.logger_.info("[POPULATION] Evolving subpopulation {0} of {1}".format(i + 1, subgen_amount))
+            lg.logger_.info("Evolving subpopulation {0}/{1} of population N#{2}".format(i + 1, subgen_amount, str(self._gen)))
             # Get the indexes of the non valid elements in this subpopulation
             subgen_begin = pop_subgen[i][0]
             subgen_end = pop_subgen[i][1]
@@ -219,8 +219,9 @@ class Population(object):
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
 
                         indiv_index = self._individuals[pop_idv_index_orig]
-                        lg.logger_.debug("[POPULATION] Elitism - Orig indiv {0} - Dest indiv {1}"
-                                         .format(indiv_index, pop_idv_index_dest + 1))
+                        lg.logger_.info("Individual {0}/{1}: Elitism - Orig indiv {2} - Dest indiv {3}"
+                                         .format(individuals_created+1, len(not_valid_indexes),
+                                                 indiv_index, pop_idv_index_dest + 1))
 
                         # Update the individual in the new population with the first param_elitism
                         new_pop.update_individual(pop_idv_index_dest, self,
@@ -235,20 +236,21 @@ class Population(object):
 
             # completing population
             indivs_to_be_completed = len(not_valid_indexes)
-            lg.logger_.info("[POPULATION] Number of Individuals to be completed: " + str(indivs_to_be_completed))
+            lg.logger_.info("Elitism finished, number of Individuals to be completed: " + str(indivs_to_be_completed))
             while individuals_created < indivs_to_be_completed:
                 indivs_left = indivs_to_be_completed - individuals_created
                 op = Population.choose_genetic_operation(indivs_left)
-                lg.logger_.debug("[POPULATION] Indivs left in subgen {0}: {1} "
-                                 "- Operation chosen: {2}".format(i + 1, indivs_left, op))
+                #lg.logger_.info("[POPULATION] Indivs left in subgen {0}: {1} "
+                #                 "- Operation chosen: {2}".format(i + 1, indivs_left, op))
 
                 if op == "replication":
                     pop_idv_index_orig = self._choose_individual(pop_subgen[i])
                     pop_idv_index_dest = not_valid_indexes[individuals_created]
 
                     indiv_index = self._individuals[pop_idv_index_orig]
-                    lg.logger_.debug("[POPULATION] Replication - Orig indiv {0} - Dest indiv {1}"
-                                     .format(indiv_index, pop_idv_index_dest + 1))
+                    lg.logger_.info("Individual {0}/{1}: Replication - Orig indiv {2} - Dest indiv {3}"
+                                     .format(individuals_created+1, len(not_valid_indexes),
+                                             indiv_index, pop_idv_index_dest + 1))
 
                     new_pop.update_individual(pop_idv_index_dest, self,
                                               pop_idv_index_orig, indiv_index,
@@ -264,8 +266,9 @@ class Population(object):
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
 
                         indiv_index = self._individuals[pop_idv_index_orig]
-                        lg.logger_.debug("[POPULATION] Mutation - Orig indiv {0} - Dest indiv {1}"
-                                         .format(indiv_index, pop_idv_index_dest + 1))
+                        lg.logger_.debug("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
+                                         .format(individuals_created+1, len(not_valid_indexes),
+                                                 indiv_index, pop_idv_index_dest + 1))
 
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
                         new_ind, fail = old_indiv.mutate()
@@ -296,9 +299,10 @@ class Population(object):
 
                         indiv_index = self._individuals[pop_idv_index_orig]
                         indiv_index2 = self._individuals[pop_idv_index_orig2]
-                        lg.logger_.debug("[POPULATION] Crossover (Pair 1) - Orig indiv {0} - Dest index {1} - "
-                                         "Crossover (Pair 2) - Orig indiv {2} - Dest index {3}"
-                                         .format(indiv_index, pop_idv_index_dest + 1,
+                        lg.logger_.info("Individual {0}/{1}: Crossover (Pair 1) - Orig indiv {2} - Dest index {3} - "
+                                         "Crossover (Pair 2) - Orig indiv {4} - Dest index {5}"
+                                         .format(individuals_created+1, len(not_valid_indexes),
+                                                 indiv_index, pop_idv_index_dest + 1,
                                                  indiv_index2, pop_idv_index_dest2 + 1))
 
                         # Get the two individuals involved and call the crossover function
@@ -421,7 +425,7 @@ class Population(object):
                 indivs_chosen.append(int(random_indiv))
 
             # Got the random indivs. Grab the one with the minor cost
-            cost = 1e36
+            cost = float('inf')
             indiv_chosen = None
             for index in indivs_chosen:
                 if self._costs[index] < cost:

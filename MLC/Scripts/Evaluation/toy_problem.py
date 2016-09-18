@@ -26,7 +26,13 @@ def individual_data(indiv):
     # y2 = y + np_noise * 500 * artificial_noise
 
     y2 = y
-    formal = indiv.get_formal().replace('S0', 'x')
+
+    if isinstance(indiv.get_formal(), str):
+        formal = indiv.get_formal().replace('S0', 'x')
+    else:
+        # toy problem support for multiple controls
+        formal = indiv.get_formal()[0].replace('S0', 'x')
+
     eng.workspace['x'] = eng.eval('-10:0.1:10')
     eng.workspace['formal'] = formal
 
@@ -68,7 +74,6 @@ def show_best(index, indiv, block=True):
     plt.plot(x, y4, '*r')
     plt.yscale('log')
     plt.show(block=block)
-
 
 def dummy_test():
     x = np.arange(-10, 10, 0.1)
