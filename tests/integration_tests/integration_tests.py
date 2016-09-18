@@ -7,17 +7,22 @@ from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
 
+import sys, os
+import yaml
+
 """
 This test run the application setting the seed to a fix number. The output of
 the pure MATLAB Application is stored in the file 'generations.txt'
 """
 
 
-class IntegrationTest1(unittest.TestCase):
+class MLCIntegrationTest(unittest.TestCase):
+    TEST_DIRECTORY = None
+    GENERATIONS = None
 
     @classmethod
     def _populate_indiv_dict(cls):
-        individuals_file = 'individuals.txt'
+        individuals_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, 'individuals.txt')
         # Parse the generations
         with open(individuals_file) as f:
             for line in f:
@@ -35,7 +40,7 @@ class IntegrationTest1(unittest.TestCase):
 
     @classmethod
     def _populate_pop_dict(cls):
-        populations_file = 'populations.txt'
+        populations_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, 'populations.txt')
         with open(populations_file) as f:
             # Each line has a different population
             for line in f:
@@ -64,7 +69,11 @@ class IntegrationTest1(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config_file = './configuration.ini'
+        # clear static values
+        Population.amount_population = 0
+        MLCTable._instance = None
+
+        config_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './configuration.ini')
         cls._eng = MatlabEngine.engine()
 
         # Load the config
@@ -72,54 +81,65 @@ class IntegrationTest1(unittest.TestCase):
         config.read(config_file)
 
         # Load randoms from file
-        random_file = '../matlab_randoms.txt'
+        random_file = 'matlab_randoms.txt'
+        MatlabEngine.clear_random_values()
         MatlabEngine.load_random_values(random_file)
 
-        cls._app = Application("file")
-        cls._app.go(7, 0)
+        cls._app = Application("testing")
+        cls._app.go(MLCIntegrationTest.GENERATIONS, 0)
 
         a = Population.get_current_pop_number()
         print "Number of populations: " + str(a)
 
         # List with individuals data
         cls._indivs = []
-        IntegrationTest1._populate_indiv_dict()
+        cls._populate_indiv_dict()
 
         cls._pops = []
-        IntegrationTest1._populate_pop_dict()
+        cls ._populate_pop_dict()
 
+    ## FIXME: Test methods should be cerated dynamically in the setUp method.
     def test_generation_1(self):
-        self._run_x_generation(1)
+        if MLCIntegrationTest.GENERATIONS >= 1:
+            self._run_x_generation(1)
 
     # @unittest.skip
     def test_generation_2(self):
-        self._run_x_generation(2)
+        if MLCIntegrationTest.GENERATIONS >= 2:
+            self._run_x_generation(2)
 
     # @unittest.skip
     def test_generation_3(self):
-        self._run_x_generation(3)
+        if MLCIntegrationTest.GENERATIONS >= 3:
+            self._run_x_generation(3)
 
     # @unittest.skip
     def test_generation_4(self):
-        self._run_x_generation(4)
+        if MLCIntegrationTest.GENERATIONS >= 4:
+            self._run_x_generation(4)
 
     # @unittest.skip
     def test_generation_5(self):
-        self._run_x_generation(5)
+        if MLCIntegrationTest.GENERATIONS >= 5:
+            self._run_x_generation(5)
 
     # @unittest.skip
     def test_generation_6(self):
-        self._run_x_generation(6)
+        if MLCIntegrationTest.GENERATIONS >= 6:
+            self._run_x_generation(6)
 
     # @unittest.skip
     def test_generation_7(self):
-        self._run_x_generation(7)
+        if MLCIntegrationTest.GENERATIONS >= 7:
+            self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
-        # Check indiv properties
-        self._check_indiv_values(gen_number)
+        print "Checking Generation %s" % gen_number
 
-        # Check population properties
+        print "Check Indvidual properties..."
+        #self._check_indiv_values(gen_number)
+
+        print "Check Indvidual properties..."
         pop = self._app.get_population(gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
@@ -127,43 +147,19 @@ class IntegrationTest1(unittest.TestCase):
         # self._check_cellarray_property(gen_number, 'parents', 'parents')
 
     def _check_indiv_values(self, gen_number):
-        indexes = self._app.get_population(gen_number).get_individuals()
         i = 1
-
+        indexes = self._app.get_population(gen_number).get_individuals()
+        print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
         for index in indexes:
+            print "Checking individual %s/%s" % (i, len(indexes))
             indiv = MLCTable.get_instance().get_individual(index)
+            print str(indiv)
 
             self.assertEqual(indiv.get_value(), self._indivs[int(index) - 1]['value'])
             self.assertEqual(indiv.get_complexity(), int(self._indivs[int(index) - 1]['complexity']))
-            self.assertEqual(indiv.get_formal(), self._indivs[int(index) - 1]['formal'])
+            self.assertEqual(" ".join(indiv.get_formal()), self._indivs[int(index) - 1]['formal'])
             print "Individual N# ", i, " OK!"
             i += 1
-
-    """
-    def _check_cellarray_property(self, gen_number, property, map_property):
-        property_string = ('wmlc.population(' +
-                           str(gen_number) +
-                           ').' + property)
-        values_obtained = self._eng.eval(property_string)
-
-        pop = self._pops[gen_number - 1]
-        for i in range(len(pop)):
-            obtained = []
-            if type(values_obtained[i]) is list:
-                obtained = values_obtained[i]
-            elif type(values_obtained[i]) is float:
-                obtained = [values_obtained[i]]
-
-            # else:
-            #     print type(values_obtained[i])
-            #     if len(values_obtained[i]) > 0:
-            #         obtained = [float(item)
-            #                     for item in values_obtained[i][0]]
-
-            print "Value obtained: " + str(obtained)
-            print "Value expected: " + str(pop[i][map_property])
-            self.assertEqual(obtained, pop[i][map_property])
-    """
 
     def _check_indiv_property(self, gen_number, values, map_property, type=None):
         # List of dictionaries with the values of every individual
@@ -185,14 +181,35 @@ class IntegrationTest1(unittest.TestCase):
             else:
                 self.assertEqual(values[i], pop[i][map_property])
 
+def get_test_class(test_dir, integration_test):
+    class IntegrationTest(MLCIntegrationTest):
+        MLCIntegrationTest.TEST_DIRECTORY = test_dir
+        MLCIntegrationTest.GENERATIONS = integration_test['generations']
 
-def suite():
-    a_suite = unittest.TestSuite()
-    a_suite.addTest(IntegrationTest1())
-    return a_suite
+    return IntegrationTest
 
+def execute_integration_test(test_name, integration_test):
+    print "Running '%s' with %s generations: %s" % (integration_test['name'],
+                                                    integration_test['generations'],
+                                                    integration_test['description'])
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
+    suite.addTests(loader.loadTestsFromTestCase(get_test_class(test_dir, integration_test)))
+    unittest.TextTestRunner().run(suite)
 
 if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    test_suite = suite()
-    runner.run(test_suite)
+    config = yaml.load(open('integration_tests.yaml', 'r'))
+    all_tests = config['integration_tests']
+    test_to_run = {}
+
+    if len(sys.argv) == 1:
+        test_to_run = all_tests
+    else:
+        for test_name in sys.argv[1:]:
+            if test_name in all_tests:
+                test_to_run[test_name] = all_tests[test_name]
+            else:
+                print "'%s'? there is no integration test with that name!" % test_name
+
+    for test_dir, integration_test in test_to_run.iteritems():
+        execute_integration_test(test_dir, integration_test)

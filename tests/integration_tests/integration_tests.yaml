@@ -1,0 +1,15 @@
+default:
+    # Run this integrations tests by default when integration_tests.py is executed without arguments.
+    - test_basic
+    - test_multiple_controls
+integration_tests:
+    # List of integration tests.
+    # Each test must have a directory with the configuration.ini, individuals.txt and generations.txt files.
+    test_basic:
+        name: "Basic Integration Test"
+        description: "Basic integration test (simplify=false, controls=0 configured in configuration.ini)"
+        generations: 7
+    test_multiple_controls:
+        name: "Integration Test Multiple Controls"
+        description: "Individuals values with multiple subexpressions (controls = 3 conigured in configuration.ini)"
+        generations: 3
