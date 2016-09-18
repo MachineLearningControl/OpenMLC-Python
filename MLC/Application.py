@@ -12,6 +12,26 @@ from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
 
+class Simulation:
+    def __init__(self):
+        self._generations = []
+
+    def get_generation(self, gen):
+        if gen > len(self._generations):
+            raise IndexError("Generation %s do not exist" % gen)
+        return self._generations[gen-1]
+
+    def generations(self):
+        return len(self._generations)
+
+    def get_last_generation(self):
+        if len(self._generations) == 0:
+            raise IndexError("Empty simulation")
+        return self._generations[self.generations()-1]
+
+    def new_generation(self, population):
+        self._generations.append(population)
+        return len(self._generations)
 
 class Application(object):
 
@@ -23,7 +43,7 @@ class Application(object):
 
         # Set logger mode of the App
         set_logger(log_mode)
-        self._pop_container = {}
+        self._simulation = Simulation()
 
     def go(self, ngen, fig):
         """
@@ -37,63 +57,47 @@ class Application(object):
                 of each generation evaluation
         """
         # Enables/Disable graph of the best individual of every iteration
-        show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         if ngen <= 0:
-            lg.logger_.error('The amounts of generations must be a '
-                             'positive decimal number. Value provided: '
-                             + ngen)
-            return
+            raise Exception("Amounts of generations must be a positive number, provided: %s" % ngen)
 
-        # The first generation it's a special case, since it must
-        # be generated from scratch
-        if Population.get_current_pop_number() == 0:
-            self.generate_population()
+        show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
+
+        # First generation must be generated from scratch
+        if self._simulation.generations() == 0:
+            first_population = Population(1)
+            first_population.create()
+            first_population.set_state("created")
+            self._simulation.new_generation(first_population)
+            lg.logger_.debug('First population created')
 
         # Keep on generating new population while the cut condition is not fulfilled
-        while Population.get_current_pop_number() < ngen:
-            current_pop = self._pop_container[Population.get_current_pop_number()]
-            state = current_pop.get_state()
-            if state == 'init':
-                if Population.get_current_pop_number() == 1:
-                    self.generate_population()
-                else:
-                    self.evolve_population()
-            elif state == 'created':
-                self.evaluate_population()
+        while self._simulation.generations() < ngen:
+            current_population = self._simulation.get_last_generation()
+            state = current_population.get_state()
+            if state == 'created':
+                self.evaluate_population(current_population)
+
             elif state == 'evaluated':
-                if (Population.get_current_pop_number() >= ngen or show_all_bests) and fig > 0:
+                if (self._simulation.generations() >= ngen or show_all_bests) and fig > 0:
                     self.show_best()
                 # if (fig > 1):
                 #    self.eng.show_convergence(self.mlc)
 
-                if Population.get_current_pop_number() < ngen:
-                    self.evolve_population()
+                if self._simulation.generations() < ngen:
+                    next_population = self.evolve_population(current_population)
+                    self._simulation.new_generation(next_population)
 
         # Evaluate the last population
-        self.evaluate_population()
-        self.show_best()
+        self.evaluate_population(self._simulation.get_last_generation())
+        self.show_best(self._simulation.get_last_generation())
+
+    def get_simulation(self):
+        return self._simulation
 
     def get_population(self, number):
         return self._pop_container[number]
 
-    def generate_population(self):
-        """
-        Initializes the population. (MLC2 Toolbox)
-        OBJ.GENERATE_POPULATION updates the OBJ MLC2 object with an initial
-        population
-        The function creates a MLCpop object defining the population and
-        launch its creation method according to the OBJ.PARAMETERS content.
-        The creation algorithm is implemented in the MLCpop class.
-        """
-        py_pop = Population()
-        self._pop_container[Population.get_current_pop_number()] = py_pop
-
-        # Create the first population
-        py_pop.create()
-        py_pop.set_state("created")
-        lg.logger_.debug('[APPLICATION] First population state' + py_pop.get_state())
-
-    def evaluate_population(self):
+    def evaluate_population(self, population):
         """
         Evolves the population. (MLC2 Toolbox)
         OBJ.EVALUATE_POPULATION launches the evaluation method,
@@ -101,8 +105,7 @@ class Application(object):
         The evaluation algorithm is implemented in the MLCpop class.
         """
         # First evaluation
-        current_pop = self._pop_container[Population.get_current_pop_number()]
-        current_pop.evaluate()
+        population.evaluate()
 
         # Remove bad individuals
         elim = False
@@ -110,30 +113,30 @@ class Application(object):
         if bad_values == 'all':
             elim = True
         elif bad_values == 'first':
-            if Population.get_current_pop_number() == 1:
+            if self._simulation.generations() == 1:
                 elim = True
 
         if elim:
-            ret = current_pop.remove_bad_individuals()
+            ret = population.remove_bad_individuals()
             while ret:
                 # There are bad individuals, recreate the population
-                current_pop.create()
-                current_pop.evaluate()
-                ret = current_pop.remove_bad_individuals()
+                population.create()
+                population.evaluate()
+                ret = population.remove_bad_individuals()
 
-        current_pop.sort()
+        population.sort()
 
         # Enforce reevaluation
         if self._config.getboolean('EVALUATOR', 'ev_again_best'):
             ev_again_times = self._config.getint('EVALUATOR', 'ev_again_times')
             for i in range(1, ev_again_times):
                 ev_again_nb = self._config.getint('EVALUATOR', 'ev_again_nb')
-                current_pop.evaluate()
-                current_pop.sort()
+                population.evaluate()
+                population.sort()
 
-        current_pop.set_state('evaluated')
+        population.set_state('evaluated')
 
-    def evolve_population(self):
+    def evolve_population(self, population):
         """
         Evolves the population. (MLC2 Toolbox)
         OBJ.EVOLVE_POPULATION updates the OBJ MLC2 object with a new MLCpop
@@ -142,25 +145,22 @@ class Application(object):
         The evolution algorithm is implemented in the MLCpop class.
         """
 
-        # Evolve the current population and add it to the MLC MATLAB object
-        current_pop = self._pop_container[Population.get_current_pop_number()]
-        next_pop = current_pop.evolve()
+        # Evolve population and add it to the MLC MATLAB object
+        next_pop = population.evolve()
 
         # Remove duplicates
-        look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
-
-        if look_for_dup:
+        if self._config.getboolean('OPTIMIZATION', 'lookforduplicates'):
             # Remove the duplicates in the last evolve
             while next_pop.remove_duplicates() > 0:
-                next_pop = current_pop.evolve(next_pop)
+                next_pop = population.evolve(next_pop)
 
         next_pop.set_state("created")
-        self._pop_container[Population.get_current_pop_number()] = next_pop
+        return next_pop
 
-    def show_best(self):
+    def show_best(self, population):
         # Get the best
-        best_index = self._pop_container[Population.get_current_pop_number()].get_best_index()
-        best_indiv = self._pop_container[Population.get_current_pop_number()].get_best_individual()
+        best_index = population.get_best_index()
+        best_indiv = population.get_best_individual()
         lg.logger_.info("[APPLICATION] Proceed to show the best individual found.")
         lg.logger_.debug("[APPLICATION] Individual N#{0} - Cost: {1}".format(best_index, best_indiv.get_cost()))
 

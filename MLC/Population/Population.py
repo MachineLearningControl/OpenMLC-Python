@@ -12,14 +12,12 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 
 class Population(object):
-    amount_population = 0
     GEN_METHOD_REPLICATION = 1
     GEN_METHOD_MUTATION = 2
     GEN_METHOD_CROSSOVER = 3
     GEN_METHOD_ELITISM = 4
 
-    def __init__(self):
-        Population.inc_pop_number()
+    def __init__(self, gen):
         # Set global parameters as variables for easier use in the class
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
@@ -27,7 +25,7 @@ class Population(object):
         cascade = self._config.get_list('OPTIMIZATION', 'cascade')
         size = self._config.get_list('POPULATION', 'size')
 
-        self._gen = Population.get_current_pop_number()
+        self._gen = gen
         self._size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
         self._state = 'init'
         self._subgen = 1 if cascade[1] == 0 else cascade[1]
@@ -63,14 +61,13 @@ class Population(object):
                 evaluation are repeated (for experiments or
                 numerics with random noise).
         """
-        gen = Population.get_current_pop_number()
-        lg.logger_.info('Evaluation of generation %s' % gen)
+        lg.logger_.info('Evaluation of generation %s' % self._gen)
 
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
         lg.logger_.info('Evaluation method: ' + ev_method)
 
         evaluator = EvaluatorFactory.make(ev_method)
-        jj = evaluator.evaluate(self._individuals, gen)
+        jj = evaluator.evaluate(self._individuals, self._gen)
 
         # Update table individuals and MATLAB Population indexes and costs
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
@@ -165,21 +162,12 @@ class Population(object):
     def get_best_individual(self):
         return MLCTable.get_instance().get_individual(self.get_best_index())
 
-    @staticmethod
-    def inc_pop_number():
-        Population.amount_population += 1
-
-    @staticmethod
-    def get_current_pop_number():
-        return Population.amount_population
-
     def evolve(self, mlcpop2=None):
-        ngen = Population.get_current_pop_number()
         mlctable = MLCTable.get_instance()
 
         new_pop = mlcpop2
         if new_pop is None:
-            new_pop = Population()
+            new_pop = Population(self._gen+1)
 
         lg.logger_.info('Evolving population N#' + str(self._gen))
 

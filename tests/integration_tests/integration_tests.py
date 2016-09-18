@@ -88,7 +88,7 @@ class MLCIntegrationTest(unittest.TestCase):
         cls._app = Application("testing")
         cls._app.go(MLCIntegrationTest.GENERATIONS, 0)
 
-        a = Population.get_current_pop_number()
+        a = cls._app.get_simulation().generations()
         print "Number of populations: " + str(a)
 
         # List with individuals data
@@ -140,7 +140,7 @@ class MLCIntegrationTest(unittest.TestCase):
         self._check_indiv_values(gen_number)
 
         print "Check Indvidual properties..."
-        pop = self._app.get_population(gen_number)
+        pop = self._app.get_simulation().get_generation(gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
         self._check_indiv_property(gen_number, pop.get_gen_methods(), 'gen_method', 'int')
@@ -148,7 +148,7 @@ class MLCIntegrationTest(unittest.TestCase):
 
     def _check_indiv_values(self, gen_number):
         i = 1
-        indexes = self._app.get_population(gen_number).get_individuals()
+        indexes = self._app.get_simulation().get_generation(gen_number).get_individuals()
         print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
         for index in indexes:
             indiv = MLCTable.get_instance().get_individual(index)
