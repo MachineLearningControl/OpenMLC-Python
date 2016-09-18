@@ -11,5 +11,5 @@ integration_tests:
         generations: 7
     test_multiple_controls:
         name: "Integration Test Multiple Controls"
-        description: "Individuals values with multiple subexpressions (controls = 3 conigured in configuration.ini)"
+        description: "Individuals values with multiple subexpressions (controls = 3 configured in configuration.ini)"
         generations: 3

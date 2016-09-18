@@ -137,7 +137,7 @@ class MLCIntegrationTest(unittest.TestCase):
         print "Checking Generation %s" % gen_number
 
         print "Check Indvidual properties..."
-        #self._check_indiv_values(gen_number)
+        self._check_indiv_values(gen_number)
 
         print "Check Indvidual properties..."
         pop = self._app.get_population(gen_number)
@@ -151,13 +151,16 @@ class MLCIntegrationTest(unittest.TestCase):
         indexes = self._app.get_population(gen_number).get_individuals()
         print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
         for index in indexes:
-            print "Checking individual %s/%s" % (i, len(indexes))
             indiv = MLCTable.get_instance().get_individual(index)
-            print str(indiv)
 
             self.assertEqual(indiv.get_value(), self._indivs[int(index) - 1]['value'])
             self.assertEqual(indiv.get_complexity(), int(self._indivs[int(index) - 1]['complexity']))
-            self.assertEqual(" ".join(indiv.get_formal()), self._indivs[int(index) - 1]['formal'])
+
+            if isinstance(indiv.get_formal(), str):
+                self.assertEqual(indiv.get_formal(), self._indivs[int(index) - 1]['formal'])
+            else:
+                self.assertEqual(" ".join(indiv.get_formal()), self._indivs[int(index) - 1]['formal'])
+
             print "Individual N# ", i, " OK!"
             i += 1
 
