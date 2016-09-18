@@ -35,7 +35,7 @@ class Simulation:
 
 class Application(object):
 
-    def __init__(self, log_mode='console'):
+    def __init__(self, simulation, log_mode='console'):
         self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
         self._set_ev_callbacks()
@@ -43,7 +43,7 @@ class Application(object):
 
         # Set logger mode of the App
         set_logger(log_mode)
-        self._simulation = Simulation()
+        self._simulation = simulation
 
     def go(self, ngen, fig):
         """

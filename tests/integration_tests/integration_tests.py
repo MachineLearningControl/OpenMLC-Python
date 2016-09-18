@@ -6,7 +6,7 @@ from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
-
+from MLC.Application import Simulation
 import sys, os
 import yaml
 
@@ -69,10 +69,6 @@ class MLCIntegrationTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # clear static values
-        Population.amount_population = 0
-        MLCTable._instance = None
-
         config_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './configuration.ini')
         cls._eng = MatlabEngine.engine()
 
@@ -85,8 +81,12 @@ class MLCIntegrationTest(unittest.TestCase):
         MatlabEngine.clear_random_values()
         MatlabEngine.load_random_values(random_file)
 
-        cls._app = Application("testing")
-        cls._app.go(MLCIntegrationTest.GENERATIONS, 0)
+        for g in MLCIntegrationTest.GENERATIONS:
+            # clear static values
+            MLCTable._instance = None
+            simulation = Simulation()
+            cls._app = Application(simulation, "testing")
+            cls._app.go(g, 0)
 
         a = cls._app.get_simulation().generations()
         print "Number of populations: " + str(a)
@@ -100,37 +100,37 @@ class MLCIntegrationTest(unittest.TestCase):
 
     ## FIXME: Test methods should be cerated dynamically in the setUp method.
     def test_generation_1(self):
-        if MLCIntegrationTest.GENERATIONS >= 1:
+        if max(MLCIntegrationTest.GENERATIONS) >= 1:
             self._run_x_generation(1)
 
     # @unittest.skip
     def test_generation_2(self):
-        if MLCIntegrationTest.GENERATIONS >= 2:
+        if max(MLCIntegrationTest.GENERATIONS) >= 2:
             self._run_x_generation(2)
 
     # @unittest.skip
     def test_generation_3(self):
-        if MLCIntegrationTest.GENERATIONS >= 3:
+        if max(MLCIntegrationTest.GENERATIONS) >= 3:
             self._run_x_generation(3)
 
     # @unittest.skip
     def test_generation_4(self):
-        if MLCIntegrationTest.GENERATIONS >= 4:
+        if max(MLCIntegrationTest.GENERATIONS) >= 4:
             self._run_x_generation(4)
 
     # @unittest.skip
     def test_generation_5(self):
-        if MLCIntegrationTest.GENERATIONS >= 5:
+        if max(MLCIntegrationTest.GENERATIONS) >= 5:
             self._run_x_generation(5)
 
     # @unittest.skip
     def test_generation_6(self):
-        if MLCIntegrationTest.GENERATIONS >= 6:
+        if max(MLCIntegrationTest.GENERATIONS) >= 6:
             self._run_x_generation(6)
 
     # @unittest.skip
     def test_generation_7(self):
-        if MLCIntegrationTest.GENERATIONS >= 7:
+        if max(MLCIntegrationTest.GENERATIONS) >= 7:
             self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
@@ -168,8 +168,9 @@ class MLCIntegrationTest(unittest.TestCase):
         # List of dictionaries with the values of every individual
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-            print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
-            print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
+            if str(values[i]) != str(pop[i][map_property]):
+                print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
+                print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
 
             if type == 'int':
                 self.assertEqual(int(values[i]),
@@ -185,9 +186,13 @@ class MLCIntegrationTest(unittest.TestCase):
                 self.assertEqual(values[i], pop[i][map_property])
 
 def get_test_class(test_dir, integration_test):
+    generations = integration_test['generations']
+    if isinstance(generations, int):
+        generations = [generations]
+
     class IntegrationTest(MLCIntegrationTest):
         MLCIntegrationTest.TEST_DIRECTORY = test_dir
-        MLCIntegrationTest.GENERATIONS = integration_test['generations']
+        MLCIntegrationTest.GENERATIONS = generations
 
     return IntegrationTest
 
@@ -206,7 +211,8 @@ if __name__ == '__main__':
     test_to_run = {}
 
     if len(sys.argv) == 1:
-        test_to_run = all_tests
+        for test_name in config['default']:
+            test_to_run[test_name] = all_tests[test_name]
     else:
         for test_name in sys.argv[1:]:
             if test_name in all_tests:
