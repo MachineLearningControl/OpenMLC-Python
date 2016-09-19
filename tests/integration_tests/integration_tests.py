@@ -81,10 +81,11 @@ class MLCIntegrationTest(unittest.TestCase):
         MatlabEngine.clear_random_values()
         MatlabEngine.load_random_values(random_file)
 
+        simulation = Simulation()
+
         for g in MLCIntegrationTest.GENERATIONS:
             # clear static values
             MLCTable._instance = None
-            simulation = Simulation()
             cls._app = Application(simulation, "testing")
             cls._app.go(g, 0)
 

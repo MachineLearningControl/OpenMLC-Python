@@ -4,7 +4,7 @@ import sys
 from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
-
+from MLC.db.mlc_repository import MLCRepository
 
 class MLCTable:
     """
@@ -13,43 +13,14 @@ class MLCTable:
 
     _instance = None
 
-    def __init__(self):
-        self._individuals = {}
-        # Key: Hash - Value: Individual index
-        self._hashlist = {}
-        self._costlist = {}
-        self._last_indiv = 1
-
     def get_individual(self, individual_id):
-        try:
-            return self._individuals[individual_id]
-        except KeyError:
-            lg.logger_.error("[MLC_TABLE] get_individual - Individual does not exists. Indiv N#:" + str(individual_id))
-            raise
+        return MLCRepository.get_instance().get_individual(individual_id)
 
     def update_individual(self, individual_id, cost, ev_time=None):
-        try:
-            indiv = self._individuals[individual_id]
-            indiv.set_cost(cost)
-            self._costlist[individual_id] = cost
-        except KeyError:
-            lg.logger_.error("[MLC_TABLE] update_individual - Individual does not exists. Indiv N#:" + str(individual_id))
-            raise
+        return MLCRepository.get_instance().update_individual(individual_id, cost, ev_time)
 
     def add_individual(self, individual):
-        # Check if the individual already exists comparing the hash value
-        if individual.get_hash() in self._hashlist:
-            indiv_index = self._hashlist[individual.get_hash()]
-            return indiv_index, True
-
-        self._individuals[self._last_indiv] = individual
-        self._hashlist[individual.get_hash()] = self._last_indiv
-        self._costlist[self._last_indiv] = individual.get_cost()
-
-        current_indiv = self._last_indiv
-        self._last_indiv += 1
-
-        return current_indiv, False
+        return MLCRepository.get_instance().add_individual(individual)
 
     @staticmethod
     def get_instance():
