@@ -92,24 +92,11 @@ class MLCIntegrationTest(unittest.TestCase):
         simulation = Simulation()
 
         for g in MLCIntegrationTest.GENERATIONS:
-
-            try:
-                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
-            except KeyError:
-                print "MLCTable vacia"
             # clear static values
             MLCTable._instance = None
             MLCRepository._instance = None
-            try:
-                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
-            except KeyError:
-                print "MLCTable vacia"
             cls._app = Application(simulation, "testing")
             cls._app.go(g, 0)
-            try:
-                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
-            except KeyError:
-                print "MLCTable vacia"
 
         a = cls._app.get_simulation().generations()
         print "Number of populations: " + str(a)

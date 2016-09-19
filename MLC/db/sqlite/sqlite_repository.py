@@ -1,10 +1,11 @@
-from MLC.db.mlc_repository import MLCRepository
-from MLC.db.mlc_repository import MemoryMLCRepository
+from MLC.db.mlc_repository import MLCRepository, MemoryMLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.individual.Individual import Individual
+from sql_statements import *
 
 import sqlite3
 import os
+
 
 class SQLiteRepository(MLCRepository):
     def __init__(self):
@@ -29,26 +30,20 @@ class SQLiteRepository(MLCRepository):
 
     def update_individual(self, individual_id, cost, ev_time=None):
         self._memory_repo.update_individual(individual_id, cost, ev_time)
-        if ev_time:
-            self.__execute( '''UPDATE individuals SET cost = %s, evaluation_time = %s, WHERE indiv_id = %s''' %
-                            (cost, ev_time, individual_id))
-        else:
-            self.__execute('''UPDATE individuals SET cost = %s WHERE indiv_id = %s''' %
-                            (cost, individual_id))
+        self.__execute(stmt_update_individual_cost(individual_id, cost, ev_time))
 
     def add_individual(self, individual):
         individual_id, exist = self._memory_repo.add_individual(individual)
 
         if exist:
-            self.__execute('''UPDATE individuals SET value = '%s', cost = %s, evaluation_time = %s, appearences = %s WHERE indiv_id = %s''' %
-                            (individual.get_value(), individual.get_cost(), individual.get_evaluation_time(), individual.get_appearences(), individual_id))
+            self.__execute(stmt_update_individual(individual_id, individual))
         else:
-            self.__execute('''INSERT INTO individuals VALUES (%s, '%s', %s, %s, %s)''' %
-                            (individual_id, individual.get_value(), individual.get_cost(), individual.get_evaluation_time(), individual.get_appearences()))
+            self.__execute(stmt_insert_individual(individual_id, individual))
+
         return individual_id, exist
 
     def __initialize_db(self):
-        self.__execute('''CREATE TABLE individuals(indiv_id INTEGER PRIMARY KEY, value text, cost real, evaluation_time real, appearences INTEGER)''')
+        self.__execute(stmt_create_table_individuals())
         self.commit_changes()
 
     def __get_db_connection(self):
@@ -59,7 +54,7 @@ class SQLiteRepository(MLCRepository):
 
     def __load_individuals(self):
         conn = self.__get_db_connection()
-        cursor = conn.execute("SELECT indiv_id, value, cost, evaluation_time, appearences from individuals ORDER BY indiv_id")
+        cursor = conn.execute(stmt_get_all_individuals())
         for row in cursor:
             new_individual = Individual()
             new_individual.generate(str(row[1]))
