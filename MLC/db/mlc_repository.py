@@ -12,12 +12,16 @@ class MLCRepository:
     def add_individual(self, individual):
         raise NotImplementedError("MLCRepository::add_individual not implemented")
 
+    def commit_changes(self):
+        pass
+
     @staticmethod
     def get_instance():
         # FIXME: use factories instead of this
         if MLCRepository._instance is None:
             if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-                raise Exception("SQLITE not implemented yet!!!")
+                from MLC.db.sqlite.sqlite_repository import SQLiteRepository
+                MLCRepository._instance = SQLiteRepository()
             else:
                 MLCRepository._instance = MemoryMLCRepository()
 

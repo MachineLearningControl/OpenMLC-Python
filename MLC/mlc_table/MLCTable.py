@@ -22,6 +22,9 @@ class MLCTable:
     def add_individual(self, individual):
         return MLCRepository.get_instance().add_individual(individual)
 
+    def commit_changes(self):
+        return MLCRepository.get_instance().commit_changes()
+
     @staticmethod
     def get_instance():
         if MLCTable._instance is None:

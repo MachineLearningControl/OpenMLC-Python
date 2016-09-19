@@ -6,6 +6,7 @@ from MLC.Application import Application
 from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
+from MLC.db.mlc_repository import MLCRepository
 from MLC.Application import Simulation
 import sys, os
 import yaml
@@ -81,13 +82,34 @@ class MLCIntegrationTest(unittest.TestCase):
         MatlabEngine.clear_random_values()
         MatlabEngine.load_random_values(random_file)
 
+        # clear state
+        if Config.get_instance().getboolean("BEHAVIOUR", "save"):
+            try:
+                os.remove(Config.get_instance().get("BEHAVIOUR", "savedir"))
+            except OSError:
+                pass
+
         simulation = Simulation()
 
         for g in MLCIntegrationTest.GENERATIONS:
+
+            try:
+                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
+            except KeyError:
+                print "MLCTable vacia"
             # clear static values
             MLCTable._instance = None
+            MLCRepository._instance = None
+            try:
+                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
+            except KeyError:
+                print "MLCTable vacia"
             cls._app = Application(simulation, "testing")
             cls._app.go(g, 0)
+            try:
+                print "Running MLC Application, MLCTable has %s elements" % MLCTable.get_instance().get_individual(1).get_value()
+            except KeyError:
+                print "MLCTable vacia"
 
         a = cls._app.get_simulation().generations()
         print "Number of populations: " + str(a)

@@ -87,9 +87,12 @@ class Application(object):
                     next_population = self.evolve_population(current_population)
                     self._simulation.new_generation(next_population)
 
+                MLCTable.get_instance().commit_changes()
+
         # Evaluate the last population
         self.evaluate_population(self._simulation.get_last_generation())
         self.show_best(self._simulation.get_last_generation())
+        MLCTable.get_instance().commit_changes()
 
     def get_simulation(self):
         return self._simulation

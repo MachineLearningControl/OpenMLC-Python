@@ -433,7 +433,6 @@ class Individual(object):
             k = 0
 
             for nc in MatlabEngine.randperm(controls):
-                print nc
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
                 if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
