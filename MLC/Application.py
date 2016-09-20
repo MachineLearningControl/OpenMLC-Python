@@ -11,6 +11,7 @@ from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
+from MLC.Scripts.Preevaluation.simulink_preev import simulink_preev
 
 
 class Application(object):
@@ -177,3 +178,4 @@ class Application(object):
         # Set the callbacks to be called at the moment of the preevaluation
         # FIXME: To this dynamically searching .pys in the directory
         PreevaluationManager.set_callback('default', default)
+        PreevaluationManager.set_callback('simulink_preev', simulink_preev)

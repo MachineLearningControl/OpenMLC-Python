@@ -67,7 +67,7 @@ def cost(indiv):
     cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
     lg.logger_.debug("MATLAB Y3 Cost: {0}".format(cost_np_y3))
     lg.logger_.debug("MLC Y3 Cost: {0}".format(cost_mlc_y3))
-    return cost_mlc_y3
+    return cost_np_y3
 
 
 def show_best(index, indiv, block=True):

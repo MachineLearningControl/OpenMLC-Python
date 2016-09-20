@@ -21,35 +21,30 @@ def simulink_preev(indiv):
     amount_periods /= signal_frequency
     signal_amplitude = config.getfloat('PROBLEM_VARIABLES', 'signal_amplitude')
 
-    # Generate the formal individual
-    eng.workspace['formal'] = indiv.get_formal().replace('S0', 'signal_to_cancel')
-
     # Generate the input signal to be evaluated
-    x = np.arange(0, amount_periods, resolution).to_list()
-    pulsation = 2 * pi * signal_frequency
-    signal_to_cancel = offset + signal_amplitude * np.sin(pulsation * x)
+    x = np.arange(0, amount_periods, resolution)
+    pulsation = 2 * np.pi * signal_frequency
+    signal_to_cancel = signal_offset + signal_amplitude * np.sin(pulsation * x)
 
-    # Pass the variables to MATLAB
-    eng.workspace['signal_to_cancel'] = signal_to_cancel.to_list()
-    eng.workspace['control'] = eng.eval('signal_to_cancel * 0')
+    # Evaluate the individual formal
+    indiv_evaluated = indiv.get_tree().calculate_expression([signal_to_cancel])
+    if type(indiv_evaluated) != np.ndarray:
+        indiv_evaluated = np.repeat(indiv_evaluated, len(x))
 
-    # Evaluate the individual
-    eng.eval('control = control + ')
+    # The condition to discard or not the individual will be the number of
+    # elements of certain range (0 / 3.3)
+    cut_condition = 0.9 * len(indiv_evaluated)
+    zero_condition = np.sum(indiv_evaluated < 0.0)
+    if zero_condition > cut_condition:
+        lg.logger_.debug("[SIMULINK_PREEV] Individual didn't pass "
+                 "greater than zero condition. LT Zero: {0}  - Max Expected: {1}. Indiv: {2}"
+                 .format(zero_condition, cut_condition, indiv.get_value()))
 
+    offset_condition = np.sum(indiv_evaluated > signal_offset)
+    if offset_condition > cut_condition:
+        lg.logger_.debug("[SIMULINK_PREEV] Individual didn't pass "
+                 "less than offset condition. GT Offset: {0}  - Max Expected: {1}. Indiv: {2}"
+                 .format(offset_condition, cut_condition, indiv.get_value()))
+        return False
 
-    T = [0:dT:Tev]
-    signal_to_cancel = offset + A * sin(2 * pi * f * T)
-    control = signal_to_cancel * 0
-    idv_formal = strrep(idv_formal, 'S0', 'signal_to_cancel')
-    eval(sprintf('control=control+%s;', idv_formal))
-
-    n = length(T)
-    if length(find(control <= 0)) > 0.9 * n
-        fprintf('REJECT!\n')
-        pre_ev_is_a_success = 0
-    end
-
-    if length(find(control > 3.3)) > 0.9 * n
-        fprintf('REJECT!\n')
-        pre_ev_is_a_success = 0
-    end
+    return True
