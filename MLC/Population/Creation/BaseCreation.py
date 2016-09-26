@@ -32,21 +32,21 @@ class BaseCreation(object):
 
             if not response[1]:
                 # The individual didn't exist
-                indiv_number = individuals[response[0] - 1]
+                indiv_number = individuals[index - 1]
 
                 lg.logger_.info('[FILL_CREATION] Generating individual N#' + str(indiv_number))
                 lg.logger_.debug('[FILL_CREATION] Individual N#' + str(indiv_number) +
                                  ' - Value: ' + indiv.get_value())
 
                 # Call the preevaluation function
-                callback = PreevaluationManager.get_callback()
+                callback = PreevaluationManager.get_callback().preev
                 if callback is not None:
                     if not callback(indiv):
                         lg.logger_.info('[FILL_CREATION] Preevaluation failed'
                                         '. Individual value: ' + indiv.get_value())
                         continue
 
-                self._individuals.append((index, response[0]))
+                self._individuals.append((index, indiv_number))
                 index += 1
             else:
                 lg.logger_.debug('[FILL_CREATION] Replica created.')

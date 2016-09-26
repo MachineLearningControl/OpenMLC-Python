@@ -13,6 +13,7 @@ def initialize_config():
 
 def main():
     np.set_printoptions(precision=9)
+    np.set_printoptions(threshold=np.inf)
     eng = MatlabEngine.engine()
     config = initialize_config()
     MatlabEngine.load_random_values("./tests/integration_tests/matlab_randoms.txt")

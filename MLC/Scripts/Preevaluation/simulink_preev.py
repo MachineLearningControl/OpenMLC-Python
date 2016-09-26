@@ -6,7 +6,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.matlab_engine import MatlabEngine
 
 
-def simulink_preev(indiv):
+def preev(indiv):
     eng = MatlabEngine.engine()
     config = Config.get_instance()
 

@@ -10,8 +10,9 @@ from MLC.Population.Population import Population
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
-from MLC.Scripts.Preevaluation.default import default
-from MLC.Scripts.Preevaluation.simulink_preev import simulink_preev
+from MLC.Scripts.Evaluation import simulink_ev
+from MLC.Scripts.Preevaluation import default
+from MLC.Scripts.Preevaluation import simulink_preev
 
 
 class Application(object):
@@ -92,7 +93,7 @@ class Application(object):
         # Create the first population
         py_pop.create()
         py_pop.set_state("created")
-        lg.logger_.debug('[APPLICATION] First population state' + py_pop.get_state())
+        lg.logger_.debug('[APPLICATION] First population state: ' + py_pop.get_state())
 
     def evaluate_population(self):
         """
@@ -172,7 +173,8 @@ class Application(object):
         # Set the callbacks to be called at the moment of the evaluation
         # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
-        EvaluatorFactory.set_ev_callback('arduino', arduino.cost)
+        EvaluatorFactory.set_ev_callback('arduino', arduino)
+        EvaluatorFactory.set_ev_callback('simulink_ev', simulink_ev)
 
     def _set_preev_callbacks(self):
         # Set the callbacks to be called at the moment of the preevaluation
