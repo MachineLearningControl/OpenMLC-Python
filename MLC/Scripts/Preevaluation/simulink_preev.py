@@ -34,17 +34,21 @@ def preev(indiv):
     # The condition to discard or not the individual will be the number of
     # elements of certain range (0 / 3.3)
     cut_condition = 0.9 * len(indiv_evaluated)
-    zero_condition = np.sum(indiv_evaluated < 0.0)
+    zero_condition = np.sum(indiv_evaluated <= 0.0)
     if zero_condition > cut_condition:
         lg.logger_.debug("[SIMULINK_PREEV] Individual didn't pass "
                  "greater than zero condition. LT Zero: {0}  - Max Expected: {1}. Indiv: {2}"
-                 .format(zero_condition, cut_condition, indiv.get_value()))
+                 .format(zero_condition, cut_condition, indiv.get_formal()))
+        return False
 
-    offset_condition = np.sum(indiv_evaluated > signal_offset)
+    max_value = signal_offset * 2
+    offset_condition = np.sum(indiv_evaluated > max_value)
     if offset_condition > cut_condition:
         lg.logger_.debug("[SIMULINK_PREEV] Individual didn't pass "
-                 "less than offset condition. GT Offset: {0}  - Max Expected: {1}. Indiv: {2}"
-                 .format(offset_condition, cut_condition, indiv.get_value()))
+                 "less than max_value condition. GT Offset: {0}  - Max Expected: {1}. Indiv: {2}"
+                 .format(offset_condition, cut_condition, indiv.get_formal()))
         return False
+
+    lg.logger_.debug("[SIMULINK_PREEV] Individual passed: {0}".format(indiv.get_formal()))
 
     return True

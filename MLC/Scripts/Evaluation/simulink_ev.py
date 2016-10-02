@@ -70,7 +70,7 @@ def cost(indiv):
     eng.set_param(model_name, 'FixedStep', str(prob_var['resolution']), nargout=0)
     eng.set_param(model_name + '/Signal_to_cancel', 'SampleTime', str(prob_var['resolution']), nargout=0)
     eng.set_param(model_name + '/Signal_to_cancel', 'Bias', str(prob_var['signal_offset']), nargout=0)
-    eng.set_param(model_name + '/Signal_to_cancel', 'frequency', str(prob_var['signal_frequency']), nargout=0)
+    eng.set_param(model_name + '/Signal_to_cancel', 'frequency', str(2 * np.pi * prob_var['signal_frequency']), nargout=0)
     eng.set_param(model_name + '/Ampli-op_sum/Gain', 'Gain', str(prob_var['summator_gain']), nargout=0)
 
     sensor_select = None
@@ -83,11 +83,14 @@ def cost(indiv):
 
     # Run Simulink
     eng.sim(model_name)
+
     # This variable has the time when the measure of the others values was taken
-    clock = np.array([s for s in eng.eval('data(:,1)')])
-    signal_to_cancel = np.array([s for s in eng.eval('data(:,2)')])
-    sensor = np.array([s for s in eng.eval('data(:,3)')])
-    control = np.array([s for s in eng.eval('data(:,4)')])
+    # The [;,0] notation retrieves a column of a matrix. The np.array returns a (x,1) shape matrix.
+    # We are converting that matrix to an array with the [:,0] notation
+    clock = np.array([s for s in eng.eval('data(:,1)')])[:, 0]
+    signal_to_cancel = np.array([s for s in eng.eval('data(:,2)')])[:, 0]
+    sensor = np.array([s for s in eng.eval('data(:,3)')])[:, 0]
+    control = np.array([s for s in eng.eval('data(:,4)')])[:, 0]
     j0 = None
 
     # To deal with Simulink clean crashes (???)
@@ -103,23 +106,17 @@ def cost(indiv):
 
         dj_control = prob_var['gamma'] * control**2
         # Cumtrapz differs with MATLAB in the way the arguments are delivered to the function
-        # MATLAB: cumtrapz(Y, X)
-        # Scipy: cumtrapz(X, Y)
-        j_nat = 1 / clock[-1] * integrate.cumtrapz(dj_nat.transpose(), clock.transpose())
-        # print type(clock)
-        print clock.transpose()
-        # print type(dj_nat)
-        print dj_nat.transpose()
-        print j_nat
-
-        # print np.trapz(clock.transpose(), dj_nat.transpose())
-        sys.exit(-1)
+        # MATLAB: cumtrapz(x, y)
+        # Scipy: np.trapz(y, x)
+        j_nat = 1 / clock[-1] * integrate.cumtrapz(dj_nat, clock)
 
         # Use Jnat to normalize the vectors
-        j_sensor = 1 / clock[-1] * integrate.cumtrapz(clock, dj_sensor) / j_nat[-1]
-        j_control = 1 / clock[-1] * integrate.cumtrapz(clock, dj_control) / j_nat[-1]
-        j = j_sensor + j_control
-        j0 = j[-1]
+        j_sensor = 1 / clock[-1] * integrate.cumtrapz(dj_sensor, clock) / j_nat[-1]
+        j_control = 1 / clock[-1] * integrate.cumtrapz(dj_control, clock) / j_nat[-1]
+        j0 = j_sensor[-1] + j_control[-1]
+
+        lg.logger_.debug("Jnat: {0} - Jsensor: {1} - Jcontrol: {2} - J0: {3}"
+                         .format(j_nat[-1], j_sensor[-1], j_control[-1], j0))
 
         # Evaluate the result of the j calculated
         zero_condition = np.sum(j_control < 0.0)
