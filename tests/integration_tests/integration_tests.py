@@ -89,12 +89,11 @@ class MLCIntegrationTest(unittest.TestCase):
             except OSError:
                 pass
 
-        simulation = Simulation()
-
         for g in MLCIntegrationTest.GENERATIONS:
             # clear static values
             MLCTable._instance = None
             MLCRepository._instance = None
+            simulation = Simulation()
             cls._app = Application(simulation, "testing")
             cls._app.go(g, 0)
 

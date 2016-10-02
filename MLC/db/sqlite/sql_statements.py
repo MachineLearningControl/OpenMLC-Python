@@ -7,6 +7,33 @@ def stmt_create_table_individuals():
                              appearences INTEGER)'''
 
 
+def stmt_create_table_population():
+    return '''
+    CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                             gen INTEGER,
+                             cost real,
+                             gen_method INTEGER,
+                             indiv_id INTEGER,
+                             FOREIGN KEY(indiv_id) REFERENCES individuals(indiv_id))'''
+
+
+def stmt_get_generations():
+    return '''select distinct gen from population'''
+
+
+def stmt_insert_individual_in_population(generation, indiv_id,  cost, gen_method):
+    return '''INSERT INTO population (gen, cost, gen_method, indiv_id)
+              VALUES (%s, '%s', %s, %s)''' % (generation,
+                                              cost,
+                                              gen_method,
+                                              indiv_id)
+
+def stmt_get_individuals_from_population(generation):
+    return '''SELECT indiv_id, cost, gen_method, ID
+              FROM population
+              WHERE gen = %s
+              ORDER BY ID''' % generation
+
 def stmt_insert_individual(individual_id, individual):
     return '''INSERT INTO individuals VALUES (%s, '%s', %s, %s, %s)''' % (individual_id,
                                                                           individual.get_value(),

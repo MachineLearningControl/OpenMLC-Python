@@ -3,6 +3,12 @@ from MLC.mlc_parameters.mlc_parameters import Config
 class MLCRepository:
     _instance = None
 
+    def add_population(self, population):
+        raise NotImplementedError("MLCRepository::add_population not implemented")
+
+    def get_populations(self):
+        raise NotImplementedError("MLCRepository::get_populations not implemented")
+
     def get_individual(self, individual_id):
         raise NotImplementedError("MLCRepository::get_individual not implemented")
 
@@ -34,6 +40,13 @@ class MemoryMLCRepository(MLCRepository):
         self._hashlist = {}
         self._costlist = {}
         self._last_indiv = 1
+        self._populations = {}
+
+    def add_population(self, population):
+        pass
+
+    def get_populations(self):
+        return []
 
     def get_individual(self, individual_id):
         try:

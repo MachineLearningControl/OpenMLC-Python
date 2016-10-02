@@ -11,10 +11,11 @@ from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
+from MLC.db.mlc_repository import MLCRepository
 
 class Simulation:
     def __init__(self):
-        self._generations = []
+        self._generations = MLCRepository.get_instance().get_populations()
 
     def get_generation(self, gen):
         if gen > len(self._generations):
@@ -29,7 +30,7 @@ class Simulation:
             raise IndexError("Empty simulation")
         return self._generations[self.generations()-1]
 
-    def new_generation(self, population):
+    def add_next_generation(self, population):
         self._generations.append(population)
         return len(self._generations)
 
@@ -67,8 +68,10 @@ class Application(object):
             first_population = Population(1)
             first_population.create()
             first_population.set_state("created")
-            self._simulation.new_generation(first_population)
+            self._simulation.add_next_generation(first_population)
             lg.logger_.debug('First population created')
+            MLCTable.get_instance().commit_changes()
+
 
         # Keep on generating new population while the cut condition is not fulfilled
         while self._simulation.generations() < ngen:
@@ -85,7 +88,7 @@ class Application(object):
 
                 if self._simulation.generations() < ngen:
                     next_population = self.evolve_population(current_population)
-                    self._simulation.new_generation(next_population)
+                    self._simulation.add_next_generation(next_population)
 
                 MLCTable.get_instance().commit_changes()
 
@@ -93,6 +96,10 @@ class Application(object):
         self.evaluate_population(self._simulation.get_last_generation())
         self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
+
+        for i in range(self._simulation.generations()):
+            p = self._simulation.get_generation(i)
+            MLCRepository.get_instance().add_population(p)
 
     def get_simulation(self):
         return self._simulation
