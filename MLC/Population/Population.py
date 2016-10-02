@@ -39,7 +39,7 @@ class Population(object):
         gen_creator.create(self._size)
         self.set_individuals(gen_creator.individuals())
 
-    def evaluate(self):
+    def evaluate(self, evaluator):
         """
         Evaluates cost of individuals and update the MLC object MLC_OBJ.
         All options are set in the MLC object.
@@ -53,34 +53,23 @@ class Population(object):
                 evaluation are repeated (for experiments or
                 numerics with random noise).
         """
-        lg.logger_.info('Evaluation of generation %s' % self._gen)
-
-        ev_method = self._config.get('EVALUATOR', 'evaluation_method')
-        lg.logger_.info('Evaluation method: ' + ev_method)
-
-        evaluator = EvaluatorFactory.make(ev_method)
-        jj = evaluator.evaluate(self._individuals, self._gen)
-
         # Update table individuals and MATLAB Population indexes and costs
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
+        costs = evaluator.evaluate(self._individuals)
 
         for i in xrange(self._size):
-            if str(jj[i]) == 'nan' or \
-               str(jj[i]) == 'inf' or \
-               jj[i] > bad_value:
-                lg.logger_.debug(('[POP][EVALUATE] Individual N#: {0}.'
-                                  ' Invalid value found: {1}')
-                                 .format(self._individuals[i], jj[i]))
+            new_cost = costs[i]
 
-                jj[i] = bad_value
+            if new_cost > bad_value or str(new_cost) in ('nan', 'inf'):
+                lg.logger_.debug('Evaluate, invalid value found:%s for individual:%s' % (self._individuals[i], new_cost))
+                new_cost = costs[i] = bad_value
 
-            lg.logger_.debug('[POP][EVALUATE] Idx: {0} '
-                             '- Indiv N#: {1} - Cost: {2}'
-                             .format(i, self._individuals[i], jj[i]))
+            lg.logger_.debug('Evaluate Idx: %s - Indiv N#: %s - Cost: %s' % (i, self._individuals[i], new_cost))
 
-            MLCTable.get_instance().update_individual(int(self._individuals[i]), jj[i])
+            if new_cost != self._costs[i]:
+                MLCTable.get_instance().update_individual(self._individuals[i], new_cost)
 
-        self._costs = jj
+        self._costs = costs
 
     def remove_bad_individuals(self):
         # Get the individuals which value is the same as the
@@ -159,9 +148,7 @@ class Population(object):
 
         new_pop = mlcpop2
         if new_pop is None:
-            new_pop = Population(Simulation.get_population_size(self._gen+1),
-                                 Simulation.get_subgenerations(self._gen+1),
-                                 self._gen + 1)
+            new_pop = Simulation.create_empty_population_for(generation=self._gen+1)
 
         lg.logger_.info('Evolving population N#' + str(self._gen))
 

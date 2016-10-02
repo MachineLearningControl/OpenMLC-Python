@@ -88,9 +88,7 @@ class SQLiteRepository(MLCRepository):
 
     def __load_population(self, generation):
         i = 0
-        population = Population(Simulation.get_population_size(generation),
-                                Simulation.get_subgenerations(generation),
-                                generation)
+        population = Simulation.create_empty_population_for(generation)
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_individuals_from_population(generation))
         for row in cursor:

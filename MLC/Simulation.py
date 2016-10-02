@@ -24,12 +24,12 @@ class Simulation:
         return len(self._generations)
 
     @staticmethod
-    def get_population_size(generation):
+    def create_empty_population_for(generation):
+        from MLC.Population.Population import Population
+
         cascade = Config.get_instance().get_list('OPTIMIZATION', 'cascade')
         size = Config.get_instance().get_list('POPULATION', 'size')
-        return cascade[1] if (generation > 1 and len(size) > 1) else size[0]
 
-    @staticmethod
-    def get_subgenerations(generation):
-        cascade = Config.get_instance().get_list('OPTIMIZATION', 'cascade')
-        return 1 if cascade[1] == 0 else cascade[1]
+        population_size = cascade[1] if (generation > 1 and len(size) > 1) else size[0]
+        population_subgenerations = 1 if cascade[1] == 0 else cascade[1]
+        return Population(population_size, population_subgenerations, generation)

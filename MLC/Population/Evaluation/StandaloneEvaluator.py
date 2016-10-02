@@ -13,14 +13,13 @@ class StandaloneEvaluator(object):
         self._config = Config.get_instance()
         self._callback = callback
 
-    def evaluate(self, indivs, pop_number):
+    def evaluate(self, indivs):
         jj = []
 
-        lg.logger_.info("Evaluating %s individuals from generation %s" % (len(indivs), str(pop_number)))
+        lg.logger_.info("Evaluating %s individuals" % len(indivs))
 
         for index in indivs:
-            lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
-                            ' from generation ' + str(pop_number))
+            lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index))
 
             # Retrieve the individual to be evaluated
             py_indiv = MLCTable.get_instance().get_individual(index)
