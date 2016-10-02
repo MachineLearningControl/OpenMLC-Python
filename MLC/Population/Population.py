@@ -9,7 +9,7 @@ from MLC.mlc_table.MLCTable import MLCTable
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.mlc_parameters.mlc_parameters import Config
-
+from MLC.Simulation import Simulation
 
 class Population(object):
     GEN_METHOD_REPLICATION = 1
@@ -17,18 +17,15 @@ class Population(object):
     GEN_METHOD_CROSSOVER = 3
     GEN_METHOD_ELITISM = 4
 
-    def __init__(self, gen):
+    def __init__(self, size, sub_generations, gen):
         # Set global parameters as variables for easier use in the class
-        self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
 
-        cascade = self._config.get_list('OPTIMIZATION', 'cascade')
-        size = self._config.get_list('POPULATION', 'size')
-
         self._gen = gen
-        self._size = cascade[1] if (self._gen > 1 and len(size) > 1) else size[0]
+        self._size = size
+        self._subgen = sub_generations
+
         self._state = 'init'
-        self._subgen = 1 if cascade[1] == 0 else cascade[1]
 
         # Declare MATLAB attributes
         self._individuals = [-1] * self._size
@@ -167,7 +164,11 @@ class Population(object):
 
         new_pop = mlcpop2
         if new_pop is None:
-            new_pop = Population(self._gen+1)
+            new_pop = Population(Simulation.get_population_size(self._gen+1),
+                                 Simulation.get_subgenerations(self._gen+1),
+                                 self._gen + 1)
+
+
 
         lg.logger_.info('Evolving population N#' + str(self._gen))
 

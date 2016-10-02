@@ -2,6 +2,7 @@ from MLC.db.mlc_repository import MLCRepository, MemoryMLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.individual.Individual import Individual
 from MLC.Population.Population import Population
+from MLC.Simulation import Simulation
 
 from sql_statements import *
 
@@ -87,7 +88,9 @@ class SQLiteRepository(MLCRepository):
 
     def __load_population(self, generation):
         i = 0
-        population = Population(generation)
+        population = Population(Simulation.get_population_size(generation),
+                                Simulation.get_subgenerations(generation),
+                                generation)
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_individuals_from_population(generation))
         for row in cursor:

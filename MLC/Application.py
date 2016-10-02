@@ -1,3 +1,5 @@
+from __builtin__ import staticmethod
+
 import matlab.engine
 import MLC.Log.log as lg
 
@@ -12,27 +14,8 @@ from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Simulation import Simulation
 
-class Simulation:
-    def __init__(self):
-        self._generations = MLCRepository.get_instance().get_populations()
-
-    def get_generation(self, gen):
-        if gen > len(self._generations):
-            raise IndexError("Generation %s do not exist" % gen)
-        return self._generations[gen-1]
-
-    def generations(self):
-        return len(self._generations)
-
-    def get_last_generation(self):
-        if len(self._generations) == 0:
-            raise IndexError("Empty simulation")
-        return self._generations[self.generations()-1]
-
-    def add_next_generation(self, population):
-        self._generations.append(population)
-        return len(self._generations)
 
 class Application(object):
 
@@ -65,7 +48,9 @@ class Application(object):
 
         # First generation must be generated from scratch
         if self._simulation.generations() == 0:
-            first_population = Population(1)
+            first_population = Population(Simulation.get_population_size(1),
+                                          Simulation.get_subgenerations(1),
+                                          1)
             first_population.create()
             first_population.set_state("created")
             self._simulation.add_next_generation(first_population)
@@ -87,7 +72,8 @@ class Application(object):
                 #    self.eng.show_convergence(self.mlc)
 
                 if self._simulation.generations() < ngen:
-                    next_population = self.evolve_population(current_population)
+                    look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
+                    next_population = self.evolve_population(current_population, look_for_dup)
                     self._simulation.add_next_generation(next_population)
 
                 MLCTable.get_instance().commit_changes()
@@ -146,21 +132,10 @@ class Application(object):
 
         population.set_state('evaluated')
 
-    def evolve_population(self, population):
-        """
-        Evolves the population. (MLC2 Toolbox)
-        OBJ.EVOLVE_POPULATION updates the OBJ MLC2 object with a new MLCpop
-        object in the OBJ.POPULATION array
-        containing the evolved population
-        The evolution algorithm is implemented in the MLCpop class.
-        """
-
-        # Evolve population and add it to the MLC MATLAB object
+    def evolve_population(self, population, look_for_duplicates):
         next_pop = population.evolve()
 
-        # Remove duplicates
-        if self._config.getboolean('OPTIMIZATION', 'lookforduplicates'):
-            # Remove the duplicates in the last evolve
+        if look_for_duplicates:
             while next_pop.remove_duplicates() > 0:
                 next_pop = population.evolve(next_pop)
 
