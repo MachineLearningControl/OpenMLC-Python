@@ -6,20 +6,20 @@ class Simulation:
     def __init__(self):
         self._generations = MLCRepository.get_instance().get_populations()
 
-    def get_generation(self, gen):
-        if gen > len(self._generations):
-            raise IndexError("Generation %s do not exist" % gen)
-        return self._generations[gen-1]
+    def get_generation(self, generation):
+        if generation > len(self._generations):
+            raise IndexError("Generation %s do not exist" % generation)
+        return self._generations[generation-1]
 
-    def generations(self):
+    def number_of_generations(self):
         return len(self._generations)
 
     def get_last_generation(self):
         if len(self._generations) == 0:
             raise IndexError("Empty simulation")
-        return self._generations[self.generations()-1]
+        return self._generations[self.number_of_generations() - 1]
 
-    def add_next_generation(self, population):
+    def add_generation(self, population):
         self._generations.append(population)
         return len(self._generations)
 

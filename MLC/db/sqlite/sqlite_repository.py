@@ -99,7 +99,6 @@ class SQLiteRepository(MLCRepository):
             population._gen_method[i] = row[2]
             i += 1
         conn.close()
-        population.set_state("evaluated")
         return population
 
     def __load_individuals(self):

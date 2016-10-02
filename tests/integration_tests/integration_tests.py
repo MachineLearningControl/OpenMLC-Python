@@ -7,7 +7,7 @@ from MLC.Population.Population import Population
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
 from MLC.db.mlc_repository import MLCRepository
-from MLC.Application import Simulation
+from MLC.Simulation import Simulation
 import sys, os
 import yaml
 
@@ -97,7 +97,7 @@ class MLCIntegrationTest(unittest.TestCase):
             cls._app = Application(simulation, "testing")
             cls._app.go(g, 0)
 
-        a = cls._app.get_simulation().generations()
+        a = cls._app.get_simulation().number_of_generations()
         print "Number of populations: " + str(a)
 
         # List with individuals data

@@ -15,6 +15,7 @@ from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Preevaluation.default import default
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Simulation import Simulation
+from MLC.Population.Creation.CreationFactory import CreationFactory
 
 
 class Application(object):
@@ -29,6 +30,13 @@ class Application(object):
         set_logger(log_mode)
         self._simulation = simulation
 
+        # gen creator
+        gen_method = self._config.get('GP', 'generation_method')
+        self._gen_creator = CreationFactory.make(gen_method)
+
+        self._show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
+        self._look_for_duplicates = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
+
     def go(self, ngen, fig):
         """
         Start MLC2 problem solving (MLC2 Toolbox)
@@ -40,50 +48,45 @@ class Application(object):
             OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
         """
-        # Enables/Disable graph of the best individual of every iteration
         if ngen <= 0:
             raise Exception("Amounts of generations must be a positive number, provided: %s" % ngen)
 
-        show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
-
         # First generation must be generated from scratch
-        if self._simulation.generations() == 0:
-            first_population = Population(Simulation.get_population_size(1),
-                                          Simulation.get_subgenerations(1),
-                                          1)
-            first_population.create()
-            first_population.set_state("created")
-            self._simulation.add_next_generation(first_population)
-            lg.logger_.debug('First population created')
+        if self._simulation.number_of_generations() == 0:
+            first_population = Population(Simulation.get_population_size(1), Simulation.get_subgenerations(1), 1)
+            self._simulation.add_generation(first_population)
+
+        while self._simulation.number_of_generations() < ngen:
+            current_population = self._simulation.get_last_generation()
+            generation_number = self._simulation.number_of_generations()+1
+
+            # create
+            if not current_population.is_complete():
+                current_population.fill(self._gen_creator)
+
+            # evaluate
+            self.evaluate_population(current_population, generation_number)
+
+            # show best if necessary
+            if (self._simulation.number_of_generations() >= ngen or self._show_all_bests) and fig > 0:
+                self.show_best()
+
+            # evolve
+            next_population = current_population.evolve()
+            while self._look_for_duplicates and next_population.remove_duplicates() > 0:
+                next_population = current_population.evolve(next_population)
+
+            # save new generation
+            self._simulation.add_generation(next_population)
             MLCTable.get_instance().commit_changes()
 
-
-        # Keep on generating new population while the cut condition is not fulfilled
-        while self._simulation.generations() < ngen:
-            current_population = self._simulation.get_last_generation()
-            state = current_population.get_state()
-            if state == 'created':
-                self.evaluate_population(current_population)
-
-            elif state == 'evaluated':
-                if (self._simulation.generations() >= ngen or show_all_bests) and fig > 0:
-                    self.show_best()
-                # if (fig > 1):
-                #    self.eng.show_convergence(self.mlc)
-
-                if self._simulation.generations() < ngen:
-                    look_for_dup = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
-                    next_population = self.evolve_population(current_population, look_for_dup)
-                    self._simulation.add_next_generation(next_population)
-
-                MLCTable.get_instance().commit_changes()
-
-        # Evaluate the last population
-        self.evaluate_population(self._simulation.get_last_generation())
+        # Evaluate last population
+        self.evaluate_population(self._simulation.get_last_generation(),
+                                 self._simulation.number_of_generations())
         self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
-        for i in range(self._simulation.generations()):
+        for i in range(self._simulation.number_of_generations()):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
 
@@ -93,32 +96,16 @@ class Application(object):
     def get_population(self, number):
         return self._pop_container[number]
 
-    def evaluate_population(self, population):
-        """
-        Evolves the population. (MLC2 Toolbox)
-        OBJ.EVALUATE_POPULATION launches the evaluation method,
-        and updates the MLC2 object.
-        The evaluation algorithm is implemented in the MLCpop class.
-        """
+    def evaluate_population(self, population, generation_number):
         # First evaluation
         population.evaluate()
 
         # Remove bad individuals
-        elim = False
-        bad_values = self._config.get('EVALUATOR', 'badvalues_elim')
-        if bad_values == 'all':
-            elim = True
-        elif bad_values == 'first':
-            if self._simulation.generations() == 1:
-                elim = True
-
-        if elim:
-            ret = population.remove_bad_individuals()
-            while ret:
+        if self._duplicates_must_be_removed(generation_number):
+            while population.remove_bad_individuals():
                 # There are bad individuals, recreate the population
-                population.create()
+                population.fill(self._gen_creator)
                 population.evaluate()
-                ret = population.remove_bad_individuals()
 
         population.sort()
 
@@ -130,8 +117,6 @@ class Application(object):
                 population.evaluate()
                 population.sort()
 
-        population.set_state('evaluated')
-
     def evolve_population(self, population, look_for_duplicates):
         next_pop = population.evolve()
 
@@ -139,8 +124,19 @@ class Application(object):
             while next_pop.remove_duplicates() > 0:
                 next_pop = population.evolve(next_pop)
 
-        next_pop.set_state("created")
         return next_pop
+
+    def _duplicates_must_be_removed(self, generation_number):
+        bad_values = self._config.get('EVALUATOR', 'badvalues_elim')
+        must_be_removed = False
+
+        if bad_values == "all":
+            must_be_removed = True
+
+        elif bad_values == "first":
+            must_be_removed = (generation_number == 1)
+
+        return must_be_removed
 
     def show_best(self, population):
         # Get the best

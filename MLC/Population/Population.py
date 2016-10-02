@@ -1,15 +1,13 @@
-import numpy as np
 import math
 import MLC.Log.log as lg
 import sys
 
-from MLC.individual.Individual import Individual
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
-from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+
 
 class Population(object):
     GEN_METHOD_REPLICATION = 1
@@ -18,14 +16,11 @@ class Population(object):
     GEN_METHOD_ELITISM = 4
 
     def __init__(self, size, sub_generations, gen):
-        # Set global parameters as variables for easier use in the class
         self._config = Config.get_instance()
 
         self._gen = gen
         self._size = size
         self._subgen = sub_generations
-
-        self._state = 'init'
 
         # Declare MATLAB attributes
         self._individuals = [-1] * self._size
@@ -37,10 +32,10 @@ class Population(object):
 
         lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
 
-    def create(self, table=None):
-        gen_method = self._config.get('GP', 'generation_method')
-        lg.logger_.info("Using %s to generate population" % gen_method)
-        gen_creator = CreationFactory.make(gen_method)
+    def is_complete(self):
+        return -1 not in self._individuals
+
+    def fill(self, gen_creator):
         gen_creator.create(self._size)
         self.set_individuals(gen_creator.individuals())
 
@@ -167,8 +162,6 @@ class Population(object):
             new_pop = Population(Simulation.get_population_size(self._gen+1),
                                  Simulation.get_subgenerations(self._gen+1),
                                  self._gen + 1)
-
-
 
         lg.logger_.info('Evolving population N#' + str(self._gen))
 
@@ -313,6 +306,7 @@ class Population(object):
                                               pop_idv_index_orig2, number,
                                               Population.GEN_METHOD_CROSSOVER, -1)
                     individuals_created += 2
+
         return new_pop
 
     def sort(self):
@@ -427,12 +421,6 @@ class Population(object):
             lg.logger_.error("[POPULATION] choose_individual: Invalid selection method."
                              "Correct it and relaunch the program.")
             sys.exit(-1)
-
-    def get_state(self):
-        return self._state
-
-    def set_state(self, rhs_state):
-        self._state = rhs_state
 
     def get_size(self):
         return self._size
