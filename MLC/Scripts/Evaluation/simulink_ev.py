@@ -1,9 +1,11 @@
 import numpy as np
 import MLC.Log.log as lg
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import sys
 import time
 
+from matplotlib import rc
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 from scipy import integrate
@@ -36,7 +38,16 @@ def retrieve_problem_variables(config):
     return values_dict
 
 
-def cost(indiv):
+def individual_data(indiv):
+    """
+    Returns as a dict: * clock
+                       * dj_nat
+                       * j_nat
+                       * dj_sensor
+                       * j_sensor
+                       * dj_control
+                       * j_control
+    """
     global g_simulink_opened
     # Measure the time spent in the evaluation of the individual
     start_time = time.time()
@@ -119,7 +130,7 @@ def cost(indiv):
                          .format(j_nat[-1], j_sensor[-1], j_control[-1], j0))
 
         # Evaluate the result of the j calculated
-        zero_condition = np.sum(j_control < 0.0)
+        zero_condition = np.sum(j_control <= 0.0)
         if zero_condition > len(clock) * 0.9:
             j0 = badvalue
 
@@ -137,4 +148,88 @@ def cost(indiv):
     else:
         j0 = badvalue
 
-    return j0
+    simulink_results = {}
+    simulink_results["clock"] = clock
+    simulink_results["signal_to_cancel"] = signal_to_cancel
+    simulink_results["sensor"] = sensor
+    simulink_results["control"] = control
+    simulink_results["dj_nat"] = dj_nat
+    simulink_results["j_nat"] = j_nat
+    simulink_results["dj_sensor"] = dj_sensor
+    simulink_results["j_sensor"] = j_sensor
+    simulink_results["dj_control"] = dj_control
+    simulink_results["j_control"] = j_control
+    simulink_results["j0"] = j0
+    return simulink_results
+
+
+def cost(indiv):
+    simulink_results = individual_data(indiv)
+    return simulink_results['j0']
+
+
+def show_best(index, indiv, block=True):
+    # TODO: Add texlive-latex-extra and textlive-latex-recommended in the Wiki if we want to use LaTeX fonts
+    sl_results = individual_data(indiv)
+    config = Config.get_instance()
+    problem_variables = retrieve_problem_variables(config)
+    fig_title = create_figure_title(problem_variables, indiv.get_value())
+
+    plt.clf()
+    # plt.rc('text', usetex=True)
+    # plt.rc('font', family='serif')
+    plt.suptitle(fig_title)
+
+    plt.subplot(3, 1, 1)
+    line1, = plt.plot(sl_results["clock"], sl_results["signal_to_cancel"], linewidth=1.2, linestyle='-', color='g', label='signal')
+    line2, = plt.plot(sl_results["clock"], sl_results["sensor"], linewidth=1.2, linestyle='-', color='b', label='ampli')
+    line3, = plt.plot(sl_results["clock"], sl_results["control"], linewidth=1.2, linestyle='-', color='r', label='control')
+    plt.xlabel('T(s)', fontsize=12)
+    plt.ylabel('Voltages (V)', fontsize=16)
+    plt.legend(handles=[line1, line2, line3], loc=1)
+    plt.grid(True)
+
+    plt.subplot(3, 1, 2)
+    signal_part1 = (sl_results["sensor"] - np.mean(sl_results["sensor"]))**2
+    signal_part2 = problem_variables["gamma"] * np.abs(sl_results["control"])**2
+    line1, = plt.plot(sl_results["clock"], signal_part1 + signal_part2, linewidth=2, linestyle='-', color='k', label='dJ Total')
+    line2, = plt.plot(sl_results["clock"], signal_part1, linewidth=1.2, linestyle='-', color='b', label='dJ sensor')
+    line3, = plt.plot(sl_results["clock"], signal_part2, linewidth=1.2, linestyle='-', color='r', label='dJ control')
+    plt.xlabel('T(s)', fontsize=12)
+    plt.ylabel('dJ', fontsize=16)
+    plt.legend(handles=[line1, line2, line3], loc=1)
+    plt.grid(True)
+
+    plt.subplot(3, 1, 3)
+    line1, = plt.plot(sl_results['j_sensor'] + sl_results['j_control'], linewidth=1.2, linestyle='-', color='k', label='total')
+    line2, = plt.plot(sl_results['j_sensor'], linewidth=1.2, linestyle='-', color='b', label='sensor')
+    line3, = plt.plot(sl_results['j_control'], linewidth=1.2, linestyle='-', color='r', label='control')
+    plt.xlabel('T(s)', fontsize=12)
+    plt.legend(handles=[line1, line2, line3], loc=1)
+    plt.grid(True)
+
+    plt.show(block=block)
+
+
+def create_figure_title(problem_variables, indiv_value):
+    tit_sum = None
+    if problem_variables['summator_gain'] == -1:
+        tit_sum = 'difference'
+    else:
+        tit_sum = 'summation'
+
+    tit_sensor = None
+    if problem_variables['sensor_source'] == 'difference':
+        tit_sensor = 'ampli-op output (blue curve)'
+    else:
+        tit_sensor = 'initial signal (green curve)'
+
+    tit_goal = None
+    if problem_variables['goal'] == 'kill_signal':
+        tit_goal = 'signal (RMS)'
+    else:
+        tit_goal = 'perturbation (STD)'
+
+    title = ('Ampli-op mode: {0} \n Sensor Choice: {1} \n Goal To Achieve: {2} supression \n This Law: {3}'
+             .format(tit_sum, tit_sensor, tit_goal, indiv_value))
+    return title

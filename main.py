@@ -29,7 +29,7 @@ def main():
     eng.workspace['wmlc'] = eng.MLC2()
 
     mlc = Application(config.get('LOGGING', 'logmode'))
-    mlc.go(3, 2)
+    mlc.go(3, 1)
     raw_input("Press enter to continue...")
 
 if __name__ == "__main__":
