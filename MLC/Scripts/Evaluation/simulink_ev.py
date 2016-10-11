@@ -176,8 +176,8 @@ def show_best(index, indiv, block=True):
     fig_title = create_figure_title(problem_variables, indiv.get_value())
 
     plt.clf()
-    # plt.rc('text', usetex=True)
-    # plt.rc('font', family='serif')
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
     plt.suptitle(fig_title)
 
     plt.subplot(3, 1, 1)
@@ -205,6 +205,7 @@ def show_best(index, indiv, block=True):
     line2, = plt.plot(sl_results['j_sensor'], linewidth=1.2, linestyle='-', color='b', label='sensor')
     line3, = plt.plot(sl_results['j_control'], linewidth=1.2, linestyle='-', color='r', label='control')
     plt.xlabel('T(s)', fontsize=12)
+    plt.ylabel('$\int_0^t dJ \mathrm{d}t/J_{nat}$', fontsize=16);
     plt.legend(handles=[line1, line2, line3], loc=1)
     plt.grid(True)
 
