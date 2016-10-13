@@ -39,7 +39,7 @@ class Application(object):
         self._show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         self._look_for_duplicates = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
-    def go(self, ngen, fig):
+    def go(self, to_generation, fig, from_generation=None):
         """
         Start MLC2 problem solving (MLC2 Toolbox)
             OBJ.GO(N) creates (if necessary) the population, evaluate and
@@ -50,15 +50,26 @@ class Application(object):
             OBJ.GO(N,2) additionaly displays the convergence graph at the end
                 of each generation evaluation
         """
-        if ngen <= 0:
-            raise Exception("Amounts of generations must be a positive number, provided: %s" % ngen)
+        if from_generation is None:
+            from_generation = self._simulation.number_of_generations()
+
+        if to_generation <= 0:
+            raise Exception("Amounts of generations must be a positive number, provided: %s" % to_generation)
+
+        # valid_from_generation = range(1, min(to_generation, self._simulation.number_of_generations()+1))
+        # if not from_generation in valid_from_generation:
+        #    raise Exception("from_generation must be a positive number from %s, provided: %s" % (valid_from_generation, from_generation))
+
+        self._simulation.erase_generations(from_generation)
+
+        print "Simulating from %s to %s" % (self._simulation.number_of_generations(), to_generation)
 
         # First generation must be generated from scratch
         if self._simulation.number_of_generations() == 0:
             first_population = Simulation.create_empty_population_for(generation=1)
             self._simulation.add_generation(first_population)
 
-        while self._simulation.number_of_generations() < ngen:
+        while self._simulation.number_of_generations() < to_generation:
             current_population = self._simulation.get_last_generation()
             generation_number = self._simulation.number_of_generations()+1
 
@@ -70,7 +81,7 @@ class Application(object):
             self.evaluate_population(current_population, generation_number)
 
             # show best if necessary
-            if (self._simulation.number_of_generations() >= ngen or self._show_all_bests) and fig > 0:
+            if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig > 0:
                 self.show_best()
 
             # evolve
@@ -82,13 +93,17 @@ class Application(object):
             self._simulation.add_generation(next_population)
             MLCTable.get_instance().commit_changes()
 
+            from MLC.matlab_engine import MatlabEngine
+            print "GENERATION %s, random: %s" % (generation_number, MatlabEngine._rand_counter)
+
         # Evaluate last population
         self.evaluate_population(self._simulation.get_last_generation(),
                                  self._simulation.number_of_generations())
         self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
-        for i in range(self._simulation.number_of_generations()):
+        print "Saving %s to %s" % (from_generation+1, self._simulation.number_of_generations())
+        for i in range(from_generation+1, self._simulation.number_of_generations()+1):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
 

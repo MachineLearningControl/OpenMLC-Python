@@ -7,8 +7,13 @@ class Simulation:
         self._generations = MLCRepository.get_instance().get_populations()
 
     def get_generation(self, generation):
+        if generation <= 0:
+            raise IndexError("Generation must start from 1, obtain %s" % generation)
+
         if generation > len(self._generations):
             raise IndexError("Generation %s do not exist" % generation)
+
+        print "Getting generation %s, obtain %s" % (generation, self._generations[generation-1]._gen)
         return self._generations[generation-1]
 
     def number_of_generations(self):
@@ -22,6 +27,11 @@ class Simulation:
     def add_generation(self, population):
         self._generations.append(population)
         return len(self._generations)
+
+    def erase_generations(self, from_generation):
+        if from_generation > 0:
+            del self._generations[1-from_generation:]
+            MLCRepository.get_instance().erase_from(from_generation)
 
     @staticmethod
     def create_empty_population_for(generation):

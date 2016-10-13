@@ -89,13 +89,27 @@ class MLCIntegrationTest(unittest.TestCase):
             except OSError:
                 pass
 
-        for g in MLCIntegrationTest.GENERATIONS:
+        for generation_params in MLCIntegrationTest.GENERATIONS:
             # clear static values
             MLCTable._instance = None
             MLCRepository._instance = None
             simulation = Simulation()
             cls._app = Application(simulation, "testing")
-            cls._app.go(g, 0)
+
+            if isinstance(generation_params, int):
+                cls._app.go(to_generation=generation_params, fig=0)
+
+            elif isinstance(generation_params, list):
+                cls._app.go(from_generation=generation_params[0],
+                            to_generation=generation_params[1], fig=0)
+
+            else:
+                raise Exception("Integration test, bad value for generations param")
+
+        if Config.get_instance().getboolean("BEHAVIOUR", "save"):
+            MLCTable._instance = None
+            MLCRepository._instance = None
+            cls._app = Application(Simulation(), "testing")
 
         a = cls._app.get_simulation().number_of_generations()
         print "Number of populations: " + str(a)
@@ -170,7 +184,7 @@ class MLCIntegrationTest(unittest.TestCase):
             else:
                 self.assertEqual(" ".join(indiv.get_formal()), self._indivs[int(index) - 1]['formal'])
 
-            print "Individual N# ", i, " OK!"
+            #print "Individual N# ", i, " OK!"
             i += 1
 
     def _check_indiv_property(self, gen_number, values, map_property, type=None):
