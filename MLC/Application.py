@@ -62,8 +62,6 @@ class Application(object):
 
         self._simulation.erase_generations(from_generation)
 
-        print "Simulating from %s to %s" % (self._simulation.number_of_generations(), to_generation)
-
         # First generation must be generated from scratch
         if self._simulation.number_of_generations() == 0:
             first_population = Simulation.create_empty_population_for(generation=1)
@@ -93,16 +91,12 @@ class Application(object):
             self._simulation.add_generation(next_population)
             MLCTable.get_instance().commit_changes()
 
-            from MLC.matlab_engine import MatlabEngine
-            print "GENERATION %s, random: %s" % (generation_number, MatlabEngine._rand_counter)
-
         # Evaluate last population
         self.evaluate_population(self._simulation.get_last_generation(),
                                  self._simulation.number_of_generations())
         self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
-        print "Saving %s to %s" % (from_generation+1, self._simulation.number_of_generations())
         for i in range(from_generation+1, self._simulation.number_of_generations()+1):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
