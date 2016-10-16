@@ -60,7 +60,7 @@ class Application(object):
         # if not from_generation in valid_from_generation:
         #    raise Exception("from_generation must be a positive number from %s, provided: %s" % (valid_from_generation, from_generation))
 
-        self._simulation.erase_generations(from_generation)
+        # self._simulation.erase_generations(from_generation+1)
 
         # First generation must be generated from scratch
         if self._simulation.number_of_generations() == 0:

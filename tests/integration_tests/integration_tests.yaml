@@ -2,6 +2,7 @@ default:
     # Run this integrations tests by default when integration_tests.py is executed without arguments.
     - test_basic
     - test_multiple_controls
+    - test_persist_simulation
 integration_tests:
     # List of integration tests.
     # Each test must have a directory with the configuration.ini, individuals.txt and generations.txt files.
