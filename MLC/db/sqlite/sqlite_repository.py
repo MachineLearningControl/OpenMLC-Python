@@ -3,6 +3,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.individual.Individual import Individual
 from MLC.Population.Population import Population
 from MLC.Simulation import Simulation
+from MLC.config import get_working_directory
 
 from sql_statements import *
 
@@ -15,8 +16,10 @@ class SQLiteRepository(MLCRepository):
         self.__to_execute = []
         self._memory_repo = MemoryMLCRepository()
         self._db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
-        if not os.path.exists(self._db_name):
+        self._db_file = os.path.join(get_working_directory(), self._db_name)
+        if not os.path.exists(self._db_file):
             self.__initialize_db()
+
         self.__load_individuals()
 
     def add_population(self, population):
@@ -88,7 +91,7 @@ class SQLiteRepository(MLCRepository):
         return sorted(generations)
 
     def __get_db_connection(self):
-        return sqlite3.connect(self._db_name)
+        return sqlite3.connect(self._db_file)
 
     def __execute(self, statement):
         self.__to_execute.append(statement)

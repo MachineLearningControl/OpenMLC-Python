@@ -1,4 +1,6 @@
-import cmd, sys
+import cmd
+import argparse
+import os
 
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.matlab_engine import MatlabEngine
@@ -8,8 +10,10 @@ from MLC.db.mlc_repository import MLCRepository
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Log.log import set_logger
 from MLC.mlc_table.MLCTable import MLCTable
+from config import get_working_directory, set_working_directory
 
 simulation = None
+
 
 class MLCCmd(cmd.Cmd):
     def do_show_config_sections(self, line):
@@ -52,7 +56,8 @@ class MLCCmd(cmd.Cmd):
 
     def do_simulation_info(self, line):
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-            db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
+            db_name = os.path.join(get_working_directory(),
+                                   Config.get_instance().get("BEHAVIOUR", "savedir"))
             print "DB file:%s" % db_name
         else:
             print "DB file: no database file"
@@ -174,12 +179,33 @@ class MLCCmd(cmd.Cmd):
         """
         print MatlabEngine.rand()
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='MLC Command Tool')
+
+    parser.add_argument('-c', '--configuration-file', required=True,
+                        type=str, help='MLC configuration file.')
+
+    parser.add_argument('-d', '--working-dir',  type=str, default='.',
+                        help='Working directory for the MLC (if persistence is enabled,'
+                             'MLC will try to find the database file in the working directory).'
+                             'Working dir must be passed as a relative path.')
+
+    return parser.parse_args()
+
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print "ERROR: first argument must be the configuration file"
+    arguments = parse_arguments()
+
+    if not os.path.exists(arguments.configuration_file):
+        print "Configuration file '%s' does not exist!!!" % arguments.configuration_file
         exit()
 
+    if not os.path.exists(arguments.working_dir):
+        print "'%s' is an invalid working directory!!!" % arguments.working_dir
+        exit()
+
+    set_working_directory(os.path.abspath(arguments.working_dir))
+
     set_logger('console')
-    Config.get_instance().read(sys.argv[1])
+    Config.get_instance().read(arguments.configuration_file)
     simulation = Simulation()
     MLCCmd().cmdloop()

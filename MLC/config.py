@@ -4,7 +4,15 @@ project folders.
 This file should be placed on root_prohect/MLC/config.py
 """
 import os
+import __builtin__
 
+__builtin__.working_directory = os.path.abspath(".")
+
+def get_working_directory():
+    return __builtin__.working_directory
+
+def set_working_directory(new_working_dir):
+    __builtin__.working_directory = new_working_dir
 
 def get_mlc_root_directory():
     this_file = os.path.abspath(__file__)
