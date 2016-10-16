@@ -40,6 +40,10 @@ class SQLiteRepository(MLCRepository):
             populations.append(self.__load_population(gen))
         return populations
 
+    def erase_generations(self, from_generation, remove_alone_individuals=True):
+        self.__execute(stmt_delete_from_generations(from_generation))
+        self.commit_changes()
+
     def commit_changes(self):
         conn = self.__get_db_connection()
         c = conn.cursor()
@@ -65,6 +69,9 @@ class SQLiteRepository(MLCRepository):
             self.__execute(stmt_insert_individual(individual_id, individual))
 
         return individual_id, exist
+
+    def number_of_individuals(self):
+        return self._memory_repo.number_of_individuals()
 
     def __initialize_db(self):
         self.__execute(stmt_create_table_individuals())

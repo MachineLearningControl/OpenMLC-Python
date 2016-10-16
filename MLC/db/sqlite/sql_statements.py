@@ -7,6 +7,10 @@ def stmt_create_table_individuals():
                              appearences INTEGER)'''
 
 
+def stmt_delete_from_generations(from_generation):
+    return """DELETE FROM population
+              WHERE gen >= %s""" % (from_generation,)
+
 def stmt_create_table_population():
     return '''
     CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,

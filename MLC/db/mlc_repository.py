@@ -18,6 +18,12 @@ class MLCRepository:
     def add_individual(self, individual):
         raise NotImplementedError("MLCRepository::add_individual not implemented")
 
+    def number_of_individuals(self):
+        raise NotImplementedError("MLCRepository::number_of_individuals not implemented")
+
+    def erase_generations(self, from_generation):
+        raise NotImplementedError("MLCRepository::erase_generations not implemented")
+
     def commit_changes(self):
         pass
 
@@ -43,6 +49,9 @@ class MemoryMLCRepository(MLCRepository):
         self._populations = {}
 
     def add_population(self, population):
+        pass
+
+    def erase_generations(self, from_generation):
         pass
 
     def get_populations(self):
@@ -74,3 +83,6 @@ class MemoryMLCRepository(MLCRepository):
         self._last_indiv += 1
 
         return current_indiv, False
+
+    def number_of_individuals(self):
+        return len(self._individuals)

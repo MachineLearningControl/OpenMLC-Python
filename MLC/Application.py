@@ -69,17 +69,17 @@ class Application(object):
 
         while self._simulation.number_of_generations() < to_generation:
             current_population = self._simulation.get_last_generation()
-            generation_number = self._simulation.number_of_generations()+1
+            current_generation_number = self._simulation.number_of_generations()
 
             # create
             if not current_population.is_complete():
                 current_population.fill(self._gen_creator)
 
             # evaluate
-            self.evaluate_population(current_population, generation_number)
+            self.evaluate_population(current_population, current_generation_number)
 
             # show best if necessary
-            if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig > 0:
+            if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig:
                 self.show_best()
 
             # evolve
@@ -94,7 +94,7 @@ class Application(object):
         # Evaluate last population
         self.evaluate_population(self._simulation.get_last_generation(),
                                  self._simulation.number_of_generations())
-        self.show_best(self._simulation.get_last_generation())
+        # self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
         for i in range(from_generation+1, self._simulation.number_of_generations()+1):

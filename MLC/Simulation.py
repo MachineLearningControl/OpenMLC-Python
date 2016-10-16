@@ -30,10 +30,7 @@ class Simulation:
     def erase_generations(self, from_generation):
         if from_generation > 0:
             del self._generations[1-from_generation:]
-            MLCRepository.get_instance().erase_from(from_generation)
-
-    def erase_generations(self, from_generation):
-        pass
+            MLCRepository.get_instance().erase_generations(from_generation)
 
     @staticmethod
     def create_empty_population_for(generation):
