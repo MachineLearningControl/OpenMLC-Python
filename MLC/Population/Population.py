@@ -172,7 +172,6 @@ class Population(object):
             not_valid_indexes = [x[0] + subgen2_begin
                                  for x in enumerate(new_pop.get_individuals()[subgen2_begin:subgen2_end + 1])
                                  if x[1] == -1]
-
             individuals_created = 0
             param_elitism = self._config.getint('OPTIMIZATION', 'elitism')
 
@@ -200,7 +199,7 @@ class Population(object):
                         mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                         individuals_created += 1
                 except IndexError:
-                    lg.logger.error("[POPULATION] Elitism - More individuals to replace than empty ones."
+                    lg.logger_.error("[POPULATION] Elitism - More individuals to replace than empty ones."
                                     "Stop elitism algorithm")
 
             # completing population
@@ -235,7 +234,7 @@ class Population(object):
                         pop_idv_index_dest = not_valid_indexes[individuals_created]
 
                         indiv_index = self._individuals[pop_idv_index_orig]
-                        lg.logger_.debug("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
+                        lg.logger_.info("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
                                          .format(individuals_created+1, len(not_valid_indexes),
                                                  indiv_index, pop_idv_index_dest + 1))
 

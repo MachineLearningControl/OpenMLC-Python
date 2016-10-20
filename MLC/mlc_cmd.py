@@ -50,9 +50,22 @@ class MLCCmd(cmd.Cmd):
             Execute MLC Simulation until N_GENERATIONS generations.
             run N_GENERATIONS (7 by default)
         """
-        to_generation = int(line) if line else 7
-        application = Application(simulation, "console")
-        application.go(to_generation=to_generation, fig=False)
+        go_arguments = line.split()
+        if len(go_arguments) <= 1:
+            to_generation = int(line) if line else 7
+            application = Application(simulation, "console")
+            application.go(to_generation=to_generation, fig=False)
+
+        elif len(go_arguments) == 2:
+            print "Evolving generation %s to %s" % (go_arguments[0], go_arguments[1])
+            from_generation = int(go_arguments[0])+1
+            to_generation = int(go_arguments[1])
+            if self.__yes_or_no("Are you sure you want to remove generations %s to %s?" % (from_generation, simulation.number_of_generations())):
+                print "Removing all generations from %s to %s" % (from_generation, simulation.number_of_generations())
+                simulation.erase_generations(from_generation)
+                self.do_reload("")
+                application = Application(simulation, "console")
+                application.go(to_generation=to_generation, fig=False)
 
     def do_simulation_info(self, line):
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
@@ -130,8 +143,9 @@ class MLCCmd(cmd.Cmd):
         from_generation = int(line) if line else 1
         to_generation = simulation.number_of_generations()
         if self.__yes_or_no("Are you sure you want to remove generations %s to %s?" % (from_generation, to_generation)):
-            print "Removing all generations from %s" % from_generation
+            print "Removing all generations from %s to %s" % (from_generation, to_generation)
             simulation.erase_generations(from_generation)
+        self.do_reload("")
 
     def do_reload(self, line):
         """

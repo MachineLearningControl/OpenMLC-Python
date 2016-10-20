@@ -29,7 +29,7 @@ class Simulation:
 
     def erase_generations(self, from_generation):
         if from_generation > 0:
-            del self._generations[1-from_generation:]
+            self._generations = self._generations[:from_generation-1]
             MLCRepository.get_instance().erase_generations(from_generation)
 
     @staticmethod

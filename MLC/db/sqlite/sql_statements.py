@@ -11,6 +11,14 @@ def stmt_delete_from_generations(from_generation):
     return """DELETE FROM population
               WHERE gen >= %s""" % (from_generation,)
 
+def stmt_delete_unused_individuals():
+    return '''DELETE FROM individuals
+              WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
+
+def stmt_get_unused_individuals():
+    return '''SELECT indiv_id FROM individuals
+              WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
+
 def stmt_create_table_population():
     return '''
     CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,

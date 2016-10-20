@@ -43,8 +43,18 @@ class SQLiteRepository(MLCRepository):
             populations.append(self.__load_population(gen))
         return populations
 
-    def erase_generations(self, from_generation, remove_alone_individuals=True):
+    def erase_generations(self, from_generation, remove_unused_individuals=True):
         self.__execute(stmt_delete_from_generations(from_generation))
+        self.commit_changes()
+
+        if remove_unused_individuals:
+            conn = self.__get_db_connection()
+            cursor = conn.execute(stmt_get_unused_individuals())
+            unused_individuals = [row[0] for row in cursor]
+            conn.close()
+            self._memory_repo.remove_individuals(unused_individuals)
+            self.__execute(stmt_delete_unused_individuals())
+
         self.commit_changes()
 
     def commit_changes(self):

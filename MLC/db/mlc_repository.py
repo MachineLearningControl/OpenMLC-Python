@@ -24,6 +24,9 @@ class MLCRepository:
     def erase_generations(self, from_generation):
         raise NotImplementedError("MLCRepository::erase_generations not implemented")
 
+    def remove_individuals(self, individuals):
+        raise NotImplementedError("MLCRepository::remove_individuals not implemented")
+
     def commit_changes(self):
         pass
 
@@ -56,6 +59,10 @@ class MemoryMLCRepository(MLCRepository):
 
     def get_populations(self):
         return []
+
+    def remove_individuals(self, individuals):
+        for individual in individuals:
+            del self._individuals[individual]
 
     def get_individual(self, individual_id):
         try:
