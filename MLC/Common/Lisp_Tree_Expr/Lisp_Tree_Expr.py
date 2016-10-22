@@ -154,7 +154,6 @@ class Lisp_Tree_Expr(object):
                 child_node, offset = self._generate_leaf_node(expr[next_arg_pos:])
 
             node.add_child(child_node)
-            # print "Offset: " + str(offset)
             expr_offset += offset
 
         next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset + 1

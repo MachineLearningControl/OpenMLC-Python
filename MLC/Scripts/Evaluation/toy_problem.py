@@ -43,9 +43,9 @@ def individual_data(indiv):
     y3 = eng.eval('eval([formal])')
 
     mlc_y3 = indiv.get_tree().calculate_expression([x])
-    lg.logger_.debug("Y3: {0}".format(x))
-    lg.logger_.debug("Y3: {0}".format(y3))
-    lg.logger_.debug("MLC Y3: {0}".format(mlc_y3))
+    # lg.logger_.debug("Y3: {0}".format(x))
+    # lg.logger_.debug("Y3: {0}".format(y3))
+    # lg.logger_.debug("MLC Y3: {0}".format(mlc_y3))
 
     try:
         np_y3 = np.array([s for s in y3[0]])
@@ -65,8 +65,8 @@ def cost(indiv):
     x, y, y2, np_y3, mlc_y3 = individual_data(indiv)
     cost_np_y3 = float(np.sum((np_y3 - y2)**2))
     cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
-    lg.logger_.debug("MATLAB Y3 Cost: {0}".format(cost_np_y3))
-    lg.logger_.debug("MLC Y3 Cost: {0}".format(cost_mlc_y3))
+    # lg.logger_.debug("MATLAB Y3 Cost: {0}".format(cost_np_y3))
+    # lg.logger_.debug("MLC Y3 Cost: {0}".format(cost_mlc_y3))
     return cost_np_y3
 
 
