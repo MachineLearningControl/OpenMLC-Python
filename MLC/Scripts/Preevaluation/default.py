@@ -3,6 +3,6 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.individual.Individual import Individual
 
 
-def default(indiv):
+def preev(indiv):
     # TODO: Do something
     return True

@@ -191,9 +191,9 @@ class MLCIntegrationTest(unittest.TestCase):
         # List of dictionaries with the values of every individual
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-            if str(values[i]) != str(pop[i][map_property]):
-                print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
-                print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
+            # if str(values[i]) != str(pop[i][map_property]):
+            #     print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
+            #     print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
 
             if type == 'int':
                 self.assertEqual(int(values[i]),

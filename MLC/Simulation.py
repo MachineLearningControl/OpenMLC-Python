@@ -3,6 +3,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 
 class Simulation:
+
     def __init__(self):
         self._generations = MLCRepository.get_instance().get_populations()
 
@@ -13,7 +14,7 @@ class Simulation:
         if generation > len(self._generations):
             raise IndexError("Generation %s do not exist" % generation)
 
-        return self._generations[generation-1]
+        return self._generations[generation - 1]
 
     def number_of_generations(self):
         return len(self._generations)
@@ -29,7 +30,7 @@ class Simulation:
 
     def erase_generations(self, from_generation):
         if from_generation > 0:
-            self._generations = self._generations[:from_generation-1]
+            self._generations = self._generations[:from_generation - 1]
             MLCRepository.get_instance().erase_generations(from_generation)
 
     @staticmethod

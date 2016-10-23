@@ -4,17 +4,19 @@ import matlab.engine
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
+from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.mlc_table.MLCTable import MLCTable
-from MLC.Population.Population import Population
+from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.Population.Population import Population
 from MLC.Scripts.Evaluation import toy_problem
 from MLC.Scripts.Evaluation import arduino
-from MLC.Scripts.Preevaluation.default import default
-from MLC.db.mlc_repository import MLCRepository
+from MLC.Scripts.Evaluation import simulink_ev
+from MLC.Scripts.Preevaluation import default
+from MLC.Scripts.Preevaluation import simulink_preev
 from MLC.Simulation import Simulation
-from MLC.Population.Creation.CreationFactory import CreationFactory
 
 
 class Application(object):
@@ -67,7 +69,7 @@ class Application(object):
             first_population = Simulation.create_empty_population_for(generation=1)
             self._simulation.add_generation(first_population)
 
-        while self._simulation.number_of_generations() < to_generation:
+        while self._simulation.number_of_generations() <= to_generation:
             current_population = self._simulation.get_last_generation()
             current_generation_number = self._simulation.number_of_generations()
 
@@ -80,7 +82,7 @@ class Application(object):
 
             # show best if necessary
             if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig:
-                self.show_best()
+                self.show_best(self._simulation.get_last_generation())
 
             # evolve
             next_population = current_population.evolve()
@@ -97,7 +99,7 @@ class Application(object):
         # self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
-        for i in range(from_generation+1, self._simulation.number_of_generations()+1):
+        for i in range(from_generation + 1, self._simulation.number_of_generations() + 1):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
 
@@ -108,8 +110,12 @@ class Application(object):
         return self._pop_container[number]
 
     def evaluate_population(self, population, generation_number):
-        lg.logger_.info('Evaluating generation %s' % generation_number)
-
+        """
+        Evolves the population. (MLC2 Toolbox)
+        OBJ.EVALUATE_POPULATION launches the evaluation method,
+        and updates the MLC2 object.
+        The evaluation algorithm is implemented in the MLCpop class.
+        """
         # First evaluation
         population.evaluate(self._evaluator)
 
@@ -165,9 +171,11 @@ class Application(object):
         # Set the callbacks to be called at the moment of the evaluation
         # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
-        EvaluatorFactory.set_ev_callback('arduino', arduino.cost)
+        EvaluatorFactory.set_ev_callback('arduino', arduino)
+        EvaluatorFactory.set_ev_callback('simulink_ev', simulink_ev)
 
     def _set_preev_callbacks(self):
         # Set the callbacks to be called at the moment of the preevaluation
         # FIXME: To this dynamically searching .pys in the directory
         PreevaluationManager.set_callback('default', default)
+        PreevaluationManager.set_callback('simulink_preev', simulink_preev)

@@ -228,6 +228,9 @@ class Individual(object):
     def set_cost(self, cost):
         self._cost = cost
 
+    def get_tree(self):
+        return self._tree
+
     def __simplify_and_sensors_tree(self, value):
         sensor_list = ()
         replace_list = ()
