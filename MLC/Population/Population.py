@@ -26,9 +26,7 @@ class Population(object):
         self._individuals = [-1] * self._size
         self._costs = [-1] * self._size
         self._gen_method = [-1] * self._size
-
-        # TODO: Parents impl
-        self._parents = [-1] * self._size
+        self._parents = [[]] * self._size
 
         lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
 
@@ -116,22 +114,35 @@ class Population(object):
         self._individuals[index] = -1
         self._costs[index] = -1
         self._gen_method[index] = -1
-        # TODO: Parents impl
-        # self._parents[index] = -1
+        self._parents[index] = []
 
-    def update_individual(self, dest_index, rhs_pop, rhs_index,
-                          indiv_index, gen_method, cost=None):
+    def update_individual(self, *a, **kw):
         """
         Replace one individual with another.
+        dest_index: Index of the individual in the population container
+        rhs_pop: Population used to evolve the present Population
+        parent_index: Individual index of the parent of the individual
+        parent_index_2: In case of crossover, the second parent of the individual
+        indiv_index: Index in the Individuals container of the individual
+        gen_method: Generation method used to create the individual. Could be one of the following:
+            GEN_METHOD_REPLICATION = 1
+            GEN_METHOD_MUTATION = 2
+            GEN_METHOD_CROSSOVER = 3
+            GEN_METHOD_ELITISM = 4
+        cost: Cost asociated with the individual. If the cost is not included in the function,
+        the program assumes the individual will have the ssame cost than it's father
         """
-        self._individuals[dest_index] = indiv_index
-        if not cost:
-            self._costs[dest_index] = rhs_pop.get_costs()[rhs_index]
+        self._individuals[kw['dest_index']] = kw['indiv_index']
+        if not 'cost' in kw:
+            self._costs[kw['dest_index']] = kw['rhs_pop'].get_costs()[kw['parent_index']]
         else:
-            self._costs[dest_index] = cost
-        self._gen_method[dest_index] = gen_method
-        # TODO: Parents logical
-        # self._parents[dest_index] = rhs_pop.get_parents()[rhs_index]
+            self._costs[kw['dest_index']] = kw['cost']
+        self._gen_method[kw['dest_index']] = kw['gen_method']
+
+        if kw['gen_method'] == Population.GEN_METHOD_CROSSOVER:
+            self._parents[kw['dest_index']] = [kw['parent_index'] + 1, kw['parent_index_2'] + 1]
+        else:
+            self._parents[kw['dest_index']] = [kw['parent_index'] + 1]
 
     def get_best_index(self):
         """
@@ -148,7 +159,7 @@ class Population(object):
 
         new_pop = mlcpop2
         if new_pop is None:
-            new_pop = Simulation.create_empty_population_for(generation=self._gen+1)
+            new_pop = Simulation.create_empty_population_for(generation=self._gen + 1)
 
         lg.logger_.info('Evolving population N#' + str(self._gen))
 
@@ -188,19 +199,19 @@ class Population(object):
 
                         indiv_index = self._individuals[pop_idv_index_orig]
                         lg.logger_.info("Individual {0}/{1}: Elitism - Orig indiv {2} - Dest indiv {3}"
-                                         .format(individuals_created+1, len(not_valid_indexes),
-                                                 indiv_index, pop_idv_index_dest + 1))
+                                        .format(individuals_created + 1, len(not_valid_indexes),
+                                                indiv_index, pop_idv_index_dest + 1))
 
                         # Update the individual in the new population with the first param_elitism
-                        new_pop.update_individual(pop_idv_index_dest, self,
-                                                  pop_idv_index_orig, indiv_index,
-                                                  Population.GEN_METHOD_ELITISM)
+                        new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                                  parent_index=pop_idv_index_orig, indiv_index=indiv_index,
+                                                  gen_method=Population.GEN_METHOD_ELITISM)
 
                         mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                         individuals_created += 1
                 except IndexError:
                     lg.logger_.error("[POPULATION] Elitism - More individuals to replace than empty ones."
-                                    "Stop elitism algorithm")
+                                     "Stop elitism algorithm")
 
             # completing population
             indivs_to_be_completed = len(not_valid_indexes)
@@ -208,7 +219,7 @@ class Population(object):
             while individuals_created < indivs_to_be_completed:
                 indivs_left = indivs_to_be_completed - individuals_created
                 op = Population.choose_genetic_operation(indivs_left)
-                #lg.logger_.info("[POPULATION] Indivs left in subgen {0}: {1} "
+                # lg.logger_.info("[POPULATION] Indivs left in subgen {0}: {1} "
                 #                 "- Operation chosen: {2}".format(i + 1, indivs_left, op))
 
                 if op == "replication":
@@ -217,12 +228,13 @@ class Population(object):
 
                     indiv_index = self._individuals[pop_idv_index_orig]
                     lg.logger_.info("Individual {0}/{1}: Replication - Orig indiv {2} - Dest indiv {3}"
-                                     .format(individuals_created+1, len(not_valid_indexes),
-                                             indiv_index, pop_idv_index_dest + 1))
+                                    .format(individuals_created + 1, len(not_valid_indexes),
+                                            indiv_index, pop_idv_index_dest + 1))
 
-                    new_pop.update_individual(pop_idv_index_dest, self,
-                                              pop_idv_index_orig, indiv_index,
-                                              Population.GEN_METHOD_REPLICATION)
+                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                              parent_index=pop_idv_index_orig, indiv_index=indiv_index,
+                                              gen_method=Population.GEN_METHOD_REPLICATION)
+
                     mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
@@ -235,16 +247,16 @@ class Population(object):
 
                         indiv_index = self._individuals[pop_idv_index_orig]
                         lg.logger_.info("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
-                                         .format(individuals_created+1, len(not_valid_indexes),
-                                                 indiv_index, pop_idv_index_dest + 1))
+                                        .format(individuals_created + 1, len(not_valid_indexes),
+                                                indiv_index, pop_idv_index_dest + 1))
 
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
                         new_ind, fail = old_indiv.mutate()
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
-                    new_pop.update_individual(pop_idv_index_dest, self,
-                                              pop_idv_index_orig, number,
-                                              Population.GEN_METHOD_MUTATION, -1)
+                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                              parent_index=pop_idv_index_orig, indiv_index=number,
+                                              gen_method=Population.GEN_METHOD_MUTATION, cost=-1)
                     mlctable.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
@@ -268,10 +280,10 @@ class Population(object):
                         indiv_index = self._individuals[pop_idv_index_orig]
                         indiv_index2 = self._individuals[pop_idv_index_orig2]
                         lg.logger_.info("Individual {0}/{1}: Crossover (Pair 1) - Orig indiv {2} - Dest index {3} - "
-                                         "Crossover (Pair 2) - Orig indiv {4} - Dest index {5}"
-                                         .format(individuals_created+1, len(not_valid_indexes),
-                                                 indiv_index, pop_idv_index_dest + 1,
-                                                 indiv_index2, pop_idv_index_dest2 + 1))
+                                        "Crossover (Pair 2) - Orig indiv {4} - Dest index {5}"
+                                        .format(individuals_created + 1, len(not_valid_indexes),
+                                                indiv_index, pop_idv_index_dest + 1,
+                                                indiv_index2, pop_idv_index_dest2 + 1))
 
                         # Get the two individuals involved and call the crossover function
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
@@ -279,18 +291,16 @@ class Population(object):
                         new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
-                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest, number))
-                    # lg.logger_.debug("[POPULATION] Indiv1 value: {0}".format(new_ind.get_value()))
-                    new_pop.update_individual(pop_idv_index_dest, self,
-                                              pop_idv_index_orig, number,
-                                              Population.GEN_METHOD_CROSSOVER, -1)
+                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                              parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
+                                              indiv_index=number, cost=-1,
+                                              gen_method=Population.GEN_METHOD_CROSSOVER)
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind2)
-                    # lg.logger_.debug("[POPULATION] index1: {0} - Indiv1: {1}".format(pop_idv_index_dest2, number))
-                    # lg.logger_.debug("[POPULATION] Indiv2 value: {0}".format(new_ind2.get_value()))
-                    new_pop.update_individual(pop_idv_index_dest2, self,
-                                              pop_idv_index_orig2, number,
-                                              Population.GEN_METHOD_CROSSOVER, -1)
+                    new_pop.update_individual(dest_index=pop_idv_index_dest2, rhs_pop=self,
+                                              parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
+                                              indiv_index=number, cost=-1,
+                                              gen_method=Population.GEN_METHOD_CROSSOVER)
                     individuals_created += 2
 
         return new_pop
@@ -423,3 +433,6 @@ class Population(object):
 
     def get_gen_methods(self):
         return self._gen_method
+
+    def get_parents(self):
+        return self._parents

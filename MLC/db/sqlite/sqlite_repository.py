@@ -30,10 +30,12 @@ class SQLiteRepository(MLCRepository):
             individual_id = population._individuals[i]
             individual_cost = population._costs[i]
             individual_gen_method = population._gen_method[i]
+            individual_parents = ','.join(str(elem) for elem in population._parents[i])
             c.execute(stmt_insert_individual_in_population(generation,
                                                            individual_id,
                                                            individual_cost,
-                                                           individual_gen_method))
+                                                           individual_gen_method,
+                                                           individual_parents))
         c.close()
         conn.commit()
 
@@ -115,6 +117,12 @@ class SQLiteRepository(MLCRepository):
             population._individuals[i] = row[0]
             population._costs[i] = row[1]
             population._gen_method[i] = row[2]
+
+            if not row[3] == '':
+                population._parents[i] = [int(elem) for elem in row[3].split(',')]
+            else:
+                population._parents[i] = []
+
             i += 1
         conn.close()
         return population

@@ -61,9 +61,7 @@ class MLCIntegrationTest(unittest.TestCase):
                         else:
                             parents = []
                             parents = key_value[1].split(',')
-                            value = [float(i)
-                                     for i in parents
-                                     if parents != ['']]
+                            value = [int(i) for i in parents if parents != ['']]
                             indiv_dict[key_value[0]] = value
                     pop.append(indiv_dict)
                 cls._pops.append(pop)
@@ -167,7 +165,7 @@ class MLCIntegrationTest(unittest.TestCase):
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
         self._check_indiv_property(gen_number, pop.get_gen_methods(), 'gen_method', 'int')
-        # self._check_cellarray_property(gen_number, 'parents', 'parents')
+        self._check_indiv_property(gen_number, pop.get_parents(), 'parents')
 
     def _check_indiv_values(self, gen_number):
         i = 1
@@ -183,21 +181,18 @@ class MLCIntegrationTest(unittest.TestCase):
                 self.assertEqual(indiv.get_formal(), self._indivs[int(index) - 1]['formal'])
             else:
                 self.assertEqual(" ".join(indiv.get_formal()), self._indivs[int(index) - 1]['formal'])
-
-            #print "Individual N# ", i, " OK!"
             i += 1
 
     def _check_indiv_property(self, gen_number, values, map_property, type=None):
         # List of dictionaries with the values of every individual
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-            # if str(values[i]) != str(pop[i][map_property]):
-            #     print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
-            #     print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
+        #     if str(values[i]) != str(pop[i][map_property]):
+        #         print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
+        #         print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
 
             if type == 'int':
-                self.assertEqual(int(values[i]),
-                                 int(pop[i][map_property]))
+                self.assertEqual(int(values[i]), int(pop[i][map_property]))
             elif type == 'float':
                 obtained = float(values[i])
                 expected = float(pop[i][map_property])
