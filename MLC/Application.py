@@ -12,6 +12,7 @@ from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Population.Population import Population
 from MLC.Scripts.Evaluation import toy_problem
+from MLC.Scripts.Evaluation import toy_problem_python_ev
 from MLC.Scripts.Evaluation import arduino
 from MLC.Scripts.Evaluation import simulink_ev
 from MLC.Scripts.Preevaluation import default
@@ -171,6 +172,7 @@ class Application(object):
         # Set the callbacks to be called at the moment of the evaluation
         # FIXME: Dinamically get instances from "MLC.Scripts import *"
         EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
+        EvaluatorFactory.set_ev_callback('toy_problem_python_ev', toy_problem_python_ev)
         EvaluatorFactory.set_ev_callback('arduino', arduino)
         EvaluatorFactory.set_ev_callback('simulink_ev', simulink_ev)
 

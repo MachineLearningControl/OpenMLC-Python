@@ -3,7 +3,6 @@ import MLC.Log.log as lg
 import matplotlib.pyplot as plt
 import sys
 
-from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 
 
@@ -15,7 +14,6 @@ def individual_data(indiv):
     x[len(x) / 2] = 0
     y = np.tanh(x**3 - x**2 - 1)
 
-    eng = MatlabEngine.engine()
     config = Config.get_instance()
     # artificial_noise = self._config.getint('EVALUATOR', 'artificialnoise')
 
@@ -37,40 +35,36 @@ def individual_data(indiv):
         # toy problem support for multiple controls
         formal = indiv.get_formal()[0].replace('S0', 'x')
 
-    eng.workspace['x'] = eng.eval('-10:0.1:10')
-    eng.workspace['formal'] = formal
-
     # Calculate J like the sum of the square difference of the
     # functions in every point
 
     lg.logger_.debug('[POP][TOY_PROBLEM] Individual Formal: ' + formal)
-    eng.workspace['y3'] = eng.eval('zeros(1, ' + str(len(x)) + ')')
-    eng.eval('eval([formal])')
-    y3 = eng.eval('eval([formal])')
+    mlc_y3 = indiv.get_tree().calculate_expression([x])
 
-    try:
-        np_y3 = np.array([s for s in y3[0]])
-    except TypeError:
-        np_y3 = np.repeat(y3, len(x))
+    # If the expression doesn't have the term 'x',
+    # the eval returns a value (float) instead of an array.
+    # In that case transform it to an array
+    if type(mlc_y3) == float:
+        mlc_y3 = np.repeat(mlc_y3, len(x))
 
-    return x, y, y2, np_y3
+    return x, y, y2, mlc_y3
 
 
 def cost(indiv):
-    x, y, y2, np_y3 = individual_data(indiv)
-    cost_np_y3 = float(np.sum((np_y3 - y2)**2))
-    return cost_np_y3
+    x, y, y2, mlc_y3 = individual_data(indiv)
+    cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    return cost_mlc_y3
 
 
 def show_best(index, indiv, block=True):
-    x, y, y2, np_y3 = individual_data(indiv)
+    x, y, y2, mlc_y3 = individual_data(indiv)
     # FIXME: Absolute only makes sense if we're working with complex numbers. It's not the case...
-    y4 = np.sqrt((y - np_y3)**2 / (1 + np.absolute(x**2)))
+    y4 = np.sqrt((y - mlc_y3)**2 / (1 + np.absolute(x**2)))
 
     plt.clf()
     plt.suptitle("Individual N#{0} - Cost: {1}".format(index, indiv.get_cost()))
     plt.subplot(2, 1, 1)
-    plt.plot(x, y, x, y2, '*', x, np_y3)
+    plt.plot(x, y, x, y2, '*', x, mlc_y3)
 
     plt.subplot(2, 1, 2)
     plt.plot(x, y4, '*r')
