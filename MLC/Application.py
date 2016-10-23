@@ -70,7 +70,7 @@ class Application(object):
             first_population = Simulation.create_empty_population_for(generation=1)
             self._simulation.add_generation(first_population)
 
-        while self._simulation.number_of_generations() <= to_generation:
+        while self._simulation.number_of_generations() < to_generation:
             current_population = self._simulation.get_last_generation()
             current_generation_number = self._simulation.number_of_generations()
 
