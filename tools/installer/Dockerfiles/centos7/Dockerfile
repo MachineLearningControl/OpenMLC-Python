@@ -18,7 +18,7 @@ RUN yum update -y
 
 # Install packages
 # RUN apt-get install ssh gcc wget xz-utils make vim libssl-dev -y
-RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter qt-devel openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel -y
+RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter qt-devel openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel -y
 
 # Download python 2.7.11
 WORKDIR /tmp
@@ -72,7 +72,7 @@ chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 
 
 # Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib pyside scipy
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml
 
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -93,4 +93,4 @@ chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
 RUN gem install fpm
 
 # Create .rpm package
-RUN fpm -s dir -t rpm -v 0.1 -n mlc-python /opt/mlc-python-2.7.11
+RUN fpm -s dir -t rpm -v 0.2 -n mlc-python /opt/mlc-python-2.7.11

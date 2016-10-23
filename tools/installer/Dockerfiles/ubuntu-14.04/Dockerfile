@@ -5,7 +5,28 @@ FROM ubuntu:16.04
 RUN apt-get update && apt-get upgrade -y
 
 # Install packages
-RUN apt-get install cmake liblapack-dev gfortran libxml2-dev libxslt1-dev libshiboken-dev ruby-dev libqt4-dev tcl-dev tcl tk tk-dev ssh gcc g++ wget xz-utils make vim libssl-dev -y
+RUN apt-get install cmake \
+                    liblapack-dev \
+                    gfortran \
+                    libxml2-dev \
+                    libxslt1-dev \
+                    libshiboken-dev \
+                    ruby-dev \
+                    libqt4-dev \
+                    tcl-dev \
+                    tcl \
+                    tk \
+                    tk-dev \
+                    ssh \
+                    gcc \
+                    g++ \
+                    wget \
+                    xz-utils \
+                    make \
+                    vim \
+                    libssl-dev \
+                    libsqlite3-dev \
+                    -y
 
 # Download python 2.7.11
 WORKDIR /tmp
@@ -60,7 +81,7 @@ echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip
 
 # Install mlc dependencies
 # Create .sh who will load the desired enviroment to run nosetests within it
-RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy && echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy pyyaml && echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -77,4 +98,4 @@ echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
 RUN gem install fpm
 
 # Create .deb package
-RUN fpm -s dir -t deb -v 0.1 -n mlc-python /opt/mlc-python-2.7.11
+RUN fpm -s dir -t deb -v 0.2 -n mlc-python /opt/mlc-python-2.7.11
