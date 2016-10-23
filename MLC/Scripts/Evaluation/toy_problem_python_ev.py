@@ -62,7 +62,9 @@ def show_best(index, indiv, block=True):
     y4 = np.sqrt((y - mlc_y3)**2 / (1 + np.absolute(x**2)))
 
     plt.clf()
-    plt.suptitle("Individual N#{0} - Cost: {1}".format(index, indiv.get_cost()))
+    plt.suptitle("Individual N#{0} - Cost: {1} \n Formal: {2}".format(index,
+                                                                      indiv.get_cost(),
+                                                                      indiv.get_formal()))
     plt.subplot(2, 1, 1)
     plt.plot(x, y, x, y2, '*', x, mlc_y3)
 
