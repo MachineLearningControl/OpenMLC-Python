@@ -97,7 +97,8 @@ class Application(object):
         # Evaluate last population
         self.evaluate_population(self._simulation.get_last_generation(),
                                  self._simulation.number_of_generations())
-        # self.show_best(self._simulation.get_last_generation())
+
+        self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
 
         for i in range(from_generation + 1, self._simulation.number_of_generations() + 1):
