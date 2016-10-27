@@ -7,8 +7,8 @@
 
 // defines ahorran ROM... aunque nos sobra de eso XD -- Verificar que los const vayan a la rom!
 const uint8_t ANALOG_PRECISION_CMD  = 0x01;
-const uint8_t ADD_ANALOG_INPUT_CMD  = 0x02;
-const uint8_t ADD_ANALOG_OUTPUT_CMD = 0x03;
+const uint8_t ADD_INPUT_PORT_CMD  = 0x02;
+const uint8_t ADD_OUTPUT_PORT_CMD = 0x03;
 const uint8_t SET_PIN_MODE_CMD      = 0x04;
 const uint8_t SET_REPORT_MODE_CMD   = 0x05;
 const uint8_t ACTUATE_CMD           = 0xF0;
@@ -56,8 +56,8 @@ void set_analog_precision(const char* data)
 void set_pin_mode(const char* data)
 {
   pinMode(data[2], data[3]);
-  LOG("Changed pin mode on pin ", data[2]);
-  LOG("Mode set to ", data[3]);
+  LOG("Changed pin mode on pin ", uint8_t(data[2]));
+  LOG("Mode set to ", uint8_t(data[3]));
 }
 
 /**
@@ -98,7 +98,7 @@ void actuate(const char* data)
   int byte_count = byte(data[1]); // Un byte puede llegar a limitar la cantidad de salidas... creo
 
   // ACTUATION ZONE
-  while (offset > byte_count)
+  while (offset < byte_count)
   {
     //Se aplica la acción a cada puerto indicado
     int port = byte(data[2 + offset]);
@@ -166,23 +166,23 @@ void setup() {
 
   /**  Commands Callbacks  **/
   executor[ANALOG_PRECISION_CMD]  = &set_analog_precision;
-  executor[ADD_ANALOG_INPUT_CMD]  = &set_analog_input;
-  executor[ADD_ANALOG_OUTPUT_CMD] = &set_analog_output;
+  executor[ADD_INPUT_PORT_CMD]  = &set_analog_input;
+  executor[ADD_OUTPUT_PORT_CMD] = &set_analog_output;
   executor[SET_PIN_MODE_CMD]      = &set_pin_mode;
   executor[SET_REPORT_MODE_CMD]   = &set_report_mode;
   executor[ACTUATE_CMD]           = &actuate;
 
   executor[ANALOG_PRECISION_CMD]("\x01\x01\x12");
-  executor[ADD_ANALOG_INPUT_CMD]("\x02\x01\x37"); // Configura a A1 como lectura
-  executor[ADD_ANALOG_INPUT_CMD]("\x02\x01\x38"); // Configura a A2 como lectura
-  executor[SET_PIN_MODE_CMD]("\x04\x02\x12\x01");
+  executor[ADD_INPUT_PORT_CMD]("\x02\x01\x37"); // Configura a A1 como lectura
+  executor[ADD_INPUT_PORT_CMD]("\x02\x01\x38"); // Configura a A2 como lectura
+  executor[SET_PIN_MODE_CMD]("\x04\x02\x28\x01");
   executor[SET_PIN_MODE_CMD]("\x04\x02\x55\x00");
 
 }
 
 void loop() {
   LOG("Escribiendo...", " ");
-  executor[ACTUATE_CMD]("\xF0\x01\x12\x01");
+  executor[ACTUATE_CMD]("\xF0\x01\x28\x01");
 
   if (SerialUSB.available() > 0)
   {

@@ -1,7 +1,7 @@
 
 _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
-                    "ANALOG_INPUT"    : '\x02\x01%s',
-                    "ANALOG_OUTPUT"   : '\x03\x01%s',
+                    "SET_INPUT"    : '\x02\x01%s',
+                    "PIN_OUTPUT"   : '\x03\x01%s',
                     "PIN_MODE"        : '\x04\x02%s%s',
                     "REPORT_MODE"     : '\x05\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
@@ -12,11 +12,14 @@ class ArduinoInterface:
     PIN_MOD = {"INPUT":0, "OUTPUT":1} # 0=input 1=output -- wiring_constants.h
     REPORT_MOD = {"AVERAGE":0, "BULK":1, "RT":2}
 
-    def __init__(self, connection):
+    def __init__(self, connection, board):
         self._connection = connection
         self._anlg_inputs = []
+        self._digital_inputs = []
         self._anlg_outputs = []
-        self._anlg_precition = 10 #Default Arduino analog precition
+        self._digital_outputs = []
+        self._anlg_precition = 10 #Default Arduino analog precision
+        self._board = board
 
     def set_precition(self, bits):
         if bits > 32 or bits < 1:
@@ -35,27 +38,49 @@ class ArduinoInterface:
             raise Exception("Report mode error. Unknown value: %s" % mode)
         
         self._connection.send(_PROTOCOL_CMDS["REPORT_MODE"] % (chr(self.REPORT_MOD[mode]), chr(read_count), chr(read_delay)))
-       
+  
     
-    def add_analog_input(self, port):
-        if port in self._anlg_outputs:
-            raise Exception("Port %s is configured as output!" % port)
+    def add_input(self, port):
+        if port in self._anlg_outputs or port in self._digital_outputs:
+            raise Exception("Pin %s is configured as output!" % port)
+   
+        self._validate_pin(port)
 
-        if port not in self._anlg_inputs:
-            self._connection.send(_PROTOCOL_CMDS["ANALOG_INPUT"] % chr(port))
+        # Determines if we are setting as input an analog port
+        if port not in self._anlg_inputs and port in self._board["ANALOG_PINS"]:
+            # The "analogRead" arduino function maps the ADC pins not by their base pin number but from their relative ADC pin number
+            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port - min(self._board["ANALOG_PINS"])))
             self._anlg_inputs.append(port)
 
-    def add_analog_output(self, port):
-        if port in self._anlg_inputs:
+        # Determines if we are setting as input a Digital port
+        if port not in self._digital_inputs and port in self._board["DIGITAL_PINS"]:
+            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
+            self._digital_inputs.append(port)
+            
+
+    def add_output(self, port):
+        if port in self._anlg_inputs or port in self._digital_inputs:
             raise Exception("Port %s is configured as input!" % port)
 
+        self._validate_pin(port)
+
         if port not in self._anlg_outputs:
-            self._connection.send(_PROTOCOL_CMDS["ANALOG_OUTPUT"] % chr(port))
+            self._connection.send(_PROTOCOL_CMDS["PIN_OUTPUT"] % chr(port))
             self._anlg_outputs.append(port)
+
+        # Determines if we are setting as input a Digital port
+        if port not in self._digital_outputs and port in self._board["DIGITAL_PINS"]:
+            self._connection.send(_PROTOCOL_CMDS["PIN_OUTPUT"] % chr(port))
+            self._digital_outputs.append(port)
+
+    def _validate_pin(self, pin):
+        if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
+            raise Exception("Invalid pin %s for board %s" % (pin, self._board["NAME"]))
+        return
 
     def actuate(self, data):
         """
-        Actuate over the input port sent as parameters
+        Actuate over the parametrized output pins
         All the ports must has been configured as output!
 
         arguments:
@@ -65,10 +90,14 @@ class ArduinoInterface:
         size = 0
         #TODO: Ver como validar puertos digitales
         for i in data:
-            if i[0] not in self._anlg_outputs:
+            if i[0] not in self._anlg_outputs and i[0] not in self._digital_outputs:
                 raise Exception("Port %s not configured as output!" % i[0])
-            payload = "".join([payload, chr(i[0]), chr((i[1] & 0xFF00) >> 8), chr(i[1] & 0x00FF)])
-            size += 3 
+            if i[0] in self._anlg_outputs:
+                payload = "".join([payload, chr(i[0]), chr((i[1] & 0xFF00) >> 8), chr(i[1] & 0x00FF)])
+                size += 3
+            if i[0] in self._digital_outputs:
+                payload = "".join([payload, chr(i[0]), chr(i[1])])
+                size += 2
 
         self._connection.send("".join([_PROTOCOL_CMDS["ACTUATE"], chr(size), payload]))
         response = self._connection.recv(1)
