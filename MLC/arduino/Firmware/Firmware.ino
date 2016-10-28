@@ -14,12 +14,12 @@ const uint8_t SET_REPORT_MODE_CMD   = 0x05;
 const uint8_t ACTUATE_CMD           = 0xF0;
 
 // Commands executor caller -- one vector position == one command
-void (*executor[255])(const char*);
+int (*executor[255])(const char*);
 
-void not_implemented(const char* data)
+int not_implemented(const char* data)
 {
   //nothing to do...
-  return;
+  return 0;
 }
 
 typedef enum ReportModes {average, bulk, rt};
@@ -39,7 +39,7 @@ const char* ACK = "\xFF\x00";
 /**
    ANALOG_PRECISION: 0x01 0x01 [BITS]
 */
-void set_analog_precision(const char* data)
+int set_analog_precision(const char* data)
 {
   int i = byte(data[2]);
   // Tal vez conviene separar estas funciones ya que hay boards con resoluciones distintas...
@@ -48,54 +48,66 @@ void set_analog_precision(const char* data)
   analogReadResolution(i);
 
   LOG("Resolution changed to: ", i);
+
+  return 3; // Command of 3 bytes
 }
 
 /**
    PIN_MODE: 0x04 0x02 [PIN] [MODE]
 */
-void set_pin_mode(const char* data)
+int set_pin_mode(const char* data)
 {
   pinMode(data[2], data[3]);
   LOG("Changed pin mode on pin ", uint8_t(data[2]));
   LOG("Mode set to ", uint8_t(data[3]));
+
+  return 4; // Command of 4 bytes
 }
 
 /**
    REPORT_MODE: 0x05 0x03 [MODE] [READ_COUNT] [READ_DELAY]
 */
-void set_report_mode(const char* data)
+int set_report_mode(const char* data)
 {
   REPORT_MODE = (ReportModes)(data[2]);
   REPORT_READ_COUNT = byte(data[3]);
   REPORT_READ_DELAY = byte(data[4]);
   LOG("Report mode changed on port ", byte(data[3]));
+
+  return 5; // Command of 5 bytes
 }
 
 /**
    ANALOG_INPUT: 0x02 0x01 [PORT]
 */
-void set_analog_input(const char* data)
+int set_analog_input(const char* data)
 {
   INPUT_PORTS[0] += 1;
   INPUT_PORTS[INPUT_PORTS[0]] = byte(data[2]);
   LOG("New analog input: ", byte(data[2]));
+
+  return 3; // Command of 3 bytes
 }
 
 /**
  * ANALOG_OUTPUT: 0x03 0x01 [PORT]
  */
-void set_analog_output(const char* data)
+int set_analog_output(const char* data)
 {
   // No se si vale la pena guardar registro de pines de salida...
+
+  return 3; // Command of 3 bytes
 }
 
 /**
- * ACTUATE: 0xF0 [PIN_COUNT] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
+ * ACTUATE: 0xF0 [DATA_LEN] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
  */
-void actuate(const char* data)
+int actuate(const char* data)
 {
   int offset = 0;
   int byte_count = byte(data[1]); // Un byte puede llegar a limitar la cantidad de salidas... creo
+
+  LOG("Actutating over payload of size: ", byte_count);
 
   // ACTUATION ZONE
   while (offset < byte_count)
@@ -130,7 +142,7 @@ void actuate(const char* data)
   {
     if ( INPUT_PORTS[i] >= A0 )
     {
-      int data = analogRead(INPUT_PORTS[i]);
+      int data = analogRead(INPUT_PORTS[i]-A0);
       response[len + 1] = byte((data & 0xFF00) >> 8); // Se guarda el msb en el buffer
       response[len + 2] = byte(data & 0xFF);        // Se guarda el lsb en el buffer
 
@@ -148,13 +160,15 @@ void actuate(const char* data)
 
   response[1] = len - 1;
   SerialUSB.write(response, len + 2); // 2 bytes extras por el id de comando y la longitud
+
+  return offset + 2;
 }
 
 void setup() {
   SerialUSB.begin(115200);
   
   #ifdef DEBUG
-  Serial.begin(57600);
+  Serial.begin(115200);
   #endif
   
   for (int i = 0; i < 255; i++)
@@ -172,29 +186,30 @@ void setup() {
   executor[SET_REPORT_MODE_CMD]   = &set_report_mode;
   executor[ACTUATE_CMD]           = &actuate;
 
-  executor[ANALOG_PRECISION_CMD]("\x01\x01\x12");
-  executor[ADD_INPUT_PORT_CMD]("\x02\x01\x37"); // Configura a A1 como lectura
-  executor[ADD_INPUT_PORT_CMD]("\x02\x01\x38"); // Configura a A2 como lectura
-  executor[SET_PIN_MODE_CMD]("\x04\x02\x28\x01");
-  executor[SET_PIN_MODE_CMD]("\x04\x02\x55\x00");
-
 }
 
 void loop() {
-  LOG("Escribiendo...", " ");
-  executor[ACTUATE_CMD]("\xF0\x01\x28\x01");
+  //executor[ACTUATE_CMD]("\xF0\x01\x28\x01");
 
   if (SerialUSB.available() > 0)
   {
+    LOG("USB serial data available ", SerialUSB.available());
     char input[64]; // Esto se reserva en el stack, tal vez hacerlo global consume menos recursos...
-
+    
+    byte b_read = 0;
+    byte b_pos = 0;
+    
     while (SerialUSB.available() > 0)
     {
-      SerialUSB.readBytes(input, SerialUSB.available());
+      b_read += SerialUSB.readBytes(input, SerialUSB.available());
     }
-
-    executor[input[0]](input); // Does the callback for the command
+    
+    // Loop to process all commands received in the buffer
+    while(b_pos < b_read)
+    {
+      LOG("Executing command: ", int(input[b_pos]));
+      b_pos += executor[input[b_pos]](&input[b_pos]); // Does the callback for the command
+      LOG("b_pos ", b_pos);
+    }
   }
-
-  delay(5000);
 }

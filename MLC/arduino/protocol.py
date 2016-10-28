@@ -1,11 +1,11 @@
 
 _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
                     "SET_INPUT"    : '\x02\x01%s',
-                    "PIN_OUTPUT"   : '\x03\x01%s',
+                    "SET_OUTPUT"   : '\x03\x01%s',
                     "PIN_MODE"        : '\x04\x02%s%s',
                     "REPORT_MODE"     : '\x05\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
-                    "ACTUATE"         : '\xF0%s',
+                    "ACTUATE"         : '\xF0',
                     "ACTUATE_REPORT"  : '\xF1' }
 
 class ArduinoInterface:
@@ -27,9 +27,9 @@ class ArduinoInterface:
         self._connection.send(_PROTOCOL_CMDS["ANALOG_PRECISION"] % chr(bits))
         self._anlg_precition = bits
 
-    def set_pin_mode(self, port, mode):
+    def __set_pin_mode(self, port, mode):
         if mode not in self.PIN_MOD.keys():
-            raise Exception("Pind mode error. Unknown mode: %s. Modes availables: %s " % (mode, str(PIN_MOD.keys())))
+            raise Exception("Pind mode error. Unknown mode: %s. Modes availables: %s " % (mode, str(self.PIN_MOD.keys())))
         
         self._connection.send(_PROTOCOL_CMDS["PIN_MODE"] % (chr(port), chr(self.PIN_MOD[mode])))
 
@@ -44,17 +44,16 @@ class ArduinoInterface:
         if port in self._anlg_outputs or port in self._digital_outputs:
             raise Exception("Pin %s is configured as output!" % port)
    
-        self._validate_pin(port)
+        self.__validate_pin(port)
+        self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
+        self.__set_pin_mode(port, "INPUT")
 
         # Determines if we are setting as input an analog port
         if port not in self._anlg_inputs and port in self._board["ANALOG_PINS"]:
-            # The "analogRead" arduino function maps the ADC pins not by their base pin number but from their relative ADC pin number
-            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port - min(self._board["ANALOG_PINS"])))
             self._anlg_inputs.append(port)
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_inputs and port in self._board["DIGITAL_PINS"]:
-            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
             self._digital_inputs.append(port)
             
 
@@ -62,18 +61,18 @@ class ArduinoInterface:
         if port in self._anlg_inputs or port in self._digital_inputs:
             raise Exception("Port %s is configured as input!" % port)
 
-        self._validate_pin(port)
+        self.__validate_pin(port)
+        self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
+        self.__set_pin_mode(port, "OUTPUT")
 
-        if port not in self._anlg_outputs:
-            self._connection.send(_PROTOCOL_CMDS["PIN_OUTPUT"] % chr(port))
+        if port not in self._anlg_outputs and port in self._board["ANALOG_PINS"]:
             self._anlg_outputs.append(port)
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_outputs and port in self._board["DIGITAL_PINS"]:
-            self._connection.send(_PROTOCOL_CMDS["PIN_OUTPUT"] % chr(port))
             self._digital_outputs.append(port)
 
-    def _validate_pin(self, pin):
+    def __validate_pin(self, pin):
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
             raise Exception("Invalid pin %s for board %s" % (pin, self._board["NAME"]))
         return
@@ -88,7 +87,8 @@ class ArduinoInterface:
         """
         payload = ""
         size = 0
-        #TODO: Ver como validar puertos digitales
+
+        # Sets as payload every digital or analog port
         for i in data:
             if i[0] not in self._anlg_outputs and i[0] not in self._digital_outputs:
                 raise Exception("Port %s not configured as output!" % i[0])
@@ -119,8 +119,11 @@ class ArduinoInterface:
                 results.append((data[pos], (ord(data[pos+1]) << 8) + ord(data[pos+2])))
                 pos = pos + 3
             else:
-                results.append((data[pos], bool(ord(data[pos+1]))))
-                pos = pos + 2
+                if ord(data[pos]) in self._digital_inputs:
+                    results.append((data[pos], bool(ord(data[pos+1]))))
+                    pos = pos + 2
+                else:
+                    raise Exception("Unknown port in response. Restart Arduino board, your software and pray")
 
         return results
         
