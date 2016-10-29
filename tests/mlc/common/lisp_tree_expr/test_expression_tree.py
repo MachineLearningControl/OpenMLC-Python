@@ -3,7 +3,7 @@ import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr, TreeVisitor
+from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
 from MLC import config as config_path
 
 import os
@@ -73,30 +73,3 @@ class ExpressionTreeTest(unittest.TestCase):
 
         if not node.is_leaf():
             self.assertEquals(len(node._nodes), childs)
-
-    def test_calculate_subtree_depth(self):
-        expression = '(root (+ (tanh S0) (- (cos S2) (sin S3)))))'
-        expression_tree = Lisp_Tree_Expr(expression)
-        for node in expression_tree.nodes():
-            print "%s %s %s" % (node.to_string(), node.get_subtreedepth(), node.get_depth())
-
-        print "******"
-
-        class CalculateSubtreeDepth(TreeVisitor):
-            def __init__(self):
-                self._nodes = {}
-
-            def visit_internal_node(self, node):
-                self._nodes[node] = max([self._nodes[n] for n in node._nodes])+1
-
-            def visit_leaf_node(self, node):
-                self._nodes[node] = 0
-
-        expression = '(root (+ (tanh S0) (- (cos S2) (sin S3)))))'
-        expression_tree = Lisp_Tree_Expr(expression)
-        visitor = CalculateSubtreeDepth()
-        expression_tree.get_root_node().accept(visitor)
-
-        for node, depth in visitor._nodes.iteritems():
-            print "%s %s %s" % (node.to_string(), depth, node.get_depth())
-        # self.assertTrue(False)

@@ -168,7 +168,6 @@ class Lisp_Tree_Expr(object):
 
             node.add_child(child_node)
             child_subtreedepth = max(child_subtreedepth, child_node.get_subtreedepth())
-            # print "Offset: " + str(offset)
             expr_offset += offset
 
         node.set_subtreedepth(1+child_subtreedepth)
@@ -189,11 +188,3 @@ class Lisp_Tree_Expr(object):
         for node in self._nodes:
             yield node
 
-
-class TreeVisitor:
-
-    def visit_internal_node(self, node):
-        pass
-
-    def visit_leaf_node(self, ndoe):
-        pass
