@@ -7,6 +7,7 @@ from MLC.mlc_table.MLCTable import MLCTable
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+from MLC.individual.Individual import OperationOverIndividualFail
 
 
 class Population(object):
@@ -240,18 +241,21 @@ class Population(object):
 
                 elif op == "mutation":
                     new_ind = None
-                    fail = True
-                    while fail:
-                        pop_idv_index_orig = self._choose_individual(pop_subgen[i])
-                        pop_idv_index_dest = not_valid_indexes[individuals_created]
+                    while new_ind is None:
+                        try:
+                            pop_idv_index_orig = self._choose_individual(pop_subgen[i])
+                            pop_idv_index_dest = not_valid_indexes[individuals_created]
 
-                        indiv_index = self._individuals[pop_idv_index_orig]
-                        lg.logger_.info("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
-                                        .format(individuals_created + 1, len(not_valid_indexes),
-                                                indiv_index, pop_idv_index_dest + 1))
+                            indiv_index = self._individuals[pop_idv_index_orig]
+                            lg.logger_.info("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
+                                             .format(individuals_created+1, len(not_valid_indexes),
+                                                     indiv_index, pop_idv_index_dest + 1))
 
-                        old_indiv = MLCTable.get_instance().get_individual(indiv_index)
-                        new_ind, fail = old_indiv.mutate()
+                            old_indiv = MLCTable.get_instance().get_individual(indiv_index)
+                            new_ind = old_indiv.mutate()
+
+                        except OperationOverIndividualFail, ex:
+                            pass
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
                     new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
@@ -288,7 +292,11 @@ class Population(object):
                         # Get the two individuals involved and call the crossover function
                         old_indiv = MLCTable.get_instance().get_individual(indiv_index)
                         old_indiv2 = MLCTable.get_instance().get_individual(indiv_index2)
-                        new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
+                        try:
+                            new_ind, new_ind2 = old_indiv.crossover(old_indiv2)
+                            fail = False
+                        except OperationOverIndividualFail, ex:
+                            lg.logger_.debug(str(ex))
 
                     number, repeated = MLCTable.get_instance().add_individual(new_ind)
                     new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,

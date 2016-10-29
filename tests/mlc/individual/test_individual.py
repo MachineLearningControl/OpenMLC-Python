@@ -2,7 +2,7 @@ import unittest
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.matlab_engine import MatlabEngine
-from MLC.individual.Individual import Individual
+from MLC.individual.Individual import Individual, OperationOverIndividualFail
 
 from MLC.mlc_parameters.mlc_parameters import Config, saved
 from MLC import config as mlc_config_path
@@ -160,9 +160,7 @@ class IndividualTest(unittest.TestCase):
         individual_1.generate("(root (cos 5.046))")
         individual_2 = Individual()
         individual_2.generate("(root (cos 5.046))")
-        new_ind_1, new_ind_2, fail = individual_1.crossover(individual_2)
-
-        self.assertFalse(fail)
+        new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
 
         self._assert_individual(new_ind_1, complexity=4,
                                 hash=3.9424597980921636e+70,
@@ -179,7 +177,7 @@ class IndividualTest(unittest.TestCase):
         individual_1.generate("(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))")
         individual_2 = Individual()
         individual_2.generate("(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))")
-        new_ind_1, new_ind_2, fail = individual_1.crossover(individual_2)
+        new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 hash=3.988734956834988e-46,
@@ -196,15 +194,15 @@ class IndividualTest(unittest.TestCase):
         individual_1.generate("(root S0)")
         individual_2 = Individual()
         individual_2.generate("(root S0)")
-        new_ind_1, new_ind_2, fail = individual_1.crossover(individual_2)
 
-        # crossover with individual type 4 should fail
-        self.assertTrue(fail)
-        self.assertIsNone(new_ind_1)
-        self.assertIsNone(new_ind_2)
+        try:
+            new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
+            self.assertFalse(True, "crossover with individual type 4 should fail")
+        except OperationOverIndividualFail, ex:
+            self.assertTrue(True)
 
     def test_crossover_same_individual(self):
-        new_ind_1, new_ind_2, fail = self._individual_l2.crossover(self._individual_l2)
+        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l2)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 hash=-5.513419727757863e-64,
@@ -218,9 +216,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_crossover_different_levels_2_3(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind_1, new_ind_2, fail = self._individual_l2.crossover(self._individual_l3)
-
-        self.assertFalse(fail)
+        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 hash=-9.469742614799921e-82,
@@ -233,9 +229,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div((sin(4.37) .* (((-1.912) .* (-9.178)) + cos(S0))),my_log((2.025 + (-8.685))))))")
 
         # make another to crossover in order to check randomness
-        new_ind_1, new_ind_2, fail = self._individual_l2.crossover(self._individual_l3)
-
-        self.assertFalse(fail)
+        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 hash=1.4944726960633078e+183,
@@ -249,9 +243,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_crossover_different_levels_0_3(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind_1, new_ind_2, fail = self._individual_l0.crossover(self._individual_l3)
-
-        self.assertFalse(fail)
+        new_ind_1, new_ind_2 = self._individual_l0.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=3,
                                 hash=1.4944726960633078e+183,
@@ -265,27 +257,24 @@ class IndividualTest(unittest.TestCase):
 
     def test_crossover_different_levels_0_4(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind_1, new_ind_2, fail = self._individual_l0.crossover(self._individual_l4)
-
-        # crossover with individual type 4 should fail
-        self.assertTrue(fail)
-        self.assertIsNone(new_ind_1)
-        self.assertIsNone(new_ind_2)
+        try:
+            new_ind_1, new_ind_2 = self._individual_l0.crossover(self._individual_l4)
+            self.assertFalse(True, "crossover with individual type 4 should fail")
+        except OperationOverIndividualFail, ex:
+            self.assertTrue(True)
 
     def test_mutate_remove_subtree_and_replace(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=143,
                                 hash=-1.3367784216959267e-151,
                                 value="(root (log (/ (* (+ (/ (cos -3.0973) (exp (log (* (* -1.3423 (tanh (log -3.5094))) (+ (/ (/ (* -9.1213 (cos (exp S0))) (sin (exp (+ S0 1.7471)))) (- 5.0161 (sin (log S0)))) (- (cos (* (+ (sin S0) 6.2042) S0)) -9.4159)))))) (log (* (- (tanh -8.5969) S0) (/ (exp (/ 8.2118 S0)) (* (* S0 (* (cos (sin (log (exp -3.2288)))) S0)) 0.0290))))) (- -8.815 -3.902)) (log (+ 2.025 -8.685)))))",
                                 formal="my_log((my_div((((my_div(cos((-3.0973)),exp(my_log((((-1.3423) .* tanh(my_log((-3.5094)))) .* ((my_div((my_div(((-9.1213) .* cos(exp(S0))),sin(exp((S0 + 1.7471))))),(5.0161 - sin(my_log(S0))))) + (cos(((sin(S0) + 6.2042) .* S0)) - (-9.4159)))))))) + my_log(((tanh((-8.5969)) - S0) .* (my_div(exp((my_div(8.2118,S0))),((S0 .* (cos(sin(my_log(exp((-3.2288))))) .* S0)) .* 0.0290)))))) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=83,
                                 hash=-3.1357260586196107e+180,
                                 value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) (tanh (/ (/ -5.0573 (- S0 (/ (cos (log 4.7410)) (exp (/ (log -8.6795) (log (/ (+ 1.4783 (log (+ 2.3213 S0))) (tanh (- (sin 3.7830) (+ -7.5027 3.9792)))))))))) (/ 2.2245 (exp 8.8633)))))))",
@@ -293,36 +282,32 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_reparametrization(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
                                 hash=14269175.128717355,
                                 value="(root (log (/ (* (sin 0.3271) (- -1.6130 -9.6837)) (log (+ 6.0366 -3.0632)))))",
                                 formal="my_log((my_div((sin(0.3271) .* ((-1.6130) - (-9.6837))),my_log((6.0366 + (-3.0632))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
                                 hash=-1.116096220690224e+75,
                                 value="(root (log (/ (* (sin -2.6118) (- 2.7746 -7.5323)) (log (+ 5.4023 -3.0973)))))",
                                 formal="my_log((my_div((sin((-2.6118)) .* (2.7746 - (-7.5323))),my_log((5.4023 + (-3.0973))))))")
 
     def test_mutate_hoist(self):
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.HOIST)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.HOIST)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=17,
                                 hash=2.066009957759577e+180,
                                 value="(root (/ (* (sin 4.37) (- -8.815 -3.902)) (log (+ 2.025 -8.685))))",
                                 formal="(my_div((sin(4.37) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685)))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.HOIST)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.HOIST)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=4,
                                 hash=1.4944726960633078e+183,
                                 value="(root (sin 4.37))",
@@ -330,18 +315,16 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_shrink(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.SHRINK)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.SHRINK)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=19,
                                 hash=-2.277899705381213e+222,
                                 value="(root (log (/ (* -9.6837 (- -8.815 -3.902)) (log (+ 2.025 -8.685)))))",
                                 formal="my_log((my_div(((-9.6837) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.SHRINK)
+        new_ind = self._individual_l3.mutate(Individual.MutationType.SHRINK)
 
-        self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=15,
                                 hash=1.2070346203022018e+173,
                                 value="(root (log (/ (* (sin 4.37) (- -8.815 -3.902)) -2.6118)))",
@@ -349,24 +332,21 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_random_choice(self):
         # mutate random: 4
-        new_ind, fail = self._individual_l3.mutate()
-        self.assertFalse(fail)
+        new_ind = self._individual_l3.mutate()
         self._assert_individual(new_ind, complexity=8,
                                 hash=1.2070346203022018e+173,
                                 value="(root (log (+ 2.025 -8.685)))",
                                 formal="my_log((2.025 + (-8.685)))")
 
         # mutate random: 1
-        new_ind, fail = self._individual_l3.mutate()
-        self.assertFalse(fail)
+        new_ind = self._individual_l3.mutate()
         self._assert_individual(new_ind, complexity=22,
                                 hash=-9.739328993463583e+261,
                                 value="(root (log (/ (* (sin -2.6118) (- 2.7746 -7.5323)) (log (+ 5.4023 -3.0973)))))",
                                 formal="my_log((my_div((sin((-2.6118)) .* (2.7746 - (-7.5323))),my_log((5.4023 + (-3.0973))))))")
 
         # mutate random: 2
-        new_ind, fail = self._individual_l3.mutate()
-        self.assertFalse(fail)
+        new_ind = self._individual_l3.mutate()
         self._assert_individual(new_ind, complexity=8,
                                 hash=1.5210419679169233e+36,
                                 value="(root (log (+ 2.025 -8.685)))",
@@ -388,16 +368,16 @@ class IndividualTest(unittest.TestCase):
             individual.generate(individual_type=3)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
+            new_ind = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
+            new_ind = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.SHRINK)
+            new_ind = self._individual_l2.mutate(Individual.MutationType.SHRINK)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.SHRINK)
+            new_ind = self._individual_l2.mutate(Individual.MutationType.SHRINK)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
     def test_parameter_controls_generate(self):
@@ -476,13 +456,13 @@ class IndividualTest(unittest.TestCase):
             individual = Individual()
             individual.generate('(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))')
 
-            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
+            new_ind = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (log (exp -3.2288)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
-            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
+            new_ind = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (exp S0) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
-            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
+            new_ind = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (* S0 (* 1.6755 -0.0699)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
     def _assert_individual(self, individual, value, hash, formal, complexity):

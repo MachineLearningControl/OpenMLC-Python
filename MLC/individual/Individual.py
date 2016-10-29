@@ -11,6 +11,17 @@ from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr, TreeVisitor
 import re
 
 
+class IndividualException(Exception):
+    pass
+
+
+class OperationOverIndividualFail(IndividualException):
+    def __init__(self, individual_value, operation_name, cause):
+        IndividualException.__init__(self, "Operation '%s' over individual '%s' fail due %s" % (operation_name, individual_value, cause) )
+
+class TreeException(Exception):
+    pass
+
 class Individual(object):
     """
     MLCind constructor of the Machine Learning Control individual class.
@@ -130,32 +141,33 @@ class Individual(object):
         self._complexity = self._tree.complexity()
 
     def mutate(self, mutation_type=MutationType.ANY):
-        new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
+        try:
+            new_value = self.__mutate_tree(self.get_value(), mutation_type)
+            new_individual = Individual()
+            new_individual.generate(new_value)
+            return new_individual
 
-        if fail:
-            return None, fail
-
-        new_individual = Individual()
-        new_individual.generate(new_value)
-        return new_individual, fail
+        except TreeException, ex:
+            raise OperationOverIndividualFail(self._value, "MUTATE", str(ex))
 
     def crossover(self, other_individual):
         """
             CROSSOVER crosses two MLCind individuals.
             [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
-        m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
+        try:
+            new_value_1, new_value_2 = self.__crossover_tree(self.get_value(), other_individual.get_value())
 
-        if fail:
-            return None, None, fail
+            new_ind1 = Individual()
+            new_ind1.generate(new_value_1)
 
-        new_ind1 = Individual()
-        new_ind1.generate(m1)
+            new_ind2 = Individual()
+            new_ind2.generate(new_value_2)
 
-        new_ind2 = Individual()
-        new_ind2.generate(m2)
+            return new_ind1, new_ind2
 
-        return new_ind1, new_ind2, fail
+        except TreeException, ex:
+            raise OperationOverIndividualFail(self._value, "CROSSOVER", str(ex))
 
     def compare(self, other_individual):
         return self.get_value() == other_individual.get_value()
@@ -325,35 +337,29 @@ class Individual(object):
         tmp_value_2 = value_2
 
         while not correct and count < maxtries:
-            # Extracting subtrees
-            value_1, sm1, n = self.__extract_subtree(tmp_value_1, mutmindepth, maxdepth, maxdepth)  # check extract_subtree comments
-            value_2, sm2, n2 = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth - n + 1)
+            try:
+                # Extracting subtrees
+                value_1, sm1, n = self.__extract_subtree(tmp_value_1, mutmindepth, maxdepth, maxdepth)
+                value_2, sm2, _ = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth - n + 1)
+                correct = True
 
-            # n or n2 < 0 indicates the extraction was not correct for any reason.
-            correct = n > 0 and n2 > 0
+            except TreeException, ex:
+                pass
+
             count += 1
 
-        if correct:
-            # Replacing subtrees
-            value_1 = value_1.replace('@', sm2)
-            value_2 = value_2.replace('@', sm1)
-            """
-            %if gen_param.preevaluation
-            %   eval(['peval=@' gen_param.preev_function ';']);
-            %   f=peval;
-            %   preevok1=feval(f,m1);
-            %   preevok2=feval(f,m2);
-            %   fail=1-preevok1*preevok2;
-            %end
-            """
-        # correct == false means that we could not find a candidate substitution
-        # in maxtries tests. We will select other individuals.
+        if not correct:
+            raise TreeException("we could not find a candidate substitution in %s tests" % maxtries)
 
-        return value_1, value_2, not correct
+        # Replacing subtrees
+        value_1 = value_1.replace('@', sm2)
+        value_2 = value_2.replace('@', sm1)
+
+        # TODO preevaluation over value_1 and value_2
+
+        return value_1, value_2
 
     def __mutate_tree(self, value, mutation_type):
-        fail = False
-
         mutmindepth = self._config.getint("GP", "mutmindepth")
         maxdepth = self._config.getint("GP", "maxdepth")
         sensor_spec = self._config.getboolean("POPULATION", "sensor_spec")
@@ -369,7 +375,10 @@ class Individual(object):
             preevok = False
             while not preevok:
                 # remove subtree and grow new subtree
-                value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
+                try:
+                    value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
+                except TreeException:
+                    pass
 
                 if mutation_type == Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE:
                     value = self.__generate_indiv_regressive_tree(value, 0)
@@ -385,15 +394,6 @@ class Individual(object):
                     for i in range(len(config_sensor_list)):
                         value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
 
-                    """
-                    if sensor_spec:
-                        config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
-                        for i in range(len(config_sensor_list)):
-                            value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
-                    else:
-                        for i in range(sensors, 0, -1):
-                            value = value.replace("z%d" % (i - 1), "S%d" % (i - 1))
-                    """
                     preevok = True
                     # if gen_param.preevaluation
                     #   eval(['peval=@' gen_param.preev_function ';']);
@@ -403,11 +403,13 @@ class Individual(object):
                 else:
                     preevok = True
 
-            return value, not value
+            if not value:
+                raise TreeException("Subtree cannot be generated")
+
+            return value
 
         elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
-            value = self.__reparam_tree(value)
-            return value, False
+            return self.__reparam_tree(value)
 
         elif mutation_type == Individual.MutationType.HOIST:
             controls = self._config.getint("POPULATION", "controls")
@@ -423,15 +425,16 @@ class Individual(object):
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
                 if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
-                    _, sm, _, = self.__extract_subtree('(root '+cl[nc - 1]+')', mutmindepth+1, maxdepth, maxdepth+1)
 
-                    if sm:
+                    try:
+                        _, sm, _ = self.__extract_subtree('(root '+cl[nc - 1]+')', mutmindepth+1, maxdepth, maxdepth+1)
                         cl[nc - 1] = sm
+                        changed = True
 
-                    changed = not sm is None
+                    except TreeException:
+                        changed = False
 
-            value = "(root %s)" % " ".join(cl[:controls])
-            return value, False
+            return "(root %s)" % " ".join(cl[:controls])
 
         else:
             raise NotImplementedError("Mutation type %s not implemented" % mutation_type)
@@ -444,15 +447,17 @@ class Individual(object):
                 if node.get_subtreedepth() <= subtreedepthmax:
                     candidates.append(node)
 
-        if candidates:
-            candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
-            n = int(np.ceil(MatlabEngine.rand() * len(candidates))) - 1
-            extracted_node = candidates[n]
-            index = extracted_node.get_expr_index()
-            new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
-            return new_value, extracted_node.to_string(), extracted_node.get_subtreedepth()
-        else:
-            return [], [], -1
+        if not candidates:
+            raise TreeException("No subtrees to extract from '%s' "
+                                "with mindepth=%s, maxdepth=%s, subtreedepthmax=%s" %
+                                (m, mindepth, maxdepth, subtreedepthmax))
+
+        candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
+        n = int(np.ceil(MatlabEngine.rand() * len(candidates))) - 1
+        extracted_node = candidates[n]
+        index = extracted_node.get_expr_index()
+        new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
+        return new_value, extracted_node.to_string(), extracted_node.get_subtreedepth()
 
     def __reparam_tree(self, value):
         def leaf_value_generator():
