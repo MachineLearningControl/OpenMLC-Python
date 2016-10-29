@@ -82,7 +82,6 @@ class Individual(object):
         self._tree = None
 
         # For the moment is the only type available
-        self._type = "tree"
         self._value = value
         self._cost = 1e36
         self._cost_history = []
@@ -117,85 +116,59 @@ class Individual(object):
         if value is None and individual_type is None:
             raise Exception("Individual::generate() value or individual_type arguments should be passed to generate method")
 
-        param_individual_type = self._config.get('POPULATION', 'individual_type')
-
-        if param_individual_type == "tree":
-            self._type = "tree"
-
-            if value:
-                self._value = value
-            else:
-                controls = self._config.getint('POPULATION', 'controls')
-                self._value = '(root%s)' % (' @' * controls)
-                for i in range(controls):
-                    self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
-
-            self._value = self.__simplify_and_sensors_tree(self._value)
-            self._hash = self._tree.calculate_hash()
-            self._formal = self._tree.formal()
-            self._complexity = self._tree.complexity()
+        if value:
+            self._value = value
         else:
-            raise NotImplementedError("Individual::generate() is not implemented for type %s" % param_individual_type)
+            controls = self._config.getint('POPULATION', 'controls')
+            self._value = '(root%s)' % (' @' * controls)
+            for i in range(controls):
+                self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
+
+        self._value = self.__simplify_and_sensors_tree(self._value)
+        self._hash = self._tree.calculate_hash()
+        self._formal = self._tree.formal()
+        self._complexity = self._tree.complexity()
 
     def mutate(self, mutation_type=MUTATION_ANY):
-        param_individual_type = self._config.get("POPULATION", "individual_type")
+        new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
 
-        if param_individual_type == 'tree':
-            new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
+        if fail:
+            return None, fail
 
-            if fail:
-                return None, fail
-
-            new_individual = Individual()
-            new_individual.generate(new_value)
-            return new_individual, fail
-
-        raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
+        new_individual = Individual()
+        new_individual.generate(new_value)
+        return new_individual, fail
 
     def crossover(self, other_individual):
         """
         CROSSOVER crosses two MLCind individuals.
         [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
-        param_individual_type = self._config.get("POPULATION", "individual_type")
+        m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
 
-        if param_individual_type == 'tree':
-            m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
+        if fail:
+            return None, None, fail
 
-            if fail:
-                return None, None, fail
+        new_ind1 = Individual()
+        new_ind1.generate(m1)
 
-            new_ind1 = Individual()
-            new_ind1.generate(m1)
+        new_ind2 = Individual()
+        new_ind2.generate(m2)
 
-            new_ind2 = Individual()
-            new_ind2.generate(m2)
-
-            return new_ind1, new_ind2, fail
-
-        raise NotImplementedError("Individual::generate() not implemented for type %s" % param_individual_type)
+        return new_ind1, new_ind2, fail
 
     def compare(self, other_individual):
         """
         Compare two MLCind value properties.
         ISEQUAL=COMPARE(MLCIND1,MLCIND2) returns 1 if both values are equal.
         """
-        if self.get_type() == 'tree':
-            return self.get_value() == other_individual.get_value()
-
-        raise NotImplementedError("Individual::compare() is not implemented for type %s" % self.get_type())
+        return self.get_value() == other_individual.get_value()
 
     def get_value(self):
         return self._value
 
     def set_value(self, value):
         self._value = value
-
-    def get_type(self):
-        return self._type
-
-    def set_type(self, type):
-        self._type = type
 
     def get_cost(self):
         return self._cost
