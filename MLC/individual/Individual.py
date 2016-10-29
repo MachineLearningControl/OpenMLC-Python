@@ -142,7 +142,7 @@ class Individual(object):
 
     def mutate(self, mutation_type=MutationType.ANY):
         try:
-            new_value = self.__mutate_tree(self.get_value(), mutation_type)
+            new_value = self.__mutate_tree(Lisp_Tree_Expr(self.get_value()), mutation_type)
             new_individual = Individual()
             new_individual.generate(new_value)
             return new_individual
@@ -156,7 +156,7 @@ class Individual(object):
             [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
         try:
-            new_value_1, new_value_2 = self.__crossover_tree(self.get_value(), other_individual.get_value())
+            new_value_1, new_value_2 = self.__crossover_tree(Lisp_Tree_Expr(self.get_value()), Lisp_Tree_Expr(other_individual.get_value()))
 
             new_ind1 = Individual()
             new_ind1.generate(new_value_1)
@@ -313,18 +313,13 @@ class Individual(object):
 
         return new_value
 
-    def __crossover_tree(self, value_1, value_2):
+    def __crossover_tree(self, expression_tree_1, expression_tree_2):
         """
             Extract a subtree out of a tree, extract a correct subtree out of
-            another tree (with depth that can fit into maxdepth). Then interchange
-            the two subtrees inputs:
+            another tree (with depth that can fit into maxdepth).
+            Then interchange the two subtrees inputs:
 
-            :param value_1: first tree (lisp ascii expression)
-            :param value_2: second tree (lisp ascii expression)
-            returned by set_GP_parameters.m
-            :return:
-            m1: first new tree (lisp ascii expression)                              %
-            m2: second new tree (lisp ascii expression)
+            :return: (first new tree, second new tree) as strings
         """
         maxtries = self._config.getint("GP", "maxtries")
         mutmindepth = self._config.getint("GP", "mutmindepth")
@@ -333,14 +328,11 @@ class Individual(object):
         correct = False
         count = 0
 
-        tmp_value_1 = value_1
-        tmp_value_2 = value_2
-
         while not correct and count < maxtries:
             try:
                 # Extracting subtrees
-                value_1, sm1, n = self.__extract_subtree(tmp_value_1, mutmindepth, maxdepth, maxdepth)
-                value_2, sm2, _ = self.__extract_subtree(tmp_value_2, mutmindepth, n, maxdepth - n + 1)
+                value_1, sm1, n = self.__extract_subtree(expression_tree_1, mutmindepth, maxdepth, maxdepth)
+                value_2, sm2, _ = self.__extract_subtree(expression_tree_2, mutmindepth, n, maxdepth - n + 1)
                 correct = True
 
             except TreeException, ex:
@@ -359,7 +351,7 @@ class Individual(object):
 
         return value_1, value_2
 
-    def __mutate_tree(self, value, mutation_type):
+    def __mutate_tree(self, expression_tree, mutation_type):
         mutmindepth = self._config.getint("GP", "mutmindepth")
         maxdepth = self._config.getint("GP", "maxdepth")
         sensor_spec = self._config.getboolean("POPULATION", "sensor_spec")
@@ -372,50 +364,45 @@ class Individual(object):
             mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
         if mutation_type in [Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE, Individual.MutationType.SHRINK]:
+            new_individual_value = None
             preevok = False
             while not preevok:
                 # remove subtree and grow new subtree
                 try:
-                    value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
+                    subtree, _, _ = self.__extract_subtree(expression_tree, mutmindepth, maxdepth, maxdepth)
+                    if mutation_type == Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE:
+                        next_individual_type = 0
+                    else:
+                        next_individual_type = 4
+
+                    new_individual_value = self.__generate_indiv_regressive_tree(subtree, next_individual_type)
+
+                    if new_individual_value:
+                        if sensor_spec:
+                            config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
+                        else:
+                            config_sensor_list = range(sensors - 1, -1, -1)
+
+                        for i in range(len(config_sensor_list)):
+                            new_individual_value = new_individual_value.replace("z%d" % i, "S%d" % config_sensor_list[i])
+
                 except TreeException:
                     pass
 
-                if mutation_type == Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE:
-                    value = self.__generate_indiv_regressive_tree(value, 0)
-                else:
-                    value = self.__generate_indiv_regressive_tree(value, 4)
+                preevok = True
 
-                if value:
-                    if sensor_spec:
-                        config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
-                    else:
-                        config_sensor_list = range(sensors-1, -1, -1)
-
-                    for i in range(len(config_sensor_list)):
-                        value = value.replace("z%d" % i, "S%d" % config_sensor_list[i])
-
-                    preevok = True
-                    # if gen_param.preevaluation
-                    #   eval(['peval=@' gen_param.preev_function ';']);
-                    #   f=peval;
-                    #   preevok=feval(f,m);
-                    # end
-                else:
-                    preevok = True
-
-            if not value:
+            if not new_individual_value:
                 raise TreeException("Subtree cannot be generated")
 
-            return value
+            return new_individual_value
 
         elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
-            return self.__reparam_tree(value)
+            return self.__reparam_tree(expression_tree)
 
         elif mutation_type == Individual.MutationType.HOIST:
             controls = self._config.getint("POPULATION", "controls")
             prob_threshold = 1 / float(controls)
 
-            expression_tree = Lisp_Tree_Expr(value)
             cl = [stree.to_string() for stree in expression_tree.get_root_node()._nodes]
 
             changed = False
@@ -427,7 +414,7 @@ class Individual(object):
                 if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
 
                     try:
-                        _, sm, _ = self.__extract_subtree('(root '+cl[nc - 1]+')', mutmindepth+1, maxdepth, maxdepth+1)
+                        _, sm, _ = self.__extract_subtree(Lisp_Tree_Expr('(root '+cl[nc - 1]+')'), mutmindepth+1, maxdepth, maxdepth+1)
                         cl[nc - 1] = sm
                         changed = True
 
@@ -439,8 +426,7 @@ class Individual(object):
         else:
             raise NotImplementedError("Mutation type %s not implemented" % mutation_type)
 
-    def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
-        expression_tree = Lisp_Tree_Expr(m)
+    def __extract_subtree(self, expression_tree, mindepth, subtreedepthmax, maxdepth):
         candidates = []
         for node in expression_tree.internal_nodes():
             if mindepth <= node.get_depth() <= maxdepth:
@@ -450,28 +436,28 @@ class Individual(object):
         if not candidates:
             raise TreeException("No subtrees to extract from '%s' "
                                 "with mindepth=%s, maxdepth=%s, subtreedepthmax=%s" %
-                                (m, mindepth, maxdepth, subtreedepthmax))
+                                (expression_tree, mindepth, maxdepth, subtreedepthmax))
 
         candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
         n = int(np.ceil(MatlabEngine.rand() * len(candidates))) - 1
         extracted_node = candidates[n]
         index = extracted_node.get_expr_index()
-        new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
+        old_value = expression_tree.get_expanded_tree_as_string()
+        new_value = old_value[:index] + old_value[index:].replace(extracted_node.to_string(), '@', 1)
         return new_value, extracted_node.to_string(), extracted_node.get_subtreedepth()
 
-    def __reparam_tree(self, value):
+    def __reparam_tree(self, tree_expression):
         def leaf_value_generator():
             leaf_value = (MatlabEngine.rand() - 0.5) * 2 * self._range
             return "%0.*f" % (self._precision, leaf_value)
 
-        return self.__change_const_tree(value, leaf_value_generator)
+        return self.__change_const_tree(tree_expression, leaf_value_generator)
 
-    def __change_const_tree(self, expression, leaf_value_generator):
-        expression_tree = Lisp_Tree_Expr(expression)
-        for leaf in expression_tree.leaf_nodes():
+    def __change_const_tree(self, tree_expression, leaf_value_generator):
+        for leaf in tree_expression.leaf_nodes():
             if not leaf.is_sensor():
                 leaf._arg = leaf_value_generator()
-        return expression_tree.get_expanded_tree_as_string()
+        return tree_expression.get_expanded_tree_as_string()
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \

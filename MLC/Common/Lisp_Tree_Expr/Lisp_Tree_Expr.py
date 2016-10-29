@@ -59,6 +59,9 @@ class Lisp_Tree_Expr(object):
     def get_expanded_tree_as_string(self):
         return '(root ' + self._root.to_string() + ')'
 
+    def __str__(self):
+        return self.get_expanded_tree_as_string()
+
     def get_simplified_tree_as_string(self):
         return self._simplified_tree
 
