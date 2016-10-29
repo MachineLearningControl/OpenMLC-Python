@@ -274,7 +274,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_remove_subtree_and_replace(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=143,
@@ -283,7 +283,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div((((my_div(cos((-3.0973)),exp(my_log((((-1.3423) .* tanh(my_log((-3.5094)))) .* ((my_div((my_div(((-9.1213) .* cos(exp(S0))),sin(exp((S0 + 1.7471))))),(5.0161 - sin(my_log(S0))))) + (cos(((sin(S0) + 6.2042) .* S0)) - (-9.4159)))))))) + my_log(((tanh((-8.5969)) - S0) .* (my_div(exp((my_div(8.2118,S0))),((S0 .* (cos(sin(my_log(exp((-3.2288))))) .* S0)) .* 0.0290)))))) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=83,
@@ -293,7 +293,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_reparametrization(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_REPARAMETRIZATION)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
@@ -302,7 +302,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div((sin(0.3271) .* ((-1.6130) - (-9.6837))),my_log((6.0366 + (-3.0632))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_REPARAMETRIZATION)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.REPARAMETRIZATION)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=22,
@@ -311,7 +311,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div((sin((-2.6118)) .* (2.7746 - (-7.5323))),my_log((5.4023 + (-3.0973))))))")
 
     def test_mutate_hoist(self):
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_HOIST)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.HOIST)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=17,
@@ -320,7 +320,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="(my_div((sin(4.37) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685)))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_HOIST)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.HOIST)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=4,
@@ -330,7 +330,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_mutate_shrink(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_SHRINK)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.SHRINK)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=19,
@@ -339,7 +339,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div(((-9.6837) .* ((-8.815) - (-3.902))),my_log((2.025 + (-8.685))))))")
 
         # do a second mutation
-        new_ind, fail = self._individual_l3.mutate(Individual.MUTATION_SHRINK)
+        new_ind, fail = self._individual_l3.mutate(Individual.MutationType.SHRINK)
 
         self.assertFalse(fail)
         self._assert_individual(new_ind, complexity=15,
@@ -388,16 +388,16 @@ class IndividualTest(unittest.TestCase):
             individual.generate(individual_type=3)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE)
+            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_SHRINK)
+            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.SHRINK)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
-            new_ind, fail = self._individual_l2.mutate(Individual.MUTATION_SHRINK)
+            new_ind, fail = self._individual_l2.mutate(Individual.MutationType.SHRINK)
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
     def test_parameter_controls_generate(self):
@@ -476,13 +476,13 @@ class IndividualTest(unittest.TestCase):
             individual = Individual()
             individual.generate('(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))')
 
-            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (log (exp -3.2288)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
-            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))) (exp S0) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
-            new_ind, fail = individual.mutate(Individual.MUTATION_HOIST)
+            new_ind, fail = individual.mutate(Individual.MutationType.HOIST)
             self.assertEqual(new_ind.get_value(), "(root (* S0 (* 1.6755 -0.0699)) (* (+ (sin -9.8591) (exp S0)) -9.4159) 0.0290 (* (log (* (+ -5.0573 -6.2191) S0)) (/ (cos (log S0)) (cos (tanh 2.2886)))) (log -8.6795))")
 
     def _assert_individual(self, individual, value, hash, formal, complexity):

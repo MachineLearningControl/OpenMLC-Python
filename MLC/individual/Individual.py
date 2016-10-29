@@ -67,12 +67,12 @@ class Individual(object):
 
     See also MLCPARAMETERS, MLCTABLE, MLCPOP, MLC2
     """
-
-    MUTATION_ANY = 0
-    MUTATION_REMOVE_SUBTREE_AND_REPLACE = 1
-    MUTATION_REPARAMETRIZATION = 2
-    MUTATION_HOIST = 3
-    MUTATION_SHRINK = 4
+    class MutationType:
+        ANY = 0
+        REMOVE_SUBTREE_AND_REPLACE = 1
+        REPARAMETRIZATION = 2
+        HOIST = 3
+        SHRINK = 4
 
     _maxdepthfirst = None
 
@@ -103,15 +103,15 @@ class Individual(object):
 
     def generate(self, value=None, individual_type=None):
         """
-        generate individual from scratch or from unfinished individual.
+            generate individual from scratch or from unfinished individual.
 
-        MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using mode MODE.
-        MODE is a number which interpretation depends on the MLCIND.type property.
-        (Not designed to be played with by user, code dive for details)
+            MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using mode MODE.
+            MODE is a number which interpretation depends on the MLCIND.type property.
+            (Not designed to be played with by user, code dive for details)
 
-        MLCIND.generate(MLC_PARAMETERS,VALUE) creates an individual with MLCIND.value VALUE.
+            MLCIND.generate(MLC_PARAMETERS,VALUE) creates an individual with MLCIND.value VALUE.
 
-        matlab_impl: return self._eng.generate(self._mlc_ind, varargin)
+            matlab_impl: return self._eng.generate(self._mlc_ind, varargin)
         """
         if value is None and individual_type is None:
             raise Exception("Individual::generate() value or individual_type arguments should be passed to generate method")
@@ -129,7 +129,7 @@ class Individual(object):
         self._formal = self._tree.formal()
         self._complexity = self._tree.complexity()
 
-    def mutate(self, mutation_type=MUTATION_ANY):
+    def mutate(self, mutation_type=MutationType.ANY):
         new_value, fail = self.__mutate_tree(self.get_value(), mutation_type)
 
         if fail:
@@ -141,8 +141,8 @@ class Individual(object):
 
     def crossover(self, other_individual):
         """
-        CROSSOVER crosses two MLCind individuals.
-        [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
+            CROSSOVER crosses two MLCind individuals.
+            [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
         m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
 
@@ -158,10 +158,6 @@ class Individual(object):
         return new_ind1, new_ind2, fail
 
     def compare(self, other_individual):
-        """
-        Compare two MLCind value properties.
-        ISEQUAL=COMPARE(MLCIND1,MLCIND2) returns 1 if both values are equal.
-        """
         return self.get_value() == other_individual.get_value()
 
     def get_value(self):
@@ -365,17 +361,17 @@ class Individual(object):
         mutation_types = self._config.get_list("GP", 'mutation_types')
 
         # equi probability for each mutation type selected.
-        if mutation_type == Individual.MUTATION_ANY:
+        if mutation_type == Individual.MutationType.ANY:
             rand_number = MatlabEngine.rand()
             mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
-        if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE or mutation_type == Individual.MUTATION_SHRINK:
+        if mutation_type in [Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE, Individual.MutationType.SHRINK]:
             preevok = False
             while not preevok:
                 # remove subtree and grow new subtree
                 value, _, _ = self.__extract_subtree(value, mutmindepth, maxdepth, maxdepth)
 
-                if mutation_type == Individual.MUTATION_REMOVE_SUBTREE_AND_REPLACE:
+                if mutation_type == Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE:
                     value = self.__generate_indiv_regressive_tree(value, 0)
                 else:
                     value = self.__generate_indiv_regressive_tree(value, 4)
@@ -409,11 +405,11 @@ class Individual(object):
 
             return value, not value
 
-        elif mutation_type == Individual.MUTATION_REPARAMETRIZATION:
+        elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
             value = self.__reparam_tree(value)
             return value, False
 
-        elif mutation_type == Individual.MUTATION_HOIST:
+        elif mutation_type == Individual.MutationType.HOIST:
             controls = self._config.getint("POPULATION", "controls")
             prob_threshold = 1 / float(controls)
 
