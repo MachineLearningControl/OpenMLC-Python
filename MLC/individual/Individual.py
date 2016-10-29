@@ -92,6 +92,9 @@ class Individual(object):
         self._formal = ""
         self._complexity = 0
 
+        self._range = self._config.getint("POPULATION", "range")
+        self._precision = self._config.getint("POPULATION", "precision")
+
     @staticmethod
     def set_maxdepthfirst(value):
         Individual._maxdepthfirst = value
@@ -158,6 +161,7 @@ class Individual(object):
 
         if param_individual_type == 'tree':
             m1, m2, fail = self.__crossover_tree(self.get_value(), other_individual.get_value())
+
             if fail:
                 return None, None, fail
 
@@ -464,74 +468,35 @@ class Individual(object):
             raise NotImplementedError("Mutation type %s not implemented" % mutation_type)
 
     def __extract_subtree(self, m, mindepth, subtreedepthmax, maxdepth):
-        if len(m) == 0:
-            raise Exception("m could not be an empty string")
-
-        class CalculateSubtreeDepth(TreeVisitor):
-            def __init__(self, mindepth, subtreedepthmax, maxdepth):
-                self._mindepth = mindepth
-                self._subtreedepthmax = subtreedepthmax
-                self._maxdepth = maxdepth
-                self._nodes = {}
-                self._candidates = []
-
-            def visit_internal_node(self, node):
-                self._nodes[node] = max([self._nodes[n] for n in node._nodes])+1
-                self._check_suitable_node(node)
-
-            def visit_leaf_node(self, node):
-                self._nodes[node] = 0
-                # self._check_suitable_node(node)
-
-            def _check_suitable_node(self, node):
-                if self._mindepth <= node.get_depth() <= self._maxdepth and self._nodes[node] <= subtreedepthmax:
-                    self._candidates.append(node)
-
         expression_tree = Lisp_Tree_Expr(m)
-        visitor = CalculateSubtreeDepth(mindepth, subtreedepthmax, maxdepth)
-        expression_tree.get_root_node().accept(visitor)
-        visitor._candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
+        candidates = []
+        for node in expression_tree.internal_nodes():
+            if mindepth <= node.get_depth() <= maxdepth:
+                if node.get_subtreedepth() <= subtreedepthmax:
+                    candidates.append(node)
 
-        if not visitor._candidates:
+        if candidates:
+            candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
+            n = int(np.ceil(MatlabEngine.rand() * len(candidates))) - 1
+            extracted_node = candidates[n]
+            index = extracted_node.get_expr_index()
+            new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
+            return new_value, extracted_node.to_string(), extracted_node.get_subtreedepth()
+        else:
             return [], [], -1
 
-        n = int(np.ceil(MatlabEngine.rand() * len(visitor._candidates))) - 1
-        extracted_node = visitor._candidates[n]
-        index = visitor._candidates[n].get_expr_index()
-        new_value = m[:index] + m[index:].replace(extracted_node.to_string(), '@', 1)
-        return new_value, visitor._candidates[int(n)].to_string(), visitor._nodes[visitor._candidates[int(n)]]
-
-
     def __reparam_tree(self, value):
-        preevok = False
-        while not preevok:
-            value = self.__change_const_tree(value)
-            preevok = True
-            # if gen_param.preevaluation
-            # eval(['peval=@' gen_param.preev_function ';']);
-            # f=peval;
-            # preevok=feval(f,m);
-        return value
+        def leaf_value_generator():
+            leaf_value = (MatlabEngine.rand() - 0.5) * 2 * self._range
+            return "%0.*f" % (self._precision, leaf_value)
 
-    def __change_const_tree(self, expression):
-        class ChangeConsTreeVisitor(TreeVisitor):
-            def __init__(self, pop_range, precision):
-                self._range = pop_range
-                self._precision = precision
+        return self.__change_const_tree(value, leaf_value_generator)
 
-            def visit_internal_node(self, node):
-                pass
-
-            def visit_leaf_node(self, node):
-                if not node.is_sensor():
-                    node_value = (MatlabEngine.rand() - 0.5) * 2 * self._range
-                    node._arg = "%0.*f" % (self._precision, node_value)
-
-        pop_range = self._config.getint("POPULATION", "range")
-        precision = self._config.getint("POPULATION", "precision")
-
+    def __change_const_tree(self, expression, leaf_value_generator):
         expression_tree = Lisp_Tree_Expr(expression)
-        expression_tree.get_root_node().accept(ChangeConsTreeVisitor(pop_range, precision))
+        for leaf in expression_tree.leaf_nodes():
+            if not leaf.is_sensor():
+                leaf._arg = leaf_value_generator()
         return expression_tree.get_expanded_tree_as_string()
 
     def __str__(self):

@@ -10,6 +10,8 @@ from MLC.Common.Lisp_Tree_Expr.Operation_Nodes import Op_Node_Factory
 class Lisp_Tree_Expr(object):
 
     def __init__(self, expr):
+        self._nodes = []
+
         self._expanded_tree = expr
 
         # Remove the root part of the node
@@ -131,6 +133,8 @@ class Lisp_Tree_Expr(object):
         leaf = Leaf_Node(expr[:param_len])
         leaf.set_depth(parent_depth)
         leaf.set_expr_index(expr_index)
+        leaf.set_subtreedepth(0)
+        self._nodes.append(leaf)
         return leaf, param_len + 1
     
     # As a precondition, the expression must be well-formed
@@ -148,6 +152,7 @@ class Lisp_Tree_Expr(object):
         expr_offset = 0
         offset = 0
         child_node = None
+        child_subtreedepth = 0
 
         for i in range(op["nbarg"]):
             # 1 colon + op len + 1 space + (expr_offset)
@@ -159,10 +164,27 @@ class Lisp_Tree_Expr(object):
                 child_node, offset = self._generate_leaf_node(expr[next_arg_pos:], parent_depth=parent_depth+1, expr_index=expr_index+next_arg_pos)
 
             node.add_child(child_node)
+            child_subtreedepth = max(child_subtreedepth, child_node.get_subtreedepth())
+            # print "Offset: " + str(offset)
             expr_offset += offset
 
+        node.set_subtreedepth(1+child_subtreedepth)
+        if not is_root_expression:
+            self._nodes.append(node)
         next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset + 1
         return node, next_arg_pos
+
+    def leaf_nodes(self):
+        for leaf in filter(lambda n: n.is_leaf(), self._nodes):
+            yield leaf
+
+    def internal_nodes(self):
+        for leaf in filter(lambda n: not n.is_leaf(), self._nodes):
+            yield leaf
+
+    def nodes(self):
+        for node in self._nodes:
+            yield node
 
 
 class TreeVisitor:

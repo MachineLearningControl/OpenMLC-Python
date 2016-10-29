@@ -2,6 +2,7 @@ class Tree_Node(object):
 
     def __init__(self):
         self._depth = -1
+        self._subtreedepth = -1
         self._expr_index = -1
 
     def get_depth(self):
@@ -9,6 +10,12 @@ class Tree_Node(object):
 
     def set_depth(self, depth):
         self._depth = depth
+
+    def get_subtreedepth(self):
+        return self._subtreedepth
+
+    def set_subtreedepth(self, depth):
+        self._subtreedepth = depth
 
     def get_expr_index(self):
         return self._expr_index

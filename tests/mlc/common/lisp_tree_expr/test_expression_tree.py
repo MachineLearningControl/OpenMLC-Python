@@ -75,6 +75,12 @@ class ExpressionTreeTest(unittest.TestCase):
             self.assertEquals(len(node._nodes), childs)
 
     def test_calculate_subtree_depth(self):
+        expression = '(root (+ (tanh S0) (- (cos S2) (sin S3)))))'
+        expression_tree = Lisp_Tree_Expr(expression)
+        for node in expression_tree.nodes():
+            print "%s %s %s" % (node.to_string(), node.get_subtreedepth(), node.get_depth())
+
+        print "******"
 
         class CalculateSubtreeDepth(TreeVisitor):
             def __init__(self):
@@ -93,4 +99,4 @@ class ExpressionTreeTest(unittest.TestCase):
 
         for node, depth in visitor._nodes.iteritems():
             print "%s %s %s" % (node.to_string(), depth, node.get_depth())
-        #self.assertTrue(False)
+        # self.assertTrue(False)
