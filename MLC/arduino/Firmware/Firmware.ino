@@ -1,8 +1,9 @@
 
-#define DEBUG 1
-
-#ifdef DEBUG
+#define DEBUG 0
+#if DEBUG
 #define LOG(x,y) Serial.print(x); Serial.println(y);
+#else
+#define LOG(x,y)
 #endif
 
 // defines ahorran ROM... aunque nos sobra de eso XD -- Verificar que los const vayan a la rom!
@@ -140,26 +141,28 @@ int actuate(const char* data)
   byte len = 1;  // Inicia en 1 para evitar pisar el id de comando
   for (int i = 1; i <= byte(INPUT_PORTS[0]); i++)
   {
+    response[len + 1] = INPUT_PORTS[i];
     if ( INPUT_PORTS[i] >= A0 )
     {
       int data = analogRead(INPUT_PORTS[i]-A0);
-      response[len + 1] = byte((data & 0xFF00) >> 8); // Se guarda el msb en el buffer
-      response[len + 2] = byte(data & 0xFF);        // Se guarda el lsb en el buffer
+      response[len + 2] = byte((data & 0xFF00) >> 8); // Se guarda el msb en el buffer
+      response[len + 3] = byte(data & 0xFF);        // Se guarda el lsb en el buffer
 
-      len += 2; // Cada lectura de un recurso analógico ocupa dos bytes. FIXME: se puede optimizar con bajas resoluciones
+      len += 3; // Cada lectura de un recurso analógico ocupa dos bytes. FIXME: se puede optimizar con bajas resoluciones
       LOG("Analog pin read: ", INPUT_PORTS[i]);
     } else
     {
       int data = digitalRead(INPUT_PORTS[i]);
-      response[len + 1] = byte(data);
-
-      len += 1;
+      response[len + 2] = byte(data);
+      len += 2;
       LOG("Digital pin read: ", INPUT_PORTS[i]);
     }
-  }
+  };
 
+
+  LOG("Reporting actuate results ", len - 1);
   response[1] = len - 1;
-  SerialUSB.write(response, len + 2); // 2 bytes extras por el id de comando y la longitud
+  SerialUSB.write(response, len + 1); // 2 bytes extras por el id de comando y la longitud y -1 por el padding
 
   return offset + 2;
 }
@@ -167,7 +170,7 @@ int actuate(const char* data)
 void setup() {
   SerialUSB.begin(115200);
   
-  #ifdef DEBUG
+  #if DEBUG
   Serial.begin(115200);
   #endif
   

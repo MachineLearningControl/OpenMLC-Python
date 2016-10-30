@@ -107,7 +107,7 @@ class ArduinoInterface:
             raise Exception("Actuate error. Code: %s" % response)
 
         if response <> _PROTOCOL_CMDS["ACTUATE_REPORT"]:
-            raise Exception("Actuate error. Unknown response %s after actuate operation" % response)
+            raise Exception("Actuate error. Unknown response %s after actuate operation" % ord(response))
 
         length = ord(self._connection.recv(1))
         data = self._connection.recv(length)
