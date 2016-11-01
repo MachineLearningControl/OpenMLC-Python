@@ -34,6 +34,7 @@ class Lisp_Tree_Expr(object):
 
     def calculate_expression(self, sensor_replacement_list):
         class Replace_Sensors_Visitor(TreeVisitor):
+
             def __init__(self, sensor_replacement_list):
                 self._sensor_list = sensor_replacement_list
 
@@ -139,7 +140,7 @@ class Lisp_Tree_Expr(object):
         leaf.set_subtreedepth(0)
         self._nodes.append(leaf)
         return leaf, param_len + 1
-    
+
     # As a precondition, the expression must be well-formed
     def _generate_node(self, expr, is_root_expression=False, parent_depth=0, expr_index=0):
         if expr[0] != '(':
@@ -150,7 +151,7 @@ class Lisp_Tree_Expr(object):
 
         # Generate the arguments of the internal node as Child Nodes
         node = Op_Node_Factory.make(op["op"])
-        node.set_depth(parent_depth+1)
+        node.set_depth(parent_depth + 1)
         node.set_expr_index(expr_index)
         expr_offset = 0
         offset = 0
@@ -162,15 +163,17 @@ class Lisp_Tree_Expr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = self._generate_node(expr[next_arg_pos:], parent_depth=parent_depth+1, expr_index=expr_index+next_arg_pos)
+                child_node, offset = self._generate_node(
+                    expr[next_arg_pos:], parent_depth=parent_depth + 1, expr_index=expr_index + next_arg_pos)
             else:
-                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:], parent_depth=parent_depth+1, expr_index=expr_index+next_arg_pos)
+                child_node, offset = self._generate_leaf_node(
+                    expr[next_arg_pos:], parent_depth=parent_depth + 1, expr_index=expr_index + next_arg_pos)
 
             node.add_child(child_node)
             child_subtreedepth = max(child_subtreedepth, child_node.get_subtreedepth())
             expr_offset += offset
 
-        node.set_subtreedepth(1+child_subtreedepth)
+        node.set_subtreedepth(1 + child_subtreedepth)
         if not is_root_expression:
             self._nodes.append(node)
         next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset + 1
@@ -188,3 +191,11 @@ class Lisp_Tree_Expr(object):
         for node in self._nodes:
             yield node
 
+
+class TreeVisitor:
+
+    def visit_internal_node(self, node):
+        pass
+
+    def visit_leaf_node(self, ndoe):
+        pass
