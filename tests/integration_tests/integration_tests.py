@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append("../..")
 import unittest
 import matlab.engine
 import numpy as np
@@ -8,7 +10,6 @@ from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Simulation import Simulation
-import sys, os
 import yaml
 
 """
