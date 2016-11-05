@@ -8,7 +8,7 @@ function b=my_div(arg1,arg2)
         b=arg1 ./ arg2;
     else
         inverse_protect_array = ~protect_array;
-        valid_elements = arg2 .* inverse_protect_array;
+        valid_elements = abs(arg2) .* inverse_protect_array;
         non_valid_elements = protect_array .* protection;
         new_arg2 = valid_elements + non_valid_elements;
         b = sign_array .* arg1 ./ new_arg2;
