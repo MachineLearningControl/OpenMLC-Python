@@ -12,7 +12,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 def initialize_config():
     config = Config.get_instance()
-    config.read('../conf/configuration.ini')
+    config.read('../../conf/configuration.ini')
     return config
 
 # Set printable resolution (don't alter numpy interval resolution)
@@ -30,7 +30,7 @@ expr6 = "(root (cos (exp (- -6.3726 (* -7.1746 S0)))))"
 expr61 = "(root (exp (- -6.3726 (* -7.1746 S0))))"
 expr612 = "(root (- -6.3726 (* -7.1746 S0)))"
 
-tree = Lisp_Tree_Expr(expr612)
+tree = Lisp_Tree_Expr(expr6)
 x = np.linspace(-10.0, 10.0, num=201)
 mlc_y = tree.calculate_expression([x])
 
