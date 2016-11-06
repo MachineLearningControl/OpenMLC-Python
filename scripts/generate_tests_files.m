@@ -23,9 +23,9 @@ file = fopen(filename, 'w');
 for idx = 1:numel(indiv)
     formal_value = indiv(idx).formal;
     if iscell(formal_value)
-        formal_value = indiv(idx).formal{1}
-        for i=2:length(indiv(idx).formal)
-            formal_value = [formal_value  ' ' indiv(idx).formal{j}]
+        formal_value = indiv(idx).formal{1};
+        for i=2:length(indiv(idx).formal);
+            formal_value = [formal_value  ' ' indiv(idx).formal{i}];
         end
     end
 

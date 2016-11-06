@@ -1,4 +1,3 @@
-import math
 import importlib
 
 import MLC.Log.log as lg
@@ -98,6 +97,7 @@ class Mult_Node(Internal_Node):
 
 class Division_Node(Internal_Node):
     PROTECTION = 0.001
+    SIMPLIFY_PROTECTION = 0.01
 
     def __init__(self):
         Internal_Node.__init__(self, "/", 1)
@@ -107,12 +107,11 @@ class Division_Node(Internal_Node):
 
     def _process_division(self, dividend, divisor):
         if type(divisor) == np.ndarray:
-            # Check if at least one element is below the protection value
-            if [x for x in divisor if abs(x) < Division_Node.PROTECTION] != []:
-                return np.sign(divisor) * dividend / np.repeat(Division_Node.PROTECTION, len(divisor))
+            new_divisor = [Division_Node.PROTECTION if np.abs(x) < Division_Node.PROTECTION else np.abs(x) for x in divisor]
+            return np.sign(divisor) * dividend / np.asarray(new_divisor)
         else:
             if abs(divisor) < Division_Node.PROTECTION:
-                return dividend / Division_Node.PROTECTION
+                return np.sign(divisor) * dividend / Division_Node.PROTECTION
 
         return dividend / divisor
 
@@ -127,7 +126,7 @@ class Division_Node(Internal_Node):
 
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             # FIXME: Harcoded number. Change it
-            if abs(float(self._nodes[1].to_string())) < 0.01:
+            if abs(float(self._nodes[1].to_string())) < Division_Node.SIMPLIFY_PROTECTION:
                 return Leaf_Node(process_float(0))
             else:
                 arg = float(self._nodes[0].to_string()) / float(self._nodes[1].to_string())
@@ -149,7 +148,7 @@ class Sine_Node(Internal_Node):
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
-            arg = math.sin(float(self._nodes[0].to_string()))
+            arg = np.sin(float(self._nodes[0].to_string()))
             return Leaf_Node(process_float(arg))
         else:
             return self
@@ -168,7 +167,7 @@ class Cosine_Node(Internal_Node):
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
-            arg = math.cos(float(self._nodes[0].to_string()))
+            arg = np.cos(float(self._nodes[0].to_string()))
             return Leaf_Node(process_float(arg))
         else:
             return self
@@ -179,6 +178,7 @@ class Cosine_Node(Internal_Node):
 
 class Logarithm_Node(Internal_Node):
     PROTECTION = 0.00001
+    SIMPLIFY_PROTECTION = 0.01
 
     def __init__(self):
         Internal_Node.__init__(self, "log", 5)
@@ -188,9 +188,7 @@ class Logarithm_Node(Internal_Node):
 
     def _process_arg(self, arg):
         if type(arg) == np.ndarray:
-            # Check if at least one element is below the protection value
-            if [x for x in arg if abs(x) < Logarithm_Node.PROTECTION] != []:
-                return np.repeat(Logarithm_Node.PROTECTION, len(arg))
+            return [Logarithm_Node.PROTECTION if np.abs(x) < Logarithm_Node.PROTECTION else np.abs(x) for x in arg]
         else:
             if abs(arg) < Logarithm_Node.PROTECTION:
                 return Logarithm_Node.PROTECTION
@@ -199,10 +197,10 @@ class Logarithm_Node(Internal_Node):
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
-            if float(self._nodes[0].to_string()) < 0.01:
-                arg = math.log(0.01)
+            if float(self._nodes[0].to_string()) < Logarithm_Node.SIMPLIFY_PROTECTION:
+                arg = np.log(Logarithm_Node.SIMPLIFY_PROTECTION)
             else:
-                arg = math.log(float(self._nodes[0].to_string()))
+                arg = np.log(float(self._nodes[0].to_string()))
 
             return Leaf_Node(process_float(arg))
         else:
@@ -224,9 +222,9 @@ class Exponential_Node(Internal_Node):
         if not self._nodes[0].is_sensor():
             lg.logger_.debug("[EXP NODE] Value: " + self._nodes[0].to_string())
             try:
-                arg = math.exp(float(self._nodes[0].to_string()))
+                arg = np.exp(float(self._nodes[0].to_string()))
             except OverflowError:
-                # FIXME: See what to do with this expression, because there are problems with
+                # FIXME: See what to do with this expression, because there are problems when
                 # an infinite value is the argumento of a sinusoidal function
                 return Leaf_Node(process_float(float("inf")))
 
@@ -248,7 +246,7 @@ class Tanh_Node(Internal_Node):
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
-            arg = math.tanh(float(self._nodes[0].to_string()))
+            arg = np.tanh(float(self._nodes[0].to_string()))
             return Leaf_Node(process_float(arg))
         else:
             return self

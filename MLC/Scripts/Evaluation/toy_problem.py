@@ -8,11 +8,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 
 def individual_data(indiv):
-    x = np.arange(-10, 10 + 0.1, 0.1)
-    # FIXME: Numpy precision it's driving me up the wall. It doesn't put a zero
-    # in the middle element of the array (put a extremely small number instead).
-    # That generates problems with the division operation
-    x[len(x) / 2] = 0
+    x = np.linspace(-10.0, 10.0, num=201)
     y = np.tanh(x**3 - x**2 - 1)
 
     eng = MatlabEngine.engine()

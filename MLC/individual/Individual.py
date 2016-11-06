@@ -461,7 +461,6 @@ class Individual(object):
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
-               "type: %s\n" % self.get_type() + \
                "cost_history: %s\n" % self.get_cost_history() + \
                "evaluation_time: %s\n" % self.get_evaluation_time() + \
                "appearences: %s\n" % self.get_appearences() + \
