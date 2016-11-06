@@ -1,4 +1,5 @@
 import MLC.Log.log as lg
+import importlib
 import sys
 
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -6,20 +7,17 @@ from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
 
 
 class EvaluatorFactory(object):
-    callback = {}
-
-    @staticmethod
-    def set_ev_callback(callback_name, ev_callback):
-        EvaluatorFactory.callback[callback_name] = ev_callback
-
     @staticmethod
     def get_ev_callback():
-        callback_name = Config.get_instance().get('EVALUATOR', 'evaluation_function')
+        module_name = Config.get_instance().get('EVALUATOR', 'evaluation_function')
+        lg.logger_.debug('[EV_FACTORY] Importing module {0}'.format(module_name))
         try:
-            return EvaluatorFactory.callback[callback_name]
-        except KeyError:
-            lg.logger_.debug("Evaluation function doesn't exists. " +
+            callback = importlib.import_module('MLC.Scripts.Evaluation.' + module_name)
+            return callback
+        except ImportError:
+            lg.logger_.debug("[EV_FACTORY] Evaluation function doesn't exists. " +
                              "Aborting program...")
+            sys.exit(-1)
 
     @staticmethod
     def make(strategy):
@@ -27,6 +25,6 @@ class EvaluatorFactory(object):
             ev_callback = EvaluatorFactory.get_ev_callback()
             return StandaloneEvaluator(ev_callback)
         else:
-            lg.logger_.error("[CREATION_FACTORY] Evaluation method " +
+            lg.logger_.error("[EV_FACTORY] Evaluation method " +
                              strategy + " is not valid. Aborting program")
             sys.exit(-1)

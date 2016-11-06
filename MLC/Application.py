@@ -11,12 +11,6 @@ from MLC.mlc_table.MLCTable import MLCTable
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Population.Population import Population
-from MLC.Scripts.Evaluation import toy_problem
-from MLC.Scripts.Evaluation import toy_problem_python_ev
-from MLC.Scripts.Evaluation import arduino
-from MLC.Scripts.Evaluation import simulink_ev
-from MLC.Scripts.Preevaluation import default
-from MLC.Scripts.Preevaluation import simulink_preev
 from MLC.Simulation import Simulation
 
 
@@ -24,11 +18,10 @@ class Application(object):
 
     def __init__(self, simulation, log_mode='console'):
         self._config = Config.get_instance()
-        self._set_ev_callbacks()
-        self._set_preev_callbacks()
 
         # Set logger mode of the App
         set_logger(log_mode)
+        self._project_validations()
         self._simulation = simulation
 
         # Gen creator
@@ -170,16 +163,10 @@ class Application(object):
         stop_no_graph = self._config.getboolean('BEHAVIOUR', 'stopongraph')
         EvaluatorFactory.get_ev_callback().show_best(best_index, best_indiv, stop_no_graph)
 
-    def _set_ev_callbacks(self):
-        # Set the callbacks to be called at the moment of the evaluation
-        # FIXME: Dinamically get instances from "MLC.Scripts import *"
-        EvaluatorFactory.set_ev_callback('toy_problem', toy_problem)
-        EvaluatorFactory.set_ev_callback('toy_problem_python_ev', toy_problem_python_ev)
-        EvaluatorFactory.set_ev_callback('arduino', arduino)
-        EvaluatorFactory.set_ev_callback('simulink_ev', simulink_ev)
 
-    def _set_preev_callbacks(self):
-        # Set the callbacks to be called at the moment of the preevaluation
-        # FIXME: To this dynamically searching .pys in the directory
-        PreevaluationManager.set_callback('default', default)
-        PreevaluationManager.set_callback('simulink_preev', simulink_preev)
+    def _project_validations(self):
+        # Check that the evaluation and preevaluation modules can be loaded
+        EvaluatorFactory.get_ev_callback()
+        PreevaluationManager.get_callback()
+
+    # TODO: Add another validations

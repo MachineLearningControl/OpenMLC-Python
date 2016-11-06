@@ -1,4 +1,5 @@
 import MLC.Log.log as lg
+import importlib
 import sys
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -8,11 +9,6 @@ Class that store the preevaluation methods availables and used to call them
 
 
 class PreevaluationManager(object):
-    callback = {}
-
-    @staticmethod
-    def set_callback(callback_name, ev_callback):
-        PreevaluationManager.callback[callback_name] = ev_callback
 
     @staticmethod
     def get_callback():
@@ -22,10 +18,14 @@ class PreevaluationManager(object):
         """
         # Check if the preevaluation is activated
         if Config.get_instance().getboolean('EVALUATOR', 'preevaluation'):
-            callback_name = Config.get_instance().get('EVALUATOR', 'preev_function')
+            module_name = Config.get_instance().get('EVALUATOR', 'preev_function')
+            lg.logger_.debug('[PREEV_MANAGER] Importing module {0}'.format(module_name))
             try:
-                return PreevaluationManager.callback[callback_name]
-            except KeyError:
-                lg.logger_.debug("Preevaluation function doesn't exists. Aborting program...")
+                callback = importlib.import_module('MLC.Scripts.Preevaluation.' + module_name)
+                return callback
+            except ImportError:
+                lg.logger_.debug("[PREEV_MANAGER] Preevaluation function doesn't exists. " +
+                                 "Aborting program...")
+                sys.exit(-1)
 
-        return None
+
