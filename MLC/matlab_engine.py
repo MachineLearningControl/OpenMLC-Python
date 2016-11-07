@@ -35,6 +35,6 @@ class MatlabEngine:
             MatlabEngine._engine_instance.addpath(matlab_code_dir)
             MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools"))
             MatlabEngine._engine_instance.addpath(os.path.join(matlab_code_dir, "MLC_tools/Demo"))
+            lg.logger_.info("[MATLAB_ENGINE] MATLAB environment loaded succesfully.")
 
-        lg.logger_.info("[MATLAB_ENGINE] MATLAB environment loaded succesfully.")
         return MatlabEngine._engine_instance
