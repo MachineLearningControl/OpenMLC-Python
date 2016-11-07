@@ -1,13 +1,12 @@
 import unittest
 import MLC.Log.log as lg
-from MLC.Log.log import set_logger
-from MLC.matlab_engine import MatlabEngine
-from MLC.individual.Individual import Individual, OperationOverIndividualFail
-
-from MLC.mlc_parameters.mlc_parameters import Config, saved
-from MLC import config as mlc_config_path
-
 import os
+
+from MLC import config as mlc_config_path
+from MLC.Common.RandomManager import RandomManager
+from MLC.Log.log import set_logger
+from MLC.individual.Individual import Individual, OperationOverIndividualFail
+from MLC.mlc_parameters.mlc_parameters import Config, saved
 from nose.tools import nottest
 
 
@@ -16,13 +15,11 @@ class IndividualTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         set_logger("testing")
-        cls._engine = MatlabEngine.engine()
 
         # Load randoms from file
         cls._random_file = './mlc/unit_matlab_randoms.txt'
-        MatlabEngine.load_random_values(cls._random_file)
+        RandomManager.load_random_values(cls._random_file)
 
-        cls._engine.workspace['wmlc'] = cls._engine.MLC2()
         config = Config.get_instance()
         config.read(os.path.join(mlc_config_path.get_test_path(), 'mlc/individual/configuration.ini'))
         Individual._maxdepthfirst = config.getint('GP', 'maxdepthfirst')
@@ -44,14 +41,12 @@ class IndividualTest(unittest.TestCase):
 
     def setUp(self):
         set_logger("testing")
-        self._engine = MatlabEngine.engine()
 
         # Load randoms from file
         random_file = './mlc/unit_matlab_randoms.txt'
-        MatlabEngine.clear_random_values()
-        MatlabEngine.load_random_values(random_file)
+        RandomManager.clear_random_values()
+        RandomManager.load_random_values(random_file)
 
-        self._engine.workspace['wmlc'] = self._engine.MLC2()
         config = Config.get_instance()
         config.read(os.path.join(mlc_config_path.get_test_path(), 'mlc/individual/configuration.ini'))
 
@@ -114,8 +109,8 @@ class IndividualTest(unittest.TestCase):
         individual_1 = Individual()
         individual_1.generate(individual_type=3)
 
-        MatlabEngine.clear_random_values()
-        MatlabEngine.load_random_values(self._random_file)
+        RandomManager.clear_random_values()
+        RandomManager.load_random_values(self._random_file)
         individual_2 = Individual()
         individual_2.generate(individual_type=3)
 

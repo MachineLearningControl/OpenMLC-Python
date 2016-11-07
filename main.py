@@ -2,8 +2,8 @@
 import numpy as np
 import importlib
 from MLC.Application import Application
+from MLC.Common.RandomManager import RandomManager
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.matlab_engine import MatlabEngine
 from MLC.Simulation import Simulation
 
 
@@ -21,15 +21,10 @@ def main():
     # Don't show scientific notation
     np.set_printoptions(suppress=True)
 
-    eng = MatlabEngine.engine()
+    # MATLAB random numbers, used in integration tests
+    RandomManager.load_random_values("./tests/integration_tests/matlab_randoms.txt")
+
     config = initialize_config()
-
-    # Create the MLC2 object and store it in the workspace. With this
-    # feature we will be able to call every function of the MATLAB code
-    # from any part of the code where the engine is available
-    # MatlabEngine.load_random_values("./tests/integration_tests/matlab_randoms.txt")
-    eng.workspace['wmlc'] = eng.MLC2()
-
     simulation = Simulation()
     mlc = Application(simulation, config.get('LOGGING', 'logmode'))
     mlc.go(3, 1)

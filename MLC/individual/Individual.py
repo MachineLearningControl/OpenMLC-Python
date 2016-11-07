@@ -3,10 +3,10 @@ import math
 
 import MLC.Log.log as lg
 from collections import Counter
-from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC.Common.RandomManager import RandomManager
 
 import re
 
@@ -88,7 +88,6 @@ class Individual(object):
     _maxdepthfirst = None
 
     def __init__(self, value=None):
-        self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
         self._tree = None
 
@@ -285,22 +284,22 @@ class Individual(object):
         elif (begin_depth < min_depth and end_str.find('@') == -1) or indiv_type == 3:
             leaf_node = False
         else:
-            leaf_node = MatlabEngine.rand() < self._config.getfloat('POPULATION', 'leaf_prob')
+            leaf_node = RandomManager.rand() < self._config.getfloat('POPULATION', 'leaf_prob')
 
         if leaf_node:
-            use_sensor = MatlabEngine.rand() < self._config.getfloat('POPULATION', 'sensor_prob')
+            use_sensor = RandomManager.rand() < self._config.getfloat('POPULATION', 'sensor_prob')
             if use_sensor:
-                sensor_number = math.ceil(MatlabEngine.rand() * self._config.getint('POPULATION', 'sensors')) - 1
+                sensor_number = math.ceil(RandomManager.rand() * self._config.getint('POPULATION', 'sensors')) - 1
                 new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
             else:
                 range = self._config.getfloat('POPULATION', 'range')
                 precision = self._config.get('POPULATION', 'precision')
                 # Generate a float number between -range and +range with a precision of 'precision'
-                new_exp = (("%." + precision + "f") % ((MatlabEngine.rand() - 0.5) * 2 * range))
+                new_exp = (("%." + precision + "f") % ((RandomManager.rand() - 0.5) * 2 * range))
                 new_value = begin_str + new_exp + end_str
         else:
             # Create a node
-            op_num = math.ceil(MatlabEngine.rand() * Operations.get_instance().length())
+            op_num = math.ceil(RandomManager.rand() * Operations.get_instance().length())
             op = Operations.get_instance().get_operation_from_op_num(op_num)
             if (op["nbarg"] == 1):
                 new_value = begin_str + '(' + op["op"] + ' @)' + end_str
@@ -360,7 +359,7 @@ class Individual(object):
 
         # equi probability for each mutation type selected.
         if mutation_type == Individual.MutationType.ANY:
-            rand_number = MatlabEngine.rand()
+            rand_number = RandomManager.rand()
             mutation_type = mutation_types[int(np.floor(rand_number * len(mutation_types)))]
 
         if mutation_type in [Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE, Individual.MutationType.SHRINK]:
@@ -408,10 +407,10 @@ class Individual(object):
             changed = False
             k = 0
 
-            for nc in MatlabEngine.randperm(controls):
+            for nc in RandomManager.randperm(controls):
                 k += 1
                 # control law is cropped if it is the last one and no change happend before
-                if (MatlabEngine.rand() < prob_threshold) or (k == controls and not changed):
+                if (RandomManager.rand() < prob_threshold) or (k == controls and not changed):
 
                     try:
                         _, sm, _ = self.__extract_subtree(Lisp_Tree_Expr('(root '+cl[nc - 1]+')'), mutmindepth+1, maxdepth, maxdepth+1)
@@ -439,7 +438,7 @@ class Individual(object):
                                 (expression_tree, mindepth, maxdepth, subtreedepthmax))
 
         candidates.sort(key=lambda x: x.get_expr_index(), reverse=False)
-        n = int(np.ceil(MatlabEngine.rand() * len(candidates))) - 1
+        n = int(np.ceil(RandomManager.rand() * len(candidates))) - 1
         extracted_node = candidates[n]
         index = extracted_node.get_expr_index()
         old_value = expression_tree.get_expanded_tree_as_string()
@@ -448,7 +447,7 @@ class Individual(object):
 
     def __reparam_tree(self, tree_expression):
         def leaf_value_generator():
-            leaf_value = (MatlabEngine.rand() - 0.5) * 2 * self._range
+            leaf_value = (RandomManager.rand() - 0.5) * 2 * self._range
             return "%0.*f" % (self._precision, leaf_value)
 
         return self.__change_const_tree(tree_expression, leaf_value_generator)

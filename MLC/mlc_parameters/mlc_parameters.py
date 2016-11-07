@@ -1,10 +1,10 @@
 import ConfigParser
 import numpy as np
 import MLC.Log.log as lg
-from MLC.matlab_engine import MatlabEngine
 
 
 class saved():
+
     def __init__(self, cr):
         self.cr = cr
 
@@ -25,9 +25,6 @@ class Config(ConfigParser.ConfigParser):
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self)
         self._log_prefix = '[CONFIG] '
-
-    def get_matlab_object(self):
-        return MatlabEngine.engine().eval('wmlc.parameters')
 
     def get_list(self, section, param, item_type=int):
         value = self.get(section, param)

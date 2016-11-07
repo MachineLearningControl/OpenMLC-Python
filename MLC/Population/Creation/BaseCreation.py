@@ -3,7 +3,6 @@ import numpy as np
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
 from MLC.individual.Individual import Individual
-from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_table.MLCTable import MLCTable
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -11,7 +10,6 @@ from MLC.mlc_parameters.mlc_parameters import Config
 class BaseCreation(object):
 
     def __init__(self):
-        self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
 
         # A list of tuples (index, number)

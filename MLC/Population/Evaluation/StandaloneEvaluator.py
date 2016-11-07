@@ -1,7 +1,6 @@
 import sys
 import MLC.Log.log as lg
 
-from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.mlc_table.MLCTable import MLCTable
 
@@ -9,7 +8,6 @@ from MLC.mlc_table.MLCTable import MLCTable
 class StandaloneEvaluator(object):
 
     def __init__(self, callback):
-        self._eng = MatlabEngine.engine()
         self._config = Config.get_instance()
         self._callback = callback
 

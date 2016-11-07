@@ -1,16 +1,17 @@
 import sys, os
 sys.path.append("../..")
-import unittest
 import matlab.engine
 import numpy as np
-from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Application import Application
-from MLC.Population.Population import Population
-from MLC.matlab_engine import MatlabEngine
-from MLC.mlc_table.MLCTable import MLCTable
-from MLC.db.mlc_repository import MLCRepository
-from MLC.Simulation import Simulation
+import unittest
 import yaml
+
+from MLC.Application import Application
+from MLC.Common.RandomManager import RandomManager
+from MLC.db.mlc_repository import MLCRepository
+from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.mlc_table.MLCTable import MLCTable
+from MLC.Population.Population import Population
+from MLC.Simulation import Simulation
 
 """
 This test run the application setting the seed to a fix number. The output of
@@ -70,7 +71,6 @@ class MLCIntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './configuration.ini')
-        cls._eng = MatlabEngine.engine()
 
         # Load the config
         config = Config.get_instance()
@@ -78,8 +78,8 @@ class MLCIntegrationTest(unittest.TestCase):
 
         # Load randoms from file
         random_file = 'matlab_randoms.txt'
-        MatlabEngine.clear_random_values()
-        MatlabEngine.load_random_values(random_file)
+        RandomManager.clear_random_values()
+        RandomManager.load_random_values(random_file)
 
         # clear state
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):

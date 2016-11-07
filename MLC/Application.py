@@ -1,6 +1,4 @@
 from __builtin__ import staticmethod
-
-import matlab.engine
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -18,11 +16,11 @@ class Application(object):
 
     def __init__(self, simulation, log_mode='console'):
         self._config = Config.get_instance()
+        self._simulation = simulation
 
         # Set logger mode of the App
         set_logger(log_mode)
         self._project_validations()
-        self._simulation = simulation
 
         # Gen creator
         gen_method = self._config.get('GP', 'generation_method')
@@ -161,12 +159,11 @@ class Application(object):
         lg.logger_.debug("[APPLICATION] Individual N#{0} - Cost: {1}".format(best_index, best_indiv.get_cost()))
 
         stop_no_graph = self._config.getboolean('BEHAVIOUR', 'stopongraph')
-        EvaluatorFactory.get_ev_callback().show_best(best_index, best_indiv, stop_no_graph)
-
+        EvaluatorFactory.get_callback().show_best(best_index, best_indiv, stop_no_graph)
 
     def _project_validations(self):
         # Check that the evaluation and preevaluation modules can be loaded
-        EvaluatorFactory.get_ev_callback()
+        EvaluatorFactory.get_callback()
         PreevaluationManager.get_callback()
 
     # TODO: Add another validations

@@ -1,7 +1,6 @@
 import unittest
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
-from MLC.matlab_engine import MatlabEngine
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
 from MLC import config as config_path
@@ -17,7 +16,7 @@ class ExpressionTreeTest(unittest.TestCase):
         config.read(os.path.join(config_path.get_test_path(), 'mlc/individual/configuration.ini'))
 
     def setUp(self):
-        self._eng = MatlabEngine.engine()
+        pass
 
     def test_tree_depth_root(self):
         expression = '(root S0)'

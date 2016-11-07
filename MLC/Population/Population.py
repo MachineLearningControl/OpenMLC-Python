@@ -2,12 +2,12 @@ import math
 import MLC.Log.log as lg
 import sys
 
-from MLC.matlab_engine import MatlabEngine
-from MLC.mlc_table.MLCTable import MLCTable
-from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Simulation import Simulation
+from MLC.Common.RandomManager import RandomManager
 from MLC.individual.Individual import OperationOverIndividualFail
+from MLC.mlc_table.MLCTable import MLCTable
+from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+from MLC.Simulation import Simulation
 
 
 class Population(object):
@@ -372,7 +372,7 @@ class Population(object):
             sys.exit(-1)
 
         op = None
-        rand_prob = MatlabEngine.rand()
+        rand_prob = RandomManager.rand()
         if amount_indivs_left < 2:
             # Crossover is not possible
             rand_prob *= (prob_rep + prob_mut)
@@ -408,7 +408,7 @@ class Population(object):
                 # subgeneration instead of the indexes
                 random_indiv = -1
                 while random_indiv == -1 or random_indiv in indivs_chosen:
-                    random_indiv = math.ceil(MatlabEngine.rand() * subgen_len) - 1
+                    random_indiv = math.ceil(RandomManager.rand() * subgen_len) - 1
                 indivs_chosen.append(int(random_indiv))
 
             # Got the random indivs. Grab the one with the minor cost

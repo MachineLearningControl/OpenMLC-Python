@@ -8,7 +8,7 @@ from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
 
 class EvaluatorFactory(object):
     @staticmethod
-    def get_ev_callback():
+    def get_callback():
         module_name = Config.get_instance().get('EVALUATOR', 'evaluation_function')
         lg.logger_.debug('[EV_FACTORY] Importing module {0}'.format(module_name))
         try:
@@ -22,7 +22,7 @@ class EvaluatorFactory(object):
     @staticmethod
     def make(strategy):
         if strategy == "mfile_standalone":
-            ev_callback = EvaluatorFactory.get_ev_callback()
+            ev_callback = EvaluatorFactory.get_callback()
             return StandaloneEvaluator(ev_callback)
         else:
             lg.logger_.error("[EV_FACTORY] Evaluation method " +
