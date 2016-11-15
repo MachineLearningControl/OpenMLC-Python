@@ -137,6 +137,25 @@ class InvalidExperimentException(Exception):
 
 
 class MLCLocal(MLC):
+
+    class Experiment:
+        # FIXME
+        last_simulation = None
+
+        def __init__(self, working_dir, experiment_name):
+            cfg, db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
+            self._name = experiment_name
+            self._config_file = cfg
+            self._db_file = db
+
+        def get_simulation(self):
+            if Experiment.last_simulation is None:
+                MLCRepository._instance = None
+                Config._instance = None
+                Config.get_instance().read( self._config_file)
+                Experiment.last_simulation = Simulation()
+            return Experiment.last_simulation
+
     def __init__(self, working_dir):
         if not os.path.exists(working_dir):
             raise Exception("Invalid working directory %s" % working_dir)
@@ -244,6 +263,34 @@ class MLCLocal(MLC):
         # save experiment configuration file
         experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
         new_configuration.write(open(experiment_cf, "wt"))
+
+    def get_experiment_info(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        simulation = self.__load_simulation(experiment_name)
+
+        experiment_info = {
+            "name": experiment_name,
+            "generations": simulation.number_of_generations(),
+            "individuals": MLCRepository.get_instance().number_of_individuals(),
+            "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
+            "filename": experiment_name+".mlc"
+        }
+
+        return experiment_info
+
+    # FIXME: only one experiment can be loaded at a time
+    def __load_simulation(self, experiment_name):
+        # database and configuration files refresh
+        MLCRepository._instance = None
+        Config._instance = None
+        experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
+        Config.get_instance().read(experiment_cf)
+        return Simulation()
 
     @staticmethod
     def get_experiment_files(working_dir, experiment_name):

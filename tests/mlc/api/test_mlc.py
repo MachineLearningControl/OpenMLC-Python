@@ -13,7 +13,7 @@ class MLCWorkspaceTest(unittest.TestCase):
     DEFAULT_CONFIGURATION = {"BEHAVIOUR": {"save_dir"}}
 
     ORIGINAL_EXPERIMENT = "primer_prueba"
-    ORIGINAL_CONFIGURATION = {"BEHAVIOUR": {"save": "true", "savedir": "primer_prueba.mlc", "showeveryitbest": "true"}}
+    ORIGINAL_CONFIGURATION = {"BEHAVIOUR": {"save": "true", "savedir": "primer_prueba.mlc", "showeveryitbest": "true"}, "POPULATION": {"size": "10"}}
 
     NEW_EXPERIMENT = "new_experiment"
     NEW_CONFIGURATION = {"PARAMS": {"test_param": "test_value"}}
@@ -167,3 +167,21 @@ class MLCWorkspaceTest(unittest.TestCase):
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, MLCWorkspaceTest.NEW_EXPERIMENT) + ".conf")
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, MLCWorkspaceTest.NEW_EXPERIMENT) + ".mlc")
             pass
+
+    def test_get_info_empty_simulation(self):
+        mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+        mlc.open_experiment(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+        info = mlc.get_experiment_info(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+
+        self._assert_key_value(info, "name", MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+        self._assert_key_value(info, "filename", MLCWorkspaceTest.ORIGINAL_EXPERIMENT+".mlc")
+        self._assert_key_value(info, "generations", 0)
+        self._assert_key_value(info, "individuals", 0)
+        self._assert_key_value(info, "individuals_per_generation", 10)
+
+        mlc.close_experiment(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+
+    def _assert_key_value(self, dictionary, key, value):
+        self.assertIsInstance(dictionary, dict)
+        self.assertIn(key, dictionary)
+        self.assertEqual(dictionary[key], value)
