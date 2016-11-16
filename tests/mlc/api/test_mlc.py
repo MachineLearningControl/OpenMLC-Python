@@ -2,7 +2,7 @@ import unittest
 import os
 
 import MLC.api
-from MLC.api.mlc import MLCLocal
+from MLC.api.mlc import MLCLocal, Experiment
 
 from MLC.Simulation import Simulation
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -25,8 +25,8 @@ class MLCWorkspaceTest(unittest.TestCase):
         if not os.path.exists(MLCWorkspaceTest.WORKSPACE_DIR):
             os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
 
-        experiment_cf, experiment_db = MLCLocal.get_experiment_files(MLCWorkspaceTest.WORKSPACE_DIR,
-                                                                     MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+        experiment_cf, experiment_db = Experiment.get_experiment_files( MLCWorkspaceTest.WORKSPACE_DIR,
+                                                                        MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
 
         original_config = Config.from_dictionary(MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
         original_config.write(open(experiment_cf, "wt"))

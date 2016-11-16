@@ -1,5 +1,6 @@
 import os
 import argparse
+import ConfigParser
 
 from MLC.config import set_working_directory
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -136,161 +137,38 @@ class InvalidExperimentException(Exception):
         Exception.__init__(self, msg)
 
 
-class MLCLocal(MLC):
+class Experiment:
+    # FIXME
+    __last_simulation = None
 
-    class Experiment:
-        # FIXME
-        last_simulation = None
+    def __init__(self, working_dir, experiment_name):
+        Experiment.check_configuration(working_dir, experiment_name)
+        cfg, db = Experiment.get_experiment_files(working_dir, experiment_name)
+        self._name = experiment_name
+        self._config_file = cfg
+        self._db_file = db
+        self._simulation = None
 
-        def __init__(self, working_dir, experiment_name):
-            cfg, db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
-            self._name = experiment_name
-            self._config_file = cfg
-            self._db_file = db
+        self._configuration = ConfigParser.ConfigParser()
+        self._configuration.read(self._config_file)
 
-        def get_simulation(self):
-            if Experiment.last_simulation is None:
-                MLCRepository._instance = None
-                Config._instance = None
-                Config.get_instance().read( self._config_file)
-                Experiment.last_simulation = Simulation()
-            return Experiment.last_simulation
+    def get_simulation(self):
+        if Experiment.__last_simulation is None or Experiment.__last_simulation != self._simulation:
+            MLCRepository._instance = None
+            Config._instance = None
+            Config.get_instance().read(self._config_file)
+            self._simulation = Simulation()
+            Experiment.__last_simulation = self._simulation
 
-    def __init__(self, working_dir):
-        if not os.path.exists(working_dir):
-            raise Exception("Invalid working directory %s" % working_dir)
+        return self._simulation
 
-        self._working_dir = working_dir
+    def get_configuration(self):
+        return Config.to_dictionary(self._configuration)
 
-        # Set working dir for the MLC
-        set_working_directory(os.path.abspath(self._working_dir))
-
-        self._experiments = {}
-        self._open_experiments = {}
-
-        self.log("Searching for experiments in %s" % self._working_dir)
-
-        for _, _, files in os.walk(self._working_dir):
-            for file in files:
-                if file.endswith('.mlc'):
-                    experiment_name = file.split(".")[0]
-
-                    try:
-                        configuration, db_file = MLCLocal.check_configuration(self._working_dir, experiment_name)
-                        self._experiments[experiment_name] = (configuration, db_file)
-                        self.log("Found experiment in workspace: %s" % experiment_name)
-
-                    except InvalidExperimentException, err:
-                        self.log("Something go wrong loading experiment '%s': %s" % (experiment_name, err))
-
-        print "Experiments in the workspace: %s" % len(self._experiments)
-
-    def get_workspace_experiments(self):
-        return self._experiments.keys()
-
-    def get_experiment_configuration(self, experiment_name):
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("get_experiment_configuration", experiment_name)
-
-        return self._open_experiments[experiment_name][0]
-
-    def open_experiment(self, experiment_name):
-        if experiment_name not in self._experiments:
-            raise ExperimentNotExistException(experiment_name)
-
-        self._open_experiments[experiment_name] = self._experiments[experiment_name]
-
-    def close_experiment(self, experiment_name):
-        del self._open_experiments[experiment_name]
-
-    def new_experiment(self, experiment_name, experiment_configuration):
-        if experiment_name in self._experiments:
-            raise DuplicatedExperimentError(experiment_name)
-
-        # obtain experiment filenames
-        experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
-
-        # put DB parameters in the configuration file
-        if "BEHAVIOUR" not in experiment_configuration:
-            experiment_configuration["BEHAVIOUR"] = {}
-
-        experiment_configuration["BEHAVIOUR"]["save"] = "true"
-        experiment_configuration["BEHAVIOUR"]["savedir"] = experiment_name+'.mlc'
-        new_configuration = Config.from_dictionary(experiment_configuration)
-
-        # save experiment configuration file
-        new_configuration.write(open(experiment_cf, "wt"))
-
-        # create an empty simulation in order to create the experiment database
-        MLCRepository._instance = None
-        Config._instance = None
-        Config.get_instance().read(experiment_cf)
-        simulation = Simulation()
-
-        # load experiment
-        try:
-            configuration, db_file = MLCLocal.check_configuration(self._working_dir, experiment_name)
-            self._experiments[experiment_name] = (configuration, db_file)
-        except Exception, err:
-            self.log("Cannot create a new experiment :( %s " % err)
-            raise
-
-    def delete_experiment_from_workspace(self, experiment_name):
-        if experiment_name not in self._experiments:
-            raise ExperimentNotExistException(experiment_name)
-
-        del self._experiments[experiment_name]
-        if experiment_name in self._open_experiments:
-            del self._open_experiments[experiment_name]
-
-        experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
-        os.unlink(experiment_cf)
-        os.unlink(experiment_db)
-
-    def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("set_experiment_configuration_parameter", experiment_name)
-
-        return MLC.set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value)
-
-    def set_experiment_configuration(self, experiment_name, configuration):
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("set_experiment_configuration", experiment_name)
-
-        self._open_experiments[experiment_name][0].update(configuration)
-        new_configuration = Config.from_dictionary(self._open_experiments[experiment_name][0])
-
-        # save experiment configuration file
-        experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
-        new_configuration.write(open(experiment_cf, "wt"))
-
-    def get_experiment_info(self, experiment_name):
-        if experiment_name not in self._experiments:
-            raise ExperimentNotExistException(experiment_name)
-
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("get_experiment_info", experiment_name)
-
-        simulation = self.__load_simulation(experiment_name)
-
-        experiment_info = {
-            "name": experiment_name,
-            "generations": simulation.number_of_generations(),
-            "individuals": MLCRepository.get_instance().number_of_individuals(),
-            "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
-            "filename": experiment_name+".mlc"
-        }
-
-        return experiment_info
-
-    # FIXME: only one experiment can be loaded at a time
-    def __load_simulation(self, experiment_name):
-        # database and configuration files refresh
-        MLCRepository._instance = None
-        Config._instance = None
-        experiment_cf, experiment_db = MLCLocal.get_experiment_files(self._working_dir, experiment_name)
-        Config.get_instance().read(experiment_cf)
-        return Simulation()
+    def set_configuration(self, new_configuration):
+        print "set_config:%s" % new_configuration
+        self._configuration = Config.from_dictionary(new_configuration, config_type=ConfigParser.ConfigParser)
+        self._configuration.write(open(self._config_file, "wt"))
 
     @staticmethod
     def get_experiment_files(working_dir, experiment_name):
@@ -336,6 +214,133 @@ class MLCLocal(MLC):
 
         except Exception, err:
             raise InvalidExperimentException("Error reading configuration file %s: %s" % (experiment_cf,err))
+
+
+class MLCLocal(MLC):
+
+    def __init__(self, working_dir):
+        if not os.path.exists(working_dir):
+            raise Exception("Invalid working directory %s" % working_dir)
+
+        self._working_dir = working_dir
+
+        # Set working dir for the MLC
+        set_working_directory(os.path.abspath(self._working_dir))
+
+        self._experiments = {}
+        self._open_experiments = {}
+
+        self.log("Searching for experiments in %s" % self._working_dir)
+
+        for _, _, files in os.walk(self._working_dir):
+            for file in files:
+                if file.endswith('.mlc'):
+                    experiment_name = file.split(".")[0]
+
+                    try:
+                        self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
+                        self.log("Found experiment in workspace: %s" % experiment_name)
+
+                    except InvalidExperimentException, err:
+                        self.log("Something go wrong loading experiment '%s': %s" % (experiment_name, err))
+
+        print "Experiments in the workspace: %s" % len(self._experiments)
+
+    def get_workspace_experiments(self):
+        return self._experiments.keys()
+
+    def get_experiment_configuration(self, experiment_name):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_configuration", experiment_name)
+
+        return self._open_experiments[experiment_name].get_configuration()
+
+    def open_experiment(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        self._open_experiments[experiment_name] = self._experiments[experiment_name]
+
+    def close_experiment(self, experiment_name):
+        del self._open_experiments[experiment_name]
+
+    def new_experiment(self, experiment_name, experiment_configuration):
+        if experiment_name in self._experiments:
+            raise DuplicatedExperimentError(experiment_name)
+
+        # obtain experiment filenames
+        experiment_cf, experiment_db = Experiment.get_experiment_files(self._working_dir, experiment_name)
+
+        # put DB parameters in the configuration file
+        if "BEHAVIOUR" not in experiment_configuration:
+            experiment_configuration["BEHAVIOUR"] = {}
+
+        experiment_configuration["BEHAVIOUR"]["save"] = "true"
+        experiment_configuration["BEHAVIOUR"]["savedir"] = experiment_name+'.mlc'
+        new_configuration = Config.from_dictionary(experiment_configuration)
+
+        # save experiment configuration file
+        new_configuration.write(open(experiment_cf, "wt"))
+
+        # create an empty simulation in order to create the experiment database
+        MLCRepository._instance = None
+        Config._instance = None
+        Config.get_instance().read(experiment_cf)
+        simulation = Simulation()
+
+        # load experiment
+        try:
+            configuration, db_file = Experiment.check_configuration(self._working_dir, experiment_name)
+            self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
+        except Exception, err:
+            self.log("Cannot create a new experiment :( %s " % err)
+            raise
+
+    def delete_experiment_from_workspace(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        del self._experiments[experiment_name]
+        if experiment_name in self._open_experiments:
+            del self._open_experiments[experiment_name]
+
+        experiment_cf, experiment_db = Experiment.get_experiment_files(self._working_dir, experiment_name)
+        os.unlink(experiment_cf)
+        os.unlink(experiment_db)
+
+    def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("set_experiment_configuration_parameter", experiment_name)
+
+        return MLC.set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value)
+
+    def set_experiment_configuration(self, experiment_name, new_configuration):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("set_experiment_configuration", experiment_name)
+
+        experiment = self._open_experiments[experiment_name]
+        configuration = experiment.get_configuration()
+        configuration.update(new_configuration)
+        experiment.set_configuration(configuration)
+
+    def get_experiment_info(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        simulation = self._open_experiments[experiment_name].get_simulation()
+
+        experiment_info = {
+            "name": experiment_name,
+            "generations": simulation.number_of_generations(),
+            "individuals": MLCRepository.get_instance().number_of_individuals(),
+            "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
+            "filename": experiment_name+".mlc"
+        }
+
+        return experiment_info
 
     def log(self, message):
         print message

@@ -60,9 +60,9 @@ class Config(ConfigParser.ConfigParser):
                 config_dict[section][option] = config_parser.get(section, option)
         return config_dict
 
-    @staticmethod
-    def from_dictionary(config_dict):
-        config = Config()
+    @classmethod
+    def from_dictionary(cls, config_dict, config_type=None):
+        config = cls() if config_type is None else config_type()
         for section, options in config_dict.iteritems():
             config.add_section(section)
             for opt, value in options.iteritems():
