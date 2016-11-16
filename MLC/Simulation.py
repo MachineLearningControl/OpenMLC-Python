@@ -12,7 +12,7 @@ class Simulation:
             raise IndexError("Generation must start from 1, obtain %s" % generation)
 
         if generation > len(self._generations):
-            raise IndexError("Generation %s do not exist" % generation)
+            raise IndexError("Generation %s does not exist" % generation)
 
         return self._generations[generation - 1]
 

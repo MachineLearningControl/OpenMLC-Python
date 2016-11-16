@@ -6,6 +6,9 @@ from MLC.config import set_working_directory
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Application import Application
+from MLC.db.mlc_repository import MLCRepository
+
 
 class ClosedExperimentException(Exception):
     def __init__(self, experiment_name, operation_name):
@@ -138,7 +141,7 @@ class InvalidExperimentException(Exception):
 
 
 class Experiment:
-    # FIXME
+    # FIXME: one simulation at a time
     __last_simulation = None
 
     def __init__(self, working_dir, experiment_name):
@@ -166,7 +169,6 @@ class Experiment:
         return Config.to_dictionary(self._configuration)
 
     def set_configuration(self, new_configuration):
-        print "set_config:%s" % new_configuration
         self._configuration = Config.from_dictionary(new_configuration, config_type=ConfigParser.ConfigParser)
         self._configuration.write(open(self._config_file, "wt"))
 
@@ -264,6 +266,7 @@ class MLCLocal(MLC):
     def close_experiment(self, experiment_name):
         del self._open_experiments[experiment_name]
 
+    # TODO: moves this method to Experiment class
     def new_experiment(self, experiment_name, experiment_configuration):
         if experiment_name in self._experiments:
             raise DuplicatedExperimentError(experiment_name)
@@ -341,6 +344,56 @@ class MLCLocal(MLC):
         }
 
         return experiment_info
+
+    def go(self, experiment_name, to_generation, from_generation=0):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        # load simulation
+        experiment = self._open_experiments[experiment_name]
+        simulation = experiment.get_simulation()
+
+        # launch simulation
+        app = Application(simulation)
+        app.go(from_generation=from_generation, fig=0, to_generation=to_generation)
+
+        return True
+
+    # TODO: Individuals must be represented using dictionaries in the MLC API
+    def get_individuals(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        # get simulation in order to load mlc experiment database
+        simulation = self._open_experiments[experiment_name].get_simulation()
+
+        # obtain individuals from the database
+        individuals = []
+        number_of_individuals = MLCRepository.get_instance().number_of_individuals()
+        for indiv_id in range(1, number_of_individuals+1):
+            individual = MLCRepository.get_instance().get_individual(indiv_id)
+            individuals.append(individual)
+
+        return individuals
+
+    # TODO: Population must be represented using dictionaries/lists in the MLC API
+    def get_generation(self, experiment_name, generation_number):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        # get simulation in order to load mlc experiment database
+        simulation = self._open_experiments[experiment_name].get_simulation()
+
+        return simulation.get_generation(generation_number)
 
     def log(self, message):
         print message

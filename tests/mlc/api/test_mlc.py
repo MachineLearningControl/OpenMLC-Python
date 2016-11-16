@@ -1,3 +1,4 @@
+from nose.tools import nottest
 import unittest
 import shutil
 import os
@@ -7,7 +8,11 @@ from MLC.api.mlc import MLCLocal, Experiment
 
 from MLC.Simulation import Simulation
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.config import set_working_directory, get_test_path
+from MLC.config import set_working_directory
+from MLC.Common.RandomManager import RandomManager
+from MLC.Log.log import set_logger
+from MLC.individual.Individual import Individual as MLCIndividual
+from MLC.Population.Population import Population as MLCPopulation
 
 import ConfigParser
 
@@ -21,8 +26,12 @@ class MLCWorkspaceTest(unittest.TestCase):
     NEW_EXPERIMENT = "new_experiment"
     NEW_CONFIGURATION = {"PARAMS": {"test_param": "test_value"}}
 
+    FILE_WITH_RANDOMS = None
+
     @classmethod
     def setUpClass(cls):
+        # general settings for MLC
+        set_logger('console')
         set_working_directory(MLCWorkspaceTest.WORKSPACE_DIR)
 
         if not os.path.exists(MLCWorkspaceTest.WORKSPACE_DIR):
@@ -37,12 +46,16 @@ class MLCWorkspaceTest(unittest.TestCase):
 
         # read configuration
         original_config = ConfigParser.ConfigParser()
-        original_config.read(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+        original_config.read(os.path.join(this_dir, MLCWorkspaceTest.ORIGINAL_EXPERIMENT+".conf"))
         MLCWorkspaceTest.ORIGINAL_CONFIGURATION = Config.to_dictionary(original_config)
 
         # create experiment database
         Config.get_instance().read(experiment_cf)
         s = Simulation()
+
+        # random file for simulations
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        MLCWorkspaceTest.FILE_WITH_RANDOMS = os.path.join(this_dir, "matlab_randoms.txt")
 
     def test_obtain_experiments(self):
         mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
@@ -192,10 +205,101 @@ class MLCWorkspaceTest(unittest.TestCase):
 
         mlc.close_experiment(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
 
-    def test_go_simulation(self):
-        pass
+    @nottest
+    def test_go_and_check_simulation_info(self):
+        try:
+            # load random values for the simulation
+            self._load_random_values()
+
+            # Execute a simulation
+            mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+            mlc.new_experiment("test_go_and_check", MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
+            mlc.open_experiment("test_go_and_check")
+            mlc.go("test_go_and_check", 2)
+
+            # check simulation info
+            info = mlc.get_experiment_info("test_go_and_check")
+            self._assert_key_value(info, "name", "test_go_and_check")
+            self._assert_key_value(info, "filename", "test_go_and_check" + ".mlc")
+            self._assert_key_value(info, "generations", 2)
+            self._assert_key_value(info, "individuals", 11)
+            self._assert_key_value(info, "individuals_per_generation", 10)
+
+        finally:
+            # FIXME: use Setup/TearDown testcase
+            os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".conf")
+            os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".mlc")
+            pass
+
+    @nottest
+    def test_go_and_get_individuals(self):
+        try:
+            # load random values for the simulation
+            self._load_random_values()
+
+            # Execute a simulation
+            mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+            mlc.new_experiment("test_go_and_check", MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
+            mlc.open_experiment("test_go_and_check")
+            mlc.go("test_go_and_check", 2)
+
+            # obtain individuals
+            individuals = mlc.get_individuals("test_go_and_check")
+
+            # check number of individuals
+            self.assertEqual(len(individuals), 11)
+
+            # TODO: Check individual values
+            for indiv in individuals:
+                self.assertIsInstance(indiv, MLCIndividual)
+
+        finally:
+            # FIXME: use Setup/TearDown testcase
+            os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".conf")
+            os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".mlc")
+            pass
+
+    @nottest
+    def test_go_and_get_generations(self):
+            try:
+                # load random values for the simulation
+                self._load_random_values()
+
+                # Execute a simulation
+                mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+                mlc.new_experiment("test_go_and_check", MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
+                mlc.open_experiment("test_go_and_check")
+                mlc.go("test_go_and_check", 2)
+
+                # get first population
+                first_generation = mlc.get_generation("test_go_and_check", 1)
+                self.assertIsInstance(first_generation, MLCPopulation)
+
+                # get second generation
+                second_generation = mlc.get_generation("test_go_and_check", 2)
+                self.assertIsInstance(second_generation, MLCPopulation)
+
+                # third generation does not exist and must raise an Exception
+                # TODO: Use a specific exception instead of IndexError
+
+                try:
+                    third_generation = mlc.get_generation("test_go_and_check", 3)
+                    self.assertIsInstance(third_generation, MLCPopulation)
+                    self.assertTrue(False)
+                except IndexError:
+                    self.assertTrue(True)
+
+            finally:
+                # FIXME: use Setup/TearDown testcase
+                os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".conf")
+                os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".mlc")
+                pass
 
     def _assert_key_value(self, dictionary, key, value):
         self.assertIsInstance(dictionary, dict)
         self.assertIn(key, dictionary)
         self.assertEqual(dictionary[key], value)
+
+    def _load_random_values(self):
+        RandomManager.clear_random_values()
+        RandomManager.load_random_values(MLCWorkspaceTest.FILE_WITH_RANDOMS)
