@@ -236,6 +236,7 @@ class MLCLocal(MLC):
 
         for _, _, files in os.walk(self._working_dir):
             for file in files:
+                print "AAA:%s" % file
                 if file.endswith('.mlc'):
                     experiment_name = file.split(".")[0]
 
@@ -406,8 +407,3 @@ def parse_arguments():
                         type=str, help='MLC working directory.')
 
     return parser.parse_args()
-
-if __name__ == '__main__':
-    arguments = parse_arguments()
-    mlc = MLCLocal(working_dir=os.path.abspath(arguments.working_dir))
-    experiment = mlc.get_workspace_experiments()
