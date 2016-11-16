@@ -234,9 +234,9 @@ class MLCLocal(MLC):
 
         self.log("Searching for experiments in %s" % self._working_dir)
 
-        for _, _, files in os.walk(self._working_dir):
-            for file in files:
-                print "AAA:%s" % file
+        for item in os.listdir(self._working_dir):
+            if os.path.isfile(os.path.join(self._working_dir, item)):
+                file = item
                 if file.endswith('.mlc'):
                     experiment_name = file.split(".")[0]
 
