@@ -1,4 +1,5 @@
 import unittest
+import shutil
 import os
 
 import MLC.api
@@ -6,14 +7,16 @@ from MLC.api.mlc import MLCLocal, Experiment
 
 from MLC.Simulation import Simulation
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.config import set_working_directory
+from MLC.config import set_working_directory, get_test_path
+
+import ConfigParser
 
 class MLCWorkspaceTest(unittest.TestCase):
     WORKSPACE_DIR = os.path.abspath("/tmp/mlc_workspace/")
     DEFAULT_CONFIGURATION = {"BEHAVIOUR": {"save_dir"}}
 
-    ORIGINAL_EXPERIMENT = "primer_prueba"
-    ORIGINAL_CONFIGURATION = {"BEHAVIOUR": {"save": "true", "savedir": "primer_prueba.mlc", "showeveryitbest": "true"}, "POPULATION": {"size": "10"}}
+    ORIGINAL_EXPERIMENT = "test_first_experiment"
+    ORIGINAL_CONFIGURATION = None
 
     NEW_EXPERIMENT = "new_experiment"
     NEW_CONFIGURATION = {"PARAMS": {"test_param": "test_value"}}
@@ -25,11 +28,19 @@ class MLCWorkspaceTest(unittest.TestCase):
         if not os.path.exists(MLCWorkspaceTest.WORKSPACE_DIR):
             os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
 
+        # copy initial configuration file
         experiment_cf, experiment_db = Experiment.get_experiment_files( MLCWorkspaceTest.WORKSPACE_DIR,
                                                                         MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
 
-        original_config = Config.from_dictionary(MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
-        original_config.write(open(experiment_cf, "wt"))
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        shutil.copy(os.path.join(this_dir, MLCWorkspaceTest.ORIGINAL_EXPERIMENT+".conf"), experiment_cf)
+
+        # read configuration
+        original_config = ConfigParser.ConfigParser()
+        original_config.read(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+        MLCWorkspaceTest.ORIGINAL_CONFIGURATION = Config.to_dictionary(original_config)
+
+        # create experiment database
         Config.get_instance().read(experiment_cf)
         s = Simulation()
 
@@ -180,6 +191,9 @@ class MLCWorkspaceTest(unittest.TestCase):
         self._assert_key_value(info, "individuals_per_generation", 10)
 
         mlc.close_experiment(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+
+    def test_go_simulation(self):
+        pass
 
     def _assert_key_value(self, dictionary, key, value):
         self.assertIsInstance(dictionary, dict)
