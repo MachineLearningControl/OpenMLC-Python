@@ -232,7 +232,7 @@ class MLCLocal(MLC):
         self._experiments = {}
         self._open_experiments = {}
 
-        self.log("Searching for experiments in %s" % self._working_dir)
+        # self.log("Searching for experiments in %s" % self._working_dir)
 
         for item in os.listdir(self._working_dir):
             if os.path.isfile(os.path.join(self._working_dir, item)):
@@ -242,12 +242,12 @@ class MLCLocal(MLC):
 
                     try:
                         self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
-                        self.log("Found experiment in workspace: %s" % experiment_name)
+                        # self.log("Found experiment in workspace: %s" % experiment_name)
 
                     except InvalidExperimentException, err:
-                        self.log("Something go wrong loading experiment '%s': %s" % (experiment_name, err))
-
-        print "Experiments in the workspace: %s" % len(self._experiments)
+                        # self.log("Something go wrong loading experiment '%s': %s" % (experiment_name, err))
+                        pass
+        # print "Experiments in the workspace: %s" % len(self._experiments)
 
     def get_workspace_experiments(self):
         return self._experiments.keys()
@@ -297,7 +297,7 @@ class MLCLocal(MLC):
             configuration, db_file = Experiment.check_configuration(self._working_dir, experiment_name)
             self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
         except Exception, err:
-            self.log("Cannot create a new experiment :( %s " % err)
+            # self.log("Cannot create a new experiment :( %s " % err)
             raise
 
     def delete_experiment_from_workspace(self, experiment_name):

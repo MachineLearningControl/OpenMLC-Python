@@ -1,20 +1,18 @@
-#!flask/bin/python
 from flask import Flask, jsonify
 from flask import make_response
 from flask import request
 
+import sys
 import json
 import argparse
+import logging
 
 from mlc import MLCLocal
 from mlc import DuplicatedExperimentError, ExperimentNotExistException
 
+logger = None
 mlc_api = None
 app = Flask(__name__)
-
-"""
-    POC for workspace methods
-"""
 
 
 @app.route('/mlc/workspace/experiments', methods=['GET'])
@@ -92,6 +90,13 @@ def get_individuals(self, experiment_name):
 
 
 def parse_arguments():
+    log_levels = {
+        "ERROR":    logging.ERROR,
+        "WARNING":  logging.WARNING,
+        "INFO":     logging.INFO,
+        "DEBUG":    logging.DEBUG
+    }
+
     parser = argparse.ArgumentParser(description='MLC Server (API REST)')
 
     parser.add_argument('-d', '--workspace-dir', required=True,
@@ -100,14 +105,47 @@ def parse_arguments():
     parser.add_argument('-p', '--listening-port', default=5000,
                         type=int, help='MLC Server listening port.')
 
-    return parser.parse_args()
+    parser.add_argument('-s', '--server-hostname', default="127.0.0.1",
+                        type=str, help='MLC Server hostname.')
+
+    parser.add_argument('-l', '--log-level', default="INFO",
+                        choices=log_levels.keys(), type=str,
+                        help='MLC Server logging level.')
+
+    parser.add_argument('--server-debug', action='store_true',
+                        help='If the debug flag is set the server'
+                             'will automatically reload for code change.')
+
+    arguments = parser.parse_args()
+    arguments.log_level = log_levels[arguments.log_level]
+    return arguments
+
+
+def get_app_logger(level):
+    app_logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    handler.setFormatter(formatter)
+    app_logger.addHandler(handler)
+    return app_logger
 
 if __name__ == '__main__':
+    # parse mlc_server arguments
     arguments = parse_arguments()
+
+    # set global logging configuration
+    logger = get_app_logger(arguments.log_level)
+
+    # instatiate MLCLocal
+    logger.info("loading MLC workspace from %s" % arguments.workspace_dir)
     mlc_api = MLCLocal(arguments.workspace_dir)
 
-    print "Running MLC Server..."
-    print "MLC Workspace: %s" % arguments.workspace_dir
-    print "MLC Server Listening on 127.0.0.1:%s" % arguments.listening_port
+    # Launch MLC Server
+    logger.info("starting MLC Server...")
+    logger.info("MLC Server listening on http://%s:%d" % (arguments.server_hostname,
+                                                          arguments.listening_port))
 
-    app.run(port=arguments.listening_port, debug=True)
+    app.run(host=arguments.server_hostname,
+            port=arguments.listening_port,
+            debug=arguments.server_debug)
