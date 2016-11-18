@@ -51,6 +51,13 @@ def delete_experiment_from_workspace(experiment_name):
 
     return jsonify("Experiment %s deleted" % experiment_name)
 
+def get_experiment_info(self, experiment_name):
+    raise NotImplementedError("MLC::get_experiment_info not implemented")
+
+def go(self, experiment_name, to_generation, from_generation=1):
+    raise NotImplementedError("MLC::go not implemented")
+
+
 
 """
     Not Implemented Yet
@@ -73,14 +80,6 @@ def set_experiment_configuration(self, experiment_name, configuration):
     raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
 
-def go(self, experiment_name, to_generation, from_generation=1):
-    raise NotImplementedError("MLC::go not implemented")
-
-
-def get_experiment_info(self, experiment_name):
-    raise NotImplementedError("MLC::get_experiment_info not implemented")
-
-
 def get_generation(self, experiment_name, generation_number):
     raise NotImplementedError("MLC::get_generation not implemented")
 
@@ -99,7 +98,7 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(description='MLC Server (API REST)')
 
-    parser.add_argument('-d', '--workspace-dir', required=True,
+    parser.add_argument('-w', '--workspace-dir', required=True,
                         type=str, help='MLC Workspace directory.')
 
     parser.add_argument('-p', '--listening-port', default=5000,

@@ -35,7 +35,7 @@ class MLCClient(MLC):
     def set_experiment_configuration(self, experiment_name, configuration):
         raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
-    def go(self, experiment_name, to_generation, from_generation=1):
+    def go(self, experiment_name, to_generation, from_generation=0):
         raise NotImplementedError("MLC::go not implemented")
 
     def get_experiment_info(self, experiment_name):
