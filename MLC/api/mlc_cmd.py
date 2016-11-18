@@ -10,33 +10,82 @@ from mlc import MLCLocal
 mlc_api = None
 
 
+def validate_params(param_types, fail_message=""):
+    def decorator(func):
+        def real_decorator(*args, **kwargs):
+            self, line = args
+            input_values = line.split()
+
+            if len(input_values) > len(param_types):
+                print "Bad command arguments, %s" % fail_message
+                return False
+
+            input_values = input_values + [None]*(len(param_types) - len(input_values))
+            validated_values = None
+
+            try:
+                type_values = zip(param_types, input_values)
+                print type_values
+                validated_values = [t(v) for t, v in type_values]
+            except Exception, err:
+                print "Bad command arguments, %s" % fail_message
+                return False
+
+            return func(self, *validated_values)
+
+        return real_decorator
+    return decorator
+
+
+def string(value):
+    if value is None:
+        raise ValueError("null_value, expected string_value")
+    return str(value)
+
+
+def optional(value_type):
+    def validate(value):
+        if value is not None:
+            return value_type(value)
+    return validate
+
+
 class MLCCmd(cmd.Cmd):
     intro = ""
     open_experiment = None
     prompt = 'mlc>workspace>'
 
-    def do_experiments(self, line):
+    @validate_params([])
+    def do_experiments(self):
         print mlc_api.get_workspace_experiments()
 
-    def do_new(self, line):
-        if not line:
-            self.__msg("Argument error, an experiment name was expected")
+    @validate_params([string, optional(str)], "experiment_name, [configuration_file] expected")
+    def do_new(self, experiment_name, config_file):
 
-        splitted_line = line.split()
+        experiment_configuration = None
 
-        if len(splitted_line) == 1:
-            experiment_name = line
+        if config_file is None:
             experiment_configuration = {"POPULATION":
-                                        {"size": "100",
-                                         "sensors": "1",
-                                         "sensor_spec": "false",
-                                         "sensor_list": "1, 5, 2, 4"}
+                                            {"size": "100",
+                                             "sensors": "1",
+                                             "sensor_spec": "false",
+                                             "sensor_list": "1, 5, 2, 4"}
                                         }
         else:
-            experiment_name = splitted_line[0]
             config = ConfigParser.ConfigParser()
             config.read(splitted_line[1])
             experiment_configuration = Config.to_dictionary(config)
+
+        print experiment_name
+        print config_file
+        return
+
+        if len(splitted_line) == 1:
+            experiment_name = line
+
+        else:
+            experiment_name = splitted_line[0]
+
 
         try:
             mlc_api.new_experiment(experiment_name, experiment_configuration)
@@ -69,7 +118,7 @@ class MLCCmd(cmd.Cmd):
     def __exit(self):
         return True
 
-    def __msg(self, message):
+    def msg(self, message):
         print message
 
     def __open_experiment(self, experiment_name):
@@ -84,7 +133,7 @@ class MLCCmd(cmd.Cmd):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='MLC Cmd Tool (Local and Remote Version)')
 
-    parser.add_argument('--remote', action='store_false',
+    parser.add_argument('--remote', action='store_true',
                         help='If remote is enabled MLC Cmd will try to connect to the MLC Server at http://[mlc-server-hostname]:[mlc-server-port] '
                              'else MLC will loads a local workspace from [workspace-directory]')
 
@@ -95,7 +144,7 @@ def parse_arguments():
                         type=int, help='MLC Server listening port.')
 
     parser.add_argument('-w', '--workspace-dir',
-                        type=int, help='MLC Server local workspace directory.')
+                        type=str, help='MLC Server local workspace directory.')
 
     arguments = parser.parse_args()
 
