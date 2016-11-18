@@ -11,10 +11,14 @@ class MLCClient(MLC):
         self._url = "http://"+hostname+":"+str(port)
 
     def open_experiment(self, experiment_name):
-        raise NotImplementedError("MLC::open_experiment not implemented")
+        json_action = json.dumps({"action": "open"})
+        response = requests.put(self._url + "/mlc/workspace/experiments/%s" % experiment_name, json=json_action)
+        return json.loads(response.text)
 
     def close_experiment(self, experiment_name):
-        raise NotImplementedError("MLC::close_experiment not implemented")
+        json_action = json.dumps({"action": "close"})
+        response = requests.put(self._url + "/mlc/workspace/experiments/%s" % experiment_name, json=json_action)
+        return json.loads(response.text)
 
     def get_workspace_experiments(self):
         response = requests.get(self._url+"/mlc/workspace/experiments")
@@ -36,10 +40,16 @@ class MLCClient(MLC):
         raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
     def go(self, experiment_name, to_generation, from_generation=0):
-        raise NotImplementedError("MLC::go not implemented")
+        json_action = json.dumps({"action":          "go",
+                                  "from_generation": from_generation,
+                                  "to_generation":   to_generation})
+
+        response = requests.put(self._url + "/mlc/workspace/experiments/%s" % experiment_name, json=json_action)
+        return json.loads(response.text)
 
     def get_experiment_info(self, experiment_name):
-        raise NotImplementedError("MLC::get_experiment_info not implemented")
+        response = requests.get(self._url + "/mlc/workspace/experiments/%s" % experiment_name)
+        return json.loads(response.text)
 
     def get_generation(self, experiment_name, generation_number):
         raise NotImplementedError("MLC::get_generation not implemented")

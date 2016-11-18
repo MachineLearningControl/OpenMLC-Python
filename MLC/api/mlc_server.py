@@ -51,13 +51,53 @@ def delete_experiment_from_workspace(experiment_name):
 
     return jsonify("Experiment %s deleted" % experiment_name)
 
-def get_experiment_info(self, experiment_name):
-    raise NotImplementedError("MLC::get_experiment_info not implemented")
 
-def go(self, experiment_name, to_generation, from_generation=1):
-    raise NotImplementedError("MLC::go not implemented")
+@app.route('/mlc/workspace/experiments/<string:experiment_name>', methods=['GET'])
+def get_experiment_info(experiment_name):
+    experiment_info = {}
+    try:
+        print "Receive request, trying to obtain experiment info for '%s'" % experiment_name
+        experiment_info = mlc_api.get_experiment_info(experiment_name)
+
+    except ExperimentNotExistException, err:
+        return make_response(jsonify({'error': str(err)}), 409)
+
+    except Exception, err:
+        return make_response(jsonify({'error': str(err)}), 500)
+
+    return jsonify(experiment_info)
 
 
+@app.route('/mlc/workspace/experiments/<string:experiment_name>', methods=['PUT'])
+def open_close_experiment(experiment_name):
+    experiment_action = json.loads(request.json)
+
+    try:
+        if experiment_action["action"] == "open":
+            print "Receive request, open experiment '%s'" % experiment_name
+            mlc_api.open_experiment(experiment_name)
+
+        elif experiment_action["action"] == "close":
+            print "Receive request, close experiment '%s'" % experiment_name
+            mlc_api.close_experiment(experiment_name)
+
+        elif experiment_action["action"] == "go":
+            print "Receive request, go experiment '%s' -> %s" % (experiment_name, experiment_action)
+
+            if "from_generation" in experiment_action:
+                mlc_api.go(experiment_name, int(experiment_action["to_generation"]), int(experiment_action["from_generation"]))
+            else:
+                mlc_api.go(experiment_name, int(experiment_action["to_generation"]))
+
+        else:
+            return make_response(jsonify({'error': "invalid action"}), 409)
+    except ExperimentNotExistException, err:
+        return make_response(jsonify({'error': str(err)}), 409)
+
+    except Exception, err:
+        return make_response(jsonify({'error': str(err)}), 500)
+
+    return jsonify("Experiment %s experiment_action OK" % experiment_name)
 
 """
     Not Implemented Yet
