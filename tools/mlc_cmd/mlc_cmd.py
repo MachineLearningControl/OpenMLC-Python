@@ -1,10 +1,11 @@
 import os, sys, re, cmd, argparse
-import ConfigParser
+import traceback
 
-from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.api.mlc import MLCException
 from MLC.api.mlc import DuplicatedExperimentError
 from MLC.api.mlc import ExperimentNotExistException
 from MLC.api.mlc import ClosedExperimentException
+
 from MLC.api.mlc_client import MLCClient
 from MLC.api.mlc import MLCLocal
 
@@ -20,20 +21,24 @@ DEFAULT_CONFIGURATION = load_configuration(os.path.join(this_dir,
                                                         configuration_file_template))
 
 
+def err_handler(exception):
+    print ">> Unknown error: %s" % exception
+
+    if MLCCmd.debug_mode:
+        traceback.print_exc()
+
+
 class MLCCmd(cmd.Cmd):
+    debug_mode = False
     intro = ""
     current_experiment = None
     prompt = 'mlc>workspace>'
 
-    @validate_params([])
+    @validate_params([], err_handler)
     def do_experiments(self):
-        try:
-            self.msg(mlc_api.get_workspace_experiments())
+        self.msg(mlc_api.get_workspace_experiments())
 
-        except Exception, err:
-            self.msg("cannot obtain experiment from the workspace, cause %s." % err)
-
-    @validate_params([string, optional(str)], "experiment_name [configuration_file] expected.")
+    @validate_params([string, optional(str)], err_handler, "experiment_name [configuration_file] expected.")
     def do_new(self, experiment_name, config_file):
 
         if config_file is not None:
@@ -46,13 +51,10 @@ class MLCCmd(cmd.Cmd):
             mlc_api.new_experiment(experiment_name, experiment_configuration)
             self.msg("experiment '%s' created." % experiment_name)
 
-        except DuplicatedExperimentError:
-            self.msg("an experiment with that name already exists.")
+        except MLCException, err:
+            self.msg(str(err))
 
-        except Exception, err:
-            self.msg("cannot create the experiment, cause: %s." % err)
-
-    @validate_params([string], "experiment_name expected")
+    @validate_params([string], err_handler, "experiment_name expected")
     def do_delete(self, experiment_name):
 
         try:
@@ -61,13 +63,10 @@ class MLCCmd(cmd.Cmd):
 
             self.msg("experiment '%s' deleted" % experiment_name)
 
-        except ExperimentNotExistException:
-            self.msg("experiment '%s' does not exist in the workspace." % experiment_name)
+        except MLCException, err:
+            self.msg(str(err))
 
-        except Exception, err:
-            self.msg("cannot delete experiment, cause: %s" % err)
-
-    @validate_params([string], "experiment_name expected")
+    @validate_params([string], err_handler, "experiment_name expected")
     def do_open(self, experiment_name):
         if MLCCmd.current_experiment is not None:
             self.msg("please close current experiment '%s' before trying to open another one." % (MLCCmd.current_experiment))
@@ -77,13 +76,10 @@ class MLCCmd(cmd.Cmd):
             mlc_api.open_experiment(experiment_name)
             self.__on_experiment_open(experiment_name)
 
-        except ExperimentNotExistException:
-            self.msg("experiment '%s' does not exist in the workspace." % experiment_name)
+        except MLCException, err:
+            self.msg(str(err))
 
-        except Exception, err:
-            self.msg("cannot open experiment, cause: %s" % err)
-
-    @validate_params([optional(string)], "[experiment_name expected]")
+    @validate_params([optional(string)], err_handler, "[experiment_name expected]")
     def do_close(self, experiment_name):
 
         if experiment_name is None:
@@ -100,13 +96,10 @@ class MLCCmd(cmd.Cmd):
 
             self.msg("experiment '%s' closed" % experiment_to_close)
 
-        except ExperimentNotExistException:
-            self.msg("experiment '%s' does not exist in the workspace." % experiment_to_close)
+        except MLCException, err:
+            self.msg(str(err))
 
-        except Exception, err:
-            self.msg("cannot close experiment, cause: %s" % err)
-
-    @validate_params([])
+    @validate_params([], err_handler)
     def do_info(self):
 
         if MLCCmd.current_experiment is None:
@@ -121,16 +114,10 @@ class MLCCmd(cmd.Cmd):
             for k, v in experiment_info.iteritems():
                 self.msg("%s: %s" % (k , v))
 
-        except ExperimentNotExistException:
-            self.msg("experiment '%s' does not exist in the workspace." % experiment_name)
+        except MLCException, err:
+            self.msg(str(err))
 
-        except ClosedExperimentException:
-            self.msg("experiment '%s' is closed" % experiment_name)
-
-        except Exception, err:
-            self.msg("cannot obtain experiment info, cause: %s" % type(err))
-
-    @validate_params([int, optional(int)], "to_generation [from_generation] expected")
+    @validate_params([int, optional(int)], err_handler, "to_generation [from_generation] expected")
     def do_go(self, to_generation, from_generation):
         if MLCCmd.current_experiment is None:
             self.msg("no open experiment.")
@@ -142,14 +129,8 @@ class MLCCmd(cmd.Cmd):
             else:
                 mlc_api.go(MLCCmd.current_experiment, to_generation)
 
-        except ExperimentNotExistException:
-            self.msg("experiment '%s' does not exist in the workspace." % MLCCmd.current_experiment)
-
-        except ClosedExperimentException:
-            self.msg("experiment '%s' is closed" % MLCCmd.current_experiment)
-
-        except Exception, err:
-            self.msg("cannot execute experiment info, cause: %s" % err)
+        except MLCException, err:
+            self.msg(str(err))
 
     def do_quit(self, line):
         return self.__exit()
@@ -190,6 +171,9 @@ def parse_arguments():
     parser.add_argument('-w', '--workspace-dir',
                         type=str, help='MLC Server local workspace directory.')
 
+    parser.add_argument('--debug-mode', action='store_true',
+                        help='Enable debug mode for the MLC Cmd Tool.')
+
     arguments = parser.parse_args()
 
     if not arguments.remote and arguments.workspace_dir is None:
@@ -202,6 +186,10 @@ def parse_arguments():
 if __name__ == '__main__':
 
     arguments = parse_arguments()
+
+    if arguments.debug_mode:
+        print ">> Executing MLC Cmd Tool in debug mode"
+        MLCCmd.debug_mode = True
 
     if arguments.remote:
         MLCCmd.intro = "Remote MLC Cmd Tool, connected to MLC at http://%s:%s" % (arguments.mlc_server_hostname,

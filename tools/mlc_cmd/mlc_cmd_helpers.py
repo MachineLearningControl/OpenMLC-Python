@@ -2,7 +2,7 @@ import ConfigParser
 from MLC.mlc_parameters.mlc_parameters import Config
 
 
-def validate_params(param_types, fail_message=""):
+def validate_params(param_types, err_handler, fail_message=""):
     def decorator(func):
         def real_decorator(*args, **kwargs):
             self, line = args
@@ -22,7 +22,10 @@ def validate_params(param_types, fail_message=""):
                 print "Bad command arguments, %s" % fail_message
                 return False
 
-            return func(self, *validated_values)
+            try:
+                return func(self, *validated_values)
+            except Exception, err:
+                err_handler(err)
 
         return real_decorator
     return decorator

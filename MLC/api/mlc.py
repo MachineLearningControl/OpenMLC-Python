@@ -10,19 +10,23 @@ from MLC.Application import Application
 from MLC.db.mlc_repository import MLCRepository
 
 
-class ClosedExperimentException(Exception):
+class MLCException(Exception):
+    pass
+
+
+class ClosedExperimentException(MLCException):
     def __init__(self, experiment_name, operation_name):
-        Exception.__init__(self, "Cannot execute operation %s because '%s' is closed." % (experiment_name, operation_name))
+        MLCException.__init__(self, "Cannot execute operation %s because '%s' is closed." % (experiment_name, operation_name))
 
 
-class ExperimentNotExistException(Exception):
+class ExperimentNotExistException(MLCException):
     def __init__(self, experiment_name):
-        Exception.__init__(self, "Experiment '%s' does not exist." % experiment_name)
+        MLCException.__init__(self, "Experiment '%s' does not exist." % experiment_name)
 
 
-class DuplicatedExperimentError(Exception):
+class DuplicatedExperimentError(MLCException):
     def __init__(self, experiment_name):
-        Exception.__init__(self, "Experiment '%s' already exists." % experiment_name)
+        MLCException.__init__(self, "Experiment '%s' already exists." % experiment_name)
 
 
 class MLC:
