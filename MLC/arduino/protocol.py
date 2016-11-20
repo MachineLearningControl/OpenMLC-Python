@@ -6,6 +6,7 @@ _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
                     "REPORT_MODE"     : '\x05\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
                     "ACTUATE"         : '\xF0',
+                    "RESET"           : '\xFE',
                     "ACTUATE_REPORT"  : '\xF1' }
 
 class ArduinoInterface:
@@ -19,6 +20,9 @@ class ArduinoInterface:
         self._anlg_outputs = []
         self._digital_outputs = []
         self._anlg_precition = 10 #Default Arduino analog precision
+        self._report_mode = "AVERAGE"
+        self._read_count = 1 #Default number of inputs read
+        self._read_delay = 0
         self._board = board
 
     def set_precition(self, bits):
@@ -33,9 +37,13 @@ class ArduinoInterface:
         
         self._connection.send(_PROTOCOL_CMDS["PIN_MODE"] % (chr(port), chr(self.PIN_MOD[mode])))
 
-    def set_report_mode(self, mode, read_count=1, read_delay=0):
+    def set_report_mode(self, mode, read_count=0, read_delay=0):
         if mode not in self.REPORT_MOD.keys():
             raise Exception("Report mode error. Unknown value: %s" % mode)
+
+        self._report_mode = mode
+        self._read_count = read_count + 1
+        self._read_delay = read_delay
         
         self._connection.send(_PROTOCOL_CMDS["REPORT_MODE"] % (chr(self.REPORT_MOD[mode]), chr(read_count), chr(read_delay)))
   
@@ -76,6 +84,9 @@ class ArduinoInterface:
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
             raise Exception("Invalid pin %s for board %s" % (pin, self._board["NAME"]))
         return
+  
+    def reset(self):
+        self._connection.send(_PROTOCOL_CMDS["RESET"])
 
     def actuate(self, data):
         """
@@ -120,7 +131,8 @@ class ArduinoInterface:
                 pos = pos + 3
             else:
                 if ord(data[pos]) in self._digital_inputs:
-                    results.append((data[pos], bool(ord(data[pos+1]))))
+                    for i in range(0, self._read_count):
+                        results.append((data[pos], bool(ord(data[pos+1]))))
                     pos = pos + 2
                 else:
                     raise Exception("Unknown port in response. Restart Arduino board, your software and pray")
