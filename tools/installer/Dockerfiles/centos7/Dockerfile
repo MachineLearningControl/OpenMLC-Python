@@ -17,8 +17,7 @@ CMD ["/usr/sbin/init"]
 RUN yum update -y
 
 # Install packages
-# RUN apt-get install ssh gcc wget xz-utils make vim libssl-dev -y
-RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter qt-devel openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel -y
+RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel -y
 
 # Download python 2.7.11
 WORKDIR /tmp
@@ -72,7 +71,7 @@ chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 
 
 # Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml flask requests
 
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -89,8 +88,24 @@ echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
 echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
 chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
 
+# Install PyQt5 Environment
+RUN yum --enablerepo=extras install epel-release -y
+RUN yum update -y && yum install qt5-qtbase qt5-qtbase-devel -y
+
+RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz && \
+    tar xzvf sip-4.18.1.tar.gz && \
+    cd sip-4.18.1 && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py && \
+    make && make install
+
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7/PyQt5_gpl-5.7.tar.gz && \
+    tar xzvf PyQt5_gpl-5.7.tar.gz && \
+    cd PyQt5_gpl-5.7 && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/bin/qmake-qt5 --confirm-license --sip /opt/mlc-python-2.7.11/bin/sip && \
+    make && make install
+
 # Install fpm
 RUN gem install fpm
 
 # Create .rpm package
-RUN fpm -s dir -t rpm -v 0.2 -n mlc-python /opt/mlc-python-2.7.11
+RUN fpm -s dir -t rpm -v 0.3 -n mlc-python /opt/mlc-python-2.7.11

@@ -81,7 +81,7 @@ echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip
 
 # Install mlc dependencies
 # Create .sh who will load the desired enviroment to run nosetests within it
-RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial nose matplotlib pyside numpy scipy pyyaml && echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/bin/mlc_pip install flask requests pyserial nose matplotlib pyside numpy scipy pyyaml && echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -97,5 +97,19 @@ echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests
 # Install fpm
 RUN gem install fpm
 
+# Add PyQt5 Support
+RUN apt-get update && apt-get install qt5-default qt5-qmake qtbase5-dev -y
+RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz && \
+    tar xzvf sip-4.18.1.tar.gz && \
+    cd sip-4.18.1 && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py && \
+    make && make install
+
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7/PyQt5_gpl-5.7.tar.gz && \
+    tar xzvf PyQt5_gpl-5.7.tar.gz && \
+    cd PyQt5_gpl-5.7 && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --confirm-license --sip /opt/mlc-python-2.7.11/bin/sip && \
+    make && make install
+
 # Create .deb package
-RUN fpm -s dir -t deb -v 0.2 -n mlc-python /opt/mlc-python-2.7.11
+RUN fpm -s dir -t deb -v 0.3 -n mlc-python /opt/mlc-python-2.7.11
