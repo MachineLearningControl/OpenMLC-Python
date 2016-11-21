@@ -44,13 +44,27 @@ class Config(ConfigParser.ConfigParser):
         return Config._instance
 
     def save(self):
-        self._dictionary = {}
-        for section in self.sections():
-            self._dictionary[section] = {}
-            for option in self.options(section):
-                self._dictionary[section][option] = self.get(section, option)
+        self._dictionary = Config.to_dictionary(self)
 
     def restore(self):
         for section, options in self._dictionary.iteritems():
             for opt, value in options.iteritems():
                 self.set(section, opt, value)
+
+    @staticmethod
+    def to_dictionary(config_parser):
+        config_dict = {}
+        for section in config_parser.sections():
+            config_dict[section] = {}
+            for option in config_parser.options(section):
+                config_dict[section][option] = config_parser.get(section, option)
+        return config_dict
+
+    @classmethod
+    def from_dictionary(cls, config_dict, config_type=None):
+        config = cls() if config_type is None else config_type()
+        for section, options in config_dict.iteritems():
+            config.add_section(section)
+            for opt, value in options.iteritems():
+                config.set(section, opt, value)
+        return config
