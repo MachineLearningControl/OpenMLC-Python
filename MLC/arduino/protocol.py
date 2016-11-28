@@ -1,7 +1,7 @@
 
 _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
-                    "SET_INPUT"    : '\x02\x01%s',
-                    "SET_OUTPUT"   : '\x03\x01%s',
+                    "SET_INPUT"       : '\x02\x01%s',
+                    "SET_OUTPUT"      : '\x03\x01%s',
                     "PIN_MODE"        : '\x04\x02%s%s',
                     "REPORT_MODE"     : '\x05\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
@@ -21,11 +21,11 @@ class ArduinoInterface:
         self._digital_outputs = []
         self._anlg_precition = 10 #Default Arduino analog precision
         self._report_mode = "AVERAGE"
-        self._read_count = 1 #Default number of inputs read
+        self._read_count = 0 #Default number of inputs read
         self._read_delay = 0
         self._board = board
 
-    def set_precition(self, bits):
+    def set_precision(self, bits):
         if bits > 32 or bits < 1:
             raise Exception("Precision bits must be between 1 and 32!")
         self._connection.send(_PROTOCOL_CMDS["ANALOG_PRECISION"] % chr(bits))
@@ -37,15 +37,18 @@ class ArduinoInterface:
         
         self._connection.send(_PROTOCOL_CMDS["PIN_MODE"] % (chr(port), chr(self.PIN_MOD[mode])))
 
-    def set_report_mode(self, mode, read_count=0, read_delay=0):
+    def set_report_mode(self, mode, read_count=1, read_delay=0):
         if mode not in self.REPORT_MOD.keys():
             raise Exception("Report mode error. Unknown value: %s" % mode)
 
+        if read_count <= 0:
+            raise Exception("Read count value must be >= 0")
+
         self._report_mode = mode
-        self._read_count = read_count + 1
+        self._read_count = read_count - 1
         self._read_delay = read_delay
         
-        self._connection.send(_PROTOCOL_CMDS["REPORT_MODE"] % (chr(self.REPORT_MOD[mode]), chr(read_count), chr(read_delay)))
+        self._connection.send(_PROTOCOL_CMDS["REPORT_MODE"] % (chr(self.REPORT_MOD[mode]), chr(self._read_count), chr(self._read_delay)))
   
     
     def add_input(self, port):
@@ -53,37 +56,39 @@ class ArduinoInterface:
             raise Exception("Pin %s is configured as output!" % port)
    
         self.__validate_pin(port)
-        self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
-        self.__set_pin_mode(port, "INPUT")
 
         # Determines if we are setting as input an analog port
         if port not in self._anlg_inputs and port in self._board["ANALOG_PINS"]:
             self._anlg_inputs.append(port)
+            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
+            self.__set_pin_mode(port, "INPUT")
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_inputs and port in self._board["DIGITAL_PINS"]:
             self._digital_inputs.append(port)
-            
+            self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
+            self.__set_pin_mode(port, "INPUT")
 
     def add_output(self, port):
         if port in self._anlg_inputs or port in self._digital_inputs:
             raise Exception("Port %s is configured as input!" % port)
 
         self.__validate_pin(port)
-        self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
-        self.__set_pin_mode(port, "OUTPUT")
 
         if port not in self._anlg_outputs and port in self._board["ANALOG_PINS"]:
             self._anlg_outputs.append(port)
+            self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
+            self.__set_pin_mode(port, "OUTPUT")
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_outputs and port in self._board["DIGITAL_PINS"]:
             self._digital_outputs.append(port)
+            self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
+            self.__set_pin_mode(port, "OUTPUT")
 
     def __validate_pin(self, pin):
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
             raise Exception("Invalid pin %s for board %s" % (pin, self._board["NAME"]))
-        return
   
     def reset(self):
         self._connection.send(_PROTOCOL_CMDS["RESET"])
@@ -124,16 +129,27 @@ class ArduinoInterface:
         data = self._connection.recv(length)
 
         pos = 0
-        results = []
+        results = {x: [] for x in self._anlg_inputs + self._digital_inputs} # One dictionary to save all ports results
+
         while pos < length:
-            if ord(data[pos]) in self._anlg_inputs:
-                results.append((data[pos], (ord(data[pos+1]) << 8) + ord(data[pos+2])))
-                pos = pos + 3
-            else:
-                if ord(data[pos]) in self._digital_inputs:
-                    for i in range(0, self._read_count):
-                        results.append((data[pos], bool(ord(data[pos+1]))))
+            pin = ord(data[pos])
+            if pin in self._anlg_inputs:
+                for i in range(0, self._read_count + 1):
+                    results[pin].append((ord(data[pos+1]) << 8) + ord(data[pos+2]))
                     pos = pos + 2
+                pos = pos + 1
+
+                if self._report_mode == "AVERAGE":
+                    results[pin] = [sum(results[pin]) / (self._read_count + 1)]
+            else:
+                if pin in self._digital_inputs:
+                    for i in range(0, self._read_count + 1):
+                        results[pin].append(bool(ord(data[pos + 1 + i/8]) & (0x80 >> (i % 8))))
+                    pos = pos + 1 + self._read_count/8 + 1
+
+                    if self._report_mode == "AVERAGE":
+                        results[pin] = [ (sum(results[pin]) * 2) > (self._read_count + 1) ]
+
                 else:
                     raise Exception("Unknown port in response. Restart Arduino board, your software and pray")
 
