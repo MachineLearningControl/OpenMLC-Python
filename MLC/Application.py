@@ -12,9 +12,16 @@ from MLC.Population.Population import Population
 from MLC.Simulation import Simulation
 
 
-class Application(object):
+class MLC_CALLBACKS:
+    ON_EVALUATE = 0
 
-    def __init__(self, simulation, log_mode='console'):
+    @staticmethod
+    def pass_callback(*args, **kwargs):
+        pass
+
+
+class Application(object):
+    def __init__(self, simulation, log_mode='console', callbacks={}):
         self._config = Config.get_instance()
         self._simulation = simulation
 
@@ -28,7 +35,10 @@ class Application(object):
 
         # Gen evaluator
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
-        self._evaluator = EvaluatorFactory.make(ev_method)
+        on_evaluate_callback = callbacks.get(MLC_CALLBACKS.ON_EVALUATE,
+                                             MLC_CALLBACKS.pass_callback)
+
+        self._evaluator = EvaluatorFactory.make(ev_method, on_evaluate_callback)
 
         self._show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         self._look_for_duplicates = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')

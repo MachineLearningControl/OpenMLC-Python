@@ -7,9 +7,10 @@ from MLC.mlc_table.MLCTable import MLCTable
 
 class StandaloneEvaluator(object):
 
-    def __init__(self, callback):
+    def __init__(self, callback, on_evaluate_callback):
         self._config = Config.get_instance()
         self._callback = callback
+        self._on_evaluate_callback = on_evaluate_callback
 
     def evaluate(self, indivs):
         jj = []
@@ -25,7 +26,10 @@ class StandaloneEvaluator(object):
                              ' Value: ' + py_indiv.get_value())
 
             try:
-                jj.append(self._callback.cost(py_indiv))
+                cost = self._callback.cost(py_indiv)
+                jj.append(cost)
+                self._on_evaluate_callback(index, cost)
+
             except KeyError:
                 lg.logger_.error("[POP][STAND_EVAL] Evaluation Function " +
                                  "doesn't exists. Aborting progam.")

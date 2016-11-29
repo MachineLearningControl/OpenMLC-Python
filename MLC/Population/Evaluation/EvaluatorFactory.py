@@ -20,10 +20,10 @@ class EvaluatorFactory(object):
             sys.exit(-1)
 
     @staticmethod
-    def make(strategy):
+    def make(strategy, on_evaluate_callback):
         if strategy == "mfile_standalone":
             ev_callback = EvaluatorFactory.get_callback()
-            return StandaloneEvaluator(ev_callback)
+            return StandaloneEvaluator(ev_callback, on_evaluate_callback)
         else:
             lg.logger_.error("[EV_FACTORY] Evaluation method " +
                              strategy + " is not valid. Aborting program")
