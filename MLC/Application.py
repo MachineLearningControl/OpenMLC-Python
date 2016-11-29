@@ -13,7 +13,10 @@ from MLC.Simulation import Simulation
 
 
 class MLC_CALLBACKS:
-    ON_EVALUATE = 0
+    ON_START = 0
+    ON_EVALUATE = 1
+    ON_NEW_GENERATION = 2
+    ON_FINISH = 3
 
     @staticmethod
     def pass_callback(*args, **kwargs):
@@ -43,6 +46,17 @@ class Application(object):
         self._show_all_bests = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
         self._look_for_duplicates = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
+        # callbacks for the MLC application
+        self._on_start = callbacks.get(MLC_CALLBACKS.ON_START,
+                                       MLC_CALLBACKS.pass_callback)
+
+        self._on_new_generation = callbacks.get(MLC_CALLBACKS.ON_NEW_GENERATION,
+                                                MLC_CALLBACKS.pass_callback)
+
+        self._on_finish = callbacks.get(MLC_CALLBACKS.ON_FINISH,
+                                        MLC_CALLBACKS.pass_callback)
+
+
     def go(self, to_generation, fig, from_generation=None):
         """
         Start MLC2 problem solving (MLC2 Toolbox)
@@ -66,6 +80,8 @@ class Application(object):
 
         # self._simulation.erase_generations(from_generation+1)
 
+        self._on_start()
+
         # First generation must be generated from scratch
         if self._simulation.number_of_generations() == 0:
             first_population = Simulation.create_empty_population_for(generation=1)
@@ -81,6 +97,9 @@ class Application(object):
 
             # evaluate
             self.evaluate_population(current_population, current_generation_number)
+
+            # new generation callback
+            self._on_new_generation(current_generation_number)
 
             # show best if necessary
             if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig:
@@ -99,6 +118,9 @@ class Application(object):
         self.evaluate_population(self._simulation.get_last_generation(),
                                  self._simulation.number_of_generations())
 
+        # new generation callback
+        self._on_new_generation(self._simulation.number_of_generations())
+
         if fig:
             self.show_best(self._simulation.get_last_generation())
         MLCTable.get_instance().commit_changes()
@@ -106,6 +128,8 @@ class Application(object):
         for i in range(from_generation + 1, self._simulation.number_of_generations() + 1):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
+
+        self._on_finish()
 
     def get_simulation(self):
         return self._simulation

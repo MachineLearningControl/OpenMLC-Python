@@ -8,7 +8,10 @@ from MLC.Application import Application, MLC_CALLBACKS
 
 
 class ApplicationTest(unittest.TestCase):
-    evaluations = 0
+    on_start = 0
+    on_evaluate = 0
+    on_new_generation = []
+    on_finish = 0
 
     @classmethod
     def setUpClass(cls):
@@ -19,11 +22,26 @@ class ApplicationTest(unittest.TestCase):
             Config.get_instance().set("POPULATION", "size", "10")
             Config.get_instance().set("BEHAVIOUR", "save", "false")
 
+            def test_on_start_callback():
+                ApplicationTest.on_start += 1
 
-            def test_callback(individual_id, cost):
-                ApplicationTest.evaluations += 1
+            def test_on_evaluate_callback(individual_id, cost):
+                ApplicationTest.on_evaluate += 1
+
+            def test_on_new_generation_callback(generation_number):
+                ApplicationTest.on_new_generation.append(generation_number)
+
+            def test_on_finish_callback():
+                ApplicationTest.on_finish += 1
 
             simulation = Simulation()
-            app = Application(simulation, "testing", callbacks={MLC_CALLBACKS.ON_EVALUATE: test_callback})
+            app = Application(simulation, "testing", callbacks={MLC_CALLBACKS.ON_START:          test_on_start_callback,
+                                                                MLC_CALLBACKS.ON_EVALUATE:       test_on_evaluate_callback,
+                                                                MLC_CALLBACKS.ON_NEW_GENERATION: test_on_new_generation_callback,
+                                                                MLC_CALLBACKS.ON_FINISH:         test_on_finish_callback})
             app.go(to_generation=2, fig=0, from_generation=0)
-            self.assertEqual(ApplicationTest.evaluations, 2*10)
+
+            self.assertEqual(ApplicationTest.on_start,          1)
+            self.assertEqual(ApplicationTest.on_evaluate,       2*10)
+            self.assertEqual(ApplicationTest.on_new_generation, range(1, 2+1))
+            self.assertEqual(ApplicationTest.on_finish,         1)
