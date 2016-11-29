@@ -144,14 +144,14 @@ class ArduinoInterface:
             else:
                 if pin in self._digital_inputs:
                     for i in range(0, self._read_count + 1):
-                        results[pin].append(bool(ord(data[pos + 1 + i/8]) & (0x80 >> (i % 8))))
+                        results[pin].append(bool(ord(data[pos + 1 + i/8]) & (0x01 << (i % 8))))
                     pos = pos + 1 + self._read_count/8 + 1
 
                     if self._report_mode == "AVERAGE":
                         results[pin] = [ (sum(results[pin]) * 2) > (self._read_count + 1) ]
 
                 else:
-                    raise Exception("Unknown port in response. Restart Arduino board, your software and pray")
+                    raise Exception("Unknown port \"%d\" in response. Restart Arduino board, your software and pray" % pin)
 
         return results
         

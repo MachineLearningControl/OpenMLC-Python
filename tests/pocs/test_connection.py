@@ -10,14 +10,17 @@ def actuate(terminal):
     arduinoDue = ArduinoInterface(connection, boards.Due)
 
     arduinoDue.reset()
-    arduinoDue.set_report_mode("BULK")    
+    arduinoDue.set_report_mode("BULK", read_count=5, read_delay=200)    
     arduinoDue.add_output(40)
     arduinoDue.add_input(64)
+    arduinoDue.add_input(63)
     arduinoDue.add_input(30)
 
     output = arduinoDue.actuate([(40,1)])
-    for i in output:
-        print "Pin %d input: %s" % (ord(i[0]), i[1])
+    for i in output.keys():
+        print i
+        print output[i]
+        #print "Pin %d input: %s" % (output[i][0])
 
 
 if __name__ == "__main__":

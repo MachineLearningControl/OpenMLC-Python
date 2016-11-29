@@ -139,7 +139,7 @@ int actuate(const char* data)
   int byte_count = byte(data[1]); // Un byte puede llegar a limitar la cantidad de salidas... creo
 
   uint8_t digital_input_buffer[DIGITAL_PINS_COUNT][REPORT_READ_COUNT / 8 + 2]; // 255 lectures of 1 bit for every digital pin -- 1 extra byte for the port address
-  uint8_t analog_input_buffer[ANALOG_PINS_COUNT][(2 * REPORT_READ_COUNT) + 2]; // 255 lectures of 2 bytes for every analog pin -- 1 extra byte for the port address
+  uint8_t analog_input_buffer[ANALOG_PINS_COUNT][(2 * REPORT_READ_COUNT) + 3]; // 255 lectures of 2 bytes for every analog pin -- 1 extra byte for the port address
 
   LOG("Actutating over payload of size: ", byte_count);
 
@@ -201,15 +201,17 @@ int actuate(const char* data)
         //response[len + 2] = byte((data & 0xFF00) >> 8); // Se guarda el msb en el buffer
         //response[len + 3] = byte(data & 0xFF);        // Se guarda el lsb en el buffer
         analog_input_buffer[current_analog][0] = INPUT_PORTS[i];
-        analog_input_buffer[current_analog][lecture + 1] = byte((data & 0xFF00) >> 8);
-        analog_input_buffer[current_analog][lecture + 2] = byte(data & 0xFF);
-
-        current_analog++;
+        analog_input_buffer[current_analog][(lecture * 2) + 1] = byte((data & 0xFF00) >> 8);
+        analog_input_buffer[current_analog][(lecture * 2) + 2] = byte(data & 0xFF);
 
         //len += 3; // Cada lectura de un recurso analógico ocupa dos bytes. FIXME: se puede optimizar con bajas resoluciones
         LOG("=====================================", "");
         LOG("Analog pin read: ", INPUT_PORTS[i]);
         LOG("Analog read value: ", data);
+        Serial.println(analog_input_buffer[current_analog][(lecture * 2) + 1], HEX);
+        Serial.println(analog_input_buffer[current_analog][(lecture * 2) + 2], HEX);
+
+        current_analog++;
       } else
       {
         int data = digitalRead(INPUT_PORTS[i]);
@@ -233,12 +235,12 @@ int actuate(const char* data)
   // Every analog output will be in the buffer as
   if (ANALOG_PINS_COUNT > 0)
   {
-    len += ANALOG_PINS_COUNT + ( (REPORT_READ_COUNT + 1) * 2);
+    len += ANALOG_PINS_COUNT + ((REPORT_READ_COUNT + 1) * 2 * ANALOG_PINS_COUNT);
   }
 
   if (DIGITAL_PINS_COUNT > 0)
   {
-    len +=  DIGITAL_PINS_COUNT + (((REPORT_READ_COUNT + 1) / 8 ) + 1);
+    len +=  DIGITAL_PINS_COUNT + (((REPORT_READ_COUNT + 1) / 8 ) + 1) * DIGITAL_PINS_COUNT;
   }
 
   LOG("Reporting actuate results ", len - 1);
@@ -251,7 +253,7 @@ int actuate(const char* data)
     SerialUSB.write(analog_input_buffer[0], ANALOG_PINS_COUNT + ((REPORT_READ_COUNT + 1) * 2 * ANALOG_PINS_COUNT));
     //SerialUSB.write(INPUT_PORTS[i]);
     //SerialUSB.write(analog_input_buffer[INPUT_PORTS[i] - A0], (REPORT_READ_COUNT + 1) * 2);
-    LOG("Reported an analog port with a read count len of: ", (REPORT_READ_COUNT + 1) * 2 + 1);
+    LOG("Reported an analog port with a read count len of: ", ANALOG_PINS_COUNT + (REPORT_READ_COUNT + 1) * 2 * ANALOG_PINS_COUNT);
   }
   
   if ( DIGITAL_PINS_COUNT > 0) {
