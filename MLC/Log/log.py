@@ -12,3 +12,7 @@ def set_logger(mode):
        mode == "root" or mode == "file":
         global logger_
         logger_ = logging.getLogger(mode)
+
+
+def get_gui_logger():
+    return logging.getLogger("gui")
