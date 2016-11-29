@@ -132,6 +132,66 @@ class MLCCmd(cmd.Cmd):
         except MLCException, err:
             self.msg(str(err))
 
+    @validate_params([optional(string), optional(string)], err_handler,"[section] [paramater_name] expected")
+    def do_configuration(self, section, parameter_name):
+        if MLCCmd.current_experiment is None:
+            self.msg("no open experiment.")
+            return
+
+        try:
+            conf = mlc_api.get_experiment_configuration(MLCCmd.current_experiment)
+
+            if section:
+                if section in conf:
+                    conf = {section: conf[section]}
+                else:
+                    self.msg("invalid section name, available sections: %s" % conf.keys())
+                    return
+
+            if parameter_name:
+                if section:
+                    if parameter_name in conf[section]:
+                        conf = {section: {parameter_name: conf[section][parameter_name]}}
+                    else:
+                        self.msg("invalid parameter name, available parameters in section '%s': %s" % (section, conf[section].keys()))
+                        return
+                else:
+                    conf = MLCCmd.__search_parameter_in_configuration(conf, parameter_name)
+                    if len(conf.keys()) == 0:
+                        self.msg("invalid parameter name")
+                        return
+
+            self.__print_configuration(conf)
+
+        except MLCException, err:
+            self.msg(str(err))
+
+    @validate_params([string, string, string], err_handler, "section_name paramater_name parameter_value expected")
+    def do_set_configuration(self, section, parameter_name, new_value):
+        if MLCCmd.current_experiment is None:
+            self.msg("no open experiment.")
+            return
+
+        conf = mlc_api.get_experiment_configuration(MLCCmd.current_experiment)
+
+        if section not in conf:
+            self.msg("invalid section name, available sections: %s" % conf.keys())
+            return
+
+        if parameter_name not in conf[section]:
+            self.msg("invalid parameter name, available parameters in section '%s': %s" % (section, conf[section].keys()))
+            return
+
+        old_value = conf[section][parameter_name]
+        mlc_api.set_experiment_configuration_parameter(MLCCmd.current_experiment,
+                                                       section, parameter_name,
+                                                       new_value)
+
+        self.msg("Parameter '%s' in section '%s' has been modified, old value '%s', new value '%s'" % (parameter_name,
+                                                                                                       section,
+                                                                                                       new_value,
+                                                                                                       old_value))
+
     def do_quit(self, line):
         return self.__exit()
 
@@ -140,6 +200,22 @@ class MLCCmd(cmd.Cmd):
 
     def __exit(self):
         return True
+
+    def __print_configuration(self, conf):
+        for section, parameters in conf.iteritems():
+            print "[%s]" % (section,)
+            for name, value in parameters.iteritems():
+                print "    %s = %s" % (name, value)
+
+    @staticmethod
+    def __search_parameter_in_configuration(configuration, param_name):
+        found = {}
+        for section, parameters in configuration:
+            for name, value in parameters.iteritems():
+                if name == param_name:
+                    found[section] = {name: value}
+
+        return found
 
     def msg(self, message):
         print ">> " + str(message)
