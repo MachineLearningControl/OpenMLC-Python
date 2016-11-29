@@ -8,7 +8,7 @@ from MLC.Simulation import Simulation
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Application import Application
 from MLC.db.mlc_repository import MLCRepository
-
+from MLC.mlc_parameters.config_rules import MLCConfigRules
 
 class MLCException(Exception):
     pass
@@ -91,6 +91,7 @@ class MLC:
                 param_name: value
             }
         }
+        MLCConfigRules
         self.set_experiment_configuration(experiment_name, configuration)
 
     def set_experiment_configuration(self, experiment_name, configuration):
@@ -326,9 +327,17 @@ class MLCLocal(MLC):
         if experiment_name not in self._open_experiments:
             raise ClosedExperimentException("set_experiment_configuration", experiment_name)
 
+        for section, params in new_configuration.iteritems():
+            for param_name, param_value in new_configuration[section].iteritems():
+                MLCConfigRules.get_instance().apply(section, param_name, param_value, self._open_experiments[experiment_name].get_simulation())
+
         experiment = self._open_experiments[experiment_name]
         configuration = experiment.get_configuration()
-        configuration.update(new_configuration)
+
+        for section, params in new_configuration.iteritems():
+            for param_name, param_value in new_configuration[section].iteritems():
+                configuration[section][param_name] = new_configuration[section][param_name]
+
         experiment.set_configuration(configuration)
 
     def get_experiment_info(self, experiment_name):

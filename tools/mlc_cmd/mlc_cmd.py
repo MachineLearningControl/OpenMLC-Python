@@ -189,8 +189,8 @@ class MLCCmd(cmd.Cmd):
 
         self.msg("Parameter '%s' in section '%s' has been modified, old value '%s', new value '%s'" % (parameter_name,
                                                                                                        section,
-                                                                                                       new_value,
-                                                                                                       old_value))
+                                                                                                       old_value,
+                                                                                                       new_value))
 
     def do_quit(self, line):
         return self.__exit()

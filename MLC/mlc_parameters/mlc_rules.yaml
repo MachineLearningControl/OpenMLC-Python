@@ -1,0 +1,9 @@
+LOGGING:
+    logmode:
+        description: "MLC logging mode"
+        type: ['console', 'testing']
+POPULATION:
+    size:
+        description: "MLC generation size"
+        type: "unsigned_int"
+        set_function: "MLC.mlc_parameters.config_rules.set_population_size"
