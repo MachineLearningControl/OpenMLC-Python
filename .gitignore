@@ -18,3 +18,6 @@ scripts/*.txt
 
 # Ignore SQLite DBs
 *.db
+
+# Ignore mlc_gui config files
+MLC/GUI/*.conf

@@ -122,25 +122,30 @@ class Ui_MainWindow(object):
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Properties_Dialog(object):
-    def setupUi(self, properties_dialog):
-        properties_dialog.setObjectName("properties_dialog")
-        properties_dialog.resize(400, 300)
-        self.verticalLayout = QtWidgets.QVBoxLayout(properties_dialog)
+    def setupUi(self, Properties_Dialog):
+        Properties_Dialog.setObjectName("Properties_Dialog")
+        Properties_Dialog.resize(400, 300)
+        Properties_Dialog.setWindowFlags(Properties_Dialog.windowFlags() | QtCore.Qt.WindowMinimizeButtonHint)
+        self.verticalLayout = QtWidgets.QVBoxLayout(Properties_Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.tableView = QtWidgets.QTableView(properties_dialog)
+        self.tableView = QtWidgets.QTableView(Properties_Dialog)
+        self.tableView.setFrameShape(QtWidgets.QFrame.HLine)
+        self.tableView.setSortingEnabled(True)
         self.tableView.setObjectName("tableView")
+        self.tableView.horizontalHeader().setSortIndicatorShown(True)
+        self.tableView.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.tableView)
-        self.buttonBox = QtWidgets.QDialogButtonBox(properties_dialog)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Properties_Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
 
-        self.retranslateUi(properties_dialog)
-        self.buttonBox.accepted.connect(properties_dialog.accept)
-        self.buttonBox.rejected.connect(properties_dialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(properties_dialog)
+        self.retranslateUi(Properties_Dialog)
+        self.buttonBox.accepted.connect(Properties_Dialog.accept)
+        self.buttonBox.rejected.connect(Properties_Dialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(Properties_Dialog)
 
-    def retranslateUi(self, properties_dialog):
+    def retranslateUi(self, Properties_Dialog):
         _translate = QtCore.QCoreApplication.translate
-        properties_dialog.setWindowTitle(_translate("properties_dialog", "MLC Manager Properties"))
+        Properties_Dialog.setWindowTitle(_translate("Properties_Dialog", "MLC Manager Properties"))
