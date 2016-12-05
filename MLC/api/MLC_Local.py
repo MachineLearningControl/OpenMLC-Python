@@ -2,6 +2,7 @@ import os
 import argparse
 import ConfigParser
 
+from MLC.api.Experiment import Experiment
 from MLC.api.mlc import MLC
 from MLC.api.mlc import ClosedExperimentException
 from MLC.api.mlc import ExperimentNotExistException
