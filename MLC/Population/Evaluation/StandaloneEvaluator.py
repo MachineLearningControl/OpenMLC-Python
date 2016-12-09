@@ -7,10 +7,10 @@ from MLC.mlc_table.MLCTable import MLCTable
 
 class StandaloneEvaluator(object):
 
-    def __init__(self, callback, on_evaluate_callback):
+    def __init__(self, callback, callback_manager):
         self._config = Config.get_instance()
         self._callback = callback
-        self._on_evaluate_callback = on_evaluate_callback
+        self._callback_manager = callback_manager
 
     def evaluate(self, indivs):
         jj = []
@@ -28,7 +28,9 @@ class StandaloneEvaluator(object):
             try:
                 cost = self._callback.cost(py_indiv)
                 jj.append(cost)
-                self._on_evaluate_callback(index, cost)
+
+                from MLC.Application import MLC_CALLBACKS
+                self._callback_manager.on_event(MLC_CALLBACKS.ON_EVALUATE, index, cost)
 
             except KeyError:
                 lg.logger_.error("[POP][STAND_EVAL] Evaluation Function " +

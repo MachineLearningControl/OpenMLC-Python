@@ -145,15 +145,10 @@ class Population(object):
         else:
             self._parents[kw['dest_index']] = [kw['parent_index'] + 1]
 
-    def get_best_index(self):
-        """
-        Return the index of the best individual
-        """
-        best_indivs = [x[0] for x in sorted(enumerate(self._costs), key=lambda x:x[1])]
-        return self._individuals[best_indivs[0]]
-
     def get_best_individual(self):
-        return MLCTable.get_instance().get_individual(self.get_best_index())
+        best_indivs = [x[0] for x in sorted(enumerate(self._costs), key=lambda x: x[1])]
+        best_index = self._individuals[best_indivs[0]]
+        return best_index, MLCTable.get_instance().get_individual(best_index)
 
     def evolve(self, mlcpop2=None):
         mlctable = MLCTable.get_instance()
