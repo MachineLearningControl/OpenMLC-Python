@@ -42,4 +42,4 @@ class Simulation:
 
         population_size = cascade[1] if (generation > 1 and len(size) > 1) else size[0]
         population_subgenerations = 1 if cascade[1] == 0 else cascade[1]
-        return Population(population_size, population_subgenerations, generation)
+        return Population(population_size, population_subgenerations, generation, Config.get_instance(), MLCRepository.get_instance())
