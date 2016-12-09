@@ -91,7 +91,6 @@ class MLC:
                 param_name: value
             }
         }
-        MLCConfigRules
         self.set_experiment_configuration(experiment_name, configuration)
 
     def set_experiment_configuration(self, experiment_name, configuration):
@@ -335,6 +334,8 @@ class MLCLocal(MLC):
         configuration = experiment.get_configuration()
 
         for section, params in new_configuration.iteritems():
+            if not section in configuration:
+                configuration[section] = {}
             for param_name, param_value in new_configuration[section].iteritems():
                 configuration[section][param_name] = new_configuration[section][param_name]
 

@@ -1,4 +1,7 @@
 from __builtin__ import staticmethod
+
+from pip.util import cache_download
+
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -32,9 +35,15 @@ class Application(object):
         set_logger(log_mode)
         self._project_validations()
 
+        # bad values and duplicates
+        self.__badvalues_elim = self._config.get('EVALUATOR', 'badvalues_elim')
+
         # Gen creator
         gen_method = self._config.get('GP', 'generation_method')
         self._gen_creator = CreationFactory.make(gen_method)
+
+        # callbacks configuration
+        self.__callbacks_manager = MLCCallbacksManager()
 
         # Gen evaluator
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
@@ -47,15 +56,17 @@ class Application(object):
         self._look_for_duplicates = self._config.getboolean('OPTIMIZATION', 'lookforduplicates')
 
         # callbacks for the MLC application
-        self._on_start = callbacks.get(MLC_CALLBACKS.ON_START,
-                                       MLC_CALLBACKS.pass_callback)
+        if MLC_CALLBACKS.ON_START in callbacks:
+            self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_START,
+                                               callbacks[MLC_CALLBACKS.ON_START])
 
-        self._on_new_generation = callbacks.get(MLC_CALLBACKS.ON_NEW_GENERATION,
-                                                MLC_CALLBACKS.pass_callback)
+        if MLC_CALLBACKS.ON_NEW_GENERATION in callbacks:
+            self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_NEW_GENERATION,
+                                               callbacks[MLC_CALLBACKS.ON_NEW_GENERATION])
 
-        self._on_finish = callbacks.get(MLC_CALLBACKS.ON_FINISH,
-                                        MLC_CALLBACKS.pass_callback)
-
+        if MLC_CALLBACKS.ON_FINISH in callbacks:
+            self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_FINISH,
+                                               callbacks[MLC_CALLBACKS.ON_FINISH])
 
     def go(self, to_generation, fig, from_generation=None):
         """
@@ -80,7 +91,7 @@ class Application(object):
 
         # self._simulation.erase_generations(from_generation+1)
 
-        self._on_start()
+        self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_START)
 
         # First generation must be generated from scratch
         if self._simulation.number_of_generations() == 0:
@@ -99,7 +110,8 @@ class Application(object):
             self.evaluate_population(current_population, current_generation_number)
 
             # new generation callback
-            self._on_new_generation(current_generation_number)
+            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION,
+                                              current_generation_number)
 
             # show best if necessary
             if (self._simulation.number_of_generations() >= to_generation or self._show_all_bests) and fig:
@@ -107,8 +119,9 @@ class Application(object):
 
             # evolve
             next_population = current_population.evolve()
-            while self._look_for_duplicates and next_population.remove_duplicates() > 0:
-                next_population = current_population.evolve(next_population)
+            if self._look_for_duplicates:
+                while next_population.remove_duplicates() > 0:
+                    next_population = current_population.evolve(next_population)
 
             # save new generation
             self._simulation.add_generation(next_population)
@@ -119,7 +132,8 @@ class Application(object):
                                  self._simulation.number_of_generations())
 
         # new generation callback
-        self._on_new_generation(self._simulation.number_of_generations())
+        self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION,
+                                          self._simulation.number_of_generations())
 
         if fig:
             self.show_best(self._simulation.get_last_generation())
@@ -129,7 +143,7 @@ class Application(object):
             p = self._simulation.get_generation(i)
             MLCRepository.get_instance().add_population(p)
 
-        self._on_finish()
+        self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_FINISH)
 
     def get_simulation(self):
         return self._simulation
@@ -164,26 +178,13 @@ class Application(object):
                 population.evaluate(self._evaluator)
                 population.sort()
 
-    def evolve_population(self, population, look_for_duplicates):
-        next_pop = population.evolve()
-
-        if look_for_duplicates:
-            while next_pop.remove_duplicates() > 0:
-                next_pop = population.evolve(next_pop)
-
-        return next_pop
-
     def _duplicates_must_be_removed(self, generation_number):
-        bad_values = self._config.get('EVALUATOR', 'badvalues_elim')
-        must_be_removed = False
+        if self.__badvalues_elim == "all":
+            return True
+        elif self.__badvalues_elim == "first":
+            return (generation_number == 1)
+        return False
 
-        if bad_values == "all":
-            must_be_removed = True
-
-        elif bad_values == "first":
-            must_be_removed = (generation_number == 1)
-
-        return must_be_removed
 
     def show_best(self, population):
         # Get the best
@@ -201,3 +202,24 @@ class Application(object):
         PreevaluationManager.get_callback()
 
     # TODO: Add another validations
+
+
+class MLCCallbacksManager:
+    def __init__(self):
+        self.__callbacks = {}
+
+    def subscribe(self, event_type, callback):
+        if event_type not in self.__callbacks:
+            self.__callbacks[event_type] = []
+
+        if not isinstance(callback, list):
+            callback = [callback]
+
+        self.__callbacks[event_type].extend(callback)
+
+    def on_event(self, event_type, *args, **kwargs):
+        if event_type not in self.__callbacks:
+            return
+
+        for callback in self.__callbacks[event_type]:
+            callback(*args, **kwargs)
