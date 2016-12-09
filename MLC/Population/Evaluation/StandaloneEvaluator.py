@@ -2,7 +2,7 @@ import sys
 import MLC.Log.log as lg
 
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.mlc_table.MLCTable import MLCTable
+from MLC.db.mlc_repository import MLCRepository
 
 
 class StandaloneEvaluator(object):
@@ -21,7 +21,7 @@ class StandaloneEvaluator(object):
             lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index))
 
             # Retrieve the individual to be evaluated
-            py_indiv = MLCTable.get_instance().get_individual(index)
+            py_indiv = MLCRepository.get_instance().get_individual(index)
             lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
                              ' Value: ' + py_indiv.get_value())
 

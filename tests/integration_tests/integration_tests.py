@@ -9,8 +9,6 @@ from MLC.Application import Application
 from MLC.Common.RandomManager import RandomManager
 from MLC.db.mlc_repository import MLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.mlc_table.MLCTable import MLCTable
-from MLC.Population.Population import Population
 from MLC.Simulation import Simulation
 
 """
@@ -90,7 +88,6 @@ class MLCIntegrationTest(unittest.TestCase):
 
         for generation_params in MLCIntegrationTest.GENERATIONS:
             # clear static values
-            MLCTable._instance = None
             MLCRepository._instance = None
             simulation = Simulation()
             cls._app = Application(simulation, "testing")
@@ -106,7 +103,6 @@ class MLCIntegrationTest(unittest.TestCase):
                 raise Exception("Integration test, bad value for generations param")
 
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-            MLCTable._instance = None
             MLCRepository._instance = None
             cls._app = Application(Simulation(), "testing")
 
@@ -173,7 +169,7 @@ class MLCIntegrationTest(unittest.TestCase):
         indexes = self._app.get_simulation().get_generation(gen_number).get_individuals()
         print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
         for index in indexes:
-            indiv = MLCTable.get_instance().get_individual(index)
+            indiv = MLCRepository.get_instance().get_individual(index)
 
             self.assertEqual(indiv.get_value(), self._indivs[int(index) - 1]['value'])
             self.assertEqual(indiv.get_complexity(), int(self._indivs[int(index) - 1]['complexity']))

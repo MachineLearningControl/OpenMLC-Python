@@ -3,7 +3,7 @@ import numpy as np
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
 from MLC.individual.Individual import Individual
-from MLC.mlc_table.MLCTable import MLCTable
+from MLC.db.mlc_repository import MLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
 
 
@@ -25,7 +25,7 @@ class BaseCreation(object):
         while index < len(individuals):
             indiv = Individual()
             indiv.generate(individual_type=type)
-            response = MLCTable.get_instance().add_individual(indiv)
+            response = MLCRepository.get_instance().add_individual(indiv)
 
             if not response[1]:
                 # The individual didn't exist

@@ -8,7 +8,6 @@ from MLC.Common.PreevaluationManager import PreevaluationManager
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.mlc_table.MLCTable import MLCTable
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Simulation import Simulation
@@ -122,7 +121,7 @@ class Application(object):
 
             # save new generation
             self._simulation.add_generation(next_population)
-            MLCTable.get_instance().commit_changes()
+            MLCRepository.get_instance().commit_changes()
 
         # Evaluate last population
         self.evaluate_population(self._simulation.get_last_generation(),
