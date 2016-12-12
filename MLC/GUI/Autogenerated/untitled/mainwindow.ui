@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>MLCManager</class>
+ <widget class="QMainWindow" name="MLCManager">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -157,7 +157,7 @@
   <connection>
    <sender>menu_close</sender>
    <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -173,7 +173,7 @@
   <connection>
    <sender>clone_button</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>on_clone_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -189,7 +189,7 @@
   <connection>
    <sender>new_button</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>on_new_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -205,7 +205,7 @@
   <connection>
    <sender>remove_button</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>on_remove_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -221,7 +221,7 @@
   <connection>
    <sender>open_button</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>on_open_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -237,7 +237,7 @@
   <connection>
    <sender>experiment_list</sender>
    <signal>clicked(QModelIndex)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>on_experiment_list_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -253,12 +253,28 @@
   <connection>
    <sender>menu_properties</sender>
    <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>MLCManager</receiver>
    <slot>edit_gui_config()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>experiment_list</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_experiment_list_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>374</x>

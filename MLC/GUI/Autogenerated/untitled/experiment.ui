@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Experiment</class>
+ <widget class="QDialog" name="Experiment">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>318</height>
+    <width>555</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,9 +20,9 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="config_tab">
       <attribute name="title">
        <string>Configuration</string>
       </attribute>
@@ -72,7 +72,7 @@
               <number>2</number>
              </property>
              <item>
-              <widget class="QListView" name="listView"/>
+              <widget class="QTableView" name="config_table"/>
              </item>
             </layout>
            </widget>
@@ -82,9 +82,9 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="results_tab">
       <attribute name="title">
-       <string>Experiment</string>
+       <string>Results</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -300,75 +300,7 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QTableWidget" name="tableWidget">
-            <attribute name="horizontalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="horizontalHeaderCascadingSectionResizes">
-             <bool>true</bool>
-            </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-             <bool>false</bool>
-            </attribute>
-            <row>
-             <property name="text">
-              <string/>
-             </property>
-            </row>
-            <row>
-             <property name="text">
-              <string/>
-             </property>
-            </row>
-            <column>
-             <property name="text">
-              <string>#</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>expression</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>J</string>
-             </property>
-            </column>
-            <item row="0" column="0">
-             <property name="text">
-              <string>1</string>
-             </property>
-            </item>
-            <item row="0" column="1">
-             <property name="text">
-              <string>S0**2*exp(S1)</string>
-             </property>
-            </item>
-            <item row="0" column="2">
-             <property name="text">
-              <string>10e37</string>
-             </property>
-            </item>
-            <item row="1" column="0">
-             <property name="text">
-              <string>2</string>
-             </property>
-            </item>
-            <item row="1" column="1">
-             <property name="text">
-              <string>S0*exp(-S1)</string>
-             </property>
-            </item>
-            <item row="1" column="2">
-             <property name="text">
-              <string>1e-144</string>
-             </property>
-            </item>
-           </widget>
+           <widget class="QTableView" name="db_view"/>
           </item>
          </layout>
         </widget>
@@ -408,19 +340,202 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="experiment_tab">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <attribute name="title">
-       <string>Scripts</string>
+       <string>Experiment</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
-        <widget class="QTextEdit" name="textEdit">
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Noto Sans'; font-size:12pt;&quot;&gt;ABM de scripts de evaluación y pre-evaluación.&lt;br /&gt;&lt;br /&gt;Se tiene que poder seleccionar cual es el script actual a utilizar.&lt;br /&gt;&lt;br /&gt;Debe permitir editar el archivo seleccionado utilizando el editor de la app.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <widget class="QFrame" name="frame_9">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="2" column="0">
+           <widget class="QFrame" name="frame_12">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Evaluation Script:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Preevaluation Script:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_9">
+               <property name="text">
+                <string>Edit</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="pushButton_10">
+               <property name="text">
+                <string>Edit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_8">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QFrame" name="frame_11">
+            <property name="inputMethodHints">
+             <set>Qt::ImhNone</set>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButton_8">
+               <property name="text">
+                <string>Test</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Test Individual:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QTextEdit" name="textEdit">
+               <property name="inputMethodHints">
+                <set>Qt::ImhNone</set>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustToContents</enum>
+               </property>
+               <property name="lineWrapMode">
+                <enum>QTextEdit::WidgetWidth</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_10">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="2">
+              <widget class="QComboBox" name="comboBox"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>To Generation:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QComboBox" name="comboBox_2"/>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>From Generation:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="start_button">
+               <property name="text">
+                <string>Start Experiment</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Page</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QFrame" name="frame_14">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QFrame" name="frame_13">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QFrame" name="frame_15">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
         </widget>
        </item>
@@ -431,5 +546,42 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>Experiment</sender>
+   <signal>finished(int)</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_closed_dialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>start_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_start_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>267</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_closed_dialog()</slot>
+  <slot>on_start_button_clicked()</slot>
+ </slots>
 </ui>

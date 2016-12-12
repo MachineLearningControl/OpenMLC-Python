@@ -13,7 +13,7 @@ from MLC.db.mlc_repository import MLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
 
-class MLC_Local(MLC):
+class MLCLocal(MLC):
 
     def __init__(self, working_dir):
         if not os.path.exists(working_dir):
