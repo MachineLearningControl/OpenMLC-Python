@@ -16,10 +16,10 @@ class Application(object):
 
     def __init__(self, simulation, log_mode='console'):
         self._config = Config.get_instance()
-        self._simulation = simulation
-
         # Set logger mode of the App
         set_logger(log_mode)
+
+        self._simulation = simulation
         self._project_validations()
 
         # Gen creator

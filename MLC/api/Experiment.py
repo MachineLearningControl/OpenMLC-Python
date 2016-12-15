@@ -9,6 +9,7 @@ from MLC.api.mlc import DuplicatedExperimentError
 from MLC.Application import Application
 from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
 
@@ -32,6 +33,8 @@ class Experiment:
             MLCRepository._instance = None
             Config._instance = None
             Config.get_instance().read(self._config_file)
+            set_logger(Config.get_instance().get('LOGGING', 'logmode'))
+
             self._simulation = Simulation()
             Experiment.__last_simulation = self._simulation
 

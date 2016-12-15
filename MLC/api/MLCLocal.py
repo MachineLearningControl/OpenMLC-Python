@@ -1,6 +1,6 @@
-import os
 import argparse
 import ConfigParser
+import os
 
 from MLC.api.Experiment import Experiment
 from MLC.api.mlc import MLC
@@ -10,8 +10,12 @@ from MLC.api.mlc import DuplicatedExperimentError
 from MLC.Application import Application
 from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Log.log import get_gui_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+
+logger = get_gui_logger()
+
 
 class MLCLocal(MLC):
 
@@ -27,22 +31,24 @@ class MLCLocal(MLC):
         self._experiments = {}
         self._open_experiments = {}
 
-        # self.log("Searching for experiments in %s" % self._working_dir)
+        logger.info("[MLC_LOCAL] [INIT] - Searching for experiments in {0}".format(self._working_dir))
+        workspace_files = os.listdir(working_dir)
+        project_names = set([x.split(".")[0] for x in workspace_files])
 
-        for item in os.listdir(self._working_dir):
-            if os.path.isfile(os.path.join(self._working_dir, item)):
-                file = item
-                if file.endswith('.mlc'):
-                    experiment_name = file.split(".")[0]
+        # Now, check if every possible project name has a .mlc and .cfg file associated
+        for name in project_names:
+            mlc_file = name + ".mlc"
+            cfg_file = name + ".conf"
 
-                    try:
-                        self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
-                        # self.log("Found experiment in workspace: %s" % experiment_name)
+            if mlc_file in workspace_files and cfg_file in workspace_files:
+                try:
+                    self._experiments[name] = Experiment(self._working_dir, name)
+                    logger.debug('[MLC_LOCAL] [INIT] - Found experiment in workspace: {0}'.format(name))
+                except InvalidExperimentException, err:
+                    logger.debug("[MLC_LOCAL] [INIT] - Something go wrong loading experiment '{0}': {1}" % (name, err))
+                    pass
 
-                    except InvalidExperimentException, err:
-                        # self.log("Something go wrong loading experiment '%s': %s" % (experiment_name, err))
-                        pass
-        # print "Experiments in the workspace: %s" % len(self._experiments)
+        logger.debug('[MLC_LOCAL] Experiments in the workspace: {0}'.format(len(self._experiments)))
 
     def get_workspace_experiments(self):
         return self._experiments.keys()
@@ -104,8 +110,13 @@ class MLCLocal(MLC):
             del self._open_experiments[experiment_name]
 
         experiment_cf, experiment_db = Experiment.get_experiment_files(self._working_dir, experiment_name)
-        os.unlink(experiment_cf)
-        os.unlink(experiment_db)
+        experiment_files = [experiment_cf, experiment_db]
+
+        for file in experiment_files:
+            try:
+                os.unlink(file)
+            except OSError:
+                logger.info("[MLC_LOCAL] Error while tryying to delete experiment file: {0}".format(file))
 
     def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
         if experiment_name not in self._open_experiments:
@@ -190,9 +201,6 @@ class MLCLocal(MLC):
         simulation = self._open_experiments[experiment_name].get_simulation()
 
         return simulation.get_generation(generation_number)
-
-    def log(self, message):
-        print message
 
 
 def parse_arguments():

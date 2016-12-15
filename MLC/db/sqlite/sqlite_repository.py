@@ -1,14 +1,16 @@
+import MLC.Log.log as lg
+import sqlite3
+import os
+
+from MLC.config import get_working_directory
 from MLC.db.mlc_repository import MLCRepository, MemoryMLCRepository
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.individual.Individual import Individual
 from MLC.Population.Population import Population
 from MLC.Simulation import Simulation
-from MLC.config import get_working_directory
-
 from sql_statements import *
 
-import sqlite3
-import os
+
 
 
 class SQLiteRepository(MLCRepository):
@@ -17,6 +19,8 @@ class SQLiteRepository(MLCRepository):
         self._memory_repo = MemoryMLCRepository()
         self._db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
         self._db_file = os.path.join(get_working_directory(), self._db_name)
+        lg.logger_.info("[SQLITE_REPO] Using DB: {0}".format(self._db_file))
+
         if not os.path.exists(self._db_file):
             self.__initialize_db()
 
