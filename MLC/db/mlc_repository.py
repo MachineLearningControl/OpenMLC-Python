@@ -37,11 +37,11 @@ class MLCRepository:
         # FIXME: use factories instead of this
         if MLCRepository._instance is None:
             if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-                lg.logger_.info("[MLC_REPOSITORY] Using DB as repository")
+                # lg.logger_.info("[MLC_REPOSITORY] Using DB as repository")
                 from MLC.db.sqlite.sqlite_repository import SQLiteRepository
                 MLCRepository._instance = SQLiteRepository()
             else:
-                lg.logger_.info("[MLC_REPOSITORY] Using Memory as repository")
+                # lg.logger_.info("[MLC_REPOSITORY] Using Memory as repository")
                 MLCRepository._instance = MemoryMLCRepository()
 
         return MLCRepository._instance

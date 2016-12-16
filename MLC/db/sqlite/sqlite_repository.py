@@ -19,7 +19,7 @@ class SQLiteRepository(MLCRepository):
         self._memory_repo = MemoryMLCRepository()
         self._db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
         self._db_file = os.path.join(get_working_directory(), self._db_name)
-        lg.logger_.info("[SQLITE_REPO] Using DB: {0}".format(self._db_file))
+        # lg.logger_.info("[SQLITE_REPO] Using DB: {0}".format(self._db_file))
 
         if not os.path.exists(self._db_file):
             self.__initialize_db()

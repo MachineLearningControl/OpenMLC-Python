@@ -41,5 +41,8 @@ class ConfigTableModel(QAbstractTableModel):
 
         self.layoutChanged.emit()
 
-    def sort_by_section_in_descending_order(self):
-        self.sort(1, Qt.AscendingOrder)
+    def sort_by_col(self, col_number, descending=False):
+        if descending:
+            self.sort(col_number, Qt.DescendingOrder)
+        else:
+            self.sort(col_number, Qt.AscendingOrder)
