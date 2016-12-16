@@ -12,6 +12,7 @@ const uint8_t ADD_INPUT_PIN_CMD     = 0x02;
 const uint8_t ADD_OUTPUT_PIN_CMD    = 0x03;
 const uint8_t SET_PIN_MODE_CMD      = 0x04;
 const uint8_t SET_REPORT_MODE_CMD   = 0x05;
+const uint8_t ANALOG_WRITE          = 0x06; 
 const uint8_t ACTUATE_CMD           = 0xF0;
 const uint8_t RESET_PINS            = 0xFE;
 
@@ -39,6 +40,16 @@ uint8_t DIGITAL_PINS_COUNT = 0;
 /** ---------------------------------------------------------- **/
 
 const char* ACK = "\xFF\x00";
+
+/**
+ * ANALOG_WRITE: 0x06 0x03 [PIN] [H_VALUE][L_VALUE]
+ */
+int analog_write(const char* data)
+{
+  uint16_t data = (data[3] << 8) + data[4];
+  analogWrite(data[2], data[3]);
+  return 5;
+}
 
 /**
    ANALOG_PRECISION: 0x01 0x01 [BITS]
@@ -208,8 +219,6 @@ int actuate(const char* data)
         LOG("=====================================", "");
         LOG("Analog pin read: ", INPUT_PORTS[i]);
         LOG("Analog read value: ", data);
-        Serial.println(analog_input_buffer[current_analog][(lecture * 2) + 1], HEX);
-        Serial.println(analog_input_buffer[current_analog][(lecture * 2) + 2], HEX);
 
         current_analog++;
       } else
@@ -286,25 +295,9 @@ void setup() {
   executor[SET_REPORT_MODE_CMD]   = &set_report_mode;
   executor[ACTUATE_CMD]           = &actuate;
   executor[RESET_PINS]            = &reset;
-
-//  executor[SET_PIN_MODE_CMD]("\x04\x02\x3E\x00");
-//  executor[ANALOG_PRECISION_CMD]("\x01\x01\x0C");
-//  executor[SET_REPORT_MODE_CMD]("\x05\x03\x00\x09\x00");
-//  executor[ADD_INPUT_PIN_CMD]("\x02\x01\x3E");
-//  executor[SET_PIN_MODE_CMD]("\x04\x02\x3E\x00");
-//  //  executor[ADD_INPUT_PIN_CMD]("\x02\x01\x3F");
-//  //  executor[SET_PIN_MODE_CMD]("\x04\x02\x3F\x00");
-//  executor[ADD_INPUT_PIN_CMD]("\x02\x01\x28");
-//  executor[SET_PIN_MODE_CMD]("\x04\x02\x28\x00");
-//  executor[ADD_INPUT_PIN_CMD]("\x02\x01\x29");
-//  executor[SET_PIN_MODE_CMD]("\x04\x02\x29\x00");
-//  executor[ADD_INPUT_PIN_CMD]("\x02\x01\x2A");
-//  executor[SET_PIN_MODE_CMD]("\x04\x02\x2A\x00");
-
 }
 
 void loop() {
-  //executor[ACTUATE_CMD]("\xF0\x01\x2B\x01");
 
   if (SerialUSB.available() > 0)
   {
@@ -327,6 +320,4 @@ void loop() {
       LOG("b_pos ", b_pos);
     }
   }
-
-  delay(4000);
 }

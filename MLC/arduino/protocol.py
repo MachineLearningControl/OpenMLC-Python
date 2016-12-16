@@ -4,6 +4,7 @@ _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
                     "SET_OUTPUT"      : '\x03\x01%s',
                     "PIN_MODE"        : '\x04\x02%s%s',
                     "REPORT_MODE"     : '\x05\x03%s%s%s',
+                    "ANALOG_WRITE"    : '\x06\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
                     "ACTUATE"         : '\xF0',
                     "RESET"           : '\xFE',
@@ -24,6 +25,12 @@ class ArduinoInterface:
         self._read_count = 0 #Default number of inputs read
         self._read_delay = 0
         self._board = board
+
+    def set_pwm(self, pin, duty_cicle):
+        if port in self._anlg_inputs or port in self._digital_inputs:
+            raise Exception("Port %s is configured as input!" % port)
+
+        self._connection.send(_PROTOCOL_CMDS["ANALAOG_WRITE"] % (chr(pin), chr((duty_cicle & 0xFF00) >> 8), chr(duty_cicle & 0x00FF)))
 
     def set_precision(self, bits):
         if bits > 32 or bits < 1:
@@ -92,6 +99,8 @@ class ArduinoInterface:
   
     def reset(self):
         self._connection.send(_PROTOCOL_CMDS["RESET"])
+        self._anlg_outputs = []
+        self._digital_outputs = []
 
     def actuate(self, data):
         """
