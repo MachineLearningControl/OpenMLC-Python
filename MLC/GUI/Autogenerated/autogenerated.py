@@ -364,12 +364,12 @@ class Ui_Experiment(object):
         self.retranslateUi(Experiment)
         self.tabWidget.setCurrentIndex(1)
         Experiment.finished['int'].connect(Experiment.on_closed_dialog)
-        self.start_button.clicked.connect(Experiment.on_start_button_clicked)
+        self.dimension_check.clicked.connect(Experiment.on_dimension_check_clicked)
         self.next_gen_button.clicked.connect(Experiment.on_next_gen_button_clicked)
         self.prev_gen_button.clicked.connect(Experiment.on_prev_gen_button_clicked)
-        self.show_all_check.clicked.connect(Experiment.on_show_all_check_clicked)
         self.log_check.clicked.connect(Experiment.on_log_check_clicked)
-        self.dimension_check.clicked.connect(Experiment.on_dimension_check_clicked)
+        self.show_all_check.clicked.connect(Experiment.on_show_all_check_clicked)
+        self.start_button.clicked.connect(Experiment.on_start_button_clicked)
         # QtCore.QMetaObject.connectSlotsByName(Experiment)
 
     def retranslateUi(self, Experiment):

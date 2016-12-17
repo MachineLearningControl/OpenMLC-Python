@@ -504,18 +504,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>start_button</sender>
+   <sender>dimension_check</sender>
    <signal>clicked()</signal>
    <receiver>Experiment</receiver>
-   <slot>on_start_button_clicked()</slot>
+   <slot>on_dimension_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>205</x>
-     <y>267</y>
+     <x>448</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
-     <x>205</x>
-     <y>158</y>
+     <x>277</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -552,22 +552,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>show_all_check</sender>
-   <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
-   <slot>on_show_all_check_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>448</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>223</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>log_check</sender>
    <signal>clicked()</signal>
    <receiver>Experiment</receiver>
@@ -584,18 +568,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>dimension_check</sender>
+   <sender>show_all_check</sender>
    <signal>clicked()</signal>
    <receiver>Experiment</receiver>
-   <slot>on_dimension_check_clicked()</slot>
+   <slot>on_show_all_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>448</x>
-     <y>124</y>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>277</x>
      <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>start_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_start_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>267</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>158</y>
     </hint>
    </hints>
   </connection>
