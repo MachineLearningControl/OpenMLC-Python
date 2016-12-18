@@ -1,11 +1,14 @@
 from __future__ import unicode_literals
-import matplotlib
 import os
+import matplotlib
 import random
 import sys
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+# Make sure that we are using QT5
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5 import QtCore, QtWidgets
 
 from MLC.GUI.Experiment.MatplotlibCanvas.MplCanvas import MplCanvas
 

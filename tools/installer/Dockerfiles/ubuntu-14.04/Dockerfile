@@ -100,7 +100,6 @@ RUN chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip; sync; /opt/mlc-python-2.7.11/b
     echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
 
-
 # Add PyQt5 Support
 RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz && \
     tar xzvf sip-4.18.1.tar.gz && \

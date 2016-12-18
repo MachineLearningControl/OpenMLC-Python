@@ -1,4 +1,4 @@
-from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtChart import QChart, QChartView, QLineSeries, QSplineSeries
 from PyQt5.QtChart import QValueAxis
 from PyQt5.QtChart import QLogValueAxis
 from PyQt5.QtCore import Qt
@@ -43,7 +43,7 @@ class QtChartWrapper():
         self._chart.addAxis(self._xaxis, Qt.AlignBottom)
 
     def set_yaxis(self, log=False, label="", label_format="", tick_count=None):
-        self._yaxis = self._create_axis(log, label, label_format, tick_count)
+        self._yaxis = self._create_axis(log, label, label_format, tick_count=None)
         self._chart.addAxis(self._yaxis, Qt.AlignLeft)
 
     def _create_axis(self, log, label, label_format, tick_count):
@@ -51,19 +51,20 @@ class QtChartWrapper():
         axis.setTitleText(label)
         axis.setLabelFormat(label_format)
 
-        if tick_count:
+        if tick_count and not log:
             axis.setTickCount(tick_count)
 
         return axis
 
-    def add_data(self, xdata, ydata, color=None):
-        curve = QLineSeries()
+    def add_data(self, xdata, ydata, line_width=.1, color=None):
+        # curve = QLineSeries()
+        curve = QSplineSeries()
         pen = curve.pen()
 
         if color is not None:
             pen.setColor(color)
 
-        pen.setWidthF(.1)
+        pen.setWidthF(line_width)
         curve.setPen(pen)
         curve.setUseOpenGL(True)
         curve.append(self._series_to_polyline(xdata, ydata))
