@@ -20,7 +20,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="config_tab">
       <attribute name="title">
@@ -407,11 +407,11 @@
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="2">
-              <widget class="QPushButton" name="test_button">
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="1" column="0">
+              <widget class="QLabel" name="label">
                <property name="text">
-                <string>Test</string>
+                <string>Test Result:</string>
                </property>
               </widget>
              </item>
@@ -423,7 +423,43 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="test_edit"/>
+              <widget class="QLineEdit" name="test_indiv_edit"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="test_label_result">
+               <property name="frameShape">
+                <enum>QFrame::Panel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="test_button">
+               <property name="text">
+                <string>Test</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -599,6 +635,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>test_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_test_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>230</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -609,5 +661,6 @@
   <slot>on_log_check_clicked()</slot>
   <slot>on_show_all_check_clicked()</slot>
   <slot>on_dimension_check_clicked()</slot>
+  <slot>on_test_button_clicked()</slot>
  </slots>
 </ui>
