@@ -1,9 +1,6 @@
-from MLC.db.mlc_repository import MLCRepository, MemoryMLCRepository
-from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.db.mlc_repository import MLCRepository
 from MLC.individual.Individual import Individual
-from MLC.Population.Population import Population
 from MLC.Simulation import Simulation
-from MLC.config import get_working_directory
 
 from sql_statements import *
 
@@ -12,86 +9,129 @@ import os
 
 
 class SQLiteRepository(MLCRepository):
-    def __init__(self):
-        self.__to_execute = []
-        self._memory_repo = MemoryMLCRepository()
-        self._db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
-        self._db_file = os.path.join(get_working_directory(), self._db_name)
-        if not os.path.exists(self._db_file):
+    def __init__(self, db_file):
+        self.__db_file = db_file
+        if not os.path.exists(self.__db_file):
             self.__initialize_db()
 
-        self.__load_individuals()
+        # cache for population
+        self.__generations = self._how_many_generations()
 
-    def add_population(self, population):
-        generation = population._gen
+        # all individuals: {individual_id: (Individual, generated(bool))
+        self.__individuals = self.__load_individuals()
+        self._hashlist = {}
+
+        # enhancement
+        self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys())+1
+        self.__individuals_to_flush = {}
+
+    def __insert_individuals_pending(self, individual):
+        individual_id = self.__next_individual_id
+        self.__individuals_to_flush[individual_id] = individual
+        self.__next_individual_id += 1
+        return individual_id
+
+    def __flush_individuals(self):
         conn = self.__get_db_connection()
-        c = conn.cursor()
+        cursor = conn.cursor()
+        for individual_id in sorted(self.__individuals_to_flush.keys()):
+            cursor.execute(stmt_insert_individual(individual_id, self.__individuals_to_flush[individual_id]))
+        cursor.close()
+        conn.commit()
+        self.__individuals_to_flush = {}
+
+    # operation over generations
+    def add_population(self, population):
+        self.__flush_individuals()
+
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
         for i in range(len(population._individuals)):
             individual_id = population._individuals[i]
             individual_cost = population._costs[i]
             individual_gen_method = population._gen_method[i]
             individual_parents = ','.join(str(elem) for elem in population._parents[i])
-            c.execute(stmt_insert_individual_in_population(generation,
-                                                           individual_id,
-                                                           individual_cost,
-                                                           individual_gen_method,
-                                                           individual_parents))
-        c.close()
+            cursor.execute(stmt_insert_individual_in_population(self.__generations+1,
+                                                                individual_id,
+                                                                individual_cost,
+                                                                individual_gen_method,
+                                                                individual_parents))
+        cursor.close()
         conn.commit()
+        self.__generations += 1
 
-    def get_populations(self):
-        populations = []
-        for gen in self._how_many_generations():
-            populations.append(self.__load_population(gen))
-        return populations
+    def update_population(self, generation, population):
+        raise NotImplementedError("This method must be implemented")
 
-    def erase_generations(self, from_generation, remove_unused_individuals=True):
+    def remove_population(self, generation):
+        self.__execute(stmt_delete_generation(generation))
+        self.__generations -= 1
+
+    def get_population(self, generation):
+        return self.__load_population(generation)
+
+    def count_population(self):
+        return self.__generations
+
+    # special methods
+    def remove_population_from(self, from_generation):
         self.__execute(stmt_delete_from_generations(from_generation))
-        self.commit_changes()
+        self.__generations = from_generation-1
 
-        if remove_unused_individuals:
-            conn = self.__get_db_connection()
-            cursor = conn.execute(stmt_get_unused_individuals())
-            unused_individuals = [row[0] for row in cursor]
-            conn.close()
-            self._memory_repo.remove_individuals(unused_individuals)
-            self.__execute(stmt_delete_unused_individuals())
+    # def remove_unused_individuals(self):
+    #     conn = self.__get_db_connection()
+    #     cursor = conn.execute(stmt_get_unused_individuals())
+    #     self.__execute(stmt_delete_unused_individuals())
+    #     unused_individuals = [row[0] for row in cursor]
+    #     conn.close()
 
-        self.commit_changes()
+    # operations over individuals
+    def add_individual(self, individual):
+        if individual.get_hash() in self._hashlist:
+            return self._hashlist[individual.get_hash()], True
 
-    def commit_changes(self):
-        conn = self.__get_db_connection()
-        c = conn.cursor()
-        for stmt in self.__to_execute:
-            c.execute(stmt)
-        c.close()
-        conn.commit()
-        self.__to_execute = []
+        individual_id = self.__insert_individuals_pending(individual)
+
+        self.__individuals[individual_id] = individual
+        self._hashlist[individual.get_hash()] = individual_id
+
+        return individual_id, False
+
+    def update_individual(self, individual_id, individual):
+        raise NotImplementedError("This method must be implemented")
+
+    def remove_individual(self, individual_id):
+        raise NotImplementedError("This method must be implemented")
 
     def get_individual(self, individual_id):
-        return self._memory_repo.get_individual(individual_id)
+        try:
+            return self.__individuals[individual_id]
+        except KeyError:
+            raise KeyError("Individual N#%s does not exists" % individual_id)
 
-    def update_individual(self, individual_id, cost, ev_time=None):
-        self._memory_repo.update_individual(individual_id, cost, ev_time)
-        self.__execute(stmt_update_individual_cost(individual_id, cost, ev_time))
+    def count_individual(self):
+        return len(self.__individuals)
 
-    def add_individual(self, individual):
-        individual_id, exist = self._memory_repo.add_individual(individual)
+    # special methods
+    def update_individual_cost(self, individual_id, cost):
+        self.__execute(stmt_update_individual_cost(individual_id, cost))
+        if individual_id in self.__individuals_to_flush:
+            self.__individuals_to_flush[individual_id].set_cost(cost)
 
-        if exist:
-            self.__execute(stmt_update_individual(individual_id, individual))
-        else:
-            self.__execute(stmt_insert_individual(individual_id, individual))
-
-        return individual_id, exist
-
-    def number_of_individuals(self):
-        return self._memory_repo.number_of_individuals()
+    def __execute(self, statement):
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(statement)
+        cursor.close()
+        conn.commit()
+        return cursor.lastrowid
 
     def __initialize_db(self):
         self.__execute(stmt_create_table_individuals())
         self.__execute(stmt_create_table_population())
-        self.commit_changes()
+
+    def __get_db_connection(self):
+        return sqlite3.connect(self.__db_file)
 
     def _how_many_generations(self):
         generations = []
@@ -100,13 +140,7 @@ class SQLiteRepository(MLCRepository):
         for row in cursor:
             generations.append(int(row[0]))
         conn.close()
-        return sorted(generations)
-
-    def __get_db_connection(self):
-        return sqlite3.connect(self._db_file)
-
-    def __execute(self, statement):
-        self.__to_execute.append(statement)
+        return len(sorted(generations))
 
     def __load_population(self, generation):
         i = 0
@@ -128,13 +162,15 @@ class SQLiteRepository(MLCRepository):
         return population
 
     def __load_individuals(self):
+        individuals = {}
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_all_individuals())
         for row in cursor:
-            new_individual = Individual()
+            new_individual = Individual(str(row[1]))
             new_individual.generate(str(row[1]))
             new_individual.set_cost(row[2])
             new_individual._evaluation_time = int(row[3])
             new_individual._appearences = int(row[4])
-            self._memory_repo.add_individual(new_individual)
+            individuals[row[0]] = new_individual
         conn.close()
+        return individuals

@@ -93,13 +93,15 @@ class Application(object):
 
         if from_generation < self._mlc_repository.count_population():
             lg.logger_.info("Generations %s to %s discarded" % (from_generation+1, self._mlc_repository.count_population()))
-            self._mlc_repository.remove_population_from(from_generation)
+            self._mlc_repository.remove_population_from(from_generation+1)
 
         # emit app start event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_START)
 
         # First generation must be generated from scratch
         if self._mlc_repository.count_population() == 0:
+            lg.logger_.info("Creating and filling first generation")
+
             last_population = Simulation.create_empty_population_for(1)
             last_population.fill(self._gen_creator)
             self.evaluate_population(last_population, 1)
@@ -114,7 +116,7 @@ class Application(object):
             last_population = self._mlc_repository.get_population(last_generation)
 
             # obtain the next generation by evolving the lastone
-            lg.logger_.info("Evolving to Population N# %s" % str(last_generation+1))
+            lg.logger_.info("Evolving to Population %s using population %s" % (last_generation+1, last_generation))
 
             next_population = Simulation.create_empty_population_for(last_generation+1)
             next_population = last_population.evolve(next_population)

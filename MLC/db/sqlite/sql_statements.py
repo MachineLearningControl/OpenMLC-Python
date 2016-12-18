@@ -7,10 +7,24 @@ def stmt_create_table_individuals():
                              appearences INTEGER)'''
 
 
+def stmt_create_table_population():
+    return '''
+    CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                             gen INTEGER,
+                             cost real,
+                             gen_method INTEGER,
+                             parents TEXT,
+                             indiv_id INTEGER,
+                             FOREIGN KEY(indiv_id) REFERENCES individuals(indiv_id))'''
+
+
+def stmt_delete_generation(generation):
+    return """DELETE FROM population
+              WHERE gen = %s""" % (generation,)
+
 def stmt_delete_from_generations(from_generation):
     return """DELETE FROM population
               WHERE gen >= %s""" % (from_generation,)
-
 
 def stmt_delete_unused_individuals():
     return '''DELETE FROM individuals
@@ -22,15 +36,7 @@ def stmt_get_unused_individuals():
               WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
 
 
-def stmt_create_table_population():
-    return '''
-    CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                             gen INTEGER,
-                             cost real,
-                             gen_method INTEGER,
-                             parents TEXT,
-                             indiv_id INTEGER,
-                             FOREIGN KEY(indiv_id) REFERENCES individuals(indiv_id))'''
+
 
 
 def stmt_get_generations():
