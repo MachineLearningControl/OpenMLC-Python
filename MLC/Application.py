@@ -24,10 +24,14 @@ class Application(object):
     def __init__(self, simulation, log_mode='console', callbacks={}):
         self._config = Config.get_instance()
         self._simulation = simulation
+        self._mlc_repository = MLCRepository.get_instance()
 
         # Set logger mode of the App
         set_logger(log_mode)
         self._project_validations()
+
+        # callbacks configuration
+        self.__callbacks_manager = MLCCallbacksManager()
 
         # bad values and duplicates
         self.__badvalues_elim = self._config.get('EVALUATOR', 'badvalues_elim')
@@ -35,9 +39,6 @@ class Application(object):
         # Gen creator
         gen_method = self._config.get('GP', 'generation_method')
         self._gen_creator = CreationFactory.make(gen_method)
-
-        # callbacks configuration
-        self.__callbacks_manager = MLCCallbacksManager()
 
         # Gen evaluator
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')
@@ -65,76 +66,74 @@ class Application(object):
 
         # add callback to show best individual
         self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_NEW_GENERATION, self.show_best)
-        self.__fig = False
+        self.__display_best = False
 
-    def go(self, to_generation, fig, from_generation=None):
+    def go(self, to_generation, from_generation=None, display_best=False):
         """
         Start MLC2 problem solving (MLC2 Toolbox)
-            OBJ.GO(N) creates (if necessary) the population, evaluate and
-                evolve it until N evaluated generations are obtained.
-            OBJ.GO(N,1) additionaly displays the best individual if implemented
-                in the evaluation function at the end of each generation
-                evaluation
-            OBJ.GO(N,2) additionaly displays the convergence graph at the end
-                of each generation evaluation
+
+        :param to_generation: creates (if necessary) the population, evaluate
+            and  evolve it until to_generation evaluated generations are
+            obtained.
+
+        :param from_generation: first generation must be evolved from
+        from_generation, takes last generation as default value.
+
+        :param display_best: displays the best individual if implemented
+        in the evaluation function at the end of each generation evaluation.
+
+        :return:
         """
-        self.__fig = fig
+        self.__display_best = display_best
 
         if from_generation is None:
-            from_generation = self._simulation.number_of_generations()
+            from_generation = self._mlc_repository.count_population()
 
-        if to_generation <= 0:
-            raise Exception("Amounts of generations must be a positive number, provided: %s" % to_generation)
+        lg.logger_.info("Running MLC from generation %s to %s" % (from_generation, to_generation))
 
-        # valid_from_generation = range(1, min(to_generation, self._simulation.number_of_generations()+1))
-        # if not from_generation in valid_from_generation:
-        #    raise Exception("from_generation must be a positive number from %s, provided: %s" % (valid_from_generation, from_generation))
+        if from_generation < self._mlc_repository.count_population():
+            lg.logger_.info("Generations %s to %s discarded" % (from_generation+1, self._mlc_repository.count_population()))
+            self._mlc_repository.remove_population_from(from_generation)
 
-        # self._simulation.erase_generations(from_generation+1)
-
+        # emit app start event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_START)
 
         # First generation must be generated from scratch
-        if self._simulation.number_of_generations() == 0:
-            first_population = Simulation.create_empty_population_for(generation=1)
-            self._simulation.add_generation(first_population)
+        if self._mlc_repository.count_population() == 0:
+            last_population = Simulation.create_empty_population_for(1)
+            last_population.fill(self._gen_creator)
+            self.evaluate_population(last_population, 1)
+            self._mlc_repository.add_population(last_population)
 
-        while self._simulation.number_of_generations() < to_generation:
-            current_population = self._simulation.get_last_generation()
-            current_generation_number = self._simulation.number_of_generations()
+            # emit new generation event
+            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION, 1)
+            lg.logger_.info("Population created. Number: %s - Size: %s" % (1, last_population.get_size()))
 
-            # create
-            if not current_population.is_complete():
-                current_population.fill(self._gen_creator)
+        while self._mlc_repository.count_population() < to_generation:
+            last_generation = self._mlc_repository.count_population()
+            last_population = self._mlc_repository.get_population(last_generation)
 
-            # evaluate
-            self.evaluate_population(current_population, current_generation_number)
+            # obtain the next generation by evolving the lastone
+            lg.logger_.info("Evolving to Population N# %s" % str(last_generation+1))
 
-            # new generation callback
-            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION,
-                                              current_generation_number)
-            # evolve
-            next_population = current_population.evolve()
+            next_population = Simulation.create_empty_population_for(last_generation+1)
+            next_population = last_population.evolve(next_population)
+
+            # continue with evolve if there are duplicated individuals
             if self._look_for_duplicates:
                 while next_population.remove_duplicates() > 0:
-                    next_population = current_population.evolve(next_population)
+                    next_population = last_population.evolve(next_population)
 
-            # save new generation
-            self._simulation.add_generation(next_population)
-            MLCRepository.get_instance().commit_changes()
+            # evaluate population
+            self.evaluate_population(next_population, last_generation)
 
-        # Evaluate last population
-        self.evaluate_population(self._simulation.get_last_generation(),
-                                 self._simulation.number_of_generations())
+            lg.logger_.info("Population created. Number: %s - Size: %s" % (last_generation + 1, next_population.get_size()))
+            self._mlc_repository.add_population(next_population)
 
-        # new generation callback
-        self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION,
-                                          self._simulation.number_of_generations())
+            # emit new generation event
+            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION, last_generation+1)
 
-        for i in range(from_generation + 1, self._simulation.number_of_generations() + 1):
-            p = self._simulation.get_generation(i)
-            MLCRepository.get_instance().add_population(p)
-
+        # emit app finish event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_FINISH)
 
     def get_simulation(self):
@@ -175,11 +174,11 @@ class Application(object):
         return False
 
     def show_best(self, generation_number):
-        if self.__fig:
+        if self.__display_best:
             show_all = self._config.getboolean('BEHAVIOUR', 'showeveryitbest')
             stop_on_graph = self._config.getboolean('BEHAVIOUR', 'stopongraph')
 
-            population = self._simulation.get_generation(generation_number)
+            population = self._mlc_repository.get_population(generation_number)
             best_index, best_indiv = population.get_best_individual()
 
             EvaluatorFactory.get_callback().show_best(best_index, best_indiv, stop_on_graph)
@@ -188,8 +187,6 @@ class Application(object):
         # Check that the evaluation and preevaluation modules can be loaded
         EvaluatorFactory.get_callback()
         PreevaluationManager.get_callback()
-
-    # TODO: Add another validations
 
 
 class MLCCallbacksManager:

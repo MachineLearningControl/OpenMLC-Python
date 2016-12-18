@@ -43,7 +43,7 @@ class ApplicationTest(unittest.TestCase):
                                                                 MLC_CALLBACKS.ON_EVALUATE:       test_on_evaluate_callback,
                                                                 MLC_CALLBACKS.ON_NEW_GENERATION: test_on_new_generation_callback,
                                                                 MLC_CALLBACKS.ON_FINISH:         test_on_finish_callback})
-            app.go(to_generation=2, fig=0, from_generation=0)
+            app.go(to_generation=2, from_generation=0)
 
             self.assertEqual(ApplicationTest.on_start,          1)
             self.assertEqual(ApplicationTest.on_evaluate,       2*10)
@@ -68,7 +68,7 @@ class ApplicationTest(unittest.TestCase):
             simulation = Simulation()
             start_callbacks = [test_on_start_callback, test_on_start_callback_increment_2]
             app = Application(simulation, "testing", callbacks={MLC_CALLBACKS.ON_START: start_callbacks})
-            app.go(to_generation=2, fig=0, from_generation=0)
+            app.go(to_generation=2, from_generation=0)
 
             self.assertEqual(ApplicationTest.on_start, 1)
             self.assertEqual(ApplicationTest.on_start_counter_2, 1)

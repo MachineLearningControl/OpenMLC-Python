@@ -4,7 +4,6 @@ import sys
 
 from MLC.Common.RandomManager import RandomManager
 from MLC.individual.Individual import OperationOverIndividualFail
-from MLC.Simulation import Simulation
 
 
 class Population(object):
@@ -19,28 +18,30 @@ class Population(object):
         CROSSOVER = 3
         ELITISM = 4
 
-    def __init__(self, size, sub_generations, gen, configuration, mlc_repository):
+    def __init__(self, size, sub_generations, configuration, mlc_repository):
+        # repository to obtain individuals
+        self._mlc_repository = mlc_repository
         self._config = configuration
 
-        self._gen = gen
         self._size = size
         self._subgen = sub_generations
 
         # Declare MATLAB attributes
         self._individuals = [-1] * self._size
-        self._costs = [-1] * self._size
-        self._gen_method = [-1] * self._size
-        self._parents = [[]] * self._size
+        self._costs       = [-1] * self._size
+        self._gen_method  = [-1] * self._size
+        self._parents     = [[]] * self._size
 
         # genetic operations for individuals
         self._probrep = self._config.getfloat("OPTIMIZATION", "probrep")
         self._probmut = self._config.getfloat("OPTIMIZATION", "probmut")
         self._probcro = self._config.getfloat("OPTIMIZATION", "probcro")
 
-        # to obtain individuals
-        self._mlc_repository = mlc_repository
-
-        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
+    def is_empty(self):
+        for i in self._individuals:
+            if i != -1:
+                return False
+        return True
 
     def is_complete(self):
         return -1 not in self._individuals
@@ -77,7 +78,7 @@ class Population(object):
             lg.logger_.debug('Evaluate Idx: %s - Indiv N#: %s - Cost: %s' % (i, self._individuals[i], new_cost))
 
             if new_cost != self._costs[i]:
-                self._mlc_repository.update_individual(self._individuals[i], new_cost)
+                self._mlc_repository.update_individual_cost(self._individuals[i], new_cost)
 
         self._costs = costs
 
@@ -113,8 +114,8 @@ class Population(object):
         while i < (self._size - 1):
             if sorted_indivs[i] == sorted_indivs[i + 1]:
                 lg.logger_.debug("[POPULATION] Proceed to remove Individual "
-                                 "N#{indiv} from Population N#{pop_number})"
-                                 .format(indiv=indexes[i], pop_number=self._gen))
+                                 "N#{indiv})".format(indiv=indexes[i]))
+
                 amount_indivs_removed += 1
                 self._remove_individual(indexes[i + 1])
             i += 1
@@ -161,21 +162,18 @@ class Population(object):
         best_index = self._individuals[best_indivs[0]]
         return best_index, self._mlc_repository.get_individual(best_index)
 
-    def evolve(self, mlcpop2=None):
-        new_pop = mlcpop2
-        if new_pop is None:
-            new_pop = Simulation.create_empty_population_for(generation=self._gen + 1)
-
-        lg.logger_.info('Evolving population N#' + str(self._gen))
-
+    def evolve(self, next_population):
         # FIXME: It's not necessary to compute the creation of both subgenerations
         # The ranges of both of them will be the same
         pop_subgen = self.create_subgen()
-        pop_subgen2 = new_pop.create_subgen()
+        pop_subgen2 = next_population.create_subgen()
         subgen_amount = len(pop_subgen)
 
-        for i in range(len(pop_subgen)):
-            lg.logger_.info("Evolving subpopulation {0}/{1} of population N#{2}".format(i + 1, subgen_amount, str(self._gen)))
+        is_first_evolve = next_population.is_empty()
+
+        for i in range(subgen_amount):
+            lg.logger_.info("Evolving subpopulation {0}/{1}".format(i + 1, subgen_amount))
+
             # Get the indexes of the non valid elements in this subpopulation
             subgen_begin = pop_subgen[i][0]
             subgen_end = pop_subgen[i][1]
@@ -186,13 +184,13 @@ class Population(object):
             # IMPORTANT: Before the first evolution of the new Population, all the elements are invalid. In the
             # second evolution of Population is when all this algorithm will have any sense
             not_valid_indexes = [x[0] + subgen2_begin
-                                 for x in enumerate(new_pop.get_individuals()[subgen2_begin:subgen2_end + 1])
+                                 for x in enumerate(next_population.get_individuals()[subgen2_begin:subgen2_end + 1])
                                  if x[1] == -1]
             individuals_created = 0
             param_elitism = self._config.getint('OPTIMIZATION', 'elitism')
 
             # Apply the elitism algorithm only if we're NOT modifying a previously evolved population
-            if not mlcpop2:
+            if is_first_evolve:
                 try:
                     elitism_indivs_per_subgen = int(math.ceil(param_elitism / subgen_amount))
                     for j in range(elitism_indivs_per_subgen):
@@ -208,12 +206,13 @@ class Population(object):
                                                 indiv_index, pop_idv_index_dest + 1))
 
                         # Update the individual in the new population with the first param_elitism
-                        new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                        next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
                                                   parent_index=pop_idv_index_orig, indiv_index=indiv_index,
                                                   gen_method=Population.GenerationMethod.ELITISM)
 
-                        self._mlc_repository.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
+                        self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                         individuals_created += 1
+
                 except IndexError:
                     lg.logger_.error("[POPULATION] Elitism - More individuals to replace than empty ones."
                                      "Stop elitism algorithm")
@@ -238,11 +237,11 @@ class Population(object):
                                     .format(individuals_created + 1, len(not_valid_indexes),
                                             indiv_index, pop_idv_index_dest + 1))
 
-                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
-                                              parent_index=pop_idv_index_orig, indiv_index=indiv_index,
-                                              gen_method=Population.GenerationMethod.REPLICATION)
+                    next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                                      parent_index=pop_idv_index_orig, indiv_index=indiv_index,
+                                                      gen_method=Population.GenerationMethod.REPLICATION)
 
-                    self._mlc_repository.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
+                    self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
                 elif op == Population.GeneticOperation.MUTATION:
@@ -264,10 +263,10 @@ class Population(object):
                             pass
 
                     number, repeated = self._mlc_repository.add_individual(new_ind)
-                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
-                                              parent_index=pop_idv_index_orig, indiv_index=number,
-                                              gen_method=Population.GenerationMethod.MUTATION, cost=-1)
-                    self._mlc_repository.get_individual(new_pop.get_individuals()[pop_idv_index_dest]).inc_appearences()
+                    next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                                      parent_index=pop_idv_index_orig, indiv_index=number,
+                                                      gen_method=Population.GenerationMethod.MUTATION, cost=-1)
+                    self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
                 elif op == Population.GeneticOperation.CROSSOVER:
@@ -289,11 +288,13 @@ class Population(object):
 
                         indiv_index = self._individuals[pop_idv_index_orig]
                         indiv_index2 = self._individuals[pop_idv_index_orig2]
+
+
                         lg.logger_.info("Individual {0}/{1}: Crossover (Pair 1) - Orig indiv {2} - Dest index {3} - "
-                                        "Crossover (Pair 2) - Orig indiv {4} - Dest index {5}"
-                                        .format(individuals_created + 1, len(not_valid_indexes),
-                                                indiv_index, pop_idv_index_dest + 1,
-                                                indiv_index2, pop_idv_index_dest2 + 1))
+                                        .format(individuals_created + 1, len(not_valid_indexes), indiv_index, pop_idv_index_dest + 1))
+
+                        lg.logger_.info("Individual {0}/{1}: Crossover (Pair 2) - Orig indiv {2} - Dest index {3} - "
+                                        .format(individuals_created + 2, len(not_valid_indexes), indiv_index2, pop_idv_index_dest2 + 1))
 
                         # Get the two individuals involved and call the crossover function
                         old_indiv = self._mlc_repository.get_individual(indiv_index)
@@ -305,19 +306,19 @@ class Population(object):
                             lg.logger_.debug(str(ex))
 
                     number, repeated = self._mlc_repository.add_individual(new_ind)
-                    new_pop.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
-                                              parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
-                                              indiv_index=number, cost=-1,
-                                              gen_method=Population.GenerationMethod.CROSSOVER)
+                    next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
+                                                      parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
+                                                      indiv_index=number, cost=-1,
+                                                      gen_method=Population.GenerationMethod.CROSSOVER)
 
                     number, repeated = self._mlc_repository.add_individual(new_ind2)
-                    new_pop.update_individual(dest_index=pop_idv_index_dest2, rhs_pop=self,
-                                              parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
-                                              indiv_index=number, cost=-1,
-                                              gen_method=Population.GenerationMethod.CROSSOVER)
+                    next_population.update_individual(dest_index=pop_idv_index_dest2, rhs_pop=self,
+                                                      parent_index=pop_idv_index_orig, parent_index_2=pop_idv_index_orig2,
+                                                      indiv_index=number, cost=-1,
+                                                      gen_method=Population.GenerationMethod.CROSSOVER)
                     individuals_created += 2
 
-        return new_pop
+        return next_population
 
     def sort(self):
         # Calculate subgenerations

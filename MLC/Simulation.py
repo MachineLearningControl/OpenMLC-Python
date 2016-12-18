@@ -5,33 +5,24 @@ from MLC.mlc_parameters.mlc_parameters import Config
 class Simulation:
 
     def __init__(self):
-        self._generations = MLCRepository.get_instance().get_populations()
+        self._mlc_repository = MLCRepository.get_instance()
 
     def get_generation(self, generation):
-        if generation <= 0:
-            raise IndexError("Generation must start from 1, obtain %s" % generation)
-
-        if generation > len(self._generations):
-            raise IndexError("Generation %s does not exist" % generation)
-
-        return self._generations[generation - 1]
+        return self._mlc_repository.get_population(generation)
 
     def number_of_generations(self):
-        return len(self._generations)
+        return self._mlc_repository.count_population()
 
     def get_last_generation(self):
-        if len(self._generations) == 0:
+        if self.number_of_generations() == 0:
             raise IndexError("Empty simulation")
-        return self._generations[self.number_of_generations() - 1]
+        return self._mlc_repository.get_population(self.number_of_generations())
 
     def add_generation(self, population):
-        self._generations.append(population)
-        return len(self._generations)
+        return self._mlc_repository.add_population(population)
 
     def erase_generations(self, from_generation):
-        if from_generation > 0:
-            self._generations = self._generations[:from_generation - 1]
-            MLCRepository.get_instance().erase_generations(from_generation)
+        self._mlc_repository.remove_population_from(from_generation)
 
     @staticmethod
     def create_empty_population_for(generation):
@@ -42,4 +33,4 @@ class Simulation:
 
         population_size = cascade[1] if (generation > 1 and len(size) > 1) else size[0]
         population_subgenerations = 1 if cascade[1] == 0 else cascade[1]
-        return Population(population_size, population_subgenerations, generation, Config.get_instance(), MLCRepository.get_instance())
+        return Population(population_size, population_subgenerations, Config.get_instance(), MLCRepository.get_instance())

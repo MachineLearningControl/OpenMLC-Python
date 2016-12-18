@@ -34,7 +34,7 @@ def main():
 
     simulation = Simulation()
     mlc = Application(simulation, log_mode)
-    mlc.go(3, fig=True)
+    mlc.go(to_generation=3, display_best=False)
     raw_input("Press enter to continue...")
 
 if __name__ == "__main__":

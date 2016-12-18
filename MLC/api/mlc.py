@@ -373,7 +373,7 @@ class MLCLocal(MLC):
 
         # launch simulation
         app = Application(simulation)
-        app.go(from_generation=from_generation, fig=0, to_generation=to_generation)
+        app.go(from_generation=from_generation, to_generation=to_generation, display_best=False)
 
         return True
 
