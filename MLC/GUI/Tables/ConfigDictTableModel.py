@@ -3,9 +3,9 @@ from MLC.GUI.Tables.ConfigTableModel import ConfigTableModel
 
 class ConfigDictTableModel(ConfigTableModel):
 
-    def __init__(self, dict, header, parent=None, *args):
+    def __init__(self, name, dict, header, parent=None, *args):
         adapted_data = self._dict_to_list_of_lists(dict)
-        ConfigTableModel.__init__(self, adapted_data, header, parent, *args)
+        ConfigTableModel.__init__(self, name, adapted_data, header, parent, *args)
 
     def _dict_to_list_of_lists(self, dict):
         data = []

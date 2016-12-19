@@ -20,7 +20,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="config_tab">
       <attribute name="title">
@@ -39,20 +39,6 @@
           <number>0</number>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>Import</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_2">
-            <property name="text">
-             <string>Export</string>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="title">
@@ -73,6 +59,39 @@
              </property>
              <item>
               <widget class="QTableView" name="config_table"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_2">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QPushButton" name="import_config_button">
+               <property name="text">
+                <string>Import</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="export_config_button">
+               <property name="text">
+                <string>Export</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="save_config_button">
+               <property name="text">
+                <string>Save</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -651,6 +670,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>save_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_save_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>438</x>
+     <y>396</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_tab_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>277</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>277</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -662,5 +713,9 @@
   <slot>on_show_all_check_clicked()</slot>
   <slot>on_dimension_check_clicked()</slot>
   <slot>on_test_button_clicked()</slot>
+  <slot>on_save_config_button_clicked()</slot>
+  <slot>on_import_config_button_clicked()</slot>
+  <slot>on_export_config_button_clicked()</slot>
+  <slot>on_tab_changed()</slot>
  </slots>
 </ui>

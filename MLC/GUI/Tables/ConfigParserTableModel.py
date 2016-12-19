@@ -3,9 +3,9 @@ from MLC.GUI.Tables.ConfigTableModel import ConfigTableModel
 
 class ConfigParserTableModel(ConfigTableModel):
 
-    def __init__(self, config_parser, header, parent=None, *args):
+    def __init__(self, name, config_parser, header, parent=None, *args):
         adapted_data = self._config_parser_to_list_of_lists(config_parser)
-        ConfigTableModel.__init__(self, adapted_data, header, parent, *args)
+        ConfigTableModel.__init__(self, name, adapted_data, header, parent, *args)
 
     def _config_parser_to_list_of_lists(self, config_parser):
         data = []
