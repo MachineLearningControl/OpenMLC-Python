@@ -229,7 +229,7 @@ class MLC_GUI(QMainWindow):
 
         # Fill the TableView with the GUI Config file
         header = ['Parameter', 'Section', 'Value']
-        table_model = ConfigParserTableModel(self._gui_config, header, self)
+        table_model = ConfigParserTableModel("MLC MANAGER PARAMS", self._gui_config, header, self)
         properties_dialog.tableView.setModel(table_model)
         properties_dialog.tableView.resizeColumnsToContents()
         properties_dialog.tableView.setSortingEnabled(True)
