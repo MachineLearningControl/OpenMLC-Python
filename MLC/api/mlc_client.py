@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.append(os.path.abspath(".") + "/../..")
+
 from mlc import MLC
 import requests
 import json

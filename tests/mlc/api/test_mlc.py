@@ -2,9 +2,10 @@ from nose.tools import nottest
 import unittest
 import shutil
 import os
-
 import MLC.api
-from MLC.api.mlc import MLCLocal, Experiment
+
+from MLC.api.MLCLocal import MLCLocal
+from MLC.api.Experiment import Experiment
 
 from MLC.Simulation import Simulation
 from MLC.mlc_parameters.mlc_parameters import Config

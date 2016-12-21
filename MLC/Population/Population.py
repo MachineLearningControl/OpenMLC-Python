@@ -29,7 +29,15 @@ class Population(object):
         self._gen_method = [-1] * self._size
         self._parents = [[]] * self._size
 
-        lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
+        # lg.logger_.debug("Population created. Number: %s - Size: %s" % (self._gen, self._size))
+
+    @staticmethod
+    def gen_method_description(method_type):
+        gen_method = ["REPLICATION", "MUTATION", "CROSSOVER", "ELITISM"]
+        try:
+            return gen_method[method_type - 1]
+        except IndexError:
+            return "ERROR"
 
     def is_complete(self):
         return -1 not in self._individuals

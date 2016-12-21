@@ -1,8 +1,11 @@
+import os
+import sys
+sys.path.append(os.path.abspath(".") + "/../..")
+
 from flask import Flask, jsonify
 from flask import make_response
 from flask import request
 
-import sys
 import json
 import argparse
 import logging

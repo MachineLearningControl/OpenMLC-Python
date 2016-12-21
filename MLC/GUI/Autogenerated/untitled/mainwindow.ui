@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MLCManager</class>
+ <widget class="QMainWindow" name="MLCManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>749</width>
+    <height>585</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MLC Project Manager</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+    <item>
+     <widget class="QGroupBox" name="projects_box">
+      <property name="title">
+       <string>Projects</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item alignment="Qt::AlignLeft">
+        <widget class="QFrame" name="frame">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="new_button">
+            <property name="text">
+             <string>New</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="open_button">
+            <property name="text">
+             <string>Open</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="clone_button">
+            <property name="text">
+             <string>Clone</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="remove_button">
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListView" name="experiment_list"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="description_box">
+      <property name="title">
+       <string>Description</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QTextBrowser" name="experiment_description"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>749</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMLC">
+    <property name="title">
+     <string>MLC</string>
+    </property>
+    <addaction name="menu_properties"/>
+    <addaction name="separator"/>
+    <addaction name="menu_close"/>
+   </widget>
+   <widget class="QMenu" name="menuProperties">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="menu_about"/>
+   </widget>
+   <addaction name="menuMLC"/>
+   <addaction name="menuProperties"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="menu_properties">
+   <property name="text">
+    <string>Properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Manager Properties</string>
+   </property>
+  </action>
+  <action name="menu_close">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="toolTip">
+    <string>Close MLC Manager</string>
+   </property>
+  </action>
+  <action name="menu_about">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="toolTip">
+    <string>Project Information</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>menu_close</sender>
+   <signal>triggered()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clone_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_clone_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>new_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_new_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>remove_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_remove_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>open_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_open_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>97</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>experiment_list</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_experiment_list_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>menu_properties</sender>
+   <signal>triggered()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>edit_gui_config()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>experiment_list</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_experiment_list_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>315</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>on_new_button_clicked()</slot>
+  <slot>edit_gui_config()</slot>
+  <slot>on_clone_button_clicked()</slot>
+  <slot>on_remove_button_clicked()</slot>
+  <slot>on_open_button_clicked()</slot>
+  <slot>on_experiment_list_clicked()</slot>
+ </slots>
+</ui>

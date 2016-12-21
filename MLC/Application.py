@@ -1,7 +1,3 @@
-from __builtin__ import staticmethod
-
-from pip.util import cache_download
-
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -29,10 +25,10 @@ class MLC_CALLBACKS:
 class Application(object):
     def __init__(self, simulation, log_mode='console', callbacks={}):
         self._config = Config.get_instance()
-        self._simulation = simulation
-
         # Set logger mode of the App
         set_logger(log_mode)
+
+        self._simulation = simulation
         self._project_validations()
 
         # bad values and duplicates

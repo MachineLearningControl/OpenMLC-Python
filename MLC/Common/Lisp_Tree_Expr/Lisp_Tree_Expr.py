@@ -16,7 +16,7 @@ class Lisp_Tree_Expr(object):
 
         # Remove the root part of the node
         nonroot_expr = expr[expr.find('root') + 5:-1]
-        lg.logger_.debug("[LISP_TREE_EXPR] NonRoot Expression: " + nonroot_expr)
+        # lg.logger_.debug("[LISP_TREE_EXPR] NonRoot Expression: " + nonroot_expr)
         self._root, _ = self._generate_node(expr, is_root_expression=True)
 
         # Get the complexity of the tree before simplifying
