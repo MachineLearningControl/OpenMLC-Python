@@ -115,7 +115,6 @@ class MLC_GUI(QMainWindow):
 
         experiment = ExperimentDialog(self, self._mlc_local, self._experiment_selected)
         experiment.show()
-        experiment.exec_()
 
     def on_clone_button_clicked(self):
         logger.debug("[MLC_MANAGER] [CLONE_BUTTON] - Open button clicked")

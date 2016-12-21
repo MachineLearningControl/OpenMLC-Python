@@ -20,7 +20,8 @@ HEADERS  += mainwindow.h
 FORMS    += \
     mainwindow.ui \
     experiment.ui \
-    edit_properties.ui
+    edit_properties.ui \
+    experiment_in_progress.ui
 
 DISTFILES += \
     New_projectForm.ui.qml \
