@@ -29,6 +29,7 @@ RUN apt-get install cmake \
                     qt5-default \
                     qt5-qmake \
                     qtbase5-dev \
+                    qtdeclarative5-dev \
                     git \
                     -y
 

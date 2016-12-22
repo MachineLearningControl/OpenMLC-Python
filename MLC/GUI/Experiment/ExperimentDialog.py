@@ -62,16 +62,18 @@ class ExperimentDialog(QMainWindow):
 
         logger.info('[EXPERIMENT {0}] [START_BUTTON] - Proceed to execute experiment from Generation '
                     'N°{1} to Generation N°{2}'.format(self._experiment_name, from_gen, to_gen))
-        self._mlc_local.go(self._experiment_name, to_gen, from_gen - 1)
 
-        QMessageBox.information(self, 'Experiment executed', 'Experiment was succesfully executed.', QMessageBox.Ok)
-
-        self._update_individuals_per_generation_list()
-        self._update_experiment_info()
-        self._update_individuals_figure()
-
-        progress_dialog = ExperimentInProgressDialog(self)
-        progress_dialog.exec_()
+        progress_dialog = ExperimentInProgressDialog(parent=self,
+                                                     mlc_local=self._mlc_local,
+                                                     experiment_name=self._experiment_name,
+                                                     to_gen=to_gen,
+                                                     from_gen=from_gen)
+        progress_dialog.start()
+        # self._mlc_local.go(self._experiment_name, to_gen, from_gen - 1, callbacks)
+        # QMessageBox.information(self, 'Experiment executed', 'Experiment was succesfully executed.', QMessageBox.Ok)
+        # self._update_individuals_per_generation_list()
+        # self._update_experiment_info()
+        # self._update_individuals_figure()
 
     def on_prev_gen_button_clicked(self):
         logger.debug('[EXPERIMENT {0}] [PREV_GEN_BUTTON] - Executing on_prev_gen_button_clicked function'.format(self._experiment_name))

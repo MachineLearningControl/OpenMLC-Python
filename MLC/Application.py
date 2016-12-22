@@ -23,10 +23,10 @@ class MLC_CALLBACKS:
 
 
 class Application(object):
-    def __init__(self, simulation, log_mode='console', callbacks={}):
+    def __init__(self, simulation, callbacks={}):
         self._config = Config.get_instance()
         # Set logger mode of the App
-        set_logger(log_mode)
+        set_logger(self._config.get('LOGGING', 'logmode'))
 
         self._simulation = simulation
         self._project_validations()
