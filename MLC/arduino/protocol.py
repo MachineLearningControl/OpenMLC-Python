@@ -7,6 +7,7 @@ _PROTOCOL_CMDS = {  "ANALOG_PRECISION": '\x01\x01%s',
                     "ANALOG_WRITE"    : '\x06\x03%s%s%s',
                     "ACK"             : '\xFF\x00',
                     "ACTUATE"         : '\xF0',
+                    "PROT_VERSION"    : '\xF2\x00',
                     "RESET"           : '\xFE',
                     "ACTUATE_REPORT"  : '\xF1' }
 
@@ -25,6 +26,12 @@ class ArduinoInterface:
         self._read_count = 0 #Default number of inputs read
         self._read_delay = 0
         self._board = board
+
+    def get_version(self):
+        self._connection.send(_PROTOCOL_CMDS["PROT_VERSION"])
+        response = self._connection.recv(1)
+        length = ord(self._connection.recv(1))
+        return self._connection.recv(length)
 
     def set_pwm(self, pin, duty_cicle):
         if port in self._anlg_inputs or port in self._digital_inputs:
