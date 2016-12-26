@@ -2,13 +2,16 @@ import numpy as np
 import MLC.Log.log as lg
 import matplotlib.pyplot as plt
 import sys
+import time
 
 from MLC.mlc_parameters.mlc_parameters import Config
-
 
 def individual_data(indiv):
     x = np.linspace(-10.0, 10.0, num=201)
     y = np.tanh(x**3 - x**2 - 1)
+
+    # FIXME: Added timeout to visualize
+    time.sleep(0.5)
 
     config = Config.get_instance()
     # artificial_noise = self._config.getint('EVALUATOR', 'artificialnoise')
