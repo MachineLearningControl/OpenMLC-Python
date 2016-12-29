@@ -1,9 +1,11 @@
+import ConfigParser
 import os
 import sys
 import time
 sys.path.append(os.path.abspath(".") + "/../..")
 
 from MLC.Log.log import get_gui_logger
+from MLC.mlc_parameters.mlc_parameters import Config
 
 logger = get_gui_logger()
 
@@ -11,7 +13,8 @@ logger = get_gui_logger()
 Object that will encapsulate all the operations related with the ABM of projects
 """
 
-class GUI_Experiments_Manager():
+class Experiments_Manager():
+    DEFAULT_EXPERIMENT_CONFIG = "../../conf/configuration.ini"
 
     def __init__(self, mlc_local, gui_config):
         self._gui_config = gui_config
@@ -19,6 +22,11 @@ class GUI_Experiments_Manager():
 
         self._experiment_list = []
         self._experiment_info_dict = {}
+
+        # Config file used to create new projects
+        default_experiment_config = ConfigParser.ConfigParser()
+        default_experiment_config.read(Experiments_Manager.DEFAULT_EXPERIMENT_CONFIG)
+        self._default_experiment_config = Config.to_dictionary(default_experiment_config)
 
     def load_experiments_info(self):
         # Clean the experiment list before filling it
@@ -74,7 +82,27 @@ class GUI_Experiments_Manager():
                      .format(experiment_name, amount_individuals, elapsed_time))
 
     def add_experiment(self, experiment_name):
-        pass
+        try:
+            self._mlc_local.new_experiment(experiment_name, self._default_experiment_config)
+            logger.info("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
+                        "Added experiment {0}".format(experiment_name))
+        except DuplicatedExperimentError:
+            logger.debug("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
+            "Added experiment {0}".format(experiment_name))
+            return False
+
+        # Experiment succesfully loaded. Update its experiment_info
+        self._experiment_list.append(experiment_name)
+        self.load_experiment_info(experiment_name)
+        return True
+
+    def add_experiment_even_if_repeated(self, experiment_name):
+        if experiment_name in self._experiment_list:
+            logger.debug("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT_EVEN_IF_REPEATED] "
+                         "Proceed to remove a experiment without one of its files")
+            self._mlc_local.delete_experiment_from_workspace(experiment_name)
+
+        self.add_experiment(experiment_name)
 
     def remove_experiment(self, experiment_name):
         pass
