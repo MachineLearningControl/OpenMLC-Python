@@ -1,5 +1,4 @@
 import MLC.Log.log as lg
-import md5
 from ctypes import *
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
@@ -78,12 +77,6 @@ class Lisp_Tree_Expr(object):
         Return the tree as a MATLAB expression, in order to calculate the value of the individual
         """
         return self._formal
-
-    def calculate_hash(self):
-        """
-        Generate a hash with the Individual as a string
-        """
-        return md5.new(self._expanded_tree).hexdigest()
 
     def _number_of_subexpressions(self, expr):
         level = 0

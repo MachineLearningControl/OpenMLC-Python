@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import md5
 
 import MLC.Log.log as lg
 from collections import Counter
@@ -93,11 +94,15 @@ class Individual(object):
 
         # For the moment is the only type available
         self._value = value
+        if value:
+           self._hash = self._calculate_hash()
+        else:
+            self._hash = ""
+
         self._cost = 1e36
         self._cost_history = []
         self._evaluation_time = 0.0
         self._appearences = 1
-        self._hash = ""
         self._formal = ""
         self._complexity = 0
 
@@ -135,7 +140,7 @@ class Individual(object):
                 self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
 
         self._value = self.__simplify_and_sensors_tree(self._value)
-        self._hash = self._tree.calculate_hash()
+        self._hash = self._calculate_hash()
         self._formal = self._tree.formal()
         self._complexity = self._tree.complexity()
 
@@ -215,6 +220,12 @@ class Individual(object):
 
     def get_tree(self):
         return self._tree
+
+    def _calculate_hash(self):
+        """
+        Generate a hash with the Individual as a string
+        """
+        return md5.new(self._value).hexdigest()
 
     def __simplify_and_sensors_tree(self, value):
         sensor_list = ()

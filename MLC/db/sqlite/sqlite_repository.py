@@ -1,6 +1,7 @@
 import MLC.Log.log as lg
 import sqlite3
 import os
+import time
 
 from MLC.config import get_working_directory
 from MLC.db.mlc_repository import MLCRepository, MemoryMLCRepository
@@ -134,9 +135,9 @@ class SQLiteRepository(MLCRepository):
     def __load_individuals(self):
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_all_individuals())
+
         for row in cursor:
-            new_individual = Individual()
-            new_individual.generate(str(row[1]))
+            new_individual = Individual(value=str(row[1]))
             new_individual.set_cost(row[2])
             new_individual._evaluation_time = int(row[3])
             new_individual._appearences = int(row[4])

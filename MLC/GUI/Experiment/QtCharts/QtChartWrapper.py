@@ -1,4 +1,4 @@
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QSplineSeries
+from PyQt5.QtChart import QChart, QChartView, QLineSeries, QSplineSeries, QScatterSeries
 from PyQt5.QtChart import QValueAxis
 from PyQt5.QtChart import QLogValueAxis
 from PyQt5.QtCore import Qt
@@ -10,20 +10,14 @@ import numpy as np
 
 class QtChartWrapper():
 
-    def __init__(self, chart_view=None, chart=None):
+    def __init__(self):
         self._ncurves = 0
-        if chart:
-            self._chart = chart
-        else:
-            self._chart = QChart()
-            self._chart.legend().hide()
+        self._chart = QChart()
+        self._chart.legend().hide()
 
-        if chart_view:
-            self._view = chart_view
-        else:
-            self._view = QChartView(self._chart)
-            self._view.setRenderHint(QPainter.Antialiasing)
-            self._view.setUpdatesEnabled(True)
+        self._view = QChartView(self._chart)
+        self._view.setRenderHint(QPainter.Antialiasing)
+        self._view.setUpdatesEnabled(True)
 
         self._xaxis = QValueAxis()
         self._yaxis = QValueAxis()
@@ -42,7 +36,7 @@ class QtChartWrapper():
         self._chart.addAxis(self._xaxis, Qt.AlignBottom)
 
     def set_yaxis(self, log=False, label="", label_format="", tick_count=None):
-        self._yaxis = self._create_axis(log, label, label_format, tick_count=None)
+        self._yaxis = self._create_axis(log, label, label_format, tick_count)
         self._chart.addAxis(self._yaxis, Qt.AlignLeft)
 
     def _create_axis(self, log, label, label_format, tick_count):
@@ -58,6 +52,7 @@ class QtChartWrapper():
     def add_data(self, xdata, ydata, line_width=.1, color=None):
         # curve = QLineSeries()
         curve = QSplineSeries()
+        # curve = QSplineSeries()
         pen = curve.pen()
 
         if color is not None:
@@ -91,6 +86,26 @@ class QtChartWrapper():
 
         pen.setWidthF(line_width)
         curve.setPen(pen)
+        curve.setUseOpenGL(True)
+
+        self._chart.addSeries(curve)
+        self._curves.append(curve)
+        self._ncurves += 1
+
+        curve.attachAxis(self._xaxis)
+        curve.attachAxis(self._yaxis)
+        return self._ncurves - 1
+
+    def add_scatter(self, marker_size=1, color=None):
+        curve = QScatterSeries()
+        pen = curve.pen()
+
+        if color is not None:
+            pen.setColor(color)
+
+        # pen.setWidthF(line_width)
+        curve.setPen(pen)
+        curve.setMarkerSize(marker_size)
         curve.setUseOpenGL(True)
 
         self._chart.addSeries(curve)
