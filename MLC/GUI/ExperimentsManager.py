@@ -13,7 +13,7 @@ logger = get_gui_logger()
 Object that will encapsulate all the operations related with the ABM of projects
 """
 
-class Experiments_Manager():
+class ExperimentsManager():
     DEFAULT_EXPERIMENT_CONFIG = "../../conf/configuration.ini"
 
     def __init__(self, mlc_local, gui_config):
@@ -25,7 +25,7 @@ class Experiments_Manager():
 
         # Config file used to create new projects
         default_experiment_config = ConfigParser.ConfigParser()
-        default_experiment_config.read(Experiments_Manager.DEFAULT_EXPERIMENT_CONFIG)
+        default_experiment_config.read(ExperimentsManager.DEFAULT_EXPERIMENT_CONFIG)
         self._default_experiment_config = Config.to_dictionary(default_experiment_config)
 
     def load_experiments_info(self):
@@ -105,7 +105,28 @@ class Experiments_Manager():
         self.add_experiment(experiment_name)
 
     def remove_experiment(self, experiment_name):
-        pass
+        workspace_dir = self._gui_config.get('MAIN', 'workspace')
+        experiment_full_path = workspace_dir + '/'
+        experiment_files = [experiment_name + ".mlc", experiment_name + ".conf"]
+
+        # Check if the files to remove exists
+        if set(experiment_files) <= set(os.listdir(workspace_dir)):
+            # Try to remove the files
+            try:
+                self._mlc_local.delete_experiment_from_workspace(experiment_name)
+            except OSError:
+                logger.error("[GUI_EXPERIMENT_MANAGER] [REMOVE_EXPERIMENT] - "
+                             "Experiment file {0} could not be removed".format(file))
+                return True, False
+        else:
+            logger.error("[GUI_EXPERIMENT_MANAGER] [REMOVE_EXPERIMENT] - "
+                         "Experiment {0} can't be removed. Some of the project files is missing"
+                         .format(experiment_name))
+            return False, True
+
+        self._experiment_list.remove(experiment_name)
+        del self._experiment_info_dict[experiment_name]
+        return False, False
 
     def get_experiment_list(self):
         return self._experiment_list
