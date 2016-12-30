@@ -1,4 +1,5 @@
 from MLC.db.mlc_repository import MLCRepository
+from MLC.db.mlc_repository import MLCRepositoryHelper
 from MLC.individual.Individual import Individual
 from MLC.Simulation import Simulation
 
@@ -23,7 +24,8 @@ class SQLiteRepository(MLCRepository):
 
         # load hashes
         for indiv_id, individual in self.__individuals.items():
-            self._hashlist[individual.get_hash()] = indiv_id
+            hash = MLCRepositoryHelper.get_hash_for_individual(individual)
+            self._hashlist[hash] = indiv_id
 
         # enhancement
         self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys())+1
@@ -92,13 +94,15 @@ class SQLiteRepository(MLCRepository):
 
     # operations over individuals
     def add_individual(self, individual):
-        if individual.get_hash() in self._hashlist:
-            return self._hashlist[individual.get_hash()], True
+        hash = MLCRepositoryHelper.get_hash_for_individual(individual)
+
+        if hash in self._hashlist:
+            return self._hashlist[hash], True
 
         individual_id = self.__insert_individuals_pending(individual)
 
         self.__individuals[individual_id] = individual
-        self._hashlist[individual.get_hash()] = individual_id
+        self._hashlist[hash] = individual_id
 
         return individual_id, False
 

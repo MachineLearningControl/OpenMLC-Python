@@ -48,9 +48,6 @@ class Individual(object):
             to the evaluation function
         appearances:
             number of time the individual appears in a generation
-        hash:
-            hash of 'value' to help finding identical individuals
-            (will be turned to private)
         formal:
             matlab interpretable expression of the individual
         complexity:
@@ -97,7 +94,6 @@ class Individual(object):
         self._cost_history = []
         self._evaluation_time = 0.0
         self._appearences = 1
-        self._hash = ""
         self._formal = ""
         self._complexity = 0
 
@@ -135,7 +131,6 @@ class Individual(object):
                 self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
 
         self._value = self.__simplify_and_sensors_tree(self._value)
-        self._hash = self._tree.calculate_hash()
         self._formal = self._tree.formal()
         self._complexity = self._tree.complexity()
 
@@ -191,12 +186,6 @@ class Individual(object):
 
     def inc_appearences(self):
         self._appearences += 1
-
-    def get_hash(self):
-        return self._hash
-
-    def set_hash(self, hash):
-        self._hash = hash
 
     def get_formal(self):
         return self._formal
@@ -463,6 +452,5 @@ class Individual(object):
                "cost_history: %s\n" % self.get_cost_history() + \
                "evaluation_time: %s\n" % self.get_evaluation_time() + \
                "appearences: %s\n" % self.get_appearences() + \
-               "hash: %s\n" % self.get_hash().__repr__() + \
                "formal: %s\n" % self.get_formal() + \
                "complexity: %s\n" % self.get_complexity()

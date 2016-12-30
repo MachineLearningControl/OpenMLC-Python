@@ -1,6 +1,15 @@
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.config import get_working_directory
+import hashlib
 import os
+
+
+class MLCRepositoryHelper:
+    @staticmethod
+    def get_hash_for_individual(individual):
+        m = hashlib.md5()
+        m.update(individual.get_value())
+        return m.hexdigest()
 
 
 class MLCRepository:
@@ -92,12 +101,14 @@ class MemoryMLCRepository(MLCRepository):
 
     # operations over individuals
     def add_individual(self, individual):
+        hash = MLCRepositoryHelper.get_hash_for_individual(individual)
+
         # Check if the individual already exists comparing the hash value
-        if individual.get_hash() in self._hashlist:
-            return self._hashlist[individual.get_hash()], True
+        if hash in self._hashlist:
+            return self._hashlist[hash], True
 
         self._individuals[self._last_indiv] = individual
-        self._hashlist[individual.get_hash()] = self._last_indiv
+        self._hashlist[hash] = self._last_indiv
         self._costlist[self._last_indiv] = individual.get_cost()
 
         current_indiv = self._last_indiv
