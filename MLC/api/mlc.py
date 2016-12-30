@@ -5,7 +5,7 @@ import ConfigParser
 from MLC.config import set_working_directory
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
-from MLC.db.mlc_repository import MLCRepository
+from MLC.Log.log import set_logger
 from MLC.Application import Application
 from MLC.db.mlc_repository import MLCRepository
 from MLC.mlc_parameters.config_rules import MLCConfigRules
@@ -102,7 +102,7 @@ class MLC:
         """
         raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
-    def go(self, experiment_name, to_generation, from_generation=1):
+    def go(self, experiment_name, to_generation, from_generation=None):
         """
             Execute experiments until to_generation generations are reached.
             :param experiment_name:
@@ -130,7 +130,7 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_generation not implemented")
 
-    def get_individuals(self, experiment_name):
+    def get_individuals(self, experiment_name, individual_id=None):
         """
             Obtained generated individuals during the simulation.
             :param experiment_name:
@@ -164,6 +164,8 @@ class Experiment:
             MLCRepository._instance = None
             Config._instance = None
             Config.get_instance().read(self._config_file)
+            set_logger(Config.get_instance().get('LOGGING', 'logmode'))
+
             self._simulation = Simulation()
             Experiment.__last_simulation = self._simulation
 
@@ -175,6 +177,7 @@ class Experiment:
     def set_configuration(self, new_configuration):
         self._configuration = Config.from_dictionary(new_configuration, config_type=ConfigParser.ConfigParser)
         self._configuration.write(open(self._config_file, "wt"))
+        Config.get_instance().read(self._config_file)
 
     @staticmethod
     def get_experiment_files(working_dir, experiment_name):
@@ -326,10 +329,6 @@ class MLCLocal(MLC):
         if experiment_name not in self._open_experiments:
             raise ClosedExperimentException("set_experiment_configuration", experiment_name)
 
-        for section, params in new_configuration.iteritems():
-            for param_name, param_value in new_configuration[section].iteritems():
-                MLCConfigRules.get_instance().apply(section, param_name, param_value, self._open_experiments[experiment_name].get_simulation())
-
         experiment = self._open_experiments[experiment_name]
         configuration = experiment.get_configuration()
 
@@ -353,14 +352,14 @@ class MLCLocal(MLC):
         experiment_info = {
             "name": experiment_name,
             "generations": simulation.number_of_generations(),
-            "individuals": MLCRepository.get_instance().number_of_individuals(),
+            "individuals": MLCRepository.get_instance().count_individual(),
             "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
             "filename": experiment_name+".mlc"
         }
 
         return experiment_info
 
-    def go(self, experiment_name, to_generation, from_generation=0):
+    def go(self, experiment_name, to_generation, from_generation=None):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -378,7 +377,7 @@ class MLCLocal(MLC):
         return True
 
     # TODO: Individuals must be represented using dictionaries in the MLC API
-    def get_individuals(self, experiment_name):
+    def get_individuals(self, experiment_name, individual_id=None):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -389,12 +388,25 @@ class MLCLocal(MLC):
         simulation = self._open_experiments[experiment_name].get_simulation()
 
         # obtain individuals from the database
-        individuals = []
-        number_of_individuals = MLCRepository.get_instance().number_of_individuals()
-        for indiv_id in range(1, number_of_individuals+1):
-            individual = MLCRepository.get_instance().get_individual(indiv_id)
-            individuals.append(individual)
+        individuals = {}
 
+        if individual_id is None:
+            for indiv_id in range(1, MLCRepository.get_instance().count_individual()+1):
+                individual = MLCRepository.get_instance().get_individual(indiv_id)
+                individuals[indiv_id] = {
+                    "value": individual.get_value(),
+                    "cost": individual.get_cost(),
+                    "appeareances": individual.get_appearences(),
+                }
+
+        else:
+            individual = MLCRepository.get_instance().get_individual(individual_id)
+            individuals[individual_id] = {
+                "individual_id": individual_id,
+                "value": individual.get_value(),
+                "cost": individual.get_cost(),
+                "appeareances": individual.get_appearences(),
+            }
         return individuals
 
     # TODO: Population must be represented using dictionaries/lists in the MLC API

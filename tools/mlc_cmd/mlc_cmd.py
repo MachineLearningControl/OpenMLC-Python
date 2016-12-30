@@ -124,11 +124,7 @@ class MLCCmd(cmd.Cmd):
             return
 
         try:
-            if from_generation is None:
-                mlc_api.go(MLCCmd.current_experiment, to_generation)
-            else:
-                mlc_api.go(MLCCmd.current_experiment, to_generation)
-
+            mlc_api.go(MLCCmd.current_experiment, to_generation, from_generation=from_generation)
         except MLCException, err:
             self.msg(str(err))
 
@@ -192,6 +188,15 @@ class MLCCmd(cmd.Cmd):
                                                                                                        old_value,
                                                                                                        new_value))
 
+    @validate_params([optional(int)], err_handler, "[individual_id] expected")
+    def do_individual(self, individual_id):
+        if MLCCmd.current_experiment is None:
+            self.msg("no open experiment.")
+            return
+
+        individuals = mlc_api.get_individuals(MLCCmd.current_experiment, individual_id)
+        self.__print_individuals(individuals)
+
     def do_quit(self, line):
         return self.__exit()
 
@@ -206,6 +211,11 @@ class MLCCmd(cmd.Cmd):
             print "[%s]" % (section,)
             for name, value in parameters.iteritems():
                 print "    %s = %s" % (name, value)
+
+    def __print_individuals(self, individuals):
+        self.msg("Individuals (%s)" % len(individuals))
+        for indiv_id in individuals.keys():
+            print "%s: %s" % (indiv_id, individuals[indiv_id])
 
     @staticmethod
     def __search_parameter_in_configuration(configuration, param_name):

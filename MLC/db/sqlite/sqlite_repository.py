@@ -21,6 +21,10 @@ class SQLiteRepository(MLCRepository):
         self.__individuals = self.__load_individuals()
         self._hashlist = {}
 
+        # load hashes
+        for indiv_id, individual in self.__individuals.items():
+            self._hashlist[individual.get_hash()] = indiv_id
+
         # enhancement
         self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys())+1
         self.__individuals_to_flush = {}
@@ -68,7 +72,8 @@ class SQLiteRepository(MLCRepository):
         self.__generations -= 1
 
     def get_population(self, generation):
-        return self.__load_population(generation)
+        pop = self.__load_population(generation)
+        return pop
 
     def count_population(self):
         return self.__generations
@@ -172,5 +177,6 @@ class SQLiteRepository(MLCRepository):
             new_individual._evaluation_time = int(row[3])
             new_individual._appearences = int(row[4])
             individuals[row[0]] = new_individual
+
         conn.close()
         return individuals

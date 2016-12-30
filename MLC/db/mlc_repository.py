@@ -1,4 +1,6 @@
 from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.config import get_working_directory
+import os
 
 
 class MLCRepository:
@@ -21,7 +23,7 @@ class MLCRepository:
         raise NotImplementedError("This method must be implemented")
 
     # special methods
-    def remove_population(self, from_generation):
+    def remove_population_from(self, from_generation):
         raise NotImplementedError("This method must be implemented")
 
     # operations over individuals
@@ -50,7 +52,9 @@ class MLCRepository:
         if MLCRepository._instance is None:
             if Config.get_instance().getboolean("BEHAVIOUR", "save"):
                 from MLC.db.sqlite.sqlite_repository import SQLiteRepository
-                MLCRepository._instance = SQLiteRepository()
+                db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
+                db_file = os.path.join(get_working_directory(), db_name)
+                MLCRepository._instance = SQLiteRepository(db_file)
             else:
                 MLCRepository._instance = MemoryMLCRepository()
 

@@ -1,7 +1,3 @@
-from __builtin__ import staticmethod
-
-from pip.util import cache_download
-
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -134,6 +130,8 @@ class Application(object):
 
             # emit new generation event
             self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION, last_generation+1)
+
+        lg.logger_.info("MLC Simulation Finished")
 
         # emit app finish event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_FINISH)
