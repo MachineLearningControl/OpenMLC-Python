@@ -11,7 +11,7 @@ def individual_data(indiv):
     y = np.tanh(x**3 - x**2 - 1)
 
     # FIXME: Added timeout to visualize
-    time.sleep(0.5)
+    # time.sleep(0.5)
 
     config = Config.get_instance()
     # artificial_noise = self._config.getint('EVALUATOR', 'artificialnoise')
