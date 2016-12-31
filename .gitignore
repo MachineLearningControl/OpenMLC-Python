@@ -21,3 +21,6 @@ scripts/*.txt
 
 # Ignore mlc_gui config files
 MLC/GUI/*.conf
+
+# Ignore workspace directory inside GUI folder to avoid erroneus insertions
+MLC/GUI/workspace
