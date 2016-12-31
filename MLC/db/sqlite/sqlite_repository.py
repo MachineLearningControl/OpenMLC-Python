@@ -137,9 +137,9 @@ class SQLiteRepository(MLCRepository):
         cursor = conn.execute(stmt_get_all_individuals())
 
         for row in cursor:
-            new_individual = Individual()
-            new_individual.generate(str(row[1]))
-            # new_individual = Individual(value=str(row[1]))
+            # new_individual = Individual()
+            # new_individual.generate(str(row[1]))
+            new_individual = Individual(value=str(row[1]))
             new_individual.set_cost(row[2])
             new_individual._evaluation_time = int(row[3])
             new_individual._appearences = int(row[4])
