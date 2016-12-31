@@ -167,7 +167,7 @@ class MLCLocal(MLC):
 
         return experiment_info
 
-    def go(self, experiment_name, to_generation, from_generation=0, callbacks=None):
+    def go(self, experiment_name, to_generation, from_generation=0, callbacks={}):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 

@@ -93,7 +93,7 @@ class MLCIntegrationTest(unittest.TestCase):
             MLCTable._instance = None
             MLCRepository._instance = None
             simulation = Simulation()
-            cls._app = Application(simulation, "testing")
+            cls._app = Application(simulation)
 
             if isinstance(generation_params, int):
                 cls._app.go(to_generation=generation_params, fig=0)
@@ -108,7 +108,7 @@ class MLCIntegrationTest(unittest.TestCase):
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
             MLCTable._instance = None
             MLCRepository._instance = None
-            cls._app = Application(Simulation(), "testing")
+            cls._app = Application(Simulation())
 
         a = cls._app.get_simulation().number_of_generations()
         print "Number of populations: " + str(a)
