@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ExperimentInProgressDialog</class>
- <widget class="QDialog" name="ExperimentInProgressDialog">
+ <widget class="QMainWindow" name="ExperimentInProgressDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -16,6 +16,7 @@
   <property name="windowTitle">
    <string>MLC Manager Properties</string>
   </property>
+  <widget class="QWidget" name="centralWidget">
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox_3">
@@ -155,6 +156,7 @@
     </widget>
    </item>
   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections>
