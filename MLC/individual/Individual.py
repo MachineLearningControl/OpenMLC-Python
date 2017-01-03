@@ -104,9 +104,6 @@ class Individual(object):
     def set_maxdepthfirst(value):
         Individual._maxdepthfirst = value
 
-    def get_matlab_object(self):
-        return self._mlc_ind
-
     def generate(self, value=None, individual_type=None):
         """
             generate individual from scratch or from unfinished individual.
