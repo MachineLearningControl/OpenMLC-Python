@@ -160,7 +160,7 @@ class MLCLocal(MLC):
         experiment_info = {
             "name": experiment_name,
             "generations": simulation.number_of_generations(),
-            "individuals": MLCRepository.get_instance().number_of_individuals(),
+            "individuals": MLCRepository.get_instance().count_individual(),
             "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
             "filename": experiment_name + ".mlc"
         }

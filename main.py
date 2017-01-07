@@ -5,6 +5,7 @@ from MLC.Application import Application
 from MLC.Common.RandomManager import RandomManager
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+from MLC.Log.log import set_logger
 
 
 def initialize_config():
@@ -24,10 +25,16 @@ def main():
     # MATLAB random numbers, used in integration tests
     RandomManager.load_random_values("./tests/integration_tests/matlab_randoms.txt")
 
+    # load configuration
     config = initialize_config()
+
+    # set logger
+    log_mode = config.get('LOGGING', 'logmode')
+    set_logger(log_mode)
+
     simulation = Simulation()
-    mlc = Application(simulation, config.get('LOGGING', 'logmode'))
-    mlc.go(3, 1)
+    mlc = Application(simulation, log_mode)
+    mlc.go(to_generation=3, display_best=False)
     raw_input("Press enter to continue...")
 
 if __name__ == "__main__":

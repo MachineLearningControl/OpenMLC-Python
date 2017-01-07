@@ -1,5 +1,4 @@
 import MLC.Log.log as lg
-from ctypes import *
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node, Internal_Node

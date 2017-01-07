@@ -136,13 +136,11 @@ to_draw[show_all_string] = (draw_methods,
 no_get_and_set_string = "Draw all methods filtering getters and setters"
 to_draw[no_get_and_set_string] = (draw_methods,
                                   ["get_", "set_"],
-                                  ["get_matlab_object"],
                                   nothing_to_show or no_getters_and_setters)
 
 no_eval_string = "Draw all methods filtering getters and setters and eval calls"
 to_draw[no_eval_string] = (draw_methods,
                            ["get_", "set_", "eval"],
-                           ["get_matlab_object"],
                            nothing_to_show or no_eval)
 
 # Show the results

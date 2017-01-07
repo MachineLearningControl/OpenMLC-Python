@@ -2,15 +2,15 @@ import sys
 import MLC.Log.log as lg
 
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.mlc_table.MLCTable import MLCTable
+from MLC.db.mlc_repository import MLCRepository
 
 
 class StandaloneEvaluator(object):
 
-    def __init__(self, callback, on_evaluate_callback):
+    def __init__(self, callback, callback_manager):
         self._config = Config.get_instance()
         self._callback = callback
-        self._on_evaluate_callback = on_evaluate_callback
+        self._callback_manager = callback_manager
 
     def evaluate(self, indivs):
         jj = []
@@ -21,14 +21,16 @@ class StandaloneEvaluator(object):
             lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index))
 
             # Retrieve the individual to be evaluated
-            py_indiv = MLCTable.get_instance().get_individual(index)
+            py_indiv = MLCRepository.get_instance().get_individual(index)
             lg.logger_.debug('[POP][STAND_EVAL] Individual N#' + str(index) +
                              ' Value: ' + py_indiv.get_value())
 
             try:
                 cost = self._callback.cost(py_indiv)
                 jj.append(cost)
-                self._on_evaluate_callback(index, cost)
+
+                from MLC.Application import MLC_CALLBACKS
+                self._callback_manager.on_event(MLC_CALLBACKS.ON_EVALUATE, index, cost)
 
             except KeyError:
                 lg.logger_.error("[POP][STAND_EVAL] Evaluation Function " +

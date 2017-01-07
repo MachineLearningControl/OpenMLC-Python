@@ -1,13 +1,3 @@
-import os
-import argparse
-import ConfigParser
-
-from MLC.Application import Application
-from MLC.config import set_working_directory
-from MLC.db.mlc_repository import MLCRepository
-from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Simulation import Simulation
-
 class MLCException(Exception):
     pass
 
@@ -103,7 +93,7 @@ class MLC:
         """
         raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
-    def go(self, experiment_name, to_generation, from_generation=1):
+    def go(self, experiment_name, to_generation, from_generation=None):
         """
             Execute experiments until to_generation generations are reached.
             :param experiment_name:
@@ -131,7 +121,7 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_generation not implemented")
 
-    def get_individuals(self, experiment_name):
+    def get_individuals(self, experiment_name, individual_id=None):
         """
             Obtained generated individuals during the simulation.
             :param experiment_name:
