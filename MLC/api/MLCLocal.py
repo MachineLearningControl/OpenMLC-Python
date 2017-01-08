@@ -1,5 +1,4 @@
 import argparse
-import ConfigParser
 import os
 
 from MLC.api.Experiment import Experiment
@@ -11,7 +10,6 @@ from MLC.Application import Application
 from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import get_gui_logger
-from MLC.mlc_parameters.config_rules import MLCConfigRules
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
 
@@ -180,7 +178,7 @@ class MLCLocal(MLC):
 
         # launch simulation
         app = Application(simulation, callbacks=callbacks)
-        app.go(from_generation=from_generation, fig=0, to_generation=to_generation)
+        app.go(from_generation=from_generation, to_generation=to_generation)
 
         return True
 
