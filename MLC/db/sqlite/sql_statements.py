@@ -84,3 +84,5 @@ def stmt_update_cost(individual_id, cost, evaluation_time, generation):
                                                      evaluation_time,
                                                      individual_id,
                                                      generation)
+def stmt_enable_foreign_key():
+    return '''PRAGMA foreign_keys = ON'''

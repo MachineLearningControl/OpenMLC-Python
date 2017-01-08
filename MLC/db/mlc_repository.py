@@ -35,6 +35,15 @@ class IndividualData:
         self._cost_history = defaultdict(list)
         self._appearances = 0
 
+    def get_value(self):
+        return self._value
+
+    def get_appearances(self):
+        return self._appearances
+
+    def get_cost_history(self):
+        return self._cost_history
+
     def _add_data(self, generation, cost, evaluation_time):
         self._cost_history[generation].append((cost, evaluation_time))
         self._appearances += 1
@@ -70,9 +79,6 @@ class MLCRepository:
     def update_individual(self, individual_id, individual):
         raise NotImplementedError("This method must be implemented")
 
-    def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
-        raise NotImplementedError("This method must be implemented")
-
     def remove_individual(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 
@@ -86,7 +92,7 @@ class MLCRepository:
         raise NotImplementedError("This method must be implemented")
 
     # special methods
-    def update_individual_cost(self, individual_id, cost):
+    def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
         raise NotImplementedError("This method must be implemented")
 
     @staticmethod

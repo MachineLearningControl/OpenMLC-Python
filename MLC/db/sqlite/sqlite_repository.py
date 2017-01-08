@@ -15,6 +15,8 @@ class SQLiteRepository(MLCRepository):
         if init_db:
             self.__initialize_db()
 
+        self.__execute(stmt_enable_foreign_key())
+
         # cache for population
         self.__generations = self._how_many_generations()
 
@@ -62,20 +64,26 @@ class SQLiteRepository(MLCRepository):
 
         conn = self.__get_db_connection()
         cursor = conn.cursor()
-        for i in range(len(population._individuals)):
-            individual_id = population._individuals[i]
-            individual_cost = population._costs[i]
-            evaluation_time = population._ev_time[i]
-            individual_gen_method = population._gen_method[i]
-            individual_parents = ','.join(str(elem) for elem in population._parents[i])
-            cursor.execute(stmt_insert_individual_in_population(self.__generations+1,
-                                                                individual_id,
-                                                                individual_cost,
-                                                                evaluation_time,
-                                                                individual_gen_method,
-                                                                individual_parents))
+
+        try:
+            for i in range(len(population._individuals)):
+                individual_id = population._individuals[i]
+                individual_cost = population._costs[i]
+                evaluation_time = population._ev_time[i]
+                individual_gen_method = population._gen_method[i]
+                individual_parents = ','.join(str(elem) for elem in population._parents[i])
+                cursor.execute(stmt_insert_individual_in_population(self.__generations+1,
+                                                                    individual_id,
+                                                                    individual_cost,
+                                                                    evaluation_time,
+                                                                    individual_gen_method,
+                                                                    individual_parents))
+        except sqlite3.IntegrityError:
+            raise KeyError("Trying to insert an invalid Individual")
+
         cursor.close()
         conn.commit()
+
         self.__generations += 1
 
     def remove_population(self, generation):
