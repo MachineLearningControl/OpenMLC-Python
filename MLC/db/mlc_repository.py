@@ -70,6 +70,9 @@ class MLCRepository:
     def update_individual(self, individual_id, individual):
         raise NotImplementedError("This method must be implemented")
 
+    def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
+        raise NotImplementedError("This method must be implemented")
+
     def remove_individual(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 
@@ -158,7 +161,7 @@ class MemoryMLCRepository(MLCRepository):
         except KeyError:
             raise KeyError("Individual N#%s does not exists" % individual_id)
 
-    def update_individual_cost(self, individual_id, cost):
+    def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
         # TODO
         # ry:
         #    self._costlist[individual_id] = cost

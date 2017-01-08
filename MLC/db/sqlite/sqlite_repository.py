@@ -138,12 +138,15 @@ class SQLiteRepository(MLCRepository):
         return len(self.__individuals)
 
     # special methods
-    def update_individual_cost(self, individual_id, cost):
-        # TODO:
-        # self.__execute(stmt_update_individual_cost(individual_id, cost))
-        # if individual_id in self.__individuals_to_flush:
-        #    self.__individuals_to_flush[individual_id].set_cost(cost)
-        pass
+    def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
+        stmt_to_update_cost = None
+
+        if generation == -1:
+            stmt_to_update_cost = stmt_update_all_costs(individual_id, cost, evaluation_time)
+        else:
+            stmt_to_update_cost = stmt_update_cost(individual_id, cost, evaluation_time, generation)
+
+        self.__execute(stmt_to_update_cost)
 
     def __execute(self, statement):
         conn = self.__get_db_connection()

@@ -69,3 +69,18 @@ def stmt_get_individual_data(indiv_id):
     return '''SELECT gen, cost, evaluation_time
               FROM population
               WHERE indiv_id = %s''' % (indiv_id)
+
+
+def stmt_update_all_costs(individual_id, cost, evaluation_time):
+    return '''UPDATE population
+              SET cost = %s, evaluation_time = %s
+              WHERE indiv_id = %s''' % (cost, evaluation_time, individual_id)
+
+
+def stmt_update_cost(individual_id, cost, evaluation_time, generation):
+    return '''UPDATE population
+              SET cost = %s, evaluation_time = %s
+              WHERE indiv_id = %s AND gen = %s''' % (cost,
+                                                     evaluation_time,
+                                                     individual_id,
+                                                     generation)
