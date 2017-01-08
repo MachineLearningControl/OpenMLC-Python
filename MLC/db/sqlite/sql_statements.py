@@ -33,6 +33,10 @@ def stmt_get_unused_individuals():
               WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
 
 
+def stmt_delete_unused_individuals():
+    return '''DELETE FROM individual
+              WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
+
 def stmt_get_generations():
     return '''SELECT distinct gen FROM population'''
 

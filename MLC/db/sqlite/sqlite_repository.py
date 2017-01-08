@@ -102,6 +102,31 @@ class SQLiteRepository(MLCRepository):
         self.__execute(stmt_delete_from_generations(from_generation))
         self.__generations = from_generation-1
 
+    def remove_last_population(self):
+        if self.__generations > 0:
+            self.remove_population_from(self.__generations)
+
+    def remove_unused_individuals(self):
+        to_delete = []
+
+        # get individuals to delete
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_unused_individuals())
+        for row in cursor:
+            to_delete.append(row[0])
+        cursor.close()
+
+        # delete individuals from the DB
+        self.__execute(stmt_delete_unused_individuals())
+
+        # delete them from the cache
+        for indiv_id in to_delete:
+            individual_to_delete = self.__individuals[indiv_id]
+            del self.__individuals[indiv_id]
+            del self._hashlist[MLCRepositoryHelper.get_hash_for_individual(individual_to_delete)]
+
+        return len(to_delete)
+
     # operations over individuals
     def add_individual(self, individual):
         hash = MLCRepositoryHelper.get_hash_for_individual(individual)

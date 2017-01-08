@@ -277,28 +277,139 @@ class MLCRepositoryTest(unittest.TestCase):
 
     def test_reload_individuals_from_file(self):
         with saved(Config.get_instance()) as config:
-            config.set("BEHAVIOUR", "save", "true")
-            config.set("BEHAVIOUR", "savedir", "test.db")
-            config.set("POPULATION", "sensor_spec", "false")
-            config.set("POPULATION", "sensors", "0")
-            config.set("OPTIMIZATION", "simplify", "false")
+            try:
+                config.set("BEHAVIOUR", "save", "true")
+                config.set("BEHAVIOUR", "savedir", "test.db")
+                config.set("POPULATION", "sensor_spec", "false")
+                config.set("POPULATION", "sensors", "0")
+                config.set("OPTIMIZATION", "simplify", "false")
 
-            mlc_repo = self.__get_new_repo()
+                mlc_repo = self.__get_new_repo()
 
-            # add individuals
-            mlc_repo.add_individual(Individual("1+1"))
-            mlc_repo.add_individual(Individual("2+2"))
+                # add individuals
+                mlc_repo.add_individual(Individual("1+1"))
+                mlc_repo.add_individual(Individual("2+2"))
 
-            # add population
-            p = Population(3, 0, Config.get_instance(), mlc_repo)
-            p._individuals = [2, 1, 2]
-            mlc_repo.add_population(p)
+                # add population
+                p = Population(3, 0, Config.get_instance(), mlc_repo)
+                p._individuals = [2, 1, 2]
+                mlc_repo.add_population(p)
 
-            # check status
-            self.assertEqual(mlc_repo.count_individual(), 2)
-            self.assertEqual(mlc_repo.count_population(), 1)
+                # check status
+                self.assertEqual(mlc_repo.count_individual(), 2)
+                self.assertEqual(mlc_repo.count_population(), 1)
 
-            # reload mlc_repository using another instance
-            mlc_repo = self.__get_new_repo()
-            self.assertEqual(mlc_repo.count_individual(), 2)
-            self.assertEqual(mlc_repo.count_population(), 1)
+                # reload mlc_repository using another instance
+                mlc_repo = self.__get_new_repo()
+                self.assertEqual(mlc_repo.count_individual(), 2)
+                self.assertEqual(mlc_repo.count_population(), 1)
+            finally:
+                # FIXME: use Setup/TearDown testcase
+                os.unlink(os.path.join(MLCRepositoryTest.WORKSPACE_DIR, "test.db"))
+
+    def test_remove_last_population(self):
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+
+        # add first population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2, 1]
+        mlc_repo.add_population(p)
+
+        # add second population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2, 3]
+        mlc_repo.add_population(p)
+
+        # remove last population
+        mlc_repo.remove_last_population()
+
+        # last generation must be removed
+        self.assertEqual(mlc_repo.count_population(), 1)
+
+        # first generation exists
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [1, 2, 1])
+
+        # all individuals exists and the third individual do not appear in any generation
+        self.assertEqual(mlc_repo.count_individual(), 3)
+
+        data = mlc_repo.get_individual_data(3)
+        self.assertEqual(data.get_value(), "3+3")
+        self.assertEqual(data.get_appearances(), 0)
+        self.assertEqual(data.get_cost_history(), {})
+
+        # remove unused individuals
+        deleted = mlc_repo.remove_unused_individuals()
+        self.assertEqual(deleted, 1)
+        self.assertEqual(mlc_repo.count_individual(), 2)
+
+        individual = mlc_repo.get_individual(1)
+        self.assertEqual(individual.get_value(), "1+1")
+
+        individual = mlc_repo.get_individual(2)
+        self.assertEqual(individual.get_value(), "2+2")
+
+        try:
+            individual = mlc_repo.get_individual(3)
+            self.assertTrue(False)
+        except KeyError:
+            self.assertTrue(True)
+
+    def test_remove_from_population(self):
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("4+4"))
+
+        # add first population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2, 1]
+        mlc_repo.add_population(p)
+
+        # add second population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2, 3]
+        mlc_repo.add_population(p)
+
+        # add third population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2, 4]
+        mlc_repo.add_population(p)
+
+        # remove last population
+        mlc_repo.remove_population_from(2)
+
+        # last generation must be removed
+        self.assertEqual(mlc_repo.count_population(), 1)
+
+        # first generation exists
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [1, 2, 1])
+
+        # all individuals exists and the third individual do not appear in any generation
+        self.assertEqual(mlc_repo.count_individual(), 4)
+
+        # remove unused individuals
+        deleted = mlc_repo.remove_unused_individuals()
+        self.assertEqual(deleted, 2)
+        self.assertEqual(mlc_repo.count_individual(), 2)
+
+        individual = mlc_repo.get_individual(1)
+        self.assertEqual(individual.get_value(), "1+1")
+
+        individual = mlc_repo.get_individual(2)
+        self.assertEqual(individual.get_value(), "2+2")
+
+        try:
+            individual = mlc_repo.get_individual(3)
+            self.assertTrue(False)
+        except KeyError:
+            self.assertTrue(True)

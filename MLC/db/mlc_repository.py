@@ -72,6 +72,9 @@ class MLCRepository:
     def remove_population_from(self, from_generation):
         raise NotImplementedError("This method must be implemented")
 
+    def remove_last_population(self):
+        raise NotImplementedError("This method must be implemented")
+
     # operations over individuals
     def add_individual(self, individual):
         raise NotImplementedError("This method must be implemented")
@@ -93,6 +96,9 @@ class MLCRepository:
 
     # special methods
     def update_individual_cost(self, individual_id, cost, evaluation_time, generation=-1):
+        raise NotImplementedError("This method must be implemented")
+
+    def remove_unused_individuals(self):
         raise NotImplementedError("This method must be implemented")
 
     @staticmethod
