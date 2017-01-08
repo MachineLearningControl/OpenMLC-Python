@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MLCManager(object):
     def setupUi(self, MLCManager):
         MLCManager.setObjectName("MLCManager")
+        MLCManager.setWindowModality(QtCore.Qt.ApplicationModal)
         MLCManager.resize(749, 585)
         self.centralWidget = QtWidgets.QWidget(MLCManager)
         self.centralWidget.setObjectName("centralWidget")
@@ -211,7 +212,7 @@ class Ui_ExperimentInProgressDialog(object):
 
     def retranslateUi(self, ExperimentInProgressDialog):
         _translate = QtCore.QCoreApplication.translate
-        ExperimentInProgressDialog.setWindowTitle(_translate("ExperimentInProgressDialog", "MLC Manager Properties"))
+        ExperimentInProgressDialog.setWindowTitle(_translate("ExperimentInProgressDialog", "Experiment Evaluation"))
         self.groupBox_3.setTitle(_translate("ExperimentInProgressDialog", "Experiment Progress"))
         self.gen_label.setText(_translate("ExperimentInProgressDialog", "TextLabel"))
         self.indiv_label.setText(_translate("ExperimentInProgressDialog", "TextLabel"))
@@ -232,6 +233,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Experiment(object):
     def setupUi(self, Experiment):
         Experiment.setObjectName("Experiment")
+        Experiment.setWindowModality(QtCore.Qt.ApplicationModal)
         Experiment.resize(961, 547)
         self.centralWidget = QtWidgets.QWidget(Experiment)
         self.centralWidget.setObjectName("centralWidget")

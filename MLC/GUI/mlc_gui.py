@@ -108,8 +108,10 @@ class MLC_GUI(QMainWindow):
             logger.info("[MLC MANAGER] [OPEN_BUTTON] - No experiment was selected yet. Don't do anything")
             return
 
-        experiment = ExperimentDialog(self, self._mlc_local,
-                                      self._experiment_selected, self.experiment_closed)
+        experiment = ExperimentDialog(mlc_local=self._mlc_local,
+                                      experiment_name=self._experiment_selected,
+                                      experiment_closed_signal=self.experiment_closed,
+                                      parent=self)
         experiment.show()
 
     def on_clone_button_clicked(self):
@@ -231,6 +233,7 @@ class MLC_GUI(QMainWindow):
             self._gui_config.write(cfg)
 
     def load_and_refresh_experiment_info(self, experiment_name):
+
         self._experiments_manager.load_experiment_info(experiment_name)
         self._refresh_experiment_list_view()
         self._refresh_experiment_description(experiment_name)
