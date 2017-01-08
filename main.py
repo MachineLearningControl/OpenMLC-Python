@@ -33,7 +33,7 @@ def main():
     set_logger(log_mode)
 
     simulation = Simulation()
-    mlc = Application(simulation, log_mode)
+    mlc = Application(simulation)
     mlc.go(to_generation=3, display_best=False)
     raw_input("Press enter to continue...")
 

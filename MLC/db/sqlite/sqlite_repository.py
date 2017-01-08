@@ -1,5 +1,4 @@
 import sqlite3
-import os
 
 from MLC.db.mlc_repository import MLCRepository
 from MLC.db.mlc_repository import MLCRepositoryHelper, IndividualData
@@ -9,9 +8,11 @@ from sql_statements import *
 
 
 class SQLiteRepository(MLCRepository):
-    def __init__(self, db_file):
-        self.__db_file = db_file
-        if not os.path.exists(self.__db_file):
+    IN_MEMORY_DB = ":memory:"
+
+    def __init__(self, database, init_db=False):
+        self._conn = sqlite3.connect(database)
+        if init_db:
             self.__initialize_db()
 
         # cache for population
@@ -29,6 +30,16 @@ class SQLiteRepository(MLCRepository):
         # enhancement
         self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys())+1
         self.__individuals_to_flush = {}
+
+    def __initialize_db(self):
+        cursor = self._conn.cursor()
+        cursor.execute(stmt_create_table_individuals())
+        cursor.execute(stmt_create_table_population())
+        cursor.close()
+        self._conn.commit()
+
+    def __get_db_connection(self):
+        return self._conn
 
     def __insert_individuals_pending(self, individual):
         individual_id = self.__next_individual_id
@@ -67,9 +78,6 @@ class SQLiteRepository(MLCRepository):
         conn.commit()
         self.__generations += 1
 
-    def update_population(self, generation, population):
-        raise NotImplementedError("This method must be implemented")
-
     def remove_population(self, generation):
         self.__execute(stmt_delete_generation(generation))
         self.__generations -= 1
@@ -85,13 +93,6 @@ class SQLiteRepository(MLCRepository):
     def remove_population_from(self, from_generation):
         self.__execute(stmt_delete_from_generations(from_generation))
         self.__generations = from_generation-1
-
-    # def remove_unused_individuals(self):
-    #     conn = self.__get_db_connection()
-    #     cursor = conn.execute(stmt_get_unused_individuals())
-    #     self.__execute(stmt_delete_unused_individuals())
-    #     unused_individuals = [row[0] for row in cursor]
-    #     conn.close()
 
     # operations over individuals
     def add_individual(self, individual):
@@ -127,7 +128,8 @@ class SQLiteRepository(MLCRepository):
             cursor = conn.execute(stmt_get_individual_data(individual_id))
             for row in cursor:
                 data._add_data(row[0], row[1], row[2])
-            conn.close()
+            cursor.close()
+            conn.commit()
 
             return data
 
@@ -156,20 +158,14 @@ class SQLiteRepository(MLCRepository):
         conn.commit()
         return cursor.lastrowid
 
-    def __initialize_db(self):
-        self.__execute(stmt_create_table_individuals())
-        self.__execute(stmt_create_table_population())
-
-    def __get_db_connection(self):
-        return sqlite3.connect(self.__db_file)
-
     def _how_many_generations(self):
         generations = []
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_generations())
         for row in cursor:
             generations.append(int(row[0]))
-        conn.close()
+        cursor.close()
+        conn.commit()
         return len(sorted(generations))
 
     def __load_population(self, generation):
@@ -189,7 +185,8 @@ class SQLiteRepository(MLCRepository):
                 population._parents[i] = []
 
             i += 1
-        conn.close()
+        cursor.close()
+        conn.commit()
         return population
 
     def __load_individuals(self):
@@ -203,5 +200,6 @@ class SQLiteRepository(MLCRepository):
             # new_individual = Individual(value=str(row[1]))
             individuals[row[0]] = new_individual
 
-        conn.close()
+        cursor.close()
+        conn.commit()
         return individuals
