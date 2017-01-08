@@ -1,6 +1,8 @@
 def stmt_create_table_individuals():
     return ''' CREATE TABLE individual(indiv_id INTEGER PRIMARY KEY,
-                                       value text)'''
+                                       value text,
+                                       formal text,
+                                       complexity INTEGER)'''
 
 
 def stmt_create_table_population():
@@ -43,7 +45,7 @@ def stmt_get_generations():
 
 def stmt_insert_individual_in_population(generation, indiv_id, cost, evaluation_time, gen_method, parents):
     return '''INSERT INTO population (gen, cost, evaluation_time, gen_method, parents, indiv_id)
-              VALUES (%s, '%s', %s, %s, '%s', %s)''' % (generation,
+              VALUES (%s, "%s", %s, %s, "%s", %s)''' % (generation,
                                                         cost,
                                                         evaluation_time,
                                                         gen_method,
@@ -58,13 +60,26 @@ def stmt_get_individuals_from_population(generation):
               ORDER BY ID''' % generation
 
 
-def stmt_insert_individual(individual_id, individual):
-    return '''INSERT INTO individual VALUES (%s, '%s')''' % (individual_id,
-                                                             individual.get_value())
+class SQLSaveFormal:
+    @staticmethod
+    def to_sql(indiv_formal):
+        if isinstance(indiv_formal, str):
+            return indiv_formal
+        else:
+            return '@'.join(indiv_formal)
 
+    @staticmethod
+    def from_sql(indiv_formal_column):
+        return indiv_formal_column.split('@')
+
+def stmt_insert_individual(individual_id, individual):
+    return '''INSERT INTO individual VALUES (%s, "%s", "%s", %s)''' % (individual_id,
+                                                                       individual.get_value(),
+                                                                       SQLSaveFormal.to_sql(individual.get_formal()),
+                                                                       individual.get_complexity())
 
 def stmt_get_all_individuals():
-    return '''SELECT indiv_id, value
+    return '''SELECT indiv_id, value, formal, complexity
               from individual
               ORDER BY indiv_id'''
 

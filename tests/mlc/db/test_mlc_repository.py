@@ -22,7 +22,8 @@ class MLCRepositoryTest(unittest.TestCase):
                                                        "probrep": 0,
                                                        "probmut": 0,
                                                        "probcro": 0,
-                                                       "cascade": "1,1"
+                                                       "cascade": "1,1",
+                                                       "simplify": "false"
                                                    }})
 
         set_working_directory(MLCRepositoryTest.WORKSPACE_DIR)
