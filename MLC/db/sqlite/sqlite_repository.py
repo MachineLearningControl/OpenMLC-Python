@@ -224,16 +224,21 @@ class SQLiteRepository(MLCRepository):
         return population
 
     def __load_individuals(self):
+        import time
+        print "Loading individuals..."
+        start_time = time.time()
+
         individuals = {}
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_all_individuals())
 
         for row in cursor:
             new_individual = Individual(str(row[1]))
-            new_individual.generate(str(row[1]))
-            # new_individual = Individual(value=str(row[1]))
             individuals[row[0]] = new_individual
 
         cursor.close()
         conn.commit()
+        end_time = time.time()
+        print "Loading individuals finished (%s inidividuals)." % len(individuals)
+        print "Total Time: %s" % (end_time-start_time)
         return individuals

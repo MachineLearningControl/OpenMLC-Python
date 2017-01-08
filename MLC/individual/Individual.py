@@ -74,55 +74,39 @@ class Individual(object):
 
     _maxdepthfirst = None
 
-    def __init__(self, value=None):
+    def __init__(self, value, formal=None, complexity=None):
         self._config = Config.get_instance()
-        self._tree = None
 
-        # For the moment is the only type available
+        # Tree expression initialized using lazing initialization through
+        # _tree property. Use self._tree instead of self._lazy_tree to
+        # obtain the tree expression.
+        self._lazy_tree = None
         self._value = value
-        self._formal = ""
-        self._complexity = 0
+
+        if formal is not None and complexity is not None:
+            self._formal = formal
+            self._complexity = complexity
+        else:
+            self._formal = self._tree.formal()
+            self._complexity = self._tree.complexity()
 
         self._range = self._config.getint("POPULATION", "range")
         self._precision = self._config.getint("POPULATION", "precision")
+
+    @property
+    def _tree(self):
+        if self._lazy_tree is None:
+            self._lazy_tree = Lisp_Tree_Expr(self.get_value())
+        return self._lazy_tree
 
     @staticmethod
     def set_maxdepthfirst(value):
         Individual._maxdepthfirst = value
 
-    def generate(self, value=None, individual_type=None):
-        """
-            generate individual from scratch or from unfinished individual.
-
-            MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using mode MODE.
-            MODE is a number which interpretation depends on the MLCIND.type property.
-            (Not designed to be played with by user, code dive for details)
-
-            MLCIND.generate(MLC_PARAMETERS,VALUE) creates an individual with MLCIND.value VALUE.
-
-            matlab_impl: return self._eng.generate(self._mlc_ind, varargin)
-        """
-        if value is None and individual_type is None:
-            raise Exception("Individual::generate() value or individual_type arguments should be passed to generate method")
-
-        if value:
-            self._value = value
-        else:
-            controls = self._config.getint('POPULATION', 'controls')
-            self._value = '(root%s)' % (' @' * controls)
-            for i in range(controls):
-                self._value = self.__generate_indiv_regressive_tree(self._value, individual_type)
-
-        self._value = self.__simplify_and_sensors_tree(self._value)
-        self._formal = self._tree.formal()
-        self._complexity = self._tree.complexity()
-
     def mutate(self, mutation_type=MutationType.ANY):
         try:
-            new_value = self.__mutate_tree(Lisp_Tree_Expr(self.get_value()), mutation_type)
-            new_individual = Individual()
-            new_individual.generate(new_value)
-            return new_individual
+            new_value = self.__mutate_tree(mutation_type)
+            return Individual(new_value)
 
         except TreeException, ex:
             raise OperationOverIndividualFail(self._value, "MUTATE", str(ex))
@@ -133,15 +117,8 @@ class Individual(object):
             [NEW_IND1,NEW_IND2,FAIL]=CROSSOVER(MLCIND1,MLCIND2,MLC_PARAMETERS)
         """
         try:
-            new_value_1, new_value_2 = self.__crossover_tree(Lisp_Tree_Expr(self.get_value()), Lisp_Tree_Expr(other_individual.get_value()))
-
-            new_ind1 = Individual()
-            new_ind1.generate(new_value_1)
-
-            new_ind2 = Individual()
-            new_ind2.generate(new_value_2)
-
-            return new_ind1, new_ind2
+            new_value_1, new_value_2 = self.__crossover_tree(other_individual)
+            return Individual(new_value_1), Individual(new_value_2)
 
         except TreeException, ex:
             raise OperationOverIndividualFail(self._value, "CROSSOVER", str(ex))
@@ -170,103 +147,7 @@ class Individual(object):
     def get_tree(self):
         return self._tree
 
-    def __simplify_and_sensors_tree(self, value):
-        sensor_list = ()
-        replace_list = ()
-
-        if self._config.getboolean('POPULATION', 'sensor_spec'):
-            config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
-            sensor_list = ['S' + str(x) for x in config_sensor_list]
-            replace_list = ['z' + str(x) for x in range(len(config_sensor_list))]
-        else:
-            amount_sensors = self._config.getint('POPULATION', 'sensors')
-            # Replace the available sensors in the individual expression
-            sensor_list = ['S' + str(x) for x in range(amount_sensors)]
-            replace_list = ['z' + str(x) for x in range(amount_sensors)]
-
-        for i in range(len(replace_list)):
-            value = value.replace(replace_list[i], sensor_list[i])
-
-        # Create the Individual Tree after the sensor replacement
-        self._tree = Lisp_Tree_Expr(value)
-
-        if self._config.getboolean('OPTIMIZATION', 'simplify'):
-            return self._tree.get_simplified_tree_as_string()
-
-        return value
-
-    def __generate_indiv_regressive_tree(self, value, indiv_type=None):
-        min_depth = 0
-        max_depth = 0
-        new_value = ""
-
-        # Maxdepthfirst change while we are creating the first population
-        if indiv_type:
-            if indiv_type == 1:
-                min_depth = Individual._maxdepthfirst
-                max_depth = Individual._maxdepthfirst
-            elif indiv_type == 2 or indiv_type == 3:
-                min_depth = int(self._config.get('GP', 'mindepth'))
-                max_depth = Individual._maxdepthfirst
-            elif indiv_type == 4:
-                min_depth = int(self._config.get('GP', 'mindepth'))
-                max_depth = 1
-            else:
-                min_depth = int(self._config.get('GP', 'mindepth'))
-                max_depth = int(self._config.get('GP', 'maxdepth'))
-
-        else:
-            min_depth = int(self._config.get('GP', 'mindepth'))
-            max_depth = int(self._config.get('GP', 'maxdepth'))
-
-        # Check if the seed character is in the string
-        index = value.find('@')
-        if index == -1:
-            return
-
-        # Split the value in two strings, not containing the first seed character
-        begin_str = value[:index]
-        end_str = value[index + 1:]
-
-        # Count the amounts of '(' until the first seed character (This is the depth of the seed)
-        counter = Counter(begin_str)
-        begin_depth = counter['('] - counter[')']
-
-        leaf_node = False
-        if begin_depth >= max_depth:
-            leaf_node = True
-        elif (begin_depth < min_depth and end_str.find('@') == -1) or indiv_type == 3:
-            leaf_node = False
-        else:
-            leaf_node = RandomManager.rand() < self._config.getfloat('POPULATION', 'leaf_prob')
-
-        if leaf_node:
-            use_sensor = RandomManager.rand() < self._config.getfloat('POPULATION', 'sensor_prob')
-            if use_sensor:
-                sensor_number = math.ceil(RandomManager.rand() * self._config.getint('POPULATION', 'sensors')) - 1
-                new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
-            else:
-                range = self._config.getfloat('POPULATION', 'range')
-                precision = self._config.get('POPULATION', 'precision')
-                # Generate a float number between -range and +range with a precision of 'precision'
-                new_exp = (("%." + precision + "f") % ((RandomManager.rand() - 0.5) * 2 * range))
-                new_value = begin_str + new_exp + end_str
-        else:
-            # Create a node
-            op_num = math.ceil(RandomManager.rand() * Operations.get_instance().length())
-            op = Operations.get_instance().get_operation_from_op_num(op_num)
-            if (op["nbarg"] == 1):
-                new_value = begin_str + '(' + op["op"] + ' @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
-            else:
-                # nbrag == 2
-                new_value = begin_str + '(' + op["op"] + ' @ @)' + end_str
-                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
-                new_value = self.__generate_indiv_regressive_tree(new_value, indiv_type)
-
-        return new_value
-
-    def __crossover_tree(self, expression_tree_1, expression_tree_2):
+    def __crossover_tree(self, other_individual):
         """
             Extract a subtree out of a tree, extract a correct subtree out of
             another tree (with depth that can fit into maxdepth).
@@ -284,8 +165,8 @@ class Individual(object):
         while not correct and count < maxtries:
             try:
                 # Extracting subtrees
-                value_1, sm1, n = self.__extract_subtree(expression_tree_1, mutmindepth, maxdepth, maxdepth)
-                value_2, sm2, _ = self.__extract_subtree(expression_tree_2, mutmindepth, n, maxdepth - n + 1)
+                value_1, sm1, n = self.__extract_subtree(self.get_tree(), mutmindepth, maxdepth, maxdepth)
+                value_2, sm2, _ = self.__extract_subtree(other_individual.get_tree(), mutmindepth, n, maxdepth - n + 1)
                 correct = True
 
             except TreeException, ex:
@@ -304,7 +185,7 @@ class Individual(object):
 
         return value_1, value_2
 
-    def __mutate_tree(self, expression_tree, mutation_type):
+    def __mutate_tree(self, mutation_type):
         mutmindepth = self._config.getint("GP", "mutmindepth")
         maxdepth = self._config.getint("GP", "maxdepth")
         sensor_spec = self._config.getboolean("POPULATION", "sensor_spec")
@@ -322,13 +203,13 @@ class Individual(object):
             while not preevok:
                 # remove subtree and grow new subtree
                 try:
-                    subtree, _, _ = self.__extract_subtree(expression_tree, mutmindepth, maxdepth, maxdepth)
+                    subtree, _, _ = self.__extract_subtree(self._tree, mutmindepth, maxdepth, maxdepth)
                     if mutation_type == Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE:
                         next_individual_type = 0
                     else:
                         next_individual_type = 4
 
-                    new_individual_value = self.__generate_indiv_regressive_tree(subtree, next_individual_type)
+                    new_individual_value = Individual.__generate_indiv_regressive_tree(subtree, self._config, next_individual_type)
 
                     if new_individual_value:
                         if sensor_spec:
@@ -350,13 +231,13 @@ class Individual(object):
             return new_individual_value
 
         elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
-            return self.__reparam_tree(expression_tree)
+            return self.__reparam_tree(Lisp_Tree_Expr(self.get_value()))
 
         elif mutation_type == Individual.MutationType.HOIST:
             controls = self._config.getint("POPULATION", "controls")
             prob_threshold = 1 / float(controls)
 
-            cl = [stree.to_string() for stree in expression_tree.get_root_node()._nodes]
+            cl = [stree.to_string() for stree in self.get_tree().get_root_node()._nodes]
 
             changed = False
             k = 0
@@ -416,3 +297,118 @@ class Individual(object):
         return "value: %s\n" % self.get_value() + \
                "formal: %s\n" % self.get_formal() + \
                "complexity: %s\n" % self.get_complexity()
+
+    # Individual creation
+    @staticmethod
+    def generate(individual_type, config):
+        """
+            generate individual from scratch
+            MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using
+            mode MODE. MODE is a number which interpretation depends on the
+            MLCIND.type property.
+        """
+        controls = config.getint('POPULATION', 'controls')
+        value = '(root%s)' % (' @' * controls)
+        for i in range(controls):
+            value = Individual.__generate_indiv_regressive_tree(value, config, individual_type)
+
+        value = Individual.__simplify_and_sensors_tree(value, config)
+        return Individual(value)
+
+    @staticmethod
+    def __generate_indiv_regressive_tree(value, config, indiv_type):
+        min_depth = 0
+        max_depth = 0
+        new_value = ""
+
+        # Maxdepthfirst change while we are creating the first population
+        if indiv_type:
+            if indiv_type == 1:
+                min_depth = Individual._maxdepthfirst
+                max_depth = Individual._maxdepthfirst
+            elif indiv_type == 2 or indiv_type == 3:
+                min_depth = int(config.get('GP', 'mindepth'))
+                max_depth = Individual._maxdepthfirst
+            elif indiv_type == 4:
+                min_depth = int(config.get('GP', 'mindepth'))
+                max_depth = 1
+            else:
+                min_depth = int(config.get('GP', 'mindepth'))
+                max_depth = int(config.get('GP', 'maxdepth'))
+
+        else:
+            min_depth = int(config.get('GP', 'mindepth'))
+            max_depth = int(config.get('GP', 'maxdepth'))
+
+        # Check if the seed character is in the string
+        index = value.find('@')
+        if index == -1:
+            return
+
+        # Split the value in two strings, not containing the first seed character
+        begin_str = value[:index]
+        end_str = value[index + 1:]
+
+        # Count the amounts of '(' until the first seed character (This is the depth of the seed)
+        counter = Counter(begin_str)
+        begin_depth = counter['('] - counter[')']
+
+        leaf_node = False
+        if begin_depth >= max_depth:
+            leaf_node = True
+        elif (begin_depth < min_depth and end_str.find(
+                '@') == -1) or indiv_type == 3:
+            leaf_node = False
+        else:
+            leaf_node = RandomManager.rand() < config.getfloat(
+                'POPULATION', 'leaf_prob')
+
+        if leaf_node:
+            use_sensor = RandomManager.rand() < config.getfloat(
+                'POPULATION', 'sensor_prob')
+            if use_sensor:
+                sensor_number = math.ceil(RandomManager.rand() * config.getint('POPULATION', 'sensors')) - 1
+                new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
+            else:
+                range = config.getfloat('POPULATION', 'range')
+                precision = config.get('POPULATION', 'precision')
+                # Generate a float number between -range and +range with a precision of 'precision'
+                new_exp = (("%." + precision + "f") % (
+                (RandomManager.rand() - 0.5) * 2 * range))
+                new_value = begin_str + new_exp + end_str
+        else:
+            # Create a node
+            op_num = math.ceil(RandomManager.rand() * Operations.get_instance().length())
+            op = Operations.get_instance().get_operation_from_op_num(op_num)
+            if (op["nbarg"] == 1):
+                new_value = begin_str + '(' + op["op"] + ' @)' + end_str
+                new_value = Individual.__generate_indiv_regressive_tree(new_value, config, indiv_type)
+            else:
+                # nbrag == 2
+                new_value = begin_str + '(' + op["op"] + ' @ @)' + end_str
+                new_value = Individual.__generate_indiv_regressive_tree(new_value, config, indiv_type)
+                new_value = Individual.__generate_indiv_regressive_tree(new_value, config, indiv_type)
+        return new_value
+
+    @staticmethod
+    def __simplify_and_sensors_tree(value, config):
+        sensor_list = ()
+        replace_list = ()
+
+        if config.getboolean('POPULATION', 'sensor_spec'):
+            config_sensor_list = sorted(config.get_list('POPULATION', 'sensor_list'))
+            sensor_list = ['S' + str(x) for x in config_sensor_list]
+            replace_list = ['z' + str(x) for x in range(len(config_sensor_list))]
+        else:
+            amount_sensors = config.getint('POPULATION', 'sensors')
+            # Replace the available sensors in the individual expression
+            sensor_list = ['S' + str(x) for x in range(amount_sensors)]
+            replace_list = ['z' + str(x) for x in range(amount_sensors)]
+
+        for i in range(len(replace_list)):
+            value = value.replace(replace_list[i], sensor_list[i])
+
+        if config.getboolean('OPTIMIZATION', 'simplify'):
+            return Lisp_Tree_Expr(value).get_simplified_tree_as_string()
+
+        return value
