@@ -14,6 +14,7 @@ from MLC.Common.RandomManager import RandomManager
 from MLC.Log.log import set_logger
 from MLC.individual.Individual import Individual as MLCIndividual
 from MLC.Population.Population import Population as MLCPopulation
+from MLC.db.mlc_repository import IndividualData
 
 import ConfigParser
 
@@ -232,7 +233,6 @@ class MLCWorkspaceTest(unittest.TestCase):
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".mlc")
             pass
 
-    @nottest
     def test_go_and_get_individuals(self):
         try:
             # load random values for the simulation
@@ -252,7 +252,7 @@ class MLCWorkspaceTest(unittest.TestCase):
 
             # TODO: Check individual values
             for indiv in individuals:
-                self.assertIsInstance(indiv, MLCIndividual)
+                self.assertIsInstance(indiv, IndividualData)
 
         finally:
             # FIXME: use Setup/TearDown testcase

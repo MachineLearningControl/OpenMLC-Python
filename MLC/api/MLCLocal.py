@@ -182,8 +182,12 @@ class MLCLocal(MLC):
 
         return True
 
-    # TODO: Individuals must be represented using dictionaries in the MLC API
     def get_individuals(self, experiment_name):
+        """
+        Return a list with IndividualData (see MLCRepository::IndividualData)
+        :param experiment_name:
+        :return:
+        """
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -195,9 +199,9 @@ class MLCLocal(MLC):
 
         # obtain individuals from the database
         individuals = []
-        number_of_individuals = MLCRepository.get_instance().number_of_individuals()
+        number_of_individuals = MLCRepository.get_instance().count_individual()
         for indiv_id in range(1, number_of_individuals + 1):
-            individual = MLCRepository.get_instance().get_individual(indiv_id)
+            individual = MLCRepository.get_instance().get_individual_data(indiv_id)
             individuals.append(individual)
 
         return individuals
