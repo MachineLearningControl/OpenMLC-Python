@@ -1,6 +1,7 @@
 import math
 import MLC.Log.log as lg
 import sys
+import time
 
 from MLC.Common.RandomManager import RandomManager
 from MLC.individual.Individual import OperationOverIndividualFail
@@ -29,6 +30,7 @@ class Population(object):
         # Declare MATLAB attributes
         self._individuals = [-1] * self._size
         self._costs       = [-1] * self._size
+        self._ev_time     = [-1] * self._size
         self._gen_method  = [-1] * self._size
         self._parents     = [[]] * self._size
 
@@ -85,10 +87,8 @@ class Population(object):
 
             lg.logger_.debug('Evaluate Idx: %s - Indiv N#: %s - Cost: %s' % (i, self._individuals[i], new_cost))
 
-            if new_cost != self._costs[i]:
-                self._mlc_repository.update_individual_cost(self._individuals[i], new_cost)
-
         self._costs = costs
+        self._ev_time = [time.time()] * self._size
 
     def remove_bad_individuals(self):
         # Get the individuals which value is the same as the
@@ -168,7 +168,7 @@ class Population(object):
     def get_best_individual(self):
         best_indivs = [x[0] for x in sorted(enumerate(self._costs), key=lambda x: x[1])]
         best_index = self._individuals[best_indivs[0]]
-        return best_index, self._mlc_repository.get_individual(best_index)
+        return best_index, self._mlc_repository.get_individual(best_index), self._costs[best_index]
 
     def evolve(self, next_population):
         # FIXME: It's not necessary to compute the creation of both subgenerations
@@ -217,8 +217,6 @@ class Population(object):
                         next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
                                                   parent_index=pop_idv_index_orig, indiv_index=indiv_index,
                                                   gen_method=Population.GenerationMethod.ELITISM)
-
-                        self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                         individuals_created += 1
 
                 except IndexError:
@@ -248,8 +246,6 @@ class Population(object):
                     next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
                                                       parent_index=pop_idv_index_orig, indiv_index=indiv_index,
                                                       gen_method=Population.GenerationMethod.REPLICATION)
-
-                    self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
                 elif op == Population.GeneticOperation.MUTATION:
@@ -274,7 +270,6 @@ class Population(object):
                     next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
                                                       parent_index=pop_idv_index_orig, indiv_index=number,
                                                       gen_method=Population.GenerationMethod.MUTATION, cost=-1)
-                    self._mlc_repository.get_individual(next_population.get_individuals()[pop_idv_index_dest]).inc_appearences()
                     individuals_created += 1
 
                 elif op == Population.GeneticOperation.CROSSOVER:

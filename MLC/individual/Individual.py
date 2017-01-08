@@ -38,15 +38,6 @@ class Individual(object):
         value:
             string or matrice representing the individual in the representation
             considered in 'type'
-        cost:
-            current cost value of the individual (average of cost_history)
-        cost_history:
-            history of raw values returned by the evaluation function
-        evaluation_time:
-            date and time (on the computer clock) of sending of the indivs
-            to the evaluation function
-        appearances:
-            number of time the individual appears in a generation
         formal:
             matlab interpretable expression of the individual
         complexity:
@@ -89,10 +80,6 @@ class Individual(object):
 
         # For the moment is the only type available
         self._value = value
-        self._cost = 1e36
-        self._cost_history = []
-        self._evaluation_time = 0.0
-        self._appearences = 1
         self._formal = ""
         self._complexity = 0
 
@@ -168,21 +155,6 @@ class Individual(object):
     def set_value(self, value):
         self._value = value
 
-    def get_cost(self):
-        return self._cost
-
-    def get_cost_history(self):
-        return self._cost_history
-
-    def get_evaluation_time(self):
-        return self._evaluation_time
-
-    def get_appearences(self):
-        return self._appearences
-
-    def inc_appearences(self):
-        self._appearences += 1
-
     def get_formal(self):
         return self._formal
 
@@ -194,9 +166,6 @@ class Individual(object):
 
     def set_complexity(self, complexity):
         self._complexity = complexity
-
-    def set_cost(self, cost):
-        self._cost = cost
 
     def get_tree(self):
         return self._tree
@@ -445,8 +414,5 @@ class Individual(object):
 
     def __str__(self):
         return "value: %s\n" % self.get_value() + \
-               "cost_history: %s\n" % self.get_cost_history() + \
-               "evaluation_time: %s\n" % self.get_evaluation_time() + \
-               "appearences: %s\n" % self.get_appearences() + \
                "formal: %s\n" % self.get_formal() + \
                "complexity: %s\n" % self.get_complexity()

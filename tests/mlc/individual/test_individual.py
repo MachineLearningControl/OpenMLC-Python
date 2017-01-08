@@ -70,9 +70,6 @@ class IndividualTest(unittest.TestCase):
         individual.generate("(root (exp (tanh (- (tanh -8.049) (* 9.15 -6.848)))))")
 
         self.assertEquals(individual.get_value(), "(root (exp (tanh (- (tanh -8.049) (* 9.15 -6.848)))))")
-        self.assertEquals(len(individual.get_cost_history()), 0)
-        self.assertEquals(individual.get_evaluation_time(), 0.0)
-        self.assertEquals(individual.get_appearences(), 1)
         self.assertEquals(individual.get_formal(), "exp(tanh((tanh((-8.049)) - (9.15 .* (-6.848)))))")
         self.assertEquals(individual.get_complexity(), 20)
 
@@ -81,9 +78,6 @@ class IndividualTest(unittest.TestCase):
         individual.generate(individual_type=3)
 
         self.assertEquals(individual.get_value(), "(root (sin (/ (+ (exp -2.6118) (cos S0)) (/ (log 5.9383) (log -4.5037)))))")
-        self.assertEquals(len(individual.get_cost_history()), 0)
-        self.assertEquals(individual.get_evaluation_time(), 0.0)
-        self.assertEquals(individual.get_appearences(), 1)
         self.assertEquals(individual.get_formal(), "sin((my_div((exp((-2.6118)) + cos(S0)),(my_div(my_log(5.9383),my_log((-4.5037)))))))")
         self.assertEquals(individual.get_complexity(), 28)
 
@@ -429,8 +423,5 @@ class IndividualTest(unittest.TestCase):
 
     def _assert_individual(self, individual, value, formal, complexity):
         self.assertEquals(individual.get_value(), value)
-        self.assertEquals(len(individual.get_cost_history()), 0)
-        self.assertEquals(individual.get_evaluation_time(), 0.0)
-        self.assertEquals(individual.get_appearences(), 1)
         self.assertEquals(individual.get_formal(), formal)
         self.assertEquals(individual.get_complexity(), complexity)

@@ -241,7 +241,12 @@ class ExperimentDialog(QMainWindow):
                 indiv_index = pop_individuals[pop_index - 1] - 1
                 indiv_cost = costs[pop_index - 1]
                 indiv_value = individuals[indiv_index].get_value()
-                indiv_appearences = individuals[indiv_index].get_appearences()
+
+                # FIXME: add some method to the MLCApi instead of use the MLCRepository
+                from MLC.db.mlc_repository import MLCRepository
+                indiv_data = MLCRepository.get_instance().get_individual_data()
+                indiv_appearences = indiv_data.get_appearences()
+
                 indiv_gen_method = Population.gen_method_description(gen_methods[pop_index - 1])
                 gens_list.append([pop_index, indiv_index + 1, indiv_gen_method,
                                   indiv_appearences, indiv_cost, indiv_value])

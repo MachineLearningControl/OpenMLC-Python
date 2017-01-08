@@ -1,21 +1,18 @@
 def stmt_create_table_individuals():
-    return '''
-    CREATE TABLE individuals(indiv_id INTEGER PRIMARY KEY,
-                             value text,
-                             cost real,
-                             evaluation_time real,
-                             appearences INTEGER)'''
+    return ''' CREATE TABLE individual(indiv_id INTEGER PRIMARY KEY,
+                                       value text)'''
 
 
 def stmt_create_table_population():
     return '''
-    CREATE TABLE population( ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                             gen INTEGER,
-                             cost real,
-                             gen_method INTEGER,
-                             parents TEXT,
-                             indiv_id INTEGER,
-                             FOREIGN KEY(indiv_id) REFERENCES individuals(indiv_id))'''
+    CREATE TABLE population(id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            gen INTEGER,
+                            cost real,
+                            evaluation_time INTEGER,
+                            gen_method INTEGER,
+                            parents TEXT,
+                            indiv_id INTEGER,
+                            FOREIGN KEY(indiv_id) REFERENCES individual(indiv_id))'''
 
 
 def stmt_delete_generation(generation):
@@ -27,66 +24,48 @@ def stmt_delete_from_generations(from_generation):
               WHERE gen >= %s""" % (from_generation,)
 
 def stmt_delete_unused_individuals():
-    return '''DELETE FROM individuals
+    return '''DELETE FROM individual
               WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
 
 
 def stmt_get_unused_individuals():
-    return '''SELECT indiv_id FROM individuals
+    return '''SELECT indiv_id FROM individual
               WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
 
 
-
-
-
 def stmt_get_generations():
-    return '''select distinct gen from population'''
+    return '''SELECT distinct gen FROM population'''
 
 
-def stmt_insert_individual_in_population(generation, indiv_id, cost, gen_method, parents):
-    return '''INSERT INTO population (gen, cost, gen_method, parents, indiv_id)
-              VALUES (%s, '%s', %s, '%s', %s)''' % (generation,
-                                                    cost,
-                                                    gen_method,
-                                                    parents,
-                                                    indiv_id)
+def stmt_insert_individual_in_population(generation, indiv_id, cost, evaluation_time, gen_method, parents):
+    return '''INSERT INTO population (gen, cost, evaluation_time, gen_method, parents, indiv_id)
+              VALUES (%s, '%s', %s, %s, '%s', %s)''' % (generation,
+                                                        cost,
+                                                        evaluation_time,
+                                                        gen_method,
+                                                        parents,
+                                                        indiv_id)
 
 
 def stmt_get_individuals_from_population(generation):
-    return '''SELECT indiv_id, cost, gen_method, parents, ID
+    return '''SELECT indiv_id, cost, evaluation_time, gen_method, parents, ID
               FROM population
               WHERE gen = %s
               ORDER BY ID''' % generation
 
 
 def stmt_insert_individual(individual_id, individual):
-    return '''INSERT INTO individuals VALUES (%s, '%s', %s, %s, %s)''' % (individual_id,
-                                                                          individual.get_value(),
-                                                                          individual.get_cost(),
-                                                                          individual.get_evaluation_time(),
-                                                                          individual.get_appearences())
-
-
-def stmt_update_individual_cost(individual_id, cost, ev_time=None):
-    if ev_time:
-        return '''UPDATE individuals SET cost = %s, evaluation_time = %s,
-                                     WHERE indiv_id = %s''' % (cost, ev_time,
-                                                               individual_id)
-    else:
-        return '''UPDATE individuals SET cost = %s WHERE indiv_id = %s''' % (cost,
-                                                                             individual_id)
-
-
-def stmt_update_individual(individual_id, individual):
-    return '''UPDATE individuals SET value = '%s', cost = %s, evaluation_time = %s, appearences = %s
-                                 WHERE indiv_id = %s''' % (individual.get_value(),
-                                                           individual.get_cost(),
-                                                           individual.get_evaluation_time(),
-                                                           individual.get_appearences(),
-                                                           individual_id)
+    return '''INSERT INTO individual VALUES (%s, '%s')''' % (individual_id,
+                                                             individual.get_value())
 
 
 def stmt_get_all_individuals():
-    return '''SELECT indiv_id, value, cost, evaluation_time, appearences
-              from individuals
+    return '''SELECT indiv_id, value
+              from individual
               ORDER BY indiv_id'''
+
+
+def stmt_get_individual_data(indiv_id):
+    return '''SELECT gen, cost, evaluation_time
+              FROM population
+              WHERE indiv_id = %s''' % (indiv_id)

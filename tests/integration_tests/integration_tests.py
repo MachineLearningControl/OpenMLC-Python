@@ -161,6 +161,7 @@ class MLCIntegrationTest(unittest.TestCase):
         pop = self._app.get_simulation().get_generation(gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
+
         self._check_indiv_property(gen_number, pop.get_gen_methods(), 'gen_method', 'int')
         self._check_indiv_property(gen_number, pop.get_parents(), 'parents')
 
