@@ -1,7 +1,6 @@
 import MLC.Log.log as lg
 import sys
 
-from MLC.matlab_engine import MatlabEngine
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.db.mlc_repository import MLCRepository
