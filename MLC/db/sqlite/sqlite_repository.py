@@ -181,6 +181,7 @@ class SQLiteRepository(MLCRepository):
         else:
             stmt_to_update_cost = stmt_update_cost(individual_id, cost, evaluation_time, generation)
 
+        print ">>> STMT:%s" % stmt_to_update_cost
         self.__execute(stmt_to_update_cost)
 
     def __execute(self, statement):

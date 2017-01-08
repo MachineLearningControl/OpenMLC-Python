@@ -251,9 +251,15 @@ class MLCWorkspaceTest(unittest.TestCase):
             self.assertEqual(len(individuals), 11)
 
             # TODO: Check individual values
-            for indiv in individuals:
-                self.assertIsInstance(indiv, IndividualData)
+            for indiv_id, indiv_data in individuals.items():
+                self.assertIsInstance(indiv_data, IndividualData)
 
+            # Test Update Individual Cost in all generations
+            mlc.update_individual_cost("test_go_and_check", 2, 1000, 1001)
+
+            indiv_data = mlc.get_individuals("test_go_and_check")[2]
+            self.assertEqual(indiv_data.get_appearances(), 2)
+            self.assertEqual(indiv_data.get_cost_history(), {1: [(1000.0, 1001)], 2: [(1000.0, 1001)]})
         finally:
             # FIXME: use Setup/TearDown testcase
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".conf")
