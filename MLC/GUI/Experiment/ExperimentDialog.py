@@ -207,6 +207,28 @@ class ExperimentDialog(QMainWindow):
         logger.debug('[EXPERIMENT {0}] [PREEV_EDIT_BUTTON_CLICKED] - Executing on_preev_edit_button_clicked function'
                      .format(self._experiment_name))
 
+        preev_activated = self._experiment_config["EVALUATOR"]["preevaluation"]
+        if preev_activated.lower() != "true" and preev_activated != "1":
+            QMessageBox.information(self, "Edit Preevaluation Script", "Preevaluation is not activated. "
+                                    "Activate it in order to edit the preevaluation function",
+                                    QMessageBox.Ok)
+            return
+
+        preev_folder = os.path.abspath(".") + "/../../MLC/Scripts/Preevaluation/"
+        preev_function = self._experiment_config["EVALUATOR"]["preev_function"] + ".py"
+        file_path = preev_folder + preev_function
+
+        if os.path.isfile(file_path):
+            logger.debug('[EXPERIMENT {0}] [PREEV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
+                         .format(file_path))
+            # Check if file exists
+            QDesktopServices.openUrl(QUrl(file_path));
+        else:
+            QMessageBox.critical(self, "Edit Preevaluation Script",
+                                 "Preevaluation file doesn't exists. Check that file {0} exists in directory {1}"
+                                 .format(ev_function, ev_folder),
+                                 QMessageBox.Ok)
+
     def on_gen_count_combo_changed(self, generation):
         logger.debug('[EXPERIMENT {0}] [GEN_COUNT_COMBO_CHANGED] - Executing on_gen_count_combo_changed function'
                      .format(self._experiment_name))
