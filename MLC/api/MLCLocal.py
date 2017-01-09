@@ -195,7 +195,7 @@ class MLCLocal(MLC):
 
         # obtain individuals from the database
         individuals = []
-        number_of_individuals = MLCRepository.get_instance().number_of_individuals()
+        number_of_individuals = MLCRepository.get_instance().count_individual()
         for indiv_id in range(1, number_of_individuals + 1):
             individual = MLCRepository.get_instance().get_individual(indiv_id)
             individuals.append(individual)
