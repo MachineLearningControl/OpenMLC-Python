@@ -19,6 +19,8 @@ from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
 from MLC.Population.Population import Population
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
@@ -185,6 +187,21 @@ class ExperimentDialog(QMainWindow):
     def on_ev_edit_button_clicked(self):
         logger.debug('[EXPERIMENT {0}] [EV_EDIT_BUTTON_CLICKED] - Executing on_ev_edit_button_clicked function'
                      .format(self._experiment_name))
+
+        ev_folder = os.path.abspath(".") + "/../../MLC/Scripts/Evaluation/"
+        ev_function = self._experiment_config["EVALUATOR"]["evaluation_function"] + ".py"
+        file_path = ev_folder + ev_function
+
+        if os.path.isfile(file_path):
+            logger.debug('[EXPERIMENT {0}] [EV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
+                         .format(file_path))
+            # Check if file exists
+            QDesktopServices.openUrl(QUrl(file_path));
+        else:
+            QMessageBox.critical(self, "Edit Evaluation Script",
+                                 "Evaluation file doesn't exists. Check that file {0} exists in directory {1}"
+                                 .format(ev_function, ev_folder),
+                                 QMessageBox.Ok)
 
     def on_preev_edit_button_clicked(self):
         logger.debug('[EXPERIMENT {0}] [PREEV_EDIT_BUTTON_CLICKED] - Executing on_preev_edit_button_clicked function'
