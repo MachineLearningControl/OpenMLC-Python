@@ -10,10 +10,12 @@ import numpy as np
 
 class QtChartWrapper():
 
-    def __init__(self):
+    def __init__(self, show_legend=False):
         self._ncurves = 0
         self._chart = QChart()
-        self._chart.legend().hide()
+
+        if not show_legend:
+            self._chart.legend().hide()
 
         self._view = QChartView(self._chart)
         self._view.setRenderHint(QPainter.Antialiasing)
@@ -25,8 +27,11 @@ class QtChartWrapper():
         # Save the curves in order to add data to them later
         self._curves = []
 
-    def set_title(self, title):
+    def set_title(self, title, font=None):
         self._chart.setTitle(title)
+
+        if font != None:
+            self._chart.setTitleFont(font)
 
     def set_object_name(self, name):
         self._view.setObjectName(name)
@@ -96,15 +101,13 @@ class QtChartWrapper():
         curve.attachAxis(self._yaxis)
         return self._ncurves - 1
 
-    def add_scatter(self, marker_size=1, color=None):
+    def add_scatter(self, marker_size=1, color=None, legend=None):
         curve = QScatterSeries()
-        pen = curve.pen()
+        curve.setName(legend)
 
         if color is not None:
-            pen.setColor(color)
+            curve.setColor(color)
 
-        # pen.setWidthF(line_width)
-        curve.setPen(pen)
         curve.setMarkerSize(marker_size)
         curve.setUseOpenGL(True)
 
