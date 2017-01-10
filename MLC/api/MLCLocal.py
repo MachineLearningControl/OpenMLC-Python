@@ -182,8 +182,12 @@ class MLCLocal(MLC):
 
         return True
 
-    # TODO: Individuals must be represented using dictionaries in the MLC API
     def get_individuals(self, experiment_name):
+        """
+        Return a list with IndividualData (see MLCRepository::IndividualData)
+        :param experiment_name:
+        :return:
+        """
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -194,15 +198,23 @@ class MLCLocal(MLC):
         simulation = self._open_experiments[experiment_name].get_simulation()
 
         # obtain individuals from the database
-        individuals = []
+        individuals = {}
         number_of_individuals = MLCRepository.get_instance().count_individual()
         for indiv_id in range(1, number_of_individuals + 1):
-            individual = MLCRepository.get_instance().get_individual(indiv_id)
-            individuals.append(individual)
+            individual = MLCRepository.get_instance().get_individual_data(indiv_id)
+            individuals[indiv_id] = individual
 
         return individuals
 
-    # TODO: Population must be represented using dictionaries/lists in the MLC API
+    def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        MLCRepository.get_instance().update_individual_cost(indiv_id, new_cost, new_ev_time, generation)
+
     def get_generation(self, experiment_name, generation_number):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)

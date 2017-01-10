@@ -182,9 +182,9 @@ class Application(object):
             stop_on_graph = self._config.getboolean('BEHAVIOUR', 'stopongraph')
 
             population = self._mlc_repository.get_population(generation_number)
-            best_index, best_indiv = population.get_best_individual()
+            best_index, best_indiv, cost = population.get_best_individual()
 
-            EvaluatorFactory.get_callback().show_best(best_index, best_indiv, stop_on_graph)
+            EvaluatorFactory.get_callback().show_best(best_index, best_indiv, cost, stop_on_graph)
 
     def _project_validations(self):
         # Check that the evaluation and preevaluation modules can be loaded

@@ -88,7 +88,8 @@ class MLCIntegrationTest(unittest.TestCase):
 
         for generation_params in MLCIntegrationTest.GENERATIONS:
             # clear static values
-            MLCRepository._instance = None
+            if Config.get_instance().getboolean("BEHAVIOUR", "save"):
+                MLCRepository._instance = None
             simulation = Simulation()
             cls._app = Application(simulation)
 
@@ -103,6 +104,7 @@ class MLCIntegrationTest(unittest.TestCase):
                 raise Exception("Integration test, bad value for generations param")
 
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
+            MLCRepository._instance._conn.close()
             MLCRepository._instance = None
             cls._app = Application(Simulation())
 
@@ -161,6 +163,7 @@ class MLCIntegrationTest(unittest.TestCase):
         pop = self._app.get_simulation().get_generation(gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
+
         self._check_indiv_property(gen_number, pop.get_gen_methods(), 'gen_method', 'int')
         self._check_indiv_property(gen_number, pop.get_parents(), 'parents')
 

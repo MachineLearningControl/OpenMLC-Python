@@ -129,6 +129,15 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_individuals not implemented")
 
+    def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
+        """
+            Update individual cost. If generation == -1 Individual cost will
+            be updated in all generations.
+            :param experiment_name:
+            :return:
+        """
+        raise NotImplementedError("MLC::get_individuals not implemented")
+
 
 class InvalidExperimentException(Exception):
 
