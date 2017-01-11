@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 from MLC.db.mlc_repository import MLCRepository
 from MLC.db.mlc_repository import MLCRepositoryHelper, IndividualData
@@ -12,6 +13,8 @@ class SQLiteRepository(MLCRepository):
 
     def __init__(self, database, init_db=False):
         self._conn = sqlite3.connect(database)
+        self._database = database
+
         if init_db:
             self.__initialize_db()
 
@@ -30,7 +33,7 @@ class SQLiteRepository(MLCRepository):
             self._hashlist[hash] = indiv_id
 
         # enhancement
-        self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys())+1
+        self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys()) + 1
         self.__individuals_to_flush = {}
 
     def __initialize_db(self):
@@ -40,7 +43,10 @@ class SQLiteRepository(MLCRepository):
         cursor.close()
         self._conn.commit()
 
-    def __get_db_connection(self):
+    def __get_db_connection(self, reopen_connection=False):
+        # TODO: Workaround. SQLite throw an exception when a connection is used in different threads. To solve it,
+        # we create a new connection every time a new connection is delivered
+        self._conn = sqlite3.connect(self._database)
         return self._conn
 
     def __insert_individuals_pending(self, individual):
@@ -72,7 +78,7 @@ class SQLiteRepository(MLCRepository):
                 evaluation_time = population._ev_time[i]
                 individual_gen_method = population._gen_method[i]
                 individual_parents = ','.join(str(elem) for elem in population._parents[i])
-                cursor.execute(stmt_insert_individual_in_population(self.__generations+1,
+                cursor.execute(stmt_insert_individual_in_population(self.__generations + 1,
                                                                     individual_id,
                                                                     individual_cost,
                                                                     evaluation_time,
@@ -100,7 +106,7 @@ class SQLiteRepository(MLCRepository):
     # special methods
     def remove_population_from(self, from_generation):
         self.__execute(stmt_delete_from_generations(from_generation))
-        self.__generations = from_generation-1
+        self.__generations = from_generation - 1
 
     def remove_last_population(self):
         if self.__generations > 0:
@@ -112,6 +118,7 @@ class SQLiteRepository(MLCRepository):
         # get individuals to delete
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_unused_individuals())
+
         for row in cursor:
             to_delete.append(row[0])
         cursor.close()
@@ -156,11 +163,12 @@ class SQLiteRepository(MLCRepository):
     def get_individual_data(self, individual_id):
         try:
             data = IndividualData(self.__individuals[individual_id].get_value())
-
             conn = self.__get_db_connection()
             cursor = conn.execute(stmt_get_individual_data(individual_id))
+
             for row in cursor:
                 data._add_data(row[0], row[1], row[2])
+
             cursor.close()
             conn.commit()
 
@@ -168,6 +176,23 @@ class SQLiteRepository(MLCRepository):
 
         except KeyError:
             raise KeyError("Individual N#%s does not exists" % individual_id)
+
+    def get_individuals_data(self):
+        indiv_data_dict = {}
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_individuals_data())
+
+        for row in cursor:
+            indiv_id = row[0]
+            if indiv_id not in indiv_data_dict:
+                data = IndividualData(self.__individuals[indiv_id].get_value())
+                indiv_data_dict[indiv_id] = data
+
+            indiv_data_dict[indiv_id]._add_data(row[1], row[2], row[3])
+
+        cursor.close()
+        conn.commit()
+        return indiv_data_dict
 
     def count_individual(self):
         return len(self.__individuals)

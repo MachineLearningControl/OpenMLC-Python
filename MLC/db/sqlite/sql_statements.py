@@ -89,6 +89,10 @@ def stmt_get_individual_data(indiv_id):
               FROM population
               WHERE indiv_id = %s''' % (indiv_id)
 
+def stmt_get_individuals_data():
+    return '''SELECT indiv_id, gen, cost, evaluation_time
+              FROM   population
+              ORDER BY indiv_id'''
 
 def stmt_update_all_costs(individual_id, cost, evaluation_time):
     return '''UPDATE population

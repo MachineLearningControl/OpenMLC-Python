@@ -91,6 +91,9 @@ class MLCRepository:
     def get_individual_data(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 
+    def get_individuals_data(self):
+        raise NotImplementedError("This method must be implemented")
+
     def count_individual(self):
         raise NotImplementedError("This method must be implemented")
 

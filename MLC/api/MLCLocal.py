@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 from MLC.api.Experiment import Experiment
 from MLC.api.mlc import MLC
@@ -198,12 +199,7 @@ class MLCLocal(MLC):
         simulation = self._open_experiments[experiment_name].get_simulation()
 
         # obtain individuals from the database
-        individuals = {}
-        number_of_individuals = MLCRepository.get_instance().count_individual()
-        for indiv_id in range(1, number_of_individuals + 1):
-            individual = MLCRepository.get_instance().get_individual_data(indiv_id)
-            individuals[indiv_id] = individual
-
+        individuals = MLCRepository.get_instance().get_individuals_data()
         return individuals
 
     def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
