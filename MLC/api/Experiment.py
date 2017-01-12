@@ -47,6 +47,9 @@ class Experiment:
         self._configuration = Config.from_dictionary(new_configuration, config_type=ConfigParser.ConfigParser)
         self._configuration.write(open(self._config_file, "wt"))
 
+        # Reload the configuration
+        Config.get_instance().read(self._config_file)
+
     @staticmethod
     def get_experiment_files(working_dir, experiment_name):
         experiment_db_name = experiment_name + ".mlc"
