@@ -300,17 +300,21 @@ class Individual(object):
 
     # Individual creation
     @staticmethod
-    def generate(individual_type, config):
+    def generate(config, individual_type=None, rhs_value=None):
         """
             generate individual from scratch
             MLCIND.generate(MLC_PARAMETERS,MODE) creates an individual using
             mode MODE. MODE is a number which interpretation depends on the
             MLCIND.type property.
         """
-        controls = config.getint('POPULATION', 'controls')
-        value = '(root%s)' % (' @' * controls)
-        for i in range(controls):
-            value = Individual.__generate_indiv_regressive_tree(value, config, individual_type)
+        value = None
+        if rhs_value is None:
+            controls = config.getint('POPULATION', 'controls')
+            value = '(root%s)' % (' @' * controls)
+            for i in range(controls):
+                value = Individual.__generate_indiv_regressive_tree(value, config, individual_type)
+        else:
+            value = rhs_value
 
         value = Individual.__simplify_and_sensors_tree(value, config)
         return Individual(value)

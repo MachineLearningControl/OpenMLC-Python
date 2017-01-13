@@ -23,7 +23,7 @@ class BaseCreation(object):
 
     def _fill_creation(self, individuals, index, type):
         while index < len(individuals):
-            indiv = Individual.generate(type, Config.get_instance())
+            indiv = Individual.generate(individual_type=type, config=Config.get_instance())
             response = MLCRepository.get_instance().add_individual(indiv)
 
             if not response[1]:
