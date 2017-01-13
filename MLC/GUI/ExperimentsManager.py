@@ -1,8 +1,6 @@
-import ConfigParser
 import os
 import sys
 import time
-sys.path.append(os.path.abspath(".") + "/../..")
 
 from MLC.api.mlc import DuplicatedExperimentError
 from MLC.Log.log import get_gui_logger
@@ -15,8 +13,7 @@ Object that will encapsulate all the operations related with the ABM of projects
 """
 
 
-class ExperimentsManager():
-    DEFAULT_EXPERIMENT_CONFIG = "../../conf/configuration.ini"
+class ExperimentsManager():    
 
     def __init__(self, mlc_local, gui_config):
         self._gui_config = gui_config
@@ -24,11 +21,6 @@ class ExperimentsManager():
 
         self._experiment_list = []
         self._experiment_info_dict = {}
-
-        # Config file used to create new projects
-        default_experiment_config = ConfigParser.ConfigParser()
-        default_experiment_config.read(ExperimentsManager.DEFAULT_EXPERIMENT_CONFIG)
-        self._default_experiment_config = Config.to_dictionary(default_experiment_config)
 
     def load_experiments_info(self):
         # Clean the experiment list before filling it
@@ -72,7 +64,7 @@ class ExperimentsManager():
 
     def add_experiment(self, experiment_name):
         try:
-            self._mlc_local.new_experiment(experiment_name, self._default_experiment_config)
+            self._mlc_local.new_experiment(experiment_name)
             logger.info("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
                         "Added experiment {0}".format(experiment_name))
         except DuplicatedExperimentError:

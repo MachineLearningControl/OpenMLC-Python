@@ -56,3 +56,10 @@ def get_matlab_path():
     :return: absolute path to MLC matlab code
     """
     return os.path.join(get_mlc_root_directory(), "matlab_code")
+
+
+def get_templates_path():
+    """
+    :return: absolute path to the templates folder
+    """
+    return os.path.join(get_mlc_root_directory(), "templates")

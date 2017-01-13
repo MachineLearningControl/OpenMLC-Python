@@ -1,6 +1,8 @@
 import os
 import argparse
 import ConfigParser
+import MLC.config as path_solver
+import shutil
 
 from MLC.api.mlc import MLC
 from MLC.api.mlc import ClosedExperimentException
@@ -8,7 +10,6 @@ from MLC.api.mlc import ExperimentNotExistException
 from MLC.api.mlc import DuplicatedExperimentError
 from MLC.api.mlc import InvalidExperimentException
 from MLC.Application import Application
-from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import get_gui_logger
 from MLC.Log.log import set_logger
@@ -81,6 +82,19 @@ class Experiment:
         Config.get_instance().read(experiment_cf)
         simulation = Simulation(experiment_name)
 
+        def folder_structure_creator(folder_to_create, file_to_copy):
+            templates_dir = path_solver.get_templates_path()
+            file_template = os.path.join(templates_dir, file_to_copy)
+            folder_path = os.path.join(experiment_dir, folder_to_create)
+            file_copied = os.path.join(folder_path, file_to_copy)
+            os.makedirs(folder_path)
+            shutil.copyfile(file_template, file_copied)
+            init_file = os.path.join(folder_path, "__init__.py")
+            open(init_file, "w").close()
+
+        folder_structure_creator("Evaluation", "toy_problem.py")
+        folder_structure_creator("Preevaluation", "default.py")
+
         # Load experiment
         try:
             return Experiment(experiment_dir, experiment_name)
@@ -129,6 +143,9 @@ class Experiment:
                                                  (experiment_cf, conf_db, experiment_db_name))
 
             return Config.to_dictionary(config), experiment_db
+
+            # TODO: We need to check for the existence of a Evaluation and Preevaluation folder. If so, we have to also
+            # check if the variable in the configuration matches the file in this folders?
 
         except Exception, err:
             raise InvalidExperimentException("Error reading configuration file %s: %s" % (experiment_cf, err))
