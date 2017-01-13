@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 import time
 
 from MLC.api.Experiment import Experiment
@@ -79,22 +80,18 @@ class MLCLocal(MLC):
             logger.error("Cannot create a new experiment. Error message: %s " % err)
             raise
 
-    def delete_experiment_from_workspace(self, experiment_name):
+    def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
-        del self._experiments[experiment_name]
-        if experiment_name in self._open_experiments:
-            del self._open_experiments[experiment_name]
-
-        experiment_cf, experiment_db = Experiment.get_experiment_files(self._working_dir, experiment_name)
-        experiment_files = [experiment_cf, experiment_db]
-
-        for file in experiment_files:
-            try:
-                os.unlink(file)
-            except OSError:
-                logger.info("[MLC_LOCAL] Error while tryying to delete experiment file: {0}".format(file))
+        experiment_dir = os.path.join(self._working_dir, experiment_name)
+        try:
+            shutil.rmtree(experiment_dir)
+            del self._experiments[experiment_name]
+            if experiment_name in self._open_experiments:
+                del self._open_experiments[experiment_name]
+        except OSError:
+            logger.info("[MLC_LOCAL] Error while trying to delete experiment file: {0}".format(file))
 
     def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
         if experiment_name not in self._open_experiments:

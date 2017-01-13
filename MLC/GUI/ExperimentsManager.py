@@ -14,6 +14,7 @@ logger = get_gui_logger()
 Object that will encapsulate all the operations related with the ABM of projects
 """
 
+
 class ExperimentsManager():
     DEFAULT_EXPERIMENT_CONFIG = "../../conf/configuration.ini"
 
@@ -75,8 +76,8 @@ class ExperimentsManager():
             logger.info("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
                         "Added experiment {0}".format(experiment_name))
         except DuplicatedExperimentError:
-            logger.debug("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
-            "Added experiment {0}".format(experiment_name))
+            logger.error("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
+                         "Error while adding experiment {0}".format(experiment_name))
             return False
 
         # Experiment succesfully loaded. Update its experiment_info
@@ -88,33 +89,20 @@ class ExperimentsManager():
         if experiment_name in self._experiment_list:
             logger.debug("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT_EVEN_IF_REPEATED] "
                          "Proceed to remove a experiment without one of its files")
-            self._mlc_local.delete_experiment_from_workspace(experiment_name)
-
+            self._mlc_local.delete_experiment(experiment_name)
         self.add_experiment(experiment_name)
 
     def remove_experiment(self, experiment_name):
-        workspace_dir = self._gui_config.get('MAIN', 'workspace')
-        experiment_full_path = workspace_dir + '/'
-        experiment_files = [experiment_name + ".mlc", experiment_name + ".conf"]
-
-        # Check if the files to remove exists
-        if set(experiment_files) <= set(os.listdir(workspace_dir)):
-            # Try to remove the files
-            try:
-                self._mlc_local.delete_experiment_from_workspace(experiment_name)
-            except OSError:
-                logger.error("[GUI_EXPERIMENT_MANAGER] [REMOVE_EXPERIMENT] - "
-                             "Experiment file {0} could not be removed".format(file))
-                return True, False
-        else:
+        try:
+            self._mlc_local.delete_experiment(experiment_name)
+        except OSError:
             logger.error("[GUI_EXPERIMENT_MANAGER] [REMOVE_EXPERIMENT] - "
-                         "Experiment {0} can't be removed. Some of the project files is missing"
-                         .format(experiment_name))
-            return False, True
+                         "Experiment file {0} could not be removed".format(file))
+            return False
 
         self._experiment_list.remove(experiment_name)
         del self._experiment_info_dict[experiment_name]
-        return False, False
+        return True
 
     def get_experiment_list(self):
         return self._experiment_list

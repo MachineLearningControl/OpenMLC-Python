@@ -129,8 +129,8 @@ class MLC_GUI(QMainWindow):
                                       QMessageBox.Yes | QMessageBox.No,
                                       QMessageBox.No)
         if msg_ok == QMessageBox.Yes:
-            permissions_error, missing_files_error = self._experiments_manager.remove_experiment(self._experiment_selected)
-            if permissions_error:
+            experiment_removed = self._experiments_manager.remove_experiment(self._experiment_selected)
+            if not experiment_removed:
                 logger.error("[MLC_MANAGER] [REMOVE_EXPERIMENT] - {0} experiment files could not be removed"
                              .format(self._experiment_selected))
                 QMessageBox.critical(self, 'Remove Experiment', '{0} experiment file could not be removed.'
@@ -138,21 +138,12 @@ class MLC_GUI(QMainWindow):
                                            'workspace folder'.format(self._experiment_selected))
                 return
 
-            if missing_files_error:
-                logger.error("[MLC_MANAGER] [REMOVE_EXPERIMENT] - "
-                             "Experiment {0} can't be removed. Some of the project files is missing"
-                             .format(self._experiment_selected))
-                QMessageBox.critical(self, 'Remove Experiment',
-                                     "Experiment {0} could not be removed. Some of the project files is missing"
-                                     .format(self._experiment_selected))
-                return
-
+            QMessageBox.information(self, "Remove Experiment",
+                                    "Experiment {0} was succesfully removed".format(self._experiment_selected))
             self._refresh_experiment_list_view()
             self._clean_experiment_selection()
             logger.info("[MLC_MANAGER] [REMOVE_EXPERIMENT] - Experiment {0} was succesfully removed"
                         .format(self._experiment_selected))
-            QMessageBox.information(self, "Remove Experiment",
-                                    "Experiment {0} was succesfully removed".format(self._experiment_selected))
 
     def load_gui_config(self):
         abspath = os.path.abspath(".")
