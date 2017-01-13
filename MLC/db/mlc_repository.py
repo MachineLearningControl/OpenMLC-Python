@@ -1,10 +1,10 @@
-import MLC.Log.log as lg
-
-from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.config import get_working_directory
-from collections import defaultdict
 import hashlib
+import MLC.Log.log as lg
 import os
+
+from MLC.config import get_working_directory
+from MLC.mlc_parameters.mlc_parameters import Config
+from collections import defaultdict
 
 
 class MLCRepositoryHelper:
@@ -108,18 +108,25 @@ class MLCRepository:
     def get_instance():
         # FIXME: use factories instead of this
         if MLCRepository._instance is None:
-            from MLC.db.sqlite.sqlite_repository import SQLiteRepository
-
-            first_init = True
-
-            if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-                db_name = Config.get_instance().get("BEHAVIOUR", "savedir")
-                database = os.path.join(get_working_directory(), db_name)
-                if os.path.exists(database):
-                    first_init = False
-            else:
-                database = SQLiteRepository.IN_MEMORY_DB
-
-            MLCRepository._instance = SQLiteRepository(database, init_db=first_init)
+            raise
 
         return MLCRepository._instance
+
+    @staticmethod
+    def make(experiment_name):
+        """
+        Create a new instance of the MLCRepository, no matter what it exists or not
+        """
+        from MLC.db.sqlite.sqlite_repository import SQLiteRepository
+        first_init = True
+        database = ""
+        if Config.get_instance().getboolean("BEHAVIOUR", "save"):
+            workspace_dir = get_working_directory()
+            project_dir = os.path.join(workspace_dir, experiment_name)
+            db_file_name = experiment_name + ".db"
+            database = os.path.join(project_dir, db_file_name)
+            first_init = not os.path.exists(database)
+        else:
+            database = SQLiteRepository.IN_MEMORY_DB
+
+        MLCRepository._instance = SQLiteRepository(database, init_db=first_init)

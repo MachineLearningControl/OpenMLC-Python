@@ -4,6 +4,7 @@ import sys
 import time
 sys.path.append(os.path.abspath(".") + "/../..")
 
+from MLC.api.mlc import DuplicatedExperimentError
 from MLC.Log.log import get_gui_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -35,20 +36,7 @@ class ExperimentsManager():
 
         # Find all the projects in the workspace directory
         workspace_dir = self._gui_config.get('MAIN', 'workspace')
-        workspace_files = os.listdir(workspace_dir)
-
-        # Get a list of the possible projects names
-        project_names = set([x.split(".")[0] for x in workspace_files])
-        logger.debug('[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Files in workspace directory: {0}'.format(workspace_files))
-        logger.debug('[GUI_EXPERIMENT_MANAGER] Possible project names: {0}'.format(project_names))
-
-        # Now, check if every possible project name has a .mlc and .cfg file associated
-        for name in project_names:
-            mlc_file = name + ".mlc"
-            cfg_file = name + ".conf"
-            if mlc_file in workspace_files and cfg_file in workspace_files:
-                logger.debug('[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Valid project: {0}'.format(name))
-                self._experiment_list.append(name)
+        self._experiment_list = self._mlc_local.get_workspace_experiments()
 
         logger.info('[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Projects in the workspace: {0}'.format(self._experiment_list))
         self._experiment_list.sort()

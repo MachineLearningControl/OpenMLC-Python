@@ -7,6 +7,7 @@ from MLC.api.mlc import MLC
 from MLC.api.mlc import ClosedExperimentException
 from MLC.api.mlc import ExperimentNotExistException
 from MLC.api.mlc import DuplicatedExperimentError
+from MLC.api.mlc import InvalidExperimentException
 from MLC.Application import Application
 from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
@@ -35,18 +36,19 @@ class MLCLocal(MLC):
         workspace_files = os.listdir(working_dir)
         project_names = set([x.split(".")[0] for x in workspace_files])
 
-        # Now, check if every possible project name has a .mlc and .cfg file associated
-        for name in project_names:
-            mlc_file = name + ".mlc"
-            cfg_file = name + ".conf"
+        subdirectories = next(os.walk(self._working_dir))[1]
 
-            if mlc_file in workspace_files and cfg_file in workspace_files:
-                try:
-                    self._experiments[name] = Experiment(self._working_dir, name)
-                    logger.debug('[MLC_LOCAL] [INIT] - Found experiment in workspace: {0}'.format(name))
-                except InvalidExperimentException, err:
-                    logger.debug("[MLC_LOCAL] [INIT] - Something go wrong loading experiment '{0}': {1}" % (name, err))
-                    pass
+        # Now, check if every possible project name has a .db and .cfg file associated
+        for experiment_name in subdirectories:
+            experiment_dir = os.path.join(self._working_dir, experiment_name)
+
+            try:
+                self._experiments[experiment_name] = Experiment(experiment_dir, experiment_name)
+                logger.info('[MLC_LOCAL] [INIT] - Found experiment in workspace: {0}'.format(experiment_name))
+            except InvalidExperimentException, err:
+                logger.error("[MLC_LOCAL] [INIT] - Something go wrong loading experiment '{0}': {1}"
+                             .format(experiment_name, err))
+                pass
 
         logger.debug('[MLC_LOCAL] Experiments in the workspace: {0}'.format(len(self._experiments)))
 
@@ -68,37 +70,13 @@ class MLCLocal(MLC):
     def close_experiment(self, experiment_name):
         del self._open_experiments[experiment_name]
 
-    # TODO: moves this method to Experiment class
     def new_experiment(self, experiment_name, experiment_configuration):
-        if experiment_name in self._experiments:
-            raise DuplicatedExperimentError(experiment_name)
-
-        # obtain experiment filenames
-        experiment_cf, experiment_db = Experiment.get_experiment_files(self._working_dir, experiment_name)
-
-        # put DB parameters in the configuration file
-        if "BEHAVIOUR" not in experiment_configuration:
-            experiment_configuration["BEHAVIOUR"] = {}
-
-        experiment_configuration["BEHAVIOUR"]["save"] = "true"
-        experiment_configuration["BEHAVIOUR"]["savedir"] = experiment_name + '.mlc'
-        new_configuration = Config.from_dictionary(experiment_configuration)
-
-        # save experiment configuration file
-        new_configuration.write(open(experiment_cf, "wt"))
-
-        # create an empty simulation in order to create the experiment database
-        MLCRepository._instance = None
-        Config._instance = None
-        Config.get_instance().read(experiment_cf)
-        simulation = Simulation()
-
-        # load experiment
         try:
-            configuration, db_file = Experiment.check_configuration(self._working_dir, experiment_name)
-            self._experiments[experiment_name] = Experiment(self._working_dir, experiment_name)
+            self._experiments[experiment_name] = Experiment.make(self._working_dir,
+                                                                 experiment_name,
+                                                                 experiment_configuration)
         except Exception, err:
-            # self.log("Cannot create a new experiment :( %s " % err)
+            logger.error("Cannot create a new experiment. Error message: %s " % err)
             raise
 
     def delete_experiment_from_workspace(self, experiment_name):

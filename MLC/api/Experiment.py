@@ -6,12 +6,16 @@ from MLC.api.mlc import MLC
 from MLC.api.mlc import ClosedExperimentException
 from MLC.api.mlc import ExperimentNotExistException
 from MLC.api.mlc import DuplicatedExperimentError
+from MLC.api.mlc import InvalidExperimentException
 from MLC.Application import Application
 from MLC.config import set_working_directory
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Log.log import get_gui_logger
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+
+logger = get_gui_logger()
 
 class Experiment:
     # FIXME: one simulation at a time
@@ -35,7 +39,7 @@ class Experiment:
             Config.get_instance().read(self._config_file)
             set_logger(Config.get_instance().get('LOGGING', 'logmode'))
 
-            self._simulation = Simulation()
+            self._simulation = Simulation(self._name)
             Experiment.__last_simulation = self._simulation
 
         return self._simulation
@@ -51,8 +55,42 @@ class Experiment:
         Config.get_instance().read(self._config_file)
 
     @staticmethod
+    def make(working_dir, experiment_name, experiment_configuration):
+        experiment_dir = os.path.join(working_dir, experiment_name)
+        if not os.path.exists(experiment_dir):
+            os.makedirs(experiment_dir)
+        else:
+            raise DuplicatedExperimentError(experiment_name)
+        # Obtain experiment filenames
+        experiment_cf, experiment_db = Experiment.get_experiment_files(experiment_dir, experiment_name)
+
+        # Put DB parameters in the configuration file
+        if "BEHAVIOUR" not in experiment_configuration:
+            experiment_configuration["BEHAVIOUR"] = {}
+
+        experiment_configuration["BEHAVIOUR"]["save"] = "true"
+        # FIXME: Remove this parameter. It is no longer necessary
+        experiment_configuration["BEHAVIOUR"]["savedir"] = experiment_name + ".db"
+        new_configuration = Config.from_dictionary(experiment_configuration)
+
+        # Save experiment configuration file
+        new_configuration.write(open(experiment_cf, "wt"))
+
+        # Create an empty simulation in order to create the experiment database
+        Config._instance = None
+        Config.get_instance().read(experiment_cf)
+        simulation = Simulation(experiment_name)
+
+        # Load experiment
+        try:
+            return Experiment(experiment_dir, experiment_name)
+        except Exception, err:
+            logger.error("Cannot create a new experiment. Error message: %s " % err)
+            raise
+
+    @staticmethod
     def get_experiment_files(working_dir, experiment_name):
-        experiment_db_name = experiment_name + ".mlc"
+        experiment_db_name = experiment_name + ".db"
         experiment_cf_name = experiment_name + ".conf"
 
         experiment_db = os.path.join(working_dir, experiment_db_name)
@@ -64,7 +102,7 @@ class Experiment:
         if not os.path.exists(working_dir):
             raise InvalidExperimentException("Invalid working directory %s" % working_dir)
 
-        experiment_db_name = experiment_name + ".mlc"
+        experiment_db_name = experiment_name + ".db"
         experiment_cf_name = experiment_name + ".conf"
 
         experiment_db = os.path.join(working_dir, experiment_db_name)

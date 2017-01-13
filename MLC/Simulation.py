@@ -4,7 +4,8 @@ from MLC.mlc_parameters.mlc_parameters import Config
 
 class Simulation:
 
-    def __init__(self):
+    def __init__(self, experiment_name):
+        MLCRepository.make(experiment_name)
         self._mlc_repository = MLCRepository.get_instance()
 
     def get_generation(self, generation):
