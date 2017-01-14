@@ -59,6 +59,13 @@
             </widget>
            </item>
            <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_7">
              <property name="title">
               <string>Chart Configuration</string>
@@ -164,13 +171,6 @@
                <widget class="QComboBox" name="points_combo"/>
               </item>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
             </widget>
            </item>
           </layout>
