@@ -53,6 +53,9 @@ class MLCLocal(MLC):
                 pass
         logger.debug('[MLC_LOCAL] Experiments in the workspace: {0}'.format(len(self._experiments)))
 
+    def get_working_dir(self):
+        return self._working_dir
+
     def get_workspace_experiments(self):
         return self._experiments.keys()
 

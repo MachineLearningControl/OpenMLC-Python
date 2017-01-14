@@ -191,19 +191,20 @@ class ExperimentDialog(QMainWindow):
         logger.debug('[EXPERIMENT {0}] [EV_EDIT_BUTTON_CLICKED] - Executing on_ev_edit_button_clicked function'
                      .format(self._experiment_name))
 
-        ev_folder = os.path.abspath(".") + "/../../MLC/Scripts/Evaluation/"
         ev_function = self._experiment_config["EVALUATOR"]["evaluation_function"] + ".py"
-        file_path = ev_folder + ev_function
+        ev_path_list = [self._mlc_local.get_working_dir(), self._experiment_name, "Evaluation", ev_function]
+        # Use the splat operator to dearrange the list
+        ev_path = os.path.join(*ev_path_list)
 
-        if os.path.isfile(file_path):
+        if os.path.isfile(ev_path):
             logger.debug('[EXPERIMENT {0}] [EV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
-                         .format(file_path))
+                         .format(ev_path))
             # Check if file exists
-            QDesktopServices.openUrl(QUrl(file_path));
+            QDesktopServices.openUrl(QUrl(ev_path))
         else:
             QMessageBox.critical(self, "Edit Evaluation Script",
-                                 "Evaluation file doesn't exists. Check that file {0} exists in directory {1}"
-                                 .format(ev_function, ev_folder),
+                                 "Evaluation file doesn't exists. Check that file {0} exists"
+                                 .format(ev_path, ev_path),
                                  QMessageBox.Ok)
 
     def on_preev_edit_button_clicked(self):
@@ -217,19 +218,20 @@ class ExperimentDialog(QMainWindow):
                                     QMessageBox.Ok)
             return
 
-        preev_folder = os.path.abspath(".") + "/../../MLC/Scripts/Preevaluation/"
         preev_function = self._experiment_config["EVALUATOR"]["preev_function"] + ".py"
-        file_path = preev_folder + preev_function
+        preev_path_list = [self._mlc_local.get_working_dir(), self._experiment_name, "Preevaluation", preev_function]
+        # Use the splat operator to dearrange the list
+        preev_path = os.path.join(*preev_path_list)
 
-        if os.path.isfile(file_path):
+        if os.path.isfile(preev_path):
             logger.debug('[EXPERIMENT {0}] [PREEV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
-                         .format(file_path))
+                         .format(preev_path))
             # Check if file exists
-            QDesktopServices.openUrl(QUrl(file_path));
+            QDesktopServices.openUrl(QUrl(preev_path))
         else:
             QMessageBox.critical(self, "Edit Preevaluation Script",
-                                 "Preevaluation file doesn't exists. Check that file {0} exists in directory {1}"
-                                 .format(ev_function, ev_folder),
+                                 "Preevaluation file doesn't exists. Check that file {0} exists"
+                                 .format(preev_path),
                                  QMessageBox.Ok)
 
     def on_gen_count_combo_changed(self, generation):
