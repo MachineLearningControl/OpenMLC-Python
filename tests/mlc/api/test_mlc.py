@@ -27,7 +27,6 @@ class MLCWorkspaceTest(unittest.TestCase):
     NEW_EXPERIMENT = "test_new_experiment"
     NEW_CONFIGURATION = None
 
-
     @classmethod
     def setUpClass(cls):
         try:
@@ -295,6 +294,41 @@ class MLCWorkspaceTest(unittest.TestCase):
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".conf")
             os.unlink(os.path.join(MLCWorkspaceTest.WORKSPACE_DIR, "test_go_and_check") + ".mlc")
             pass
+
+    def test_import_non_existent_experiment(self):
+        mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+
+        import_experiment_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              "test4.mlc")
+        mlc.import_experiment(import_experiment_path)
+        self.assertTrue("test4" in mlc.get_workspace_experiments())
+        mlc.delete_experiment("test4")
+
+    def test_import_existent_experiment(self):
+        mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+        mlc.new_experiment("test4", MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
+
+        import_experiment_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              "test4.mlc")
+        try:
+            mlc.import_experiment(import_experiment_path)
+            self.assertTrue(False)
+        except MLC.api.mlc.DuplicatedExperimentError:
+            self.assertTrue(True)
+        finally:
+            mlc.delete_experiment("test4")
+
+    def test_import_experiment_with_erroneous_path(self):
+        mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+        import_experiment_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              "test5.mlc")
+        try:
+            mlc.import_experiment(import_experiment_path)
+            self.assertTrue(False)
+            mlc.delete_experiment("test5")
+        except MLC.api.mlc.ImportExperimentPathNotExistException:
+            self.assertTrue(True)
+            self.assertFalse("test5" in mlc.get_workspace_experiments())
 
     def _assert_key_value(self, dictionary, key, value):
         self.assertIsInstance(dictionary, dict)

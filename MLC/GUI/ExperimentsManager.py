@@ -3,6 +3,7 @@ import sys
 import time
 
 from MLC.api.mlc import DuplicatedExperimentError
+from MLC.api.mlc import ImportExperimentPathNotExistException
 from MLC.Common import util
 from MLC.Log.log import get_gui_logger
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -100,7 +101,19 @@ class ExperimentsManager():
 
     def import_experiment(self, experiment_path):
         experiment_name = os.path.split(experiment_path)[1].split(".")[0]
-        self._mlc_local.import_experiment(experiment_path)
+        try:
+            self._mlc_local.import_experiment(experiment_path)
+        except DuplicatedExperimentError:
+            logger.error("Experiment {0} could not be imported. "
+                         "It already exists.".format(experiment_name))
+        except ImportExperimentPathNotExistException, err:
+            logger.error("Experiment {0} could not be imported. "
+                         "Experiment path given does not exists. Exception msg: {1}"
+                         .format(experiment_name, err))
+        except Exception, err:
+            logger.error("Experiment {0} could not be imported. {1}"
+                         .format(experiment_name, err))
+
         self._experiment_list.append(experiment_name)
         self.load_experiment_info(experiment_name)
 

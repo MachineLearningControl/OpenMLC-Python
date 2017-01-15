@@ -16,6 +16,7 @@ from MLC.api.mlc import DuplicatedExperimentError
 from MLC.api.mlc import InvalidExperimentException
 from MLC.api.mlc import EvaluationScriptNotExistException
 from MLC.api.mlc import PreevaluationScriptNotExistException
+from MLC.api.mlc import ImportExperimentPathNotExistException
 from MLC.Application import Application
 from MLC.config import get_templates_path
 from MLC.config import set_working_directory
@@ -117,6 +118,9 @@ class MLCLocal(MLC):
             logger.info("[MLC_LOCAL] Error while trying to delete experiment file: {0}".format(file))
 
     def import_experiment(self, experiment_path):
+        if not os.path.exists(experiment_path):
+            raise ImportExperimentPathNotExistException(experiment_path)
+
         experiment_name = os.path.split(experiment_path)[1].split(".")[0]
         self._create_experiment_dir(experiment_name)
 

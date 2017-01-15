@@ -35,6 +35,11 @@ class PreevaluationScriptNotExistException(MLCException):
                                     "existent evaluation script. Script: {1}"
                                     .format(experiment_name, script_path))
 
+class ImportExperimentPathNotExistException(MLCException):
+
+    def __init__(self, experiment_path):
+        MLCException.__init__(self, "Import Experiment Error: Path {0} does not exists."
+                                    .format(experiment_path))
 
 class MLC:
 
