@@ -88,7 +88,7 @@ class MLCLocal(MLC):
     def new_experiment(self, experiment_name, experiment_configuration=None):
         self._create_experiment_dir(experiment_name)
 
-        config = None
+        config = experiment_configuration
         if experiment_configuration is None:
             config = MLCLocal.DEFAULT_EXPERIMENT_CONFIG
 
