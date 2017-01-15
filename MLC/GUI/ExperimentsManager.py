@@ -104,15 +104,21 @@ class ExperimentsManager():
         try:
             self._mlc_local.import_experiment(experiment_path)
         except DuplicatedExperimentError:
-            logger.error("Experiment {0} could not be imported. "
+            logger.error("[GUI_EXPERIMENT_MANAGER] [IMPORT_EXPERIMENT] - "
+                         "Experiment {0} could not be imported. "
                          "It already exists.".format(experiment_name))
+            raise
         except ImportExperimentPathNotExistException, err:
-            logger.error("Experiment {0} could not be imported. "
+            logger.error("[GUI_EXPERIMENT_MANAGER] [IMPORT_EXPERIMENT] - "
+                         "Experiment {0} could not be imported. "
                          "Experiment path given does not exists. Exception msg: {1}"
                          .format(experiment_name, err))
+            raise
         except Exception, err:
-            logger.error("Experiment {0} could not be imported. {1}"
+            logger.error("[GUI_EXPERIMENT_MANAGER] [IMPORT_EXPERIMENT] - "
+                         "Experiment {0} could not be imported. {1}"
                          .format(experiment_name, err))
+            raise
 
         self._experiment_list.append(experiment_name)
         self.load_experiment_info(experiment_name)
