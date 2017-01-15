@@ -19,7 +19,7 @@ integration_tests:
         description: "Execute MLC and generate populations 1-3. Execute MLC again and generate populations 4-7 using individuals generated during the first execution."
         generations:
             - 3
-            - 7
+            - [3, 7]
     test_persist_reusing_simulations:
         name: "Multiple execution on the same simulation reusing individuals"
         description: "Execute MLC and generate populations 1-5. Execute MLC again and generate populations 3-7 reusing generations 1-3 and discarding generations 4-5 from the first execution."
