@@ -12,6 +12,7 @@ class SQLiteRepository(MLCRepository):
     IN_MEMORY_DB = ":memory:"
 
     def __init__(self, database, init_db=False):
+        print database
         self._conn = sqlite3.connect(database)
         self._database = database
 
@@ -46,7 +47,9 @@ class SQLiteRepository(MLCRepository):
     def __get_db_connection(self, reopen_connection=False):
         # TODO: Workaround. SQLite throw an exception when a connection is used in different threads. To solve it,
         # we create a new connection every time a new connection is delivered
-        self._conn = sqlite3.connect(self._database)
+        if self._database != SQLiteRepository.IN_MEMORY_DB:
+            self._conn = sqlite3.connect(self._database)
+
         return self._conn
 
     def __insert_individuals_pending(self, individual):

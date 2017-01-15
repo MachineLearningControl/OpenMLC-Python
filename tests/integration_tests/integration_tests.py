@@ -90,7 +90,7 @@ class MLCIntegrationTest(unittest.TestCase):
             # clear static values
             if Config.get_instance().getboolean("BEHAVIOUR", "save"):
                 MLCRepository._instance = None
-            simulation = Simulation()
+            simulation = Simulation("integration_test")
             cls._app = Application(simulation)
 
             if isinstance(generation_params, int):
@@ -106,7 +106,7 @@ class MLCIntegrationTest(unittest.TestCase):
         if Config.get_instance().getboolean("BEHAVIOUR", "save"):
             MLCRepository._instance._conn.close()
             MLCRepository._instance = None
-            cls._app = Application(Simulation())
+            cls._app = Application(Simulation("integration_test"))
 
         a = cls._app.get_simulation().number_of_generations()
         print "Number of populations: " + str(a)

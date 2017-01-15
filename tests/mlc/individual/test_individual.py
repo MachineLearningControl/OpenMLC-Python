@@ -55,7 +55,7 @@ class IndividualTest(unittest.TestCase):
         self.assertEquals(individual.get_complexity(), 20)
 
     def test_random_generate(self):
-        individual = Individual.generate(3, Config.get_instance())
+        individual = Individual.generate(individual_type=3, config=Config.get_instance())
         self.assertEquals(individual.get_value(), "(root (sin (/ (+ (exp -2.6118) (cos S0)) (/ (log 5.9383) (log -4.5037)))))")
         self.assertEquals(individual.get_formal(), "sin((my_div((exp((-2.6118)) + cos(S0)),(my_div(my_log(5.9383),my_log((-4.5037)))))))")
         self.assertEquals(individual.get_complexity(), 28)
@@ -69,36 +69,36 @@ class IndividualTest(unittest.TestCase):
         self.assertFalse(individual_1.compare(individual_different))
 
     def test_compare_random_individuals(self):
-        individual_1 = Individual.generate(3, Config.get_instance())
+        individual_1 = Individual.generate(individual_type=3, config=Config.get_instance())
 
         RandomManager.clear_random_values()
         RandomManager.load_random_values(self._random_file)
-        individual_2 = Individual.generate(3, Config.get_instance())
+        individual_2 = Individual.generate(individual_type=3, config=Config.get_instance())
 
         self.assertTrue(individual_1.compare(individual_2))
 
     def test_generate_individuals_types(self):
-        individual = Individual.generate(0, Config.get_instance())
+        individual = Individual.generate(individual_type=0, config=Config.get_instance())
         self._assert_individual(individual, complexity=120,
                                 value="(root (sin (+ (/ (cos -3.0973) (exp (log (* (* -1.3423 (tanh (log -3.5094))) (+ (/ (/ (* -9.1213 (cos (exp 3.6199))) (cos (* S0 (cos (- 5.0161 (sin 4.2656)))))) S0) (- (cos (* (+ (sin -9.8591) (exp S0)) -9.4159)) (log (* (- (tanh -8.5969) S0) (/ (exp (/ 8.2118 S0)) (* (* S0 (* 1.6755 -0.0699)) (log (exp -3.2288)))))))))))) S0)))",
                                 formal="sin(((my_div(cos((-3.0973)),exp(my_log((((-1.3423) .* tanh(my_log((-3.5094)))) .* ((my_div((my_div(((-9.1213) .* cos(exp(3.6199))),cos((S0 .* cos((5.0161 - sin(4.2656))))))),S0)) + (cos(((sin((-9.8591)) + exp(S0)) .* (-9.4159))) - my_log(((tanh((-8.5969)) - S0) .* (my_div(exp((my_div(8.2118,S0))),((S0 .* (1.6755 .* (-0.0699))) .* my_log(exp((-3.2288))))))))))))))) + S0))")
 
-        individual = Individual.generate(1, Config.get_instance())
+        individual = Individual.generate(individual_type=1, config=Config.get_instance())
         self._assert_individual(individual, complexity=24,
                                 value="(root (- (sin (* (log -3.7260) (+ -5.0573 -6.2191))) (* 7.3027 (/ (cos S0) (* 4.7410 6.7097)))))",
                                 formal="(sin((my_log((-3.7260)) .* ((-5.0573) + (-6.2191)))) - (7.3027 .* (my_div(cos(S0),(4.7410 .* 6.7097)))))")
 
-        individual = Individual.generate(2, Config.get_instance())
+        individual = Individual.generate(individual_type=2, config=Config.get_instance())
         self._assert_individual(individual, complexity=15,
                                 value="(root (tanh (cos (+ (+ 5.4434 -3.1258) (+ S0 5.1136)))))",
                                 formal="tanh(cos(((5.4434 + (-3.1258)) + (S0 + 5.1136))))")
 
-        individual = Individual.generate(3, Config.get_instance())
+        individual = Individual.generate(individual_type=3, config=Config.get_instance())
         self._assert_individual(individual, complexity=18,
                                 value="(root (log (sin (+ (log -6.2620) (* 8.3709 -6.7676)))))",
                                 formal="my_log(sin((my_log((-6.2620)) + (8.3709 .* (-6.7676)))))")
 
-        individual = Individual.generate(4, Config.get_instance())
+        individual = Individual.generate(individual_type=4, config=Config.get_instance())
         self._assert_individual(individual, complexity=1,
                                 value="(root -0.6212)",
                                 formal="(-0.6212)")
@@ -281,10 +281,10 @@ class IndividualTest(unittest.TestCase):
             Config.get_instance().set("POPULATION", "sensor_prob", "1.0")
 
             # test generate and mutate using sensor list
-            individual = Individual.generate(3, Config.get_instance())
+            individual = Individual.generate(individual_type=3, config=Config.get_instance())
             self.assertEqual(individual.get_value(), '(root (sin (/ (+ (exp S6) (cos S10)) (/ (log S10) (log S4)))))')
 
-            individual = Individual.generate(3, Config.get_instance())
+            individual = Individual.generate(individual_type=3, config=Config.get_instance())
             self.assertEqual(individual.get_value(), '(root (exp (* (- (tanh S6) (tanh S10)) (- (/ S6 S6) (/ S6 S4)))))')
 
             new_ind = self._individual_l2.mutate(Individual.MutationType.REMOVE_SUBTREE_AND_REPLACE)
@@ -305,7 +305,7 @@ class IndividualTest(unittest.TestCase):
 
             # random generation
             Config.get_instance().set("POPULATION", "controls", "3")
-            individual = Individual.generate(2, Config.get_instance())
+            individual = Individual.generate(individual_type=2, config=Config.get_instance())
             self.assertEqual(individual.get_value(), '(root (/ -3.0632 (cos -3.0973)) (exp (log (* (* S0 -0.8182) (sin -6.5057)))) (/ (/ -1.4169 (/ (* S0 S0) (cos -7.5988))) (log (cos (* S0 5.7489)))))')
 
             formal_exp = individual.get_formal()

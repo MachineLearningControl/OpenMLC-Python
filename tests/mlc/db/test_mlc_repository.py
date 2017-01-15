@@ -1,4 +1,5 @@
 import unittest
+import shutil
 import os
 
 from MLC.mlc_parameters.mlc_parameters import Config, saved
@@ -10,8 +11,10 @@ from MLC.config import set_working_directory
 
 class MLCRepositoryTest(unittest.TestCase):
     WORKSPACE_DIR = os.path.abspath("/tmp/")
+    EXPERIMENT_NAME = "test_mlc_repository"
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         Config._instance = Config.from_dictionary({"BEHAVIOUR": {"save": "false"},
                                                    "POPULATION": {
                                                        "size": "3",
@@ -27,12 +30,20 @@ class MLCRepositoryTest(unittest.TestCase):
                                                    }})
 
         set_working_directory(MLCRepositoryTest.WORKSPACE_DIR)
-
         if not os.path.exists(MLCRepositoryTest.WORKSPACE_DIR):
             os.makedirs(MLCRepositoryTest.WORKSPACE_DIR)
 
+        os.makedirs(os.path.join(MLCRepositoryTest.WORKSPACE_DIR,
+                                 MLCRepositoryTest.EXPERIMENT_NAME))
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(os.path.join(MLCRepositoryTest.WORKSPACE_DIR,
+                                   MLCRepositoryTest.EXPERIMENT_NAME))
+
     def __get_new_repo(self):
         MLCRepository._instance = None
+        MLCRepository.make("test_mlc_repository")
         return MLCRepository.get_instance()
 
     def test_add_individual(self):
@@ -278,35 +289,31 @@ class MLCRepositoryTest(unittest.TestCase):
 
     def test_reload_individuals_from_file(self):
         with saved(Config.get_instance()) as config:
-            try:
-                config.set("BEHAVIOUR", "save", "true")
-                config.set("BEHAVIOUR", "savedir", "test.db")
-                config.set("POPULATION", "sensor_spec", "false")
-                config.set("POPULATION", "sensors", "0")
-                config.set("OPTIMIZATION", "simplify", "false")
+            config.set("BEHAVIOUR", "save", "true")
+            config.set("BEHAVIOUR", "savedir", "test.db")
+            config.set("POPULATION", "sensor_spec", "false")
+            config.set("POPULATION", "sensors", "0")
+            config.set("OPTIMIZATION", "simplify", "false")
 
-                mlc_repo = self.__get_new_repo()
+            mlc_repo = self.__get_new_repo()
 
-                # add individuals
-                mlc_repo.add_individual(Individual("1+1"))
-                mlc_repo.add_individual(Individual("2+2"))
+            # add individuals
+            mlc_repo.add_individual(Individual("1+1"))
+            mlc_repo.add_individual(Individual("2+2"))
 
-                # add population
-                p = Population(3, 0, Config.get_instance(), mlc_repo)
-                p._individuals = [2, 1, 2]
-                mlc_repo.add_population(p)
+            # add population
+            p = Population(3, 0, Config.get_instance(), mlc_repo)
+            p._individuals = [2, 1, 2]
+            mlc_repo.add_population(p)
 
-                # check status
-                self.assertEqual(mlc_repo.count_individual(), 2)
-                self.assertEqual(mlc_repo.count_population(), 1)
+            # check status
+            self.assertEqual(mlc_repo.count_individual(), 2)
+            self.assertEqual(mlc_repo.count_population(), 1)
 
-                # reload mlc_repository using another instance
-                mlc_repo = self.__get_new_repo()
-                self.assertEqual(mlc_repo.count_individual(), 2)
-                self.assertEqual(mlc_repo.count_population(), 1)
-            finally:
-                # FIXME: use Setup/TearDown testcase
-                os.unlink(os.path.join(MLCRepositoryTest.WORKSPACE_DIR, "test.db"))
+            # reload mlc_repository using another instance
+            mlc_repo = self.__get_new_repo()
+            self.assertEqual(mlc_repo.count_individual(), 2)
+            self.assertEqual(mlc_repo.count_population(), 1)
 
     def test_remove_last_population(self):
         mlc_repo = self.__get_new_repo()
