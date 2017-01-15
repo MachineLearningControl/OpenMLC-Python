@@ -45,20 +45,37 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_workspace_experiments not implemented")
 
-    def delete_experiment_from_workspace(self, experiment_name):
-        """
-            Remove an experimento} from the workspace permanently.
-            :param experiment_name:
-        """
-        raise NotImplementedError("MLC::delete_experiment_from_workspace not implemented")
-
     def new_experiment(self, experiment_name, experiment_configuration):
         """
             Creates a new experiment in the workspace using
             :param experiment_name:
-            :param experiment_configuration:
+            :param experiment_configuration: The experiment configuration as a
+             Python dict of dict
         """
         raise NotImplementedError("MLC::new_experiment not implemented")
+
+    def delete_experiment(self, experiment_name):
+        """
+            Remove an experiment from the workspace permanently.
+            :param experiment_name:
+        """
+        raise NotImplementedError("MLC::delete_experiment not implemented")
+
+    def import_experiment(self, experiment_path):
+        """
+            Import an experiment and add it to the workspace
+            :param experiment_path:
+        """
+        raise NotImplementedError("MLC::import_experiment not implemented")
+
+    def export_experiment(self, experiment_name):
+        """
+            Import an experiment and add it to the workspace
+            :param export_dir: Directory where the project will be exported
+            :param experiment_name: Name of the experiment to be exported
+            :return: The project as a file in a variable
+        """
+        raise NotImplementedError("MLC::export_experiment not implemented")
 
     def get_experiment_configuration(self, experiment_name):
         """

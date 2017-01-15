@@ -57,12 +57,8 @@ class Experiment:
 
     @staticmethod
     def make(working_dir, experiment_name, experiment_configuration):
-        experiment_dir = os.path.join(working_dir, experiment_name)
-        if not os.path.exists(experiment_dir):
-            os.makedirs(experiment_dir)
-        else:
-            raise DuplicatedExperimentError(experiment_name)
         # Obtain experiment filenames
+        experiment_dir = os.path.join(working_dir, experiment_name)
         experiment_cf, experiment_db = Experiment.get_experiment_files(experiment_dir, experiment_name)
 
         # Put DB parameters in the configuration file

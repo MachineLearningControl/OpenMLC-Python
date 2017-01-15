@@ -1,8 +1,11 @@
 import argparse
+import cStringIO
 import ConfigParser
+import MLC.Common.util
 import os
 import shutil
 import sys
+import tarfile
 import time
 
 from MLC.api.Experiment import Experiment
@@ -83,21 +86,13 @@ class MLCLocal(MLC):
         del self._open_experiments[experiment_name]
 
     def new_experiment(self, experiment_name, experiment_configuration=None):
+        self._create_experiment_dir(experiment_name)
+
         config = None
         if experiment_configuration is None:
-            default_experiment_config = ConfigParser.ConfigParser()
-            default_experiment_config.read(MLCLocal.DEFAULT_EXPERIMENT_CONFIG)
-            config = Config.to_dictionary(default_experiment_config)
-        else:
-            config = experiment_configuration
+            config = MLCLocal.DEFAULT_EXPERIMENT_CONFIG
 
-        try:
-            self._experiments[experiment_name] = Experiment.make(self._working_dir,
-                                                                 experiment_name,
-                                                                 config)
-        except Exception, err:
-            logger.error("Cannot create a new experiment. Error message: %s " % err)
-            raise
+        self._load_new_experiment(experiment_name, config)
 
     def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
@@ -111,6 +106,31 @@ class MLCLocal(MLC):
                 del self._open_experiments[experiment_name]
         except OSError:
             logger.info("[MLC_LOCAL] Error while trying to delete experiment file: {0}".format(file))
+
+    def import_experiment(self, experiment_path):
+        experiment_name = os.path.split(experiment_path)[1].split(".")[0]
+        self._create_experiment_dir(experiment_name)
+
+        try:
+            with tarfile.open(experiment_path, "r:gz") as tar:
+                tar.extractall(self._working_dir)
+            logger.info("[MLC_LOCAL] Experiment {0} was succesfully imported.".format(experiment_name))
+        except Exception, err:
+            logger.error("[MLC_LOCAL] Experiment {0} could not be imported. Error msg: {1}"
+                         .format(experiment_name, err))
+            raise
+
+        # Add the experiment to the list of experiments
+        experiment_dir = os.path.join(self._working_dir, experiment_name)
+        self._experiments[experiment_name] = Experiment(experiment_dir, experiment_name)
+
+    def export_experiment(self, experiment_name):
+        #  Generate a tar file and store it in a variable, to be able to send
+        # it via a websocket in the future
+        c = cStringIO.StringIO()
+        experiment_dir = os.path.join(self._working_dir, experiment_name)
+        util.make_tarfile(experiment_dir, c)
+        return c.getvalue()
 
     def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
         if experiment_name not in self._open_experiments:
@@ -216,6 +236,31 @@ class MLCLocal(MLC):
         simulation = self._open_experiments[experiment_name].get_simulation()
 
         return simulation.get_generation(generation_number)
+
+    def _create_experiment_dir(self, experiment_name):
+        """
+        If the experiment directory exists, raise an Exception
+        """
+        experiment_dir = os.path.join(self._working_dir, experiment_name)
+        if not os.path.exists(experiment_dir):
+            os.makedirs(experiment_dir)
+        else:
+            logger.error("[MLC_LOCAL] [CREATE_EXP_DIR] Could not add experiment {0}."
+                         "Experiment already exists".format(experiment_name))
+            raise DuplicatedExperimentError(experiment_name)
+
+    def _load_new_experiment(self, experiment_name, config_path):
+        experiment_config = ConfigParser.ConfigParser()
+        experiment_config.read(config_path)
+        config = Config.to_dictionary(experiment_config)
+
+        try:
+            self._experiments[experiment_name] = Experiment.make(self._working_dir,
+                                                                 experiment_name,
+                                                                 config)
+        except Exception, err:
+            logger.error("Cannot create a new experiment. Error message: %s " % err)
+            raise
 
 
 def parse_arguments():

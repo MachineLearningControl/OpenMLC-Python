@@ -3,6 +3,7 @@ import sys
 import time
 
 from MLC.api.mlc import DuplicatedExperimentError
+from MLC.Common import util
 from MLC.Log.log import get_gui_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -13,7 +14,7 @@ Object that will encapsulate all the operations related with the ABM of projects
 """
 
 
-class ExperimentsManager():    
+class ExperimentsManager():
 
     def __init__(self, mlc_local, gui_config):
         self._gui_config = gui_config
@@ -31,17 +32,16 @@ class ExperimentsManager():
         workspace_dir = self._gui_config.get('MAIN', 'workspace')
         self._experiment_list = self._mlc_local.get_workspace_experiments()
 
-        logger.info('[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Projects in the workspace: {0}'.format(self._experiment_list))
+        logger.info('[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - '
+                    'Projects in the workspace: {0}'
+                    .format(self._experiment_list))
         self._experiment_list.sort()
         self._load_experiment_info_per_project()
 
         elapsed_time = time.time() - start_time
-        logger.debug("[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Experiments info updated. Time elapsed: {0}".format(elapsed_time))
-
-    def _load_experiment_info_per_project(self):
-        self._experiment_info_dict = {}
-        for experiment_name in self._experiment_list:
-            self.load_experiment_info(experiment_name)
+        logger.debug("[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - "
+                     "Experiments info updated. Time elapsed: {0}"
+                     .format(elapsed_time))
 
     def load_experiment_info(self, experiment_name):
         start_time = time.time()
@@ -58,7 +58,8 @@ class ExperimentsManager():
         # Log the amount of time spent in every experiment info update
         amount_individuals = experiment_info["individuals"]
         elapsed_time = time.time() - start_time
-        logger.debug("[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - Experiment {0} info updated. "
+        logger.debug("[GUI_EXPERIMENT_MANAGER] [LOAD_EXPERIMENTS_INFO] - "
+                     "Experiment {0} info updated. "
                      "Amount Individuals: {1}. Time elapsed: {2}"
                      .format(experiment_name, amount_individuals, elapsed_time))
 
@@ -69,7 +70,8 @@ class ExperimentsManager():
                         "Added experiment {0}".format(experiment_name))
         except DuplicatedExperimentError:
             logger.error("[GUI_EXPERIMENT_MANAGER] [ADD_EXPERIMENT] - "
-                         "Error while adding experiment {0}".format(experiment_name))
+                         "Error while adding experiment {0}"
+                         .format(experiment_name))
             return False
 
         # Experiment succesfully loaded. Update its experiment_info
@@ -96,6 +98,26 @@ class ExperimentsManager():
         del self._experiment_info_dict[experiment_name]
         return True
 
+    def import_experiment(self, experiment_path):
+        experiment_name = os.path.split(experiment_path)[1].split(".")[0]
+        self._mlc_local.import_experiment(experiment_path)
+        self._experiment_list.append(experiment_name)
+        self.load_experiment_info(experiment_name)
+
+    def export_experiment(self, export_dir, experiment_name):
+        try:
+            export_path = os.path.join(export_dir, experiment_name + ".mlc")
+            source_path = os.path.join(self._mlc_local.get_working_dir(), experiment_name)
+            util.make_tarfile(export_path, source_path)
+            logger.info("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
+                        "Experiment {0} was succesfully exported. It is stored in {1}"
+                        .format(experiment_name, export_dir))
+        except Exception, err:
+            logger.error("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
+                         "An error ocurred while exporting project {0}. "
+                         "Error {1}".format(experiment_name, err))
+            raise
+
     def get_experiment_list(self):
         return self._experiment_list
 
@@ -103,6 +125,11 @@ class ExperimentsManager():
         try:
             return self._experiment_info_dict[experiment_name]
         except KeyError:
-            logger.debug("[GUI_EXPERIMENT_MANAGER] [GET_EXPERIMENTS_INFO] - Experiment {0} info not found.")
-
+            logger.debug("[GUI_EXPERIMENT_MANAGER] [GET_EXPERIMENTS_INFO] - "
+                         "Experiment {0} info not found.".format(experiment_name))
         return None
+
+    def _load_experiment_info_per_project(self):
+        self._experiment_info_dict = {}
+        for experiment_name in self._experiment_list:
+            self.load_experiment_info(experiment_name)
