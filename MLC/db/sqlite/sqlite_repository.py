@@ -12,7 +12,6 @@ class SQLiteRepository(MLCRepository):
     IN_MEMORY_DB = ":memory:"
 
     def __init__(self, database, init_db=False):
-        print database
         self._conn = sqlite3.connect(database)
         self._database = database
 

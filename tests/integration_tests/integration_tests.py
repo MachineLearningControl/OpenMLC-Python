@@ -1,10 +1,13 @@
-import sys, os
+import sys
+import os
 sys.path.append("../..")
 import matlab.engine
 import numpy as np
+import shutil
 import unittest
 import yaml
 
+from MLC.api.MLCLocal import MLCLocal
 from MLC.Application import Application
 from MLC.Common.RandomManager import RandomManager
 from MLC.db.mlc_repository import MLCRepository
@@ -20,6 +23,8 @@ the pure MATLAB Application is stored in the file 'generations.txt'
 class MLCIntegrationTest(unittest.TestCase):
     TEST_DIRECTORY = None
     GENERATIONS = None
+    WORKSPACE_DIR = os.path.abspath("/tmp/mlc_workspace/")
+    EXPERIMENT_NAME = "integration_tests"
 
     @classmethod
     def _populate_indiv_dict(cls):
@@ -69,6 +74,8 @@ class MLCIntegrationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config_file = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './configuration.ini')
+        ev_script = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './default_evaluation_script.py')
+        preev_script = os.path.join(MLCIntegrationTest.TEST_DIRECTORY, './default_preevaluation_script.py')
 
         # Load the config
         config = Config.get_instance()
@@ -79,37 +86,33 @@ class MLCIntegrationTest(unittest.TestCase):
         RandomManager.clear_random_values()
         RandomManager.load_random_values(random_file)
 
-        # clear state
-        if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-            try:
-                os.remove(Config.get_instance().get("BEHAVIOUR", "savedir"))
-            except OSError:
-                pass
+        # Create the workspace directory
+        try:
+            os.makedirs(MLCIntegrationTest.WORKSPACE_DIR)
+        except OSError:
+            shutil.rmtree(MLCIntegrationTest.WORKSPACE_DIR)
+            os.makedirs(MLCIntegrationTest.WORKSPACE_DIR)
+
+        # Create a new experiment, which will be used to
+        cls._mlc = MLCLocal(working_dir=MLCIntegrationTest.WORKSPACE_DIR)
+        cls._mlc.new_experiment(experiment_name=MLCIntegrationTest.EXPERIMENT_NAME,
+                                experiment_configuration=config_file,
+                                evaluation_script=ev_script,
+                                preevaluation_script=preev_script)
+        cls._mlc.open_experiment(experiment_name=MLCIntegrationTest.EXPERIMENT_NAME)
 
         for generation_params in MLCIntegrationTest.GENERATIONS:
-            # clear static values
-            if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-                MLCRepository._instance = None
-            simulation = Simulation("integration_test")
-            cls._app = Application(simulation)
-
             if isinstance(generation_params, int):
-                cls._app.go(to_generation=generation_params)
+                cls._mlc.go(experiment_name=MLCIntegrationTest.EXPERIMENT_NAME,
+                            to_generation=generation_params)
 
             elif isinstance(generation_params, list):
-                cls._app.go(from_generation=generation_params[0],
+                cls._mlc.go(experiment_name=MLCIntegrationTest.EXPERIMENT_NAME,
+                            from_generation=generation_params[0],
                             to_generation=generation_params[1])
 
             else:
                 raise Exception("Integration test, bad value for generations param")
-
-        if Config.get_instance().getboolean("BEHAVIOUR", "save"):
-            MLCRepository._instance._conn.close()
-            MLCRepository._instance = None
-            cls._app = Application(Simulation("integration_test"))
-
-        a = cls._app.get_simulation().number_of_generations()
-        print "Number of populations: " + str(a)
 
         # List with individuals data
         cls._indivs = []
@@ -118,7 +121,12 @@ class MLCIntegrationTest(unittest.TestCase):
         cls._pops = []
         cls ._populate_pop_dict()
 
-    ## FIXME: Test methods should be cerated dynamically in the setUp method.
+    @classmethod
+    def tearDownClass(cls):
+        cls._mlc.close_experiment(experiment_name=MLCIntegrationTest.EXPERIMENT_NAME)
+        shutil.rmtree(MLCIntegrationTest.WORKSPACE_DIR)
+
+    # FIXME: Test methods should be crated dynamically in the setUp method.
     def test_generation_1(self):
         if max(MLCIntegrationTest.GENERATIONS) >= 1:
             self._run_x_generation(1)
@@ -160,7 +168,7 @@ class MLCIntegrationTest(unittest.TestCase):
         self._check_indiv_values(gen_number)
 
         print "Check Indvidual properties..."
-        pop = self._app.get_simulation().get_generation(gen_number)
+        pop = self._mlc.get_generation(MLCIntegrationTest.EXPERIMENT_NAME, gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
 
@@ -169,7 +177,7 @@ class MLCIntegrationTest(unittest.TestCase):
 
     def _check_indiv_values(self, gen_number):
         i = 1
-        indexes = self._app.get_simulation().get_generation(gen_number).get_individuals()
+        indexes = self._mlc.get_generation(MLCIntegrationTest.EXPERIMENT_NAME, gen_number).get_individuals()
         print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
         for index in indexes:
             indiv = MLCRepository.get_instance().get_individual(index)
@@ -187,10 +195,6 @@ class MLCIntegrationTest(unittest.TestCase):
         # List of dictionaries with the values of every individual
         pop = self._pops[gen_number - 1]
         for i in range(len(pop)):
-        #     if str(values[i]) != str(pop[i][map_property]):
-        #         print "Indiv N#{0} - Value obtained: {1}".format(i + 1, values[i])
-        #         print "Indiv N#{0} - Value expected: {1}".format(i + 1, str(pop[i][map_property]))
-
             if type == 'int':
                 self.assertEqual(int(values[i]), int(pop[i][map_property]))
             elif type == 'float':
@@ -203,6 +207,7 @@ class MLCIntegrationTest(unittest.TestCase):
             else:
                 self.assertEqual(values[i], pop[i][map_property])
 
+
 def get_test_class(test_dir, integration_test):
     generations = integration_test['generations']
     if isinstance(generations, int):
@@ -211,10 +216,12 @@ def get_test_class(test_dir, integration_test):
     class IntegrationTest(MLCIntegrationTest):
         MLCIntegrationTest.TEST_DIRECTORY = test_dir
         MLCIntegrationTest.GENERATIONS = generations
+        MLCIntegrationTest.EXPERIMENT_NAME = test_dir
 
     return IntegrationTest
 
-def execute_integration_test(test_name, integration_test):
+
+def execute_integration_test(test_dir, integration_test):
     print "Running '%s' with %s generations: %s" % (integration_test['name'],
                                                     integration_test['generations'],
                                                     integration_test['description'])

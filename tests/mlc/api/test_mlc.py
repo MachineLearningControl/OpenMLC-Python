@@ -30,14 +30,16 @@ class MLCWorkspaceTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
+        try:
+            os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
+        except OSError:
+            shutil.rmtree(MLCWorkspaceTest.WORKSPACE_DIR)
+            os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
+
         mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
         # general settings for MLC
         set_logger('console')
         set_working_directory(MLCWorkspaceTest.WORKSPACE_DIR)
-
-        if not os.path.exists(MLCWorkspaceTest.WORKSPACE_DIR):
-            os.makedirs(MLCWorkspaceTest.WORKSPACE_DIR)
 
         this_dir = os.path.dirname(os.path.abspath(__file__))
         MLCWorkspaceTest.ORIGINAL_CONFIGURATION = \

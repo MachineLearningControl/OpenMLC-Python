@@ -14,6 +14,8 @@ from MLC.api.mlc import ClosedExperimentException
 from MLC.api.mlc import ExperimentNotExistException
 from MLC.api.mlc import DuplicatedExperimentError
 from MLC.api.mlc import InvalidExperimentException
+from MLC.api.mlc import EvaluationScriptNotExistException
+from MLC.api.mlc import PreevaluationScriptNotExistException
 from MLC.Application import Application
 from MLC.config import get_templates_path
 from MLC.config import set_working_directory
@@ -27,6 +29,8 @@ logger = get_gui_logger()
 
 class MLCLocal(MLC):
     DEFAULT_EXPERIMENT_CONFIG = os.path.join(get_templates_path(), "configuration.ini")
+    DEFAULT_EVALUATION_SCRIPT = os.path.join(get_templates_path(), "toy_problem.py")
+    DEFAULT_PREEVALUATION_SCRIPT = os.path.join(get_templates_path(), "default.py")
 
     def __init__(self, working_dir):
         if not os.path.exists(working_dir):
@@ -85,14 +89,19 @@ class MLCLocal(MLC):
         sys.path.remove(experiment_dir)
         del self._open_experiments[experiment_name]
 
-    def new_experiment(self, experiment_name, experiment_configuration=None):
+    def new_experiment(self, experiment_name,
+                       experiment_configuration=None,
+                       evaluation_script=None,
+                       preevaluation_script=None):
         self._create_experiment_dir(experiment_name)
 
         config = experiment_configuration
         if experiment_configuration is None:
             config = MLCLocal.DEFAULT_EXPERIMENT_CONFIG
 
-        self._load_new_experiment(experiment_name, config)
+        self._load_new_experiment(experiment_name, config,
+                                  evaluation_script,
+                                  preevaluation_script)
 
     def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
@@ -249,15 +258,30 @@ class MLCLocal(MLC):
                          "Experiment already exists".format(experiment_name))
             raise DuplicatedExperimentError(experiment_name)
 
-    def _load_new_experiment(self, experiment_name, config_path):
+    def _load_new_experiment(self, experiment_name, config_path,
+                             evaluation_script, preevaluation_script):
         experiment_config = ConfigParser.ConfigParser()
         experiment_config.read(config_path)
         config = Config.to_dictionary(experiment_config)
 
+        if evaluation_script is None:
+            evaluation_script = MLCLocal.DEFAULT_EVALUATION_SCRIPT
+
+        if preevaluation_script is None:
+            preevaluation_script = MLCLocal.DEFAULT_PREEVALUATION_SCRIPT
+
+        if not os.path.exists(evaluation_script):
+            raise EvaluationScriptNotExistException(experiment_name, evaluation_script)
+
+        if not os.path.exists(preevaluation_script):
+            raise PreevaluationScriptNotExistException(experiment_name, evaluation_script)
+
         try:
             self._experiments[experiment_name] = Experiment.make(self._working_dir,
                                                                  experiment_name,
-                                                                 config)
+                                                                 config,
+                                                                 evaluation_script,
+                                                                 preevaluation_script)
         except Exception, err:
             logger.error("Cannot create a new experiment. Error message: %s " % err)
             raise

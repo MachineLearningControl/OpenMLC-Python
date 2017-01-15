@@ -56,7 +56,8 @@ class Experiment:
         Config.get_instance().read(self._config_file)
 
     @staticmethod
-    def make(working_dir, experiment_name, experiment_configuration):
+    def make(working_dir, experiment_name, experiment_configuration,
+             evaluation_script, preevaluation_script):
         # Obtain experiment filenames
         experiment_dir = os.path.join(working_dir, experiment_name)
         experiment_cf, experiment_db = Experiment.get_experiment_files(experiment_dir, experiment_name)
@@ -79,17 +80,14 @@ class Experiment:
         simulation = Simulation(experiment_name)
 
         def folder_structure_creator(folder_to_create, file_to_copy):
-            templates_dir = path_solver.get_templates_path()
-            file_template = os.path.join(templates_dir, file_to_copy)
             folder_path = os.path.join(experiment_dir, folder_to_create)
-            file_copied = os.path.join(folder_path, file_to_copy)
             os.makedirs(folder_path)
-            shutil.copyfile(file_template, file_copied)
+            shutil.copy(file_to_copy, folder_path)
             init_file = os.path.join(folder_path, "__init__.py")
             open(init_file, "w").close()
 
-        folder_structure_creator("Evaluation", "toy_problem.py")
-        folder_structure_creator("Preevaluation", "default.py")
+        folder_structure_creator("Evaluation", evaluation_script)
+        folder_structure_creator("Preevaluation", preevaluation_script)
 
         # Load experiment
         try:

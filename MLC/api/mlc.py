@@ -20,6 +20,22 @@ class DuplicatedExperimentError(MLCException):
         MLCException.__init__(self, "Experiment '%s' already exists." % experiment_name)
 
 
+class EvaluationScriptNotExistException(MLCException):
+
+    def __init__(self, experiment_name, script_path):
+        MLCException.__init__(self, "Experiment {0} is trying to use a non "
+                                    "existent evaluation script. Script: {1}"
+                                    .format(experiment_name, script_path))
+
+
+class PreevaluationScriptNotExistException(MLCException):
+
+    def __init__(self, experiment_name, script_path):
+        MLCException.__init__(self, "Experiment {0} is trying to use a non "
+                                    "existent evaluation script. Script: {1}"
+                                    .format(experiment_name, script_path))
+
+
 class MLC:
 
     def open_experiment(self, experiment_name):
