@@ -51,7 +51,13 @@ def individual_data(indiv):
 
 def cost(indiv):
     x, y, y2, mlc_y3 = individual_data(indiv)
-    cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    cost_mlc_y3 = None
+    try:
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    except FloatingPointError, err:
+        np.seterr(all='ignore')
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+        np.seterr(all='raise')
     return cost_mlc_y3
 
 

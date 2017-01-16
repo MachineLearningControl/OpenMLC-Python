@@ -15,13 +15,6 @@ def initialize_config():
 
 
 def main():
-    # Set printable resolution (don't alter numpy interval resolution)
-    np.set_printoptions(precision=9)
-    # Show full arrays, no matter what size do they have
-    np.set_printoptions(threshold=np.inf)
-    # Don't show scientific notation
-    np.set_printoptions(suppress=True)
-
     # MATLAB random numbers, used in integration tests
     RandomManager.load_random_values("./tests/integration_tests/matlab_randoms.txt")
 

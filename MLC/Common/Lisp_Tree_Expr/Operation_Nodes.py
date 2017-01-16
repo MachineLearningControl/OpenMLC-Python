@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import importlib
 
 import MLC.Log.log as lg
@@ -14,6 +16,18 @@ from MLC.Common.Operations import Operations
 def process_float(arg):
     str_arg = ("%." + Config.get_instance().get('POPULATION', 'precision') + "f") % (arg)
     return str_arg
+
+
+def execute_op_without_warnings(op, log_prefix, exception_msg, arg1, arg2=None):
+    result = None
+    np.seterr(all='ignore')
+    if arg2 is None:
+        result = op(arg1)
+    else:
+        result = op(arg1, arg2)
+    np.seterr(all='raise')
+    lg.logger_.warn("{0}{1}".format(log_prefix, exception_msg))
+    return result
 
 
 class Plus_Node(Internal_Node):
@@ -39,7 +53,14 @@ class Plus_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return arg_list[0] + arg_list[1]
+        try:
+            return arg_list[0] + arg_list[1]
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.add,
+                                               arg1=arg_list[0],
+                                               arg2=arg_list[1],
+                                               log_prefix="[PLUS_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Minus_Node(Internal_Node):
@@ -63,7 +84,15 @@ class Minus_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return arg_list[0] - arg_list[1]
+        try:
+            return arg_list[0] - arg_list[1]
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.subtract,
+                                               arg1=arg_list[0],
+                                               arg2=arg_list[1],
+                                               log_prefix="[MINUS_NODE] Error: ",
+                                               exception_msg=err)
+
 
 
 class Mult_Node(Internal_Node):
@@ -92,7 +121,14 @@ class Mult_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return arg_list[0] * arg_list[1]
+        try:
+            return arg_list[0] * arg_list[1]
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.multiply,
+                                               arg1=arg_list[0],
+                                               arg2=arg_list[1],
+                                               log_prefix="[MULTI_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Division_Node(Internal_Node):
@@ -135,7 +171,14 @@ class Division_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return self._process_division(arg_list[0], arg_list[1])
+        try:
+            return self._process_division(arg_list[0], arg_list[1])
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=self._process_division, 
+                                               arg1=arg_list[0],
+                                               arg2=arg_list[1],
+                                               log_prefix="[DIV_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Sine_Node(Internal_Node):
@@ -154,7 +197,13 @@ class Sine_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return np.sin(arg_list[0])
+        try:
+            return np.sin(arg_list[0])
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.sin, 
+                                               arg1=arg_list[0],
+                                               log_prefix="[SIN_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Cosine_Node(Internal_Node):
@@ -173,7 +222,13 @@ class Cosine_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return np.cos(arg_list[0])
+        try:
+            return np.cos(arg_list[0])
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.cos, 
+                                               arg1=arg_list[0],
+                                               log_prefix="[COS_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Logarithm_Node(Internal_Node):
@@ -207,7 +262,13 @@ class Logarithm_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return np.log(self._process_arg(arg_list[0]))
+        try:
+            return np.log(self._process_arg(arg_list[0]))
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=lambda x: np.log(self._process_arg(x)),
+                                               arg1=arg_list[0],
+                                               log_prefix="[LOG_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Exponential_Node(Internal_Node):
@@ -220,12 +281,12 @@ class Exponential_Node(Internal_Node):
 
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
-            lg.logger_.debug("[EXP NODE] Value: " + self._nodes[0].to_string())
+            lg.logger_.debug("[EXP_NODE] Value: " + self._nodes[0].to_string())
             try:
                 arg = np.exp(float(self._nodes[0].to_string()))
             except OverflowError:
                 # FIXME: See what to do with this expression, because there are problems when
-                # an infinite value is the argumento of a sinusoidal function
+                # an infinite value is the argument of a sinusoidal function
                 return Leaf_Node(process_float(float("inf")))
 
             return Leaf_Node(process_float(arg))
@@ -233,7 +294,13 @@ class Exponential_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return np.exp(arg_list[0])
+        try:
+            return np.exp(arg_list[0])
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.exp, 
+                                               arg1=arg_list[0],
+                                               log_prefix="[EXP_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class Tanh_Node(Internal_Node):
@@ -252,7 +319,13 @@ class Tanh_Node(Internal_Node):
             return self
 
     def op_compute(self, arg_list):
-        return np.tanh(arg_list[0])
+        try:
+            return np.tanh(arg_list[0])
+        except FloatingPointError, err:
+            return execute_op_without_warnings(op=np.exp, 
+                                               arg1=arg_list[0],
+                                               log_prefix="[TANH_NODE] Error: ",
+                                               exception_msg=err)
 
 
 class RootNode(Internal_Node):
@@ -285,6 +358,7 @@ class RootNode(Internal_Node):
 
 
 class Op_Node_Factory:
+
     @staticmethod
     def make(op):
         if op == 'root':

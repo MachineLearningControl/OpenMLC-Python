@@ -1,3 +1,4 @@
+import numpy as np
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -18,6 +19,7 @@ class MLC_CALLBACKS:
 
 class Application(object):
     def __init__(self, simulation, callbacks={}):
+        self._set_numpy_parameters()
         self._config = Config.get_instance()
 
         self._simulation = simulation
@@ -66,6 +68,16 @@ class Application(object):
         # add callback to show best individual
         self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_NEW_GENERATION, self.show_best)
         self.__display_best = False
+
+    def _set_numpy_parameters(self):
+        # Set printable resolution (don't alter numpy interval resolution)
+        np.set_printoptions(precision=3)
+        # Show full arrays, no matter what size do they have
+        np.set_printoptions(threshold=np.inf)
+        # Don't show scientific notation
+        np.set_printoptions(suppress=True)
+        # Transform printed warnings to real warnings
+        np.seterr(all='raise')
 
     def go(self, to_generation, from_generation=None, display_best=False):
         """
