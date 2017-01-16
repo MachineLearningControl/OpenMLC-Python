@@ -4,6 +4,7 @@ import math
 import numpy as np
 import os
 import sys
+import threading
 sys.path.append(os.path.abspath(".") + "/../..")
 
 from MLC.Application import MLC_CALLBACKS
@@ -19,8 +20,56 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
 
 from threading import Thread
-
+from threading import Condition
 logger = get_gui_logger()
+
+
+class ThreadCancelException(Exception):
+
+    def __init__(self):
+        Exception.__init__(self, "[EXPERIMENT_IN_PROGRESS] [THREAD_CANCELLED] - "
+                                 "Thread was cancelled by the user")
+
+
+class ExperimentCondition():
+
+    def __init__(self):
+        self._condition = Condition()
+        self._experiment_stopped = False
+        self._experiment_cancelled = False
+
+    def stop_experiment(self):
+        self._condition.acquire()
+        self._experiment_stopped = True
+        self._condition.release()
+
+    def continue_experiment(self):
+        self._condition.acquire()
+        self._experiment_stopped = False
+        self._condition.notify()
+        self._condition.release()
+
+    def cancel_experiment(self):
+        self._condition.acquire()
+        self._experiment_cancelled = True
+        self._condition.notify()
+        self._condition.release()
+
+    def wait_if_experiment_stopped(self):
+        had_to_wait = False
+        self._condition.acquire()
+        if self._experiment_stopped:
+            self._condition.wait()
+            had_to_wait = True
+        self._condition.release()
+        return had_to_wait
+
+    def experiment_cancelled(self):
+        cancelled = None
+        self._condition.acquire()
+        cancelled = self._experiment_cancelled
+        self._condition.release()
+        return cancelled
 
 
 class ExperimentInProgressDialog(QMainWindow):
@@ -51,15 +100,31 @@ class ExperimentInProgressDialog(QMainWindow):
         self._chart_params = chart_params
         self._current_generation = 1
 
-    # FIXME: Change this for a kwargs implementation
+        # Condition variable used to check when the experiment has been stopped or cancelled
+        self._experiment_condition = ExperimentCondition()
+
     def add_experiment_data(self, amount_gens, indivs_per_gen):
         self._amount_gens = amount_gens
         self._indivs_per_gen = indivs_per_gen
         self._total_indivs = self._amount_gens * self._indivs_per_gen
         self._create_new_chart()
 
+    def get_experiment_condition_variable(self):
+        return self._experiment_condition
+
     def on_cancel_button_clicked(self):
         logger.debug('{0} [CANCEL_BUTTON] - Executing on_cancel_button_clicked function'.format(self._log_prefix))
+        self._experiment_condition.stop_experiment()
+
+        response = QMessageBox.information(self, "Experiment Stopped",
+                                           "Do you want to stop the current experiment?",
+                                           QMessageBox.Yes | QMessageBox.No,
+                                           QMessageBox.No)
+
+        if response == QMessageBox.Yes:
+            self._experiment_condition.cancel_experiment()
+        else:
+            self._experiment_condition.continue_experiment()
 
     def _update_dialog(self, indivs_per_gen_counter, total_indivs_counter, gen_counter, cost):
         logger.debug('{0} [UPDATE_EXP_IN_PROGRESS] - Executing update_dialog function'.format(self._log_prefix))
@@ -80,7 +145,7 @@ class ExperimentInProgressDialog(QMainWindow):
 
     def _simulation_finished(self):
         logger.debug('{0} [SIM_FINISHED] - Executing simulation_finished function'.format(self._log_prefix))
-        self._parent_signal.emit()
+        self._parent_signal.emit(self._experiment_condition.experiment_cancelled())
 
     def _update_current_gen_experiment(self, indiv_index, cost):
         if cost > self._chart_params["max_cost"]:
@@ -165,15 +230,23 @@ class ExperimentInProgress(Thread):
         self._dialog = ExperimentInProgressDialog(parent=parent,
                                                   parent_signal=parent_signal,
                                                   chart_params=chart_params)
+        self._experiment_condition = self._dialog.get_experiment_condition_variable()
         self._dialog.add_experiment_data(self._amount_gens, self._indivs_per_gen)
         self._dialog.show()
 
     def run(self):
         logger.debug('{0} [RUN] - Executing Thread mainloop'.format(self._log_prefix))
-        self._mlc_local.go(self._experiment_name, self._to_gen, self._from_gen, self._callbacks)
+        try:
+            self._mlc_local.go(self._experiment_name, self._to_gen,
+                               self._from_gen, self._callbacks)
+        except ThreadCancelException, err:
+            logger.info('{0} [RUN] - Thread was cancelled by the user'
+                        .format(self._log_prefix))
+            self._dialog.simulation_finished.emit()
 
     def indiv_evaluated(self, individual_id, cost):
-        logger.debug('{0} [INDIV_EV] - Executing indiv_evaluated callback. Indiv Id: {1} - Cost: {2}'
+        logger.debug('{0} [INDIV_EV] - Executing indiv_evaluated callback. '
+                     'Indiv Id: {1} - Cost: {2}'
                      .format(self._log_prefix, individual_id, cost))
 
         self._indiv_per_gen_counter += 1
@@ -182,15 +255,20 @@ class ExperimentInProgress(Thread):
                                           self._total_indivs_counter,
                                           self._gen_counter,
                                           cost)
+        self._check_if_project_stopped_or_cancelled()
 
     def new_generation_created(self, generation_number):
-        logger.debug('{0} [NEW_GEN_CREATED] - Executing new_generation_created function'.format(self._log_prefix))
+        logger.debug('{0} [NEW_GEN_CREATED] - '
+                     'Executing new_generation_created function'
+                     .format(self._log_prefix))
         self._gen_counter += 1
         self._indiv_per_gen_counter = 0
         self._dialog.new_generation.emit()
+        self._check_if_project_stopped_or_cancelled()
 
     def simulation_started(self):
         logger.debug('{0} [SIM_STARTED] - Executing simulation_started function'.format(self._log_prefix))
+        self._check_if_project_stopped_or_cancelled()
 
     def simulation_finished(self):
         logger.debug('{0} [SIM_FINISHED] - Executing simulation_finished function'.format(self._log_prefix))
@@ -198,3 +276,9 @@ class ExperimentInProgress(Thread):
 
     def close_window(self):
         self._dialog.close()
+
+    def _check_if_project_stopped_or_cancelled(self):
+        if self._experiment_condition.wait_if_experiment_stopped():
+            # Check if the experiment was cancelled
+            if self._experiment_condition.experiment_cancelled():
+                raise ThreadCancelException()

@@ -85,13 +85,6 @@
       </property>
       <layout class="QVBoxLayout" name="picture_layout">
        <item>
-        <widget class="QCheckBox" name="log_check">
-         <property name="text">
-          <string>Log Scale</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QTextEdit" name="indiv_chart"/>
        </item>
       </layout>
@@ -135,7 +128,7 @@
        <item>
         <widget class="QPushButton" name="cancel_button">
          <property name="text">
-          <string>Stop Experiment</string>
+          <string>Cancel Experiment</string>
          </property>
         </widget>
        </item>
