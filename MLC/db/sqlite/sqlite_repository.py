@@ -4,8 +4,11 @@ import time
 from MLC.db.mlc_repository import MLCRepository
 from MLC.db.mlc_repository import MLCRepositoryHelper, IndividualData
 from MLC.individual.Individual import Individual
+from MLC.Log.log import get_gui_logger
 from MLC.Simulation import Simulation
 from sql_statements import *
+
+logger = get_gui_logger()
 
 
 class SQLiteRepository(MLCRepository):
@@ -208,7 +211,8 @@ class SQLiteRepository(MLCRepository):
         else:
             stmt_to_update_cost = stmt_update_cost(individual_id, cost, evaluation_time, generation)
 
-        print ">>> STMT:%s" % stmt_to_update_cost
+        logger.debug("[SQLITE_REPO] [UPDATE_INDIV_COST] - Query executed: {0}"
+                     .format(stmt_to_update_cost))
         self.__execute(stmt_to_update_cost)
 
     def __execute(self, statement):
