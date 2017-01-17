@@ -35,11 +35,13 @@ class PreevaluationScriptNotExistException(MLCException):
                                     "existent evaluation script. Script: {1}"
                                     .format(experiment_name, script_path))
 
+
 class ImportExperimentPathNotExistException(MLCException):
 
     def __init__(self, experiment_path):
         MLCException.__init__(self, "Import Experiment Error: Path {0} does not exists."
                                     .format(experiment_path))
+
 
 class MLC:
 
@@ -159,13 +161,21 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_generation not implemented")
 
-    def get_individuals(self, experiment_name, individual_id=None):
+    def get_individuals(self, experiment_name):
         """
             Obtained generated individuals during the simulation.
             :param experiment_name:
             :return:
         """
         raise NotImplementedError("MLC::get_individuals not implemented")
+
+    def get_individual(self, experiment_name, individual_id):
+        """
+            Obtained generated individuals during the simulation.
+            :param experiment_name:
+            :return:
+        """
+        raise NotImplementedError("MLC::get_individual not implemented")
 
     def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
         """

@@ -88,6 +88,17 @@ class ConfigTableModel(QAbstractTableModel):
                              .format(self._name, index.row(), index.column()))
         return False
 
+    def set_data(self, row, col, value):
+        try:
+            # Check if the row exists, indexing the element to modify
+            self.layoutAboutToBeChanged.emit()
+            self._data[row][col] = value
+            self.layoutChanged.emit()
+        except IndexError:
+            logger.error("[TABLE_VIEW] [{0}] - [SET_DATA] IndexError while retrieving data. "
+                         "Row: {1} - Col: {2}"
+                         .format(self._name, index.row(), index.column()))
+
     def get_data(self, row, col):
         try:
             return self._data[row][col]

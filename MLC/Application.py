@@ -71,7 +71,7 @@ class Application(object):
 
     def _set_numpy_parameters(self):
         # Set printable resolution (don't alter numpy interval resolution)
-        np.set_printoptions(precision=3)
+        np.set_printoptions(precision=9)
         # Show full arrays, no matter what size do they have
         np.set_printoptions(threshold=np.inf)
         # Don't show scientific notation

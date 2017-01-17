@@ -8,6 +8,7 @@ from collections import defaultdict
 
 
 class MLCRepositoryHelper:
+
     @staticmethod
     def get_hash_for_individual(individual):
         m = hashlib.md5()
@@ -30,6 +31,7 @@ class IndividualData:
         appearances:
             number of time the individual appears
     """
+
     def __init__(self, value):
         self._value = value
         self._cost_history = defaultdict(list)

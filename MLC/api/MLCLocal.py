@@ -211,11 +211,6 @@ class MLCLocal(MLC):
         return True
 
     def get_individuals(self, experiment_name):
-        """
-        Return a list with IndividualData (see MLCRepository::IndividualData)
-        :param experiment_name:
-        :return:
-        """
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -228,6 +223,20 @@ class MLCLocal(MLC):
         # obtain individuals from the database
         individuals = MLCRepository.get_instance().get_individuals_data()
         return individuals
+
+    def get_individual(self, experiment_name, individual_id):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        # get simulation in order to load mlc experiment database
+        simulation = self._open_experiments[experiment_name].get_simulation()
+
+        # obtain individuals from the database
+        individual = MLCRepository.get_instance().get_individual_data(individual_id)
+        return individual
 
     def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
         if experiment_name not in self._experiments:
