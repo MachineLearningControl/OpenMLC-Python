@@ -21,9 +21,11 @@ def stmt_delete_generation(generation):
     return """DELETE FROM population
               WHERE gen = %s""" % (generation,)
 
+
 def stmt_delete_from_generations(from_generation):
     return """DELETE FROM population
               WHERE gen >= %s""" % (from_generation,)
+
 
 def stmt_delete_unused_individuals():
     return '''DELETE FROM individual
@@ -38,6 +40,7 @@ def stmt_get_unused_individuals():
 def stmt_delete_unused_individuals():
     return '''DELETE FROM individual
               WHERE indiv_id NOT IN (SELECT DISTINCT indiv_id FROM population)'''
+
 
 def stmt_get_generations():
     return '''SELECT distinct gen FROM population'''
@@ -61,6 +64,7 @@ def stmt_get_individuals_from_population(generation):
 
 
 class SQLSaveFormal:
+
     @staticmethod
     def to_sql(indiv_formal):
         if isinstance(indiv_formal, str):
@@ -72,11 +76,13 @@ class SQLSaveFormal:
     def from_sql(indiv_formal_column):
         return indiv_formal_column.split('@')
 
+
 def stmt_insert_individual(individual_id, individual):
     return '''INSERT INTO individual VALUES (%s, "%s", "%s", %s)''' % (individual_id,
                                                                        individual.get_value(),
                                                                        SQLSaveFormal.to_sql(individual.get_formal()),
                                                                        individual.get_complexity())
+
 
 def stmt_get_all_individuals():
     return '''SELECT indiv_id, value, formal, complexity
@@ -89,10 +95,12 @@ def stmt_get_individual_data(indiv_id):
               FROM population
               WHERE indiv_id = %s''' % (indiv_id)
 
+
 def stmt_get_individuals_data():
     return '''SELECT indiv_id, gen, cost, evaluation_time
               FROM   population
               ORDER BY indiv_id'''
+
 
 def stmt_update_all_costs(individual_id, cost, evaluation_time):
     return '''UPDATE population
@@ -107,5 +115,13 @@ def stmt_update_cost(individual_id, cost, evaluation_time, generation):
                                                      evaluation_time,
                                                      individual_id,
                                                      generation)
+
+
+def stmt_get_individual_with_min_cost():
+    return '''SELECT indiv_id
+              FROM population
+              ORDER BY cost ASC
+              LIMIT 1'''
+
 def stmt_enable_foreign_key():
     return '''PRAGMA foreign_keys = ON'''

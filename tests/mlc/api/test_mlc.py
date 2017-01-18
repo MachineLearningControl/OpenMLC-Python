@@ -1,22 +1,23 @@
 from nose.tools import nottest
-import unittest
-import shutil
-import os
+import ConfigParser
 import MLC.api
+import os
+import shutil
+import unittest
 
+from collections import OrderedDict
 from MLC.api.MLCLocal import MLCLocal
 from MLC.api.Experiment import Experiment
 
-from MLC.Simulation import Simulation
-from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.config import set_working_directory
 from MLC.Common.RandomManager import RandomManager
-from MLC.Log.log import set_logger
-from MLC.individual.Individual import Individual as MLCIndividual
-from MLC.Population.Population import Population as MLCPopulation
 from MLC.db.mlc_repository import IndividualData
+from MLC.individual.Individual import Individual as MLCIndividual
+from MLC.Log.log import set_logger
+from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.Population.Population import Population as MLCPopulation
+from MLC.Simulation import Simulation
 
-import ConfigParser
 
 
 class MLCWorkspaceTest(unittest.TestCase):
@@ -194,7 +195,6 @@ class MLCWorkspaceTest(unittest.TestCase):
         info = mlc.get_experiment_info(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
 
         self._assert_key_value(info, "name", MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
-        self._assert_key_value(info, "filename", MLCWorkspaceTest.ORIGINAL_EXPERIMENT + ".mlc")
         self._assert_key_value(info, "generations", 0)
         self._assert_key_value(info, "individuals", 0)
         self._assert_key_value(info, "individuals_per_generation", 10)
@@ -216,7 +216,6 @@ class MLCWorkspaceTest(unittest.TestCase):
             # check simulation info
             info = mlc.get_experiment_info("test_go_and_check")
             self._assert_key_value(info, "name", "test_go_and_check")
-            self._assert_key_value(info, "filename", "test_go_and_check" + ".mlc")
             self._assert_key_value(info, "generations", 2)
             self._assert_key_value(info, "individuals", 11)
             self._assert_key_value(info, "individuals_per_generation", 10)
@@ -331,7 +330,7 @@ class MLCWorkspaceTest(unittest.TestCase):
             self.assertFalse("test5" in mlc.get_workspace_experiments())
 
     def _assert_key_value(self, dictionary, key, value):
-        self.assertIsInstance(dictionary, dict)
+        self.assertIsInstance(dictionary, OrderedDict)
         self.assertIn(key, dictionary)
         self.assertEqual(dictionary[key], value)
 

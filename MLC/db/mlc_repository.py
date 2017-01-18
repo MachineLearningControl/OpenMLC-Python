@@ -87,6 +87,9 @@ class MLCRepository:
     def remove_individual(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 
+    def get_individual_with_min_cost(self):
+        raise NotImplementedError("This method must be implemented")
+
     def get_individual(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 

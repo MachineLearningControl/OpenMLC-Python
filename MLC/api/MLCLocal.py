@@ -8,6 +8,7 @@ import sys
 import tarfile
 import time
 
+from collections import OrderedDict
 from MLC.api.Experiment import Experiment
 from MLC.api.mlc import MLC
 from MLC.api.mlc import ClosedExperimentException
@@ -183,14 +184,18 @@ class MLCLocal(MLC):
 
         simulation = self._open_experiments[experiment_name].get_simulation()
 
-        experiment_info = {
-            "name": experiment_name,
-            "generations": simulation.number_of_generations(),
-            "individuals": MLCRepository.get_instance().count_individual(),
-            "individuals_per_generation": Config.get_instance().getint("POPULATION", "size"),
-            "filename": experiment_name + ".mlc"
-        }
+        experiment_info = OrderedDict()
+        experiment_info["name"] = experiment_name
+        experiment_info["generations"] = simulation.number_of_generations()
+        experiment_info["individuals"] = MLCRepository.get_instance().count_individual()
+        experiment_info["individuals_per_generation"] = Config.get_instance().getint("POPULATION", "size")
 
+        if MLCRepository.get_instance().count_individual() != 0:
+            # Get the best indiv description
+            min_indiv_id = MLCRepository.get_instance().get_individual_with_min_cost()
+            min_indiv_data = MLCRepository.get_instance().get_individual_data(min_indiv_id)
+            experiment_info["best_indiv_id"] = min_indiv_id
+            experiment_info["best_indiv_value"] = min_indiv_data.get_value()
         return experiment_info
 
     def go(self, experiment_name, to_generation, from_generation=0, callbacks={}):

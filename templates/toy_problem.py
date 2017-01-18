@@ -75,7 +75,7 @@ def show_best(index, generation, indiv, cost, block=True):
     fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
 
     plt.suptitle("Generation N#{0} - Individual N#{1}\n"
-                 "Cost: {1}\n Formal: {3}".format(generation,
+                 "Cost: {2}\n Formal: {3}".format(generation,
                                                   index,
                                                   cost,
                                                   indiv.get_formal()))

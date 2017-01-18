@@ -159,6 +159,15 @@ class SQLiteRepository(MLCRepository):
     def remove_individual(self, individual_id):
         raise NotImplementedError("This method must be implemented")
 
+    def get_individual_with_min_cost(self):
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_individual_with_min_cost())
+
+        # We are expecting just one result
+        min_indiv_id = cursor.fetchone()[0]
+        cursor.close()
+        return min_indiv_id
+
     def get_individual(self, individual_id):
         try:
             return self.__individuals[individual_id]
