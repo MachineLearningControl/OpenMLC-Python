@@ -224,6 +224,18 @@ class MLCLocal(MLC):
         individuals = MLCRepository.get_instance().get_individuals_data()
         return individuals
 
+    def get_generation(self, experiment_name, generation_number):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        # get simulation in order to load mlc experiment database
+        simulation = self._open_experiments[experiment_name].get_simulation()
+
+        return simulation.get_generation(generation_number)
+
     def get_individual(self, experiment_name, individual_id):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
@@ -247,17 +259,18 @@ class MLCLocal(MLC):
 
         MLCRepository.get_instance().update_individual_cost(indiv_id, new_cost, new_ev_time, generation)
 
-    def get_generation(self, experiment_name, generation_number):
+    def show_best(self, experiment_name, generation_number):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
         if experiment_name not in self._open_experiments:
             raise ClosedExperimentException("get_experiment_info", experiment_name)
 
-        # get simulation in order to load mlc experiment database
-        simulation = self._open_experiments[experiment_name].get_simulation()
+        experiment = self._open_experiments[experiment_name]
+        simulation = experiment.get_simulation()
 
-        return simulation.get_generation(generation_number)
+        app = Application(simulation)
+        app.show_best(generation_number)
 
     def _create_experiment_dir(self, experiment_name):
         """

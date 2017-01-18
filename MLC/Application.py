@@ -18,8 +18,8 @@ class MLC_CALLBACKS:
 
 
 class Application(object):
+
     def __init__(self, simulation, callbacks={}):
-        self._set_numpy_parameters()
         self._config = Config.get_instance()
 
         self._simulation = simulation
@@ -67,7 +67,7 @@ class Application(object):
 
         # add callback to show best individual
         self.__callbacks_manager.subscribe(MLC_CALLBACKS.ON_NEW_GENERATION, self.show_best)
-        self.__display_best = False
+        self.__display_best = True
 
     def _set_numpy_parameters(self):
         # Set printable resolution (don't alter numpy interval resolution)
@@ -95,6 +95,7 @@ class Application(object):
 
         :return:
         """
+        self._set_numpy_parameters()
         self.__display_best = display_best
 
         if from_generation is None:
@@ -103,8 +104,8 @@ class Application(object):
         lg.logger_.info("Running MLC from generation %s to %s" % (from_generation, to_generation))
 
         if from_generation < self._mlc_repository.count_population():
-            lg.logger_.info("Generations %s to %s discarded" % (from_generation+1, self._mlc_repository.count_population()))
-            self._mlc_repository.remove_population_from(from_generation+1)
+            lg.logger_.info("Generations %s to %s discarded" % (from_generation + 1, self._mlc_repository.count_population()))
+            self._mlc_repository.remove_population_from(from_generation + 1)
 
         # emit app start event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_START)
@@ -127,9 +128,9 @@ class Application(object):
             last_population = self._mlc_repository.get_population(last_generation)
 
             # obtain the next generation by evolving the lastone
-            lg.logger_.info("Evolving to Population %s using population %s" % (last_generation+1, last_generation))
+            lg.logger_.info("Evolving to Population %s using population %s" % (last_generation + 1, last_generation))
 
-            next_population = Simulation.create_empty_population_for(last_generation+1)
+            next_population = Simulation.create_empty_population_for(last_generation + 1)
             next_population = last_population.evolve(next_population)
 
             # continue with evolve if there are duplicated individuals
@@ -144,12 +145,15 @@ class Application(object):
             self._mlc_repository.add_population(next_population)
 
             # emit new generation event
-            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION, last_generation+1)
+            self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_NEW_GENERATION, last_generation + 1)
 
         lg.logger_.info("MLC Simulation Finished")
 
         # emit app finish event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_FINISH)
+
+        # Return the numpy warning configuration to its original value
+        np.seterr(all='warn')
 
     def get_simulation(self):
         return self._simulation
@@ -196,7 +200,11 @@ class Application(object):
             population = self._mlc_repository.get_population(generation_number)
             best_index, best_indiv, cost = population.get_best_individual()
 
-            EvaluatorFactory.get_callback().show_best(best_index, best_indiv, cost, stop_on_graph)
+            EvaluatorFactory.get_callback().show_best(index=best_index,
+                                                      indiv=best_indiv,
+                                                      cost=cost,
+                                                      generation=generation_number,
+                                                      block=stop_on_graph)
 
     def _project_validations(self):
         # Check that the evaluation and preevaluation modules can be loaded
@@ -205,6 +213,7 @@ class Application(object):
 
 
 class MLCCallbacksManager:
+
     def __init__(self):
         self.__callbacks = {}
 

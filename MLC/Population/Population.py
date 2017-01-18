@@ -168,7 +168,7 @@ class Population(object):
     def get_best_individual(self):
         best_indivs = [x[0] for x in sorted(enumerate(self._costs), key=lambda x: x[1])]
         best_index = self._individuals[best_indivs[0]]
-        return best_index, self._mlc_repository.get_individual(best_index), self._costs[best_index]
+        return best_index, self._mlc_repository.get_individual(best_index), self._costs[best_indivs[0]]
 
     def evolve(self, next_population):
         # FIXME: It's not necessary to compute the creation of both subgenerations

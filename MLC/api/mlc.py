@@ -186,6 +186,16 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_individuals not implemented")
 
+    def show_best(self, experiment_name, generation_number):
+        """
+        Plot the best individual of the populations evaluated. This method ought not 
+        to be called before calling the function go at least once
+        :param experiment_name:
+        :param generation_number: The generation in which we are looking 
+        for the best individual
+        """
+        raise NotImplementedError("MLC::get_individuals not implemented")
+
 
 class InvalidExperimentException(Exception):
 

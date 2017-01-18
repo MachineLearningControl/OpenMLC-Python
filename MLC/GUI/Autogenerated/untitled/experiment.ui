@@ -478,6 +478,36 @@
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_8">
+             <property name="title">
+              <string>Graphics</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QPushButton" name="best_indiv_button">
+                <property name="text">
+                 <string>Best Individual</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="convergence_button">
+                <property name="text">
+                 <string>Convergence</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="genealogy_button">
+                <property name="text">
+                 <string>Genealogy</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -921,6 +951,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>genealogy_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_genealogy_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>835</x>
+     <y>488</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>best_indiv_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_best_indiv_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>835</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>convergence_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Experiment</receiver>
+   <slot>on_convergence_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>835</x>
+     <y>461</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -940,5 +1018,8 @@
   <slot>on_preev_edit_button_clicked()</slot>
   <slot>on_gen_count_combo_changed(QString)</slot>
   <slot>on_chart_config_changed(QString)</slot>
+  <slot>on_best_indiv_button_clicked()</slot>
+  <slot>on_convergence_button_clicked()</slot>
+  <slot>on_genealogy_button_clicked()</slot>
  </slots>
 </ui>
