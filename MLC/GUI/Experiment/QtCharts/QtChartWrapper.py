@@ -18,6 +18,7 @@ class QtChartWrapper():
             self._chart.legend().hide()
 
         self._view = QChartView(self._chart)
+        self._view.setRubberBand(QChartView.RectangleRubberBand)
         self._view.setRenderHint(QPainter.Antialiasing)
         self._view.setUpdatesEnabled(True)
 

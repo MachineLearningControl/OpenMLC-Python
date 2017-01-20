@@ -21,7 +21,8 @@ FORMS    += \
     mainwindow.ui \
     experiment.ui \
     edit_properties.ui \
-    experiment_in_progress.ui
+    experiment_in_progress.ui \
+    genealogy.ui
 
 DISTFILES += \
     New_projectForm.ui.qml \

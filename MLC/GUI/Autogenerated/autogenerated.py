@@ -597,7 +597,7 @@ class Ui_Experiment(object):
         Experiment.setCentralWidget(self.centralWidget)
 
         self.retranslateUi(Experiment)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         self.next_gen_button.clicked.connect(Experiment.on_next_gen_button_clicked)
         self.save_config_button.clicked.connect(Experiment.on_save_config_button_clicked)
         self.dimension_check.clicked.connect(Experiment.on_dimension_check_clicked)
@@ -672,6 +672,45 @@ class Ui_Experiment(object):
         self.export_config_button.setText(_translate("Experiment", "Export"))
         self.save_config_button.setText(_translate("Experiment", "Save"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.config_tab), _translate("Experiment", "Configuration"))
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file './untitled/genealogy.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_GenealogyWindow(object):
+    def setupUi(self, GenealogyWindow):
+        GenealogyWindow.setObjectName("GenealogyWindow")
+        GenealogyWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+        GenealogyWindow.resize(400, 300)
+        self.centralWidget = QtWidgets.QWidget(GenealogyWindow)
+        self.centralWidget.setObjectName("centralWidget")
+        self.chart_layout = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.chart_layout.setObjectName("chart_layout")
+        self.textEdit = QtWidgets.QTextEdit(self.centralWidget)
+        self.textEdit.setObjectName("textEdit")
+        self.chart_layout.addWidget(self.textEdit)
+        GenealogyWindow.setCentralWidget(self.centralWidget)
+        self.menuBar = QtWidgets.QMenuBar(GenealogyWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 400, 19))
+        self.menuBar.setObjectName("menuBar")
+        GenealogyWindow.setMenuBar(self.menuBar)
+        self.toolBar = QtWidgets.QToolBar(GenealogyWindow)
+        self.toolBar.setObjectName("toolBar")
+        GenealogyWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+
+        self.retranslateUi(GenealogyWindow)
+        # QtCore.QMetaObject.connectSlotsByName(GenealogyWindow)
+
+    def retranslateUi(self, GenealogyWindow):
+        _translate = QtCore.QCoreApplication.translate
+        GenealogyWindow.setWindowTitle(_translate("GenealogyWindow", "Genealogy Chart"))
+        self.toolBar.setWindowTitle(_translate("GenealogyWindow", "toolBar"))
 
 # -*- coding: utf-8 -*-
 
