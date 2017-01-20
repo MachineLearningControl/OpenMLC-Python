@@ -83,8 +83,8 @@ class QtChartWrapper():
         curve.attachAxis(self._yaxis)
         return self._ncurves - 1
 
-    def add_curve(self, line_width=.1, color=None):
-        curve = QSplineSeries()
+    def add_line_curve(self, line_width=.1, color=None):
+        curve = QLineSeries()
         pen = curve.pen()
 
         if color is not None:
