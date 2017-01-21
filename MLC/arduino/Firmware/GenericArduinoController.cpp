@@ -1,12 +1,30 @@
 #include "Arduino.h"
 #include "GenericArduinoController.h"
 
+#define DEBUG 1
+
 #if DEBUG
-#define LOG(x,y) Serial.print(x); Serial.println(y);
+#include <string.h>
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define LOG(x,y) Serial.print(__FILENAME__); Serial.print(":"); Serial.print(__LINE__);\
+Serial.print(" -- [DEBUG] -- ");Serial.print(x); Serial.println(y);
 #else
 #define LOG(x,y)
-#endif
 
+void inline dump_digital_buffer(const int &digital_pins_count, const int &report_read_count, const uint8_t** digital_input_buffer)
+{
+    for (int i = 0; i < digital_pins_count; i++)
+  {
+    for (int j = 0; j < report_read_count / 8 + 1; j++)
+    {
+      Serial.print(digital_input_buffer[i][j], HEX);
+    }
+    Serial.println("");
+  }
+}
+
+#endif
+ 
 #define VERSION "0.1"
 
 const char* ACK = "\xFF\x00";
@@ -14,7 +32,7 @@ const char* ACK = "\xFF\x00";
 GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stream)
 {
 
-  for (int i = 0; i < 255; i++)
+  for (int i = 0; i <= 255; i++)
   {
     executor[i] = &GenericArduinoController::not_implemented;
   }
@@ -22,11 +40,9 @@ GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stre
   REPORT_READ_COUNT = 0;
   REPORT_READ_DELAY = 0;
   REPORT_MODE = average;
-  INPUT_PORTS[129]; // Port count in first position
+  INPUT_PORTS[0] = 0;
   ANALOG_PINS_COUNT = 0;
   DIGITAL_PINS_COUNT = 0;
-
-  INPUT_PORTS[0] = 0;
 
   executor[ANALOG_PRECISION_CMD]  = &GenericArduinoController::set_analog_precision;
   executor[ADD_INPUT_PIN_CMD]     = &GenericArduinoController::set_analog_input;
@@ -53,14 +69,19 @@ void GenericArduinoController::handle_commands()
       b_read += stream_.readBytes(input, stream_.available());
     }
 
+    LOG("Bytes obtained: ", b_read);
     // Loop to process all commands received in the buffer
     while (b_pos < b_read)
     {
-      LOG("Executing command: ", int(input[b_pos]));
+      LOG("command: ", int(input[b_pos]));
       b_pos += executor[input[b_pos]](this, &input[b_pos]); // Does the callback for the command
       LOG("b_pos ", b_pos);
     }
   }
+  
+   LOG("No data", "");
+   
+   delay(1000);
 }
 
 void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, const char*))
@@ -71,7 +92,7 @@ void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(Ge
 // NULL operation
 int GenericArduinoController::not_implemented(GenericArduinoController* this_, const char* data)
 {
-   return 0;
+   return 1; //Breaks the loop
 }
 
 /**
@@ -132,7 +153,10 @@ int GenericArduinoController::set_report_mode(GenericArduinoController* this_, c
   this_->REPORT_MODE = (ReportModes)(data[2]);
   this_->REPORT_READ_COUNT = byte(data[3]);
   this_->REPORT_READ_DELAY = byte(data[4]);
-  LOG("Report mode changed on port ", byte(data[3]));
+  LOG("Report mode changed", "")
+  LOG("Report mode: ", this_->REPORT_MODE);
+  LOG("New Read count: ", byte(data[3]));
+  LOG("New Read delay: ", byte(data[4]));
 
   return 5; // Command of 5 bytes
 }
@@ -170,6 +194,7 @@ int GenericArduinoController::reset(GenericArduinoController* this_, const char*
 
   this_->INPUT_PORTS[0] = 0;
   this_->ANALOG_PINS_COUNT = 0;
+  this_->REPORT_READ_COUNT = 0;
   this_->DIGITAL_PINS_COUNT = 0;
 
   LOG("System reset executed", "");
@@ -233,21 +258,13 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, const cha
   // Resets of digital buffers (required due the buffering strategy for digital pins)
   memset(digital_input_buffer, 0, this_->DIGITAL_PINS_COUNT * (this_->REPORT_READ_COUNT / 8 + 2));
 
-  for (int i = 0; i < this_->DIGITAL_PINS_COUNT; i++)
-  {
-    for (int j = 0; j < this_->REPORT_READ_COUNT / 8 + 1; j++)
-    {
-      Serial.print(digital_input_buffer[i][j], HEX);
-    }
-    Serial.println("");
-  }
-
   // Tracks count of digital and analog ports
   LOG("Number of lectures to report: ", this_->REPORT_READ_COUNT);
   for (int lecture = 0; lecture <= this_->REPORT_READ_COUNT; lecture++)
   {
     uint8_t current_digital = 0;
     uint8_t current_analog = 0;
+    LOG("Input ports count: ", this_->INPUT_PORTS[0]);
     for (int i = 1; i <= byte(this_->INPUT_PORTS[0]); i++)
     {
       //response[len + 1] = INPUT_PORTS[i];
@@ -287,6 +304,8 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, const cha
     };
   }
 
+  LOG("Finish", "");
+
   // Every analog output will be in the buffer as
   if (this_->ANALOG_PINS_COUNT > 0)
   {
@@ -299,6 +318,7 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, const cha
   }
 
   LOG("Reporting actuate results ", len - 1);
+  LOG("No idea...", "");
   response[1] = len;
   this_->stream_.write(response, 2); // 2 bytes extras por el id de comando y la longitud y -1 por el padding
 

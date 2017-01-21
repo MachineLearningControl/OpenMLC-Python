@@ -27,6 +27,24 @@ class ArduinoInterface:
         self._read_delay = 0
         self._board = board
 
+    def get_analog_inputs(self):
+        return self._anlg_inputs()
+   
+    def get_digital_inputs(self):
+        return self._digital_inputs
+
+    def get_analog_precition(self):
+        return self._analog_precition
+
+    def get_report_modes(self):
+        return self._report_mode
+
+    def get_read_count(self):
+        return self._read_count
+
+    def get_board(self):
+        return self._board
+
     def get_version(self):
         self._connection.send(_PROTOCOL_CMDS["PROT_VERSION"])
         response = self._connection.recv(1)
@@ -56,7 +74,7 @@ class ArduinoInterface:
             raise Exception("Report mode error. Unknown value: %s" % mode)
 
         if read_count <= 0:
-            raise Exception("Read count value must be >= 0")
+            raise Exception("Read count value must be > 0")
 
         self._report_mode = mode
         self._read_count = read_count - 1

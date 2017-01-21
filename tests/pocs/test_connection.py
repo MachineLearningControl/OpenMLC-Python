@@ -10,7 +10,7 @@ def actuate(terminal):
     arduinoDue = ArduinoInterface(connection, boards.Due)
 
     arduinoDue.reset()
-    arduinoDue.set_report_mode("BULK", read_count=5, read_delay=200)    
+#    arduinoDue.set_report_mode("BULK", read_count=5, read_delay=200)    
     arduinoDue.add_output(40)
     arduinoDue.add_input(64)
     arduinoDue.add_input(63)

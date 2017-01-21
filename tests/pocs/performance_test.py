@@ -9,26 +9,29 @@ def actuate(terminal):
     connection = SerialConnection(port=terminal)
     arduinoDue = ArduinoInterface(connection, boards.Due)
     
+    arduinoDue.reset() #Just in case
+    arduinoDue.set_report_mode("AVERAGE", read_count=1, read_delay=200)
+    
     arduinoDue.add_output(40)
     arduinoDue.add_output(66)
-    arduinoDue.add_input(65)
-    arduinoDue.add_input(64)
-    arduinoDue.add_input(63)
-    arduinoDue.add_input(62)
-    arduinoDue.add_input(61)
-    arduinoDue.add_input(60)
-    arduinoDue.add_input(59)
-    arduinoDue.add_input(58)
-    arduinoDue.add_input(57)
-    arduinoDue.add_input(56)
-    arduinoDue.add_input(55)
+#    arduinoDue.add_input(65)
+#    arduinoDue.add_input(64)
+#    arduinoDue.add_input(63)
+#    arduinoDue.add_input(62)
+#    arduinoDue.add_input(61)
+#    arduinoDue.add_input(60)
+#    arduinoDue.add_input(59)
+#    arduinoDue.add_input(58)
+#    arduinoDue.add_input(57)
+#    arduinoDue.add_input(56)
+#    arduinoDue.add_input(55)
     arduinoDue.add_input(54)
 
     last_time = time.time()
     start_time = last_time
     read_c = 0
-
-    for i in range(0, 10000):
+    
+    for i in xrange(0, 2):
         output = arduinoDue.actuate([(40,1),(66,255)])
         #print output
         read_c = read_c + 1
