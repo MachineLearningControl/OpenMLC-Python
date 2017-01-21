@@ -18,7 +18,6 @@ class QtChartWrapper():
             self._chart.legend().hide()
 
         self._view = QChartView(self._chart)
-        self._view.setRubberBand(QChartView.RectangleRubberBand)
         self._view.setRenderHint(QPainter.Antialiasing)
         self._view.setUpdatesEnabled(True)
 
@@ -83,8 +82,9 @@ class QtChartWrapper():
         curve.attachAxis(self._yaxis)
         return self._ncurves - 1
 
-    def add_line_curve(self, line_width=.1, color=None):
+    def add_line_curve(self, line_width=.1, color=None, legend=None):
         curve = QLineSeries()
+        curve.setName(legend)
         pen = curve.pen()
 
         if color is not None:
@@ -135,8 +135,8 @@ class QtChartWrapper():
         """
         return self._view
 
-    def repaint(self):
-        self._view.repaint()
+    def get_legend(self):
+        return self._chart.legend()
 
     def _series_to_polyline(self, xdata, ydata):
         """Convert series data to QPolygon(F) polyline
