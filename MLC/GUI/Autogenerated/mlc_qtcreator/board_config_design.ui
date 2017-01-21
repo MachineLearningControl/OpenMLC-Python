@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BoardConfigurationFrame</class>
- <widget class="QMainWindow" name="BoardConfigurationFrame">
+ <class>BoardConfigurationWindow</class>
+ <widget class="QMainWindow" name="BoardConfigurationWindow">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Board Configuration</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
@@ -508,5 +511,76 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>addDigitalPin</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>insertDigitalPin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>203</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addPin</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>insertAnalogPin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>579</x>
+     <y>206</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>testInterface</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>checkConnection()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>692</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showPinout</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>showPinout()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>692</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>insertDigitalPin()</slot>
+  <slot>insertAnalogPin()</slot>
+  <slot>checkConnection()</slot>
+  <slot>showPinout()</slot>
+ </slots>
 </ui>

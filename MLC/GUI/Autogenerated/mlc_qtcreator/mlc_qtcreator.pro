@@ -22,4 +22,7 @@ FORMS    += \
     experiment.ui \
     edit_properties.ui \
     experiment_in_progress.ui \
-    genealogy.ui
+    genealogy.ui \
+    board_config_design.ui \
+    arduinoconnectiontest.ui  \
+    pinout_design.ui 

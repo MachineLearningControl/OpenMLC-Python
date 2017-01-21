@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ExperimentInProgressDialog</class>
- <widget class="QMainWindow" name="ExperimentInProgressDialog">
+ <class>ExperimentInProgressWindow</class>
+ <widget class="QMainWindow" name="ExperimentInProgressWindow">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -156,7 +156,7 @@
   <connection>
    <sender>cancel_button</sender>
    <signal>clicked()</signal>
-   <receiver>ExperimentInProgressDialog</receiver>
+   <receiver>ExperimentInProgressWindow</receiver>
    <slot>on_cancel_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">

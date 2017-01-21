@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Experiment</class>
- <widget class="QMainWindow" name="Experiment">
+ <class>ExperimentWindow</class>
+ <widget class="QMainWindow" name="ExperimentWindow">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>961</width>
-    <height>547</height>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,24 +71,8 @@
               <string>Chart Configuration</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_6">
-              <item row="8" column="1">
-               <widget class="QComboBox" name="valid_points_combo"/>
-              </item>
-              <item row="7" column="3">
-               <widget class="QComboBox" name="nan_value_combo"/>
-              </item>
               <item row="7" column="1">
                <widget class="QComboBox" name="nan_color_combo"/>
-              </item>
-              <item row="6" column="2">
-               <widget class="QLabel" name="label_12">
-                <property name="text">
-                 <string>Overflow Value:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="3">
-               <widget class="QComboBox" name="overflow_value_combo"/>
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_7">
@@ -133,13 +117,6 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="2">
-               <widget class="QLabel" name="label_13">
-                <property name="text">
-                 <string>NaN/Inf Value:</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="max_cost_combo"/>
               </item>
@@ -153,22 +130,45 @@
               <item row="0" column="3">
                <widget class="QComboBox" name="min_cost_combo"/>
               </item>
-              <item row="8" column="0">
+              <item row="1" column="0">
                <widget class="QLabel" name="label_9">
                 <property name="text">
                  <string>Valid Points Color:</string>
                 </property>
                </widget>
               </item>
-              <item row="9" column="0">
+              <item row="1" column="1">
+               <widget class="QComboBox" name="valid_points_combo"/>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Overflow Value:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QComboBox" name="overflow_value_combo"/>
+              </item>
+              <item row="1" column="4">
                <widget class="QLabel" name="label_15">
                 <property name="text">
                  <string>Visualized Points:</string>
                 </property>
                </widget>
               </item>
-              <item row="9" column="1">
+              <item row="1" column="5">
                <widget class="QComboBox" name="points_combo"/>
+              </item>
+              <item row="6" column="2">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>NaN/Inf Value:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3">
+               <widget class="QComboBox" name="nan_value_combo"/>
               </item>
              </layout>
             </widget>
@@ -323,6 +323,29 @@
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_9">
+             <property name="title">
+              <string>Board Configuration</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="1">
+               <widget class="QPushButton" name="board_config_button">
+                <property name="text">
+                 <string>Configure</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Board:</string>
                 </property>
                </widget>
               </item>
@@ -618,7 +641,7 @@
   <connection>
    <sender>next_gen_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_next_gen_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -634,7 +657,7 @@
   <connection>
    <sender>save_config_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_save_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -650,7 +673,7 @@
   <connection>
    <sender>dimension_check</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_dimension_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -666,7 +689,7 @@
   <connection>
    <sender>show_all_check</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_show_all_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -682,7 +705,7 @@
   <connection>
    <sender>tabWidget</sender>
    <signal>currentChanged(int)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_tab_changed()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -698,7 +721,7 @@
   <connection>
    <sender>log_check</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_log_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -714,7 +737,7 @@
   <connection>
    <sender>preev_edit_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_preev_edit_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -730,7 +753,7 @@
   <connection>
    <sender>test_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_test_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -746,7 +769,7 @@
   <connection>
    <sender>prev_gen_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_prev_gen_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -762,7 +785,7 @@
   <connection>
    <sender>gen_count_combo</sender>
    <signal>activated(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_gen_count_combo_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -778,7 +801,7 @@
   <connection>
    <sender>ev_edit_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_ev_edit_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -794,7 +817,7 @@
   <connection>
    <sender>start_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_start_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -810,7 +833,7 @@
   <connection>
    <sender>valid_points_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -826,7 +849,7 @@
   <connection>
    <sender>overflow_color_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -842,7 +865,7 @@
   <connection>
    <sender>points_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -858,7 +881,7 @@
   <connection>
    <sender>marker_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -874,7 +897,7 @@
   <connection>
    <sender>overflow_value_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -890,7 +913,7 @@
   <connection>
    <sender>nan_value_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -906,7 +929,7 @@
   <connection>
    <sender>min_cost_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -922,7 +945,7 @@
   <connection>
    <sender>max_cost_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -938,7 +961,7 @@
   <connection>
    <sender>nan_color_combo</sender>
    <signal>currentTextChanged(QString)</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -954,7 +977,7 @@
   <connection>
    <sender>genealogy_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_genealogy_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -970,7 +993,7 @@
   <connection>
    <sender>best_indiv_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_best_indiv_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -986,7 +1009,7 @@
   <connection>
    <sender>convergence_button</sender>
    <signal>clicked()</signal>
-   <receiver>Experiment</receiver>
+   <receiver>ExperimentWindow</receiver>
    <slot>on_convergence_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -996,6 +1019,22 @@
     <hint type="destinationlabel">
      <x>480</x>
      <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>board_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_board_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>864</x>
+     <y>434</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>275</y>
     </hint>
    </hints>
   </connection>
@@ -1021,5 +1060,6 @@
   <slot>on_best_indiv_button_clicked()</slot>
   <slot>on_convergence_button_clicked()</slot>
   <slot>on_genealogy_button_clicked()</slot>
+  <slot>on_board_config_button_clicked()</slot>
  </slots>
 </ui>
