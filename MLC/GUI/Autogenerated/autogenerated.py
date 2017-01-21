@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './untitled/mainwindow.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -167,7 +167,7 @@ class Ui_MLCManager(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './untitled/experiment_in_progress.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/experiment_in_progress.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -268,7 +268,7 @@ class Ui_ExperimentInProgressDialog(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './untitled/experiment.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/experiment.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -675,7 +675,7 @@ class Ui_Experiment(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './untitled/genealogy.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/genealogy.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -714,7 +714,7 @@ class Ui_GenealogyWindow(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './untitled/edit_properties.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/edit_properties.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #

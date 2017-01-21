@@ -27,3 +27,6 @@ MLC/GUI/workspace
 
 # Ignore exported MLC experiments
 *.mlc
+
+# Ignore the Qtcreator user configuration file
+*.pro.user

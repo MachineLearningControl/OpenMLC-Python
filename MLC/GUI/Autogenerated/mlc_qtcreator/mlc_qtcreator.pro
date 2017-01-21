@@ -23,10 +23,3 @@ FORMS    += \
     edit_properties.ui \
     experiment_in_progress.ui \
     genealogy.ui
-
-DISTFILES += \
-    New_projectForm.ui.qml \
-    New_project.qml
-
-STATECHARTS += \
-    zaraza.scxml
