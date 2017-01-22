@@ -67,7 +67,7 @@ class GenealogyChart(QtChartWrapper):
 
         chart_view = self.get_widget()
         chart_view.chart().axisX().setRange(0.9, self._amount_generations + 0.1)
-        chart_view.chart().axisY().setRange(1, self._indivs_per_gen)
+        chart_view.chart().axisY().setRange(0, self._indivs_per_gen)
         chart_view.chart().axisX().setGridLineVisible(False)
         chart_view.chart().axisY().setGridLineVisible(False)
 

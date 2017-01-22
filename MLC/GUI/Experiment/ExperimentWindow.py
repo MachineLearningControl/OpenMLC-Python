@@ -264,7 +264,7 @@ class ExperimentWindow(QMainWindow):
                                      individuals_list, 0, False)
 
         if indiv[1] == True:
-            dialog = GenealogyDialog(parent=self,
+            dialog = GenealogyWindow(parent=self,
                                      mlc_local=self._mlc_local,
                                      generation=self._current_gen,
                                      individual=int(indiv[0]),

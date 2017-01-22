@@ -227,7 +227,7 @@ class ExperimentInProgress(Thread):
         self._indivs_per_gen = int(self._experiment_info["individuals_per_generation"])
         self._experiment_signal = None
 
-        self._dialog = ExperimentInProgressDialog(parent=parent,
+        self._dialog = ExperimentInProgressWindow(parent=parent,
                                                   parent_signal=parent_signal,
                                                   chart_params=chart_params)
         self._experiment_condition = self._dialog.get_experiment_condition_variable()
