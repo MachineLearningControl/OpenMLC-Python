@@ -19,7 +19,7 @@ class MLC_CALLBACKS:
 
 class Application(object):
 
-    def __init__(self, simulation, callbacks={}):
+    def __init__(self, simulation, callbacks={}, gen_creator=None):
         self._config = Config.get_instance()
 
         self._simulation = simulation
@@ -38,8 +38,11 @@ class Application(object):
         self.__badvalues_elim = self._config.get('EVALUATOR', 'badvalues_elim')
 
         # Gen creator
-        gen_method = self._config.get('GP', 'generation_method')
-        self._gen_creator = CreationFactory.make(gen_method)
+        if gen_creator is None:
+            gen_method = self._config.get('GP', 'generation_method')
+            self._gen_creator = CreationFactory.make(gen_method)
+        else:
+            self._gen_creator = gen_creator
 
         # Gen evaluator
         ev_method = self._config.get('EVALUATOR', 'evaluation_method')

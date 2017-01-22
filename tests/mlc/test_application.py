@@ -2,6 +2,7 @@ import shutil
 import os
 import unittest
 
+from MLC.Population.Creation import BaseCreation
 from tests.test_helpers import TestHelper
 from MLC.config import get_working_directory
 from MLC.config import get_test_path
@@ -106,3 +107,34 @@ class ApplicationTest(unittest.TestCase):
 
             self.assertEqual(ApplicationTest.on_start, 1)
             self.assertEqual(ApplicationTest.on_start_counter_2, 1)
+
+    def test_set_custom_gen_creator(self):
+        with saved(Config.get_instance()) as config:
+            Config.get_instance().set("POPULATION", "size", "5")
+            Config.get_instance().set("BEHAVIOUR", "save", "false")
+
+            from MLC.Population.Creation.BaseCreation import BaseCreation
+            from MLC.individual.Individual import Individual
+
+            class TestCreator(BaseCreation):
+                def __init__(self):
+                    BaseCreation.__init__(self)
+
+                def create(self, gen_size):
+                    MLCRepository.get_instance().add_individual(Individual("(root 1)"))
+                    MLCRepository.get_instance().add_individual(Individual("(root 2)"))
+                    MLCRepository.get_instance().add_individual(Individual("(root 3)"))
+                    MLCRepository.get_instance().add_individual(Individual("(root 4)"))
+                    MLCRepository.get_instance().add_individual(Individual("(root 5)"))
+
+                def individuals(self):
+                    return [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)]
+
+            simulation = Simulation("")
+            mlc = Application(simulation, gen_creator=TestCreator())
+            mlc.go(to_generation=1)
+
+            # Assert first Population was filled using the TestCreator
+            population = MLCRepository.get_instance().get_population(1)
+            self.assertEqual(population.get_individuals(), [1, 2, 3, 4, 5])
+

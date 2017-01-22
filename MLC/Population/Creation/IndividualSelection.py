@@ -7,7 +7,9 @@ class IndividualSelection(BaseCreation):
     Fill a Population with fixed Individuals.
 
     selected_individuals: dictionary containing {Individual: positions inside
-    the population}
+    the first population}
+
+    Empty positions inside the Population will be completed using the neighbor individual,
     """
 
     def __init__(self, selected_individuals):
@@ -18,13 +20,14 @@ class IndividualSelection(BaseCreation):
     def create(self, gen_size):
         self.__individuals = [-1]*gen_size
 
+        # Add Individuals
         for individual, positions in self.__selected_individuals.items():
             for position in positions:
                 if position < gen_size:
                     individual_id, _ = MLCRepository.get_instance().add_individual(individual)
-                    print ">>> ADDING %s to %s -> %s" % (individual.get_value(), individual_id, individual_id)
                     self.__individuals[position] = individual_id
 
+        # Fill empty spaces
         for index, indiv_id in enumerate(self.__individuals):
             if indiv_id == -1:
                 if index > 0:
