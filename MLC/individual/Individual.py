@@ -416,3 +416,9 @@ class Individual(object):
             return Lisp_Tree_Expr(value).get_simplified_tree_as_string()
 
         return value
+
+    def __cmp__(self, other):
+        self._value == other.get_value()
+
+    def __hash__(self):
+        return hash(self._value)

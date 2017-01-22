@@ -15,7 +15,7 @@ class BaseCreation(object):
         # A list of tuples (index, number)
         self._individuals = []
 
-    def create(self):
+    def create(self, gen_size):
         raise NotImplementedError()
 
     def individuals(self):
