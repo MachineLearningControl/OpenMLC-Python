@@ -2,17 +2,17 @@ import shutil
 import os
 import unittest
 
-from MLC.Population.Creation import BaseCreation
-from tests.test_helpers import TestHelper
+from MLC.api.MLCLocal import MLCLocal
+from MLC.Application import Application, MLC_CALLBACKS
+from MLC.config import set_working_directory
 from MLC.config import get_working_directory
 from MLC.config import get_test_path
-from MLC.mlc_parameters.mlc_parameters import saved, Config
-from MLC.api.MLCLocal import MLCLocal
-
-from MLC.Simulation import Simulation
-from MLC.Application import Application, MLC_CALLBACKS
-
 from MLC.db.mlc_repository import MLCRepository
+from MLC.mlc_parameters.mlc_parameters import saved
+from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.Population.Creation import BaseCreation
+from MLC.Simulation import Simulation
+from tests.test_helpers import TestHelper
 
 
 class ApplicationTest(unittest.TestCase):
@@ -22,7 +22,7 @@ class ApplicationTest(unittest.TestCase):
     on_new_generation = []
     on_finish = 0
     experiment_name = "test_application"
-    workspace_dir = os.path.join(get_working_directory(), "workspace")
+    workspace_dir = os.path.abspath("/tmp/mlc_workspace/")
     test_conf_path = os.path.join(get_test_path(), TestHelper.DEFAULT_CONF_FILENAME)
     experiment_dir = os.path.join(workspace_dir, experiment_name)
     mlc_local = None
@@ -30,12 +30,16 @@ class ApplicationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         TestHelper.load_default_configuration()
-        # Create the MLC workspace dir of this tests
-        os.makedirs(ApplicationTest.workspace_dir)
+        try:
+            os.makedirs(ApplicationTest.workspace_dir)
+        except OSError:
+            shutil.rmtree(ApplicationTest.workspace_dir)
+            os.makedirs(ApplicationTest.workspace_dir)
 
         # Create the MLCLocal and the workspace of MLC, and create
         # a new experiment to be used to test the callbacks
-        ApplicationTest.mlc_local = MLCLocal(ApplicationTest.workspace_dir)
+        set_working_directory(ApplicationTest.workspace_dir)
+        ApplicationTest.mlc_local = MLCLocal(working_dir=ApplicationTest.workspace_dir)
 
     @classmethod
     def tearDownClass(cls):
@@ -117,6 +121,7 @@ class ApplicationTest(unittest.TestCase):
             from MLC.individual.Individual import Individual
 
             class TestCreator(BaseCreation):
+
                 def __init__(self):
                     BaseCreation.__init__(self)
 
@@ -137,4 +142,3 @@ class ApplicationTest(unittest.TestCase):
             # Assert first Population was filled using the TestCreator
             population = MLCRepository.get_instance().get_population(1)
             self.assertEqual(population.get_individuals(), [1, 2, 3, 4, 5])
-
