@@ -18,7 +18,7 @@ class IndividualSelection(BaseCreation):
         self.__individuals = []
 
     def create(self, gen_size):
-        self.__individuals = [-1]*gen_size
+        self.__individuals = [-1] * gen_size
 
         # Add Individuals
         for individual, positions in self.__selected_individuals.items():
@@ -31,7 +31,7 @@ class IndividualSelection(BaseCreation):
         for index, indiv_id in enumerate(self.__individuals):
             if indiv_id == -1:
                 if index > 0:
-                    self.__individuals[index] = self.__individuals[index-1]
+                    self.__individuals[index] = self.__individuals[index - 1]
                 else:
                     self.__individuals[index] = self.__individuals[index + 1]
 
