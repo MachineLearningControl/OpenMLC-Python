@@ -19,7 +19,7 @@ RUN yum --enablerepo=extras install epel-release -y
 RUN yum update -y
 
 # Install packages
-RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel qt5-qtbase qt5-qtbase-devel -y
+RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel qt5-qtbase qt5-qtbase-devel qt5-qtdeclarative qt5-qtdeclarative-devel -y
 
 # Download python 2.7.11
 # For more information about the compilation of the Python: http://www.mathworks.com/help/matlab/matlab_external/system-requirements-for-matlab-engine-for-python.html?requestedDomain=www.mathworks.com
@@ -71,35 +71,16 @@ RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
     echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
     chmod 755 /opt/mlc-python-2.7.11/bin/mlc_pip
 
-
-# Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml flask requests
-
-# Create .sh who will load the desired enviroment to run nosetests within it
-RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
-    echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo 'NOSETESTS="/opt/mlc-python-2.7.11/bin/nosetests"' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo "# Run the dynamically compiled nosetests" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
-    chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
-
 # Install PyQt5 Environment
-RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.18.1/sip-4.18.1.tar.gz && \
-    tar xzvf sip-4.18.1.tar.gz && \
-    cd sip-4.18.1 && \
+RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz && \
+    tar xzvf sip-4.19.tar.gz && \
+    cd sip-4.19 && \
     /opt/mlc-python-2.7.11/bin/mlc_python configure.py && \
     make && make install
 
-RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7/PyQt5_gpl-5.7.tar.gz && \
-    tar xzvf PyQt5_gpl-5.7.tar.gz && \
-    cd PyQt5_gpl-5.7 && \
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-5.7.1.tar.gz && \
+    tar xzvf PyQt5_gpl-5.7.1.tar.gz && \
+    cd PyQt5_gpl-5.7.1 && \
     /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/bin/qmake-qt5 --confirm-license --sip /opt/mlc-python-2.7.11/bin/sip && \
     make && make install
 
@@ -125,11 +106,40 @@ RUN git clone git://code.qt.io/qt/qtcharts.git && \
     git checkout release-2.1.0 && \
     /usr/bin/qmake-qt5 && make && make install
 
-RUN wget https://sourceforge.net/projects/pyqt/files/PyQtChart/PyQtChart-5.7/PyQtChart_gpl-5.7.tar.gz && \
-    tar xzvf PyQtChart_gpl-5.7.tar.gz && \
-    cd PyQtChart_gpl-5.7 && \
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQtChart/PyQtChart-5.7.1/PyQtChart_gpl-5.7.1.tar.gz && \
+    tar xzvf PyQtChart_gpl-5.7.1.tar.gz && \
+    cd PyQtChart_gpl-5.7.1 && \
     /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/bin/qmake-qt5 --qtchart-version=2.1.0 --sip /opt/mlc-python-2.7.11/bin/sip && \
     make && make install
 
+RUN git clone git://code.qt.io/qt/qtdatavis3d.git && \
+    cd qtdatavis3d && \
+    git checkout 5.7 && \
+    /usr/bin/qmake-qt5 && make && make install
+
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtDataVisualization-5.7.1/PyQtDataVisualization_gpl-5.7.1.tar.gz/download -O PyQtDataVisualization_gpl-5.7.1.tar.gz && \
+    tar xzvf PyQtDataVisualization_gpl-5.7.1.tar.gz && \
+    cd PyQtDataVisualization_gpl-5.7.1 && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/bin/qmake-qt5 --sip /opt/mlc-python-2.7.11/bin/sip && \
+    make && make install
+
+# Install mlc dependencies
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml flask requests
+
+# Create .sh who will load the desired enviroment to run nosetests within it
+RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
+    echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo 'export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo 'NOSETESTS="/opt/mlc-python-2.7.11/bin/nosetests"' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo "# Run the dynamically compiled nosetests" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo 'if [ "$#" -ne 0 ]; then' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo '        $NOSETESTS $@' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo "else" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo '        $NOSETESTS' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests \
+    chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
+
 # Install fpm and create .deb package
-RUN gem install fpm && fpm -s dir -t rpm -v 0.4 -n mlc-python /opt/mlc-python-2.7.11
+RUN gem install fpm && fpm -s dir -t rpm -v 0.5 -n mlc-python /opt/mlc-python-2.7.11
