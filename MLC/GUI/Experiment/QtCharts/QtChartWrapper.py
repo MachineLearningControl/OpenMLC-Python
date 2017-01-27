@@ -9,8 +9,8 @@ import numpy as np
 
 
 class QtChartWrapper():
-
-    def __init__(self, show_legend=False):
+    #FIXME: Do a factory method or a decorator to make a line o spline series
+    def __init__(self, show_legend=False, no_spline=False):
         self._ncurves = 0
         self._chart = QChart()
 
@@ -23,6 +23,8 @@ class QtChartWrapper():
 
         self._xaxis = QValueAxis()
         self._yaxis = QValueAxis()
+
+        self._no_spline = no_spline
 
         # Save the curves in order to add data to them later
         self._curves = []
@@ -55,8 +57,11 @@ class QtChartWrapper():
         return axis
 
     def add_data(self, xdata, ydata, line_width=.1, color=None):
-        # curve = QLineSeries()
-        curve = QSplineSeries()
+        curve = None
+        if self._no_spline:
+           curve = QLineSeries()
+        else:
+           curve = QSplineSeries()
         # curve = QSplineSeries()
         pen = curve.pen()
 

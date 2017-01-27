@@ -280,10 +280,44 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="addDigitalPin">
-            <property name="text">
-             <string>Add Pin</string>
+           <widget class="QFrame" name="frame_8">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>4</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="addDigitalPin">
+               <property name="text">
+                <string>Add Pin</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="removeDigitalPin">
+               <property name="text">
+                <string>Remove Pin</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -417,10 +451,44 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="addPin">
-               <property name="text">
-                <string>Add Pin</string>
+              <widget class="QFrame" name="frame_9">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
                </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <property name="spacing">
+                 <number>4</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="addAnalogPin">
+                  <property name="text">
+                   <string>Add Pin</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="removeAnalogPin">
+                  <property name="text">
+                   <string>Remove Pin</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
             </layout>
@@ -490,16 +558,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="cancelButton">
+        <widget class="QPushButton" name="closeButton">
          <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="acceptButton">
-         <property name="text">
-          <string>Accept</string>
+          <string>Close</string>
          </property>
         </widget>
        </item>
@@ -513,30 +574,14 @@
  <resources/>
  <connections>
   <connection>
-   <sender>addDigitalPin</sender>
-   <signal>clicked()</signal>
-   <receiver>BoardConfigurationWindow</receiver>
-   <slot>insertDigitalPin()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>203</x>
-     <y>207</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>391</x>
-     <y>294</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addPin</sender>
+   <sender>addAnalogPin</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
    <slot>insertAnalogPin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>579</x>
-     <y>206</y>
+     <x>577</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>391</x>
@@ -576,11 +621,77 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>addDigitalPin</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>insertDigitalPin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>201</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>580</x>
+     <y>566</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeDigitalPin</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>removeDigitalPin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>358</x>
+     <y>225</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeAnalogPin</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>removeAnalogPin()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>712</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>775</x>
+     <y>288</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>insertDigitalPin()</slot>
   <slot>insertAnalogPin()</slot>
   <slot>checkConnection()</slot>
   <slot>showPinout()</slot>
+  <slot>removeDigitalPin()</slot>
+  <slot>removeAnalogPin()</slot>
  </slots>
 </ui>
