@@ -74,7 +74,7 @@ RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1
 RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb && \
     tar xzvf pip-8.0.2.tar.gz && \
     cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
-    rm -rf /tmp/pip-8.0.2* &&
+    rm -rf /tmp/pip-8.0.2*
 
 # Create .sh who will load the desired enviroment to run pip within it
 RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
@@ -91,31 +91,39 @@ RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
     echo "fi" >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
     chmod 755  /opt/mlc-python-2.7.11/bin/mlc_pip
 
+RUN apt-get install libxkbcommon-dev -y
 
 # Install Qt5.7
 RUN git clone git://code.qt.io/qt/qtbase.git && \
     cd qtbase && \
     git checkout 5.7 && \
-    ./configure --opensource --confirm-license && make -j4 && make install && \
+    ./configure --prefix=/opt/mlc-python-2.7.11/Qt-5.7.1 -xkb-config-root /usr/share/X11/xkb -no-gtk -nomake tests -nomake examples -qt-xcb --opensource --confirm-license && \
+    make -j4 && make install && \
     rm -rf /tmp/qtbase
 
 RUN git clone git://code.qt.io/qt/qtcharts.git && \
     cd qtcharts && \
-    git checkout release-2.1.0 && \
-    /usr/local/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout 5.7 && \
+    /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtcharts
 
 RUN git clone git://code.qt.io/qt/qtdatavis3d.git && \
     cd qtdatavis3d && \
     git checkout 5.7 && \
-    /usr/local/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtdatavis3d
 
 RUN git clone git://code.qt.io/qt/qtdeclarative.git && \
     cd qtdeclarative && \
     git checkout 5.7 && \
-    /usr/local/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtdeclarative
+
+RUN git clone git://code.qt.io/qt/qtx11extras.git && \
+    cd qtx11extras && \
+    git checkout 5.7 && \
+    /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    rm -rf /tmp/qtx11extras
 
 # Add PyQt5 Support
 RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz && \
@@ -128,7 +136,7 @@ RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.g
 RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-5.7.1.tar.gz && \
     tar xzvf PyQt5_gpl-5.7.1.tar.gz && \
     cd PyQt5_gpl-5.7.1 && \
-    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/local/Qt-5.7.1/bin/qmake --confirm-license --sip /opt/mlc-python-2.7.11/bin/sip && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake --confirm-license --sip /opt/mlc-python-2.7.11/bin/sip && \
     make -j4 && make install && \
     rm -rf /tmp/PyQt5_gpl-5.7.1*
 
@@ -136,14 +144,14 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-
 RUN wget https://sourceforge.net/projects/pyqt/files/PyQtChart/PyQtChart-5.7.1/PyQtChart_gpl-5.7.1.tar.gz && \
     tar xzvf PyQtChart_gpl-5.7.1.tar.gz && \
     cd PyQtChart_gpl-5.7.1 && \
-    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/local/Qt-5.7.1/bin/qmake --qtchart-version=2.1.0 --sip /opt/mlc-python-2.7.11/bin/sip && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake --sip /opt/mlc-python-2.7.11/bin/sip && \
     make -j4 && make install && \
     rm -rf /tmp/PyQtChart_gpl-5.7.1*
 
 RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtDataVisualization-5.7.1/PyQtDataVisualization_gpl-5.7.1.tar.gz/download -O PyQtDataVisualization_gpl-5.7.1.tar.gz && \
     tar xzvf PyQtDataVisualization_gpl-5.7.1.tar.gz && \
     cd PyQtDataVisualization_gpl-5.7.1 && \
-    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /usr/local/Qt-5.7.1/bin/qmake --sip /opt/mlc-python-2.7.11/bin/sip && \
+    /opt/mlc-python-2.7.11/bin/mlc_python configure.py --qmake /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake --sip /opt/mlc-python-2.7.11/bin/sip && \
     make -j4 && make install && \
     rm -rf /tmp/PyQtDataVisualization_gpl-5.7.1*
 
@@ -166,7 +174,7 @@ RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN export LD_LIBRARY_PATH=/usr/local/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
     export PATH=/usr/local/Qt-5.7.1/bin:$PATH && \
-    /opt/mlc-python-2.7.11/bin/mlc_pip install numpy flask requests pyserial nose pyyaml coverage matplotlib scipy
+    /opt/mlc-python-2.7.11/bin/mlc_pip install cython numpy flask requests pyserial nose pyyaml coverage matplotlib scipy
 
 RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
@@ -183,8 +191,8 @@ RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     chmod 755 /opt/mlc-python-2.7.11/bin/mlc_nosetests
 
 # Copy Qt Libraries
-RUN mkdir /opt/mlc-python-2.7.11/libs && \
-    cp -r /usr/local/Qt-5.7.1/lib/* /opt/mlc-python-2.7.11/libs
+# RUN mkdir /opt/mlc-python-2.7.11/libs && \
+#     cp -r /opt/mlc-python-2.7.11/Qt-5.7.1/lib/* /opt/mlc-python-2.7.11/libs
 
 # Install fpm and create .deb package
 RUN gem install fpm && fpm -s dir -t deb -v 0.5 -n mlc-python /opt/mlc-python-2.7.11
