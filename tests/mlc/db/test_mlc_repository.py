@@ -315,59 +315,6 @@ class MLCRepositoryTest(unittest.TestCase):
             self.assertEqual(mlc_repo.count_individual(), 2)
             self.assertEqual(mlc_repo.count_population(), 1)
 
-    def test_remove_last_population(self):
-        mlc_repo = self.__get_new_repo()
-
-        # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-
-        # add first population
-        p = Population(3, 0, Config.get_instance(), mlc_repo)
-        p._individuals = [1, 2, 1]
-        mlc_repo.add_population(p)
-
-        # add second population
-        p = Population(3, 0, Config.get_instance(), mlc_repo)
-        p._individuals = [1, 2, 3]
-        mlc_repo.add_population(p)
-
-        # remove last population
-        mlc_repo.remove_last_population()
-
-        # last generation must be removed
-        self.assertEqual(mlc_repo.count_population(), 1)
-
-        # first generation exists
-        p = mlc_repo.get_population(1)
-        self.assertEqual(p._individuals, [1, 2, 1])
-
-        # all individuals exists and the third individual do not appear in any generation
-        self.assertEqual(mlc_repo.count_individual(), 3)
-
-        data = mlc_repo.get_individual_data(3)
-        self.assertEqual(data.get_value(), "3+3")
-        self.assertEqual(data.get_appearances(), 0)
-        self.assertEqual(data.get_cost_history(), {})
-
-        # remove unused individuals
-        deleted = mlc_repo.remove_unused_individuals()
-        self.assertEqual(deleted, 1)
-        self.assertEqual(mlc_repo.count_individual(), 2)
-
-        individual = mlc_repo.get_individual(1)
-        self.assertEqual(individual.get_value(), "1+1")
-
-        individual = mlc_repo.get_individual(2)
-        self.assertEqual(individual.get_value(), "2+2")
-
-        try:
-            individual = mlc_repo.get_individual(3)
-            self.assertTrue(False)
-        except KeyError:
-            self.assertTrue(True)
-
     def test_remove_from_population(self):
         mlc_repo = self.__get_new_repo()
 
@@ -421,3 +368,175 @@ class MLCRepositoryTest(unittest.TestCase):
             self.assertTrue(False)
         except KeyError:
             self.assertTrue(True)
+
+    def test_remove_population_to(self):
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("5+5"))
+
+        # add  population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 1, 1]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [2, 2, 2]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [3, 3, 3]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [4, 4, 4]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 4)
+
+        # remove generations 1 to 2
+        mlc_repo.remove_population_to(2)
+        self.assertEqual(mlc_repo.count_population(), 2)
+
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [3, 3, 3])
+
+        p = mlc_repo.get_population(2)
+        self.assertEqual(p._individuals, [4, 4, 4])
+
+        # New generation must be number 3
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [5, 5, 5]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 3)
+
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [3, 3, 3])
+
+        p = mlc_repo.get_population(2)
+        self.assertEqual(p._individuals, [4, 4, 4])
+
+        p = mlc_repo.get_population(3)
+        self.assertEqual(p._individuals, [5, 5, 5])
+
+    def test_remove_population_to_clear_generations(self):
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("5+5"))
+
+        # add  population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 1, 1]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [2, 2, 2]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [3, 3, 3]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 3)
+
+        # Remove all generations (1 to 3)
+        mlc_repo.remove_population_to(3)
+        self.assertEqual(mlc_repo.count_population(), 0)
+
+        # Insert populations again
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [3, 3, 3]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [4, 4, 4]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [5, 5, 5]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 3)
+
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [3, 3, 3])
+
+        p = mlc_repo.get_population(2)
+        self.assertEqual(p._individuals, [4, 4, 4])
+
+        p = mlc_repo.get_population(3)
+        self.assertEqual(p._individuals, [5, 5, 5])
+
+    def test_cut_generation(self):
+        """
+        Cut a generation using remove_population_from/remove_population_last
+        :return:
+        """
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("5+5"))
+
+        # add  population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 1, 1]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [2, 2, 2]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [3, 3, 3]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [4, 4, 4]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [5, 5, 5]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 5)
+
+        # Cut population 4
+        mlc_repo.remove_population_from(4+1)
+        mlc_repo.remove_population_to(4-1)
+
+        # remove unused individuals
+        mlc_repo.remove_unused_individuals()
+
+        self.assertEqual(mlc_repo.count_population(), 1)
+        self.assertEqual(mlc_repo.count_individual(), 1)
+
+        p = mlc_repo.get_population(1)
+        self.assertEqual(p._individuals, [4, 4, 4])
+
+        individual = mlc_repo.get_individual(4)
+        self.assertEqual(individual.get_value(), "4+4")

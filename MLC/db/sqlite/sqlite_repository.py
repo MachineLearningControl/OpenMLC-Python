@@ -24,7 +24,9 @@ class SQLiteRepository(MLCRepository):
         self.__execute(stmt_enable_foreign_key())
 
         # cache for population
-        self.__generations = self._how_many_generations()
+        gen_numbers = self._get_generations()
+        self.__generations = len(gen_numbers)
+        self.__base_gen = gen_numbers[0] if gen_numbers else 1
 
         # all individuals: {individual_id: (Individual, generated(bool))
         self.__individuals = self.__load_individuals()
@@ -77,13 +79,14 @@ class SQLiteRepository(MLCRepository):
         cursor = conn.cursor()
 
         try:
+            next_gen_id = self.__base_gen+self.__generations
             for i in range(len(population._individuals)):
                 individual_id = population._individuals[i]
                 individual_cost = population._costs[i]
                 evaluation_time = population._ev_time[i]
                 individual_gen_method = population._gen_method[i]
                 individual_parents = ','.join(str(elem) for elem in population._parents[i])
-                cursor.execute(stmt_insert_individual_in_population(self.__generations + 1,
+                cursor.execute(stmt_insert_individual_in_population(next_gen_id,
                                                                     individual_id,
                                                                     individual_cost,
                                                                     evaluation_time,
@@ -97,12 +100,9 @@ class SQLiteRepository(MLCRepository):
 
         self.__generations += 1
 
-    def remove_population(self, generation):
-        self.__execute(stmt_delete_generation(generation))
-        self.__generations -= 1
-
     def get_population(self, generation):
-        pop = self.__load_population(generation)
+        gen_id = self.__base_gen + generation - 1
+        pop = self.__load_population(gen_id)
         return pop
 
     def count_population(self):
@@ -110,12 +110,20 @@ class SQLiteRepository(MLCRepository):
 
     # special methods
     def remove_population_from(self, from_generation):
-        self.__execute(stmt_delete_from_generations(from_generation))
+        gen_id = self.__base_gen+from_generation-1
+        self.__execute(stmt_delete_from_generations(gen_id))
         self.__generations = from_generation - 1
+        if from_generation == 1:
+            self.__base_gen = 1
 
-    def remove_last_population(self):
-        if self.__generations > 0:
-            self.remove_population_from(self.__generations)
+    def remove_population_to(self, to_generation):
+        gen_id = self.__base_gen + to_generation - 1
+        self.__execute(stmt_delete_to_generations(gen_id))
+        self.__generations = self.__generations-to_generation
+        if self.__generations == 0:
+            self.__base_gen = 1
+        else:
+            self.__base_gen = to_generation + 1
 
     def remove_unused_individuals(self):
         to_delete = []
@@ -232,7 +240,7 @@ class SQLiteRepository(MLCRepository):
         conn.commit()
         return cursor.lastrowid
 
-    def _how_many_generations(self):
+    def _get_generations(self):
         generations = []
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_generations())
@@ -240,7 +248,7 @@ class SQLiteRepository(MLCRepository):
             generations.append(int(row[0]))
         cursor.close()
         conn.commit()
-        return len(sorted(generations))
+        return sorted(generations)
 
     def __load_population(self, generation):
         i = 0

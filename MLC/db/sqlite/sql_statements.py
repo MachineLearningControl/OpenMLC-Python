@@ -26,6 +26,9 @@ def stmt_delete_from_generations(from_generation):
     return """DELETE FROM population
               WHERE gen >= %s""" % (from_generation,)
 
+def stmt_delete_to_generations(to_generation):
+    return """DELETE FROM population
+              WHERE gen <= %s""" % (to_generation,)
 
 def stmt_delete_unused_individuals():
     return '''DELETE FROM individual
