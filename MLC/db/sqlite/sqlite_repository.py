@@ -110,6 +110,9 @@ class SQLiteRepository(MLCRepository):
 
     # special methods
     def remove_population_from(self, from_generation):
+        if from_generation>self.__generations:
+            return
+
         gen_id = self.__base_gen+from_generation-1
         self.__execute(stmt_delete_from_generations(gen_id))
         self.__generations = from_generation - 1
@@ -117,6 +120,9 @@ class SQLiteRepository(MLCRepository):
             self.__base_gen = 1
 
     def remove_population_to(self, to_generation):
+        if to_generation > self.__generations:
+            to_generation = self.__generations
+
         gen_id = self.__base_gen + to_generation - 1
         self.__execute(stmt_delete_to_generations(gen_id))
         self.__generations = self.__generations-to_generation

@@ -540,3 +540,34 @@ class MLCRepositoryTest(unittest.TestCase):
 
         individual = mlc_repo.get_individual(4)
         self.assertEqual(individual.get_value(), "4+4")
+
+    def test_remove_population_to_from_bad_values(self):
+        mlc_repo = self.__get_new_repo()
+
+        # add individuals
+        mlc_repo.add_individual(Individual("1+1"))
+        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("5+5"))
+
+        # add  population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 1, 1]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [2, 2, 2]
+        mlc_repo.add_population(p)
+
+        # add population
+        p = Population(3, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [3, 3, 3]
+        mlc_repo.add_population(p)
+
+        self.assertEqual(mlc_repo.count_population(), 3)
+
+        # Remove all generations (1 to 3)
+        mlc_repo.remove_population_to(10)
+        self.assertEqual(mlc_repo.count_population(), 0)
