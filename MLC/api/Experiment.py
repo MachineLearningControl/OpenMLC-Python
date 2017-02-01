@@ -18,6 +18,7 @@ from MLC.Simulation import Simulation
 
 logger = get_gui_logger()
 
+
 class Experiment:
     # FIXME: one simulation at a time
     __last_simulation = None
@@ -46,6 +47,15 @@ class Experiment:
         return self._simulation
 
     def get_configuration(self):
+        return Config.to_dictionary(self._configuration)
+
+    def reload_configuration(self):
+        """
+        Load again the experiment configuration, reading the config file from disk
+        """
+        self._configuration = ConfigParser.ConfigParser()
+        self._configuration.read(self._config_file)
+        Config.get_instance().read(self._config_file)
         return Config.to_dictionary(self._configuration)
 
     def set_configuration(self, new_configuration):

@@ -108,6 +108,14 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_experiment_configuration not implemented")
 
+    def reload_experiment_configuration(self, experiment_name):
+        """
+            Load again the experiment configuration.
+            :param experiment_name:
+            :return: experiment configuration.
+        """
+        raise NotImplementedError("MLC::reload_experiment_configuration not implemented")
+
     def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
         """
             Set a specific parameter value in the experiment configuration.

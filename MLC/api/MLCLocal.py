@@ -74,6 +74,12 @@ class MLCLocal(MLC):
 
         return self._open_experiments[experiment_name].get_configuration()
 
+    def reload_experiment_configuration(self, experiment_name):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_configuration", experiment_name)
+
+        return self._open_experiments[experiment_name].reload_configuration()
+
     def open_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
