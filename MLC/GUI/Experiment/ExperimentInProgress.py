@@ -51,6 +51,7 @@ class ExperimentCondition():
 
     def cancel_experiment(self):
         self._condition.acquire()
+        self._experiment_stopped = False
         self._experiment_cancelled = True
         self._condition.notify()
         self._condition.release()
@@ -148,7 +149,7 @@ class ExperimentInProgressWindow(QMainWindow):
         self._update_current_gen_experiment(indivs_per_gen_counter, cost)
 
     def _simulation_finished(self):
-        logger.debug('{0} [SIM_FINISHED] - Executing simulation_finished function'.format(self._log_prefix))
+        logger.debug('{0} [SIM_FINISHED] - Executing _simulation_finished function'.format(self._log_prefix))
         self._parent_signal.emit(self._experiment_condition.experiment_cancelled())
 
     def _update_current_gen_experiment(self, indiv_index, cost):
@@ -290,7 +291,9 @@ class ExperimentInProgress(Thread):
         self._dialog.close()
 
     def _check_if_project_stopped_or_cancelled(self):
-        if self._experiment_condition.wait_if_experiment_stopped():
-            # Check if the experiment was cancelled
-            if self._experiment_condition.experiment_cancelled():
-                raise ThreadCancelException()
+        self._experiment_condition.wait_if_experiment_stopped()
+        # Check if the experiment was cancelled
+        if self._experiment_condition.experiment_cancelled():
+            logger.debug('{0} [CHECK_IF_PROJECT_CANCELLED] - Raising ThreadCancelException'
+                         .format(self._log_prefix))
+            raise ThreadCancelException()
