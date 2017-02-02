@@ -24,7 +24,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="experiment_tab">
        <property name="layoutDirection">
@@ -1028,6 +1028,38 @@
     <hint type="sourcelabel">
      <x>702</x>
      <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>import_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_import_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>export_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_export_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>489</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>

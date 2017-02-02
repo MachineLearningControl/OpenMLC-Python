@@ -43,6 +43,13 @@ class ImportExperimentPathNotExistException(MLCException):
                                     .format(experiment_path))
 
 
+class ConfigFilePathNotExistException(MLCException):
+
+    def __init__(self, config_file_path):
+        MLCException.__init__(self, "Config File Error: Path {0} does not exists."
+                                    .format(experiment_path))
+
+
 class MLC:
 
     def open_experiment(self, experiment_name):
@@ -131,6 +138,15 @@ class MLC:
             }
         }
         self.set_experiment_configuration(experiment_name, configuration)
+
+    def set_experiment_configuration_from_file(self, experiment_name, experiment_filepath):
+        """
+            Update the experiment configuration from a config file
+            :param experiment_name:
+            :param configuration: Configuration file, as a filesystem path
+            :return:
+        """
+        raise NotImplementedError("MLC::set_experiment_configuration_from_file not implemented")
 
     def set_experiment_configuration(self, experiment_name, configuration):
         """
