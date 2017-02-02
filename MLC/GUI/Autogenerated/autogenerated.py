@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file './mlc_qtcreator/arduinoconnectiontest.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -48,7 +48,7 @@ class Ui_ArduinoConnectionDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/pinout_design.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -84,7 +84,7 @@ class Ui_ArduinoBoardDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -251,7 +251,7 @@ class Ui_MLCManager(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment_in_progress.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -352,7 +352,7 @@ class Ui_ExperimentInProgressWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -407,9 +407,6 @@ class Ui_ExperimentWindow(object):
         self.label_7 = QtWidgets.QLabel(self.groupBox_7)
         self.label_7.setObjectName("label_7")
         self.gridLayout_6.addWidget(self.label_7, 0, 0, 1, 1)
-        self.marker_combo = QtWidgets.QComboBox(self.groupBox_7)
-        self.marker_combo.setObjectName("marker_combo")
-        self.gridLayout_6.addWidget(self.marker_combo, 0, 5, 1, 1)
         self.overflow_color_combo = QtWidgets.QComboBox(self.groupBox_7)
         self.overflow_color_combo.setObjectName("overflow_color_combo")
         self.gridLayout_6.addWidget(self.overflow_color_combo, 6, 1, 1, 1)
@@ -431,9 +428,6 @@ class Ui_ExperimentWindow(object):
         self.max_cost_combo = QtWidgets.QComboBox(self.groupBox_7)
         self.max_cost_combo.setObjectName("max_cost_combo")
         self.gridLayout_6.addWidget(self.max_cost_combo, 0, 1, 1, 1)
-        self.label_14 = QtWidgets.QLabel(self.groupBox_7)
-        self.label_14.setObjectName("label_14")
-        self.gridLayout_6.addWidget(self.label_14, 0, 4, 1, 1)
         self.min_cost_combo = QtWidgets.QComboBox(self.groupBox_7)
         self.min_cost_combo.setObjectName("min_cost_combo")
         self.gridLayout_6.addWidget(self.min_cost_combo, 0, 3, 1, 1)
@@ -443,24 +437,24 @@ class Ui_ExperimentWindow(object):
         self.valid_points_combo = QtWidgets.QComboBox(self.groupBox_7)
         self.valid_points_combo.setObjectName("valid_points_combo")
         self.gridLayout_6.addWidget(self.valid_points_combo, 1, 1, 1, 1)
-        self.label_12 = QtWidgets.QLabel(self.groupBox_7)
-        self.label_12.setObjectName("label_12")
-        self.gridLayout_6.addWidget(self.label_12, 1, 2, 1, 1)
-        self.overflow_value_combo = QtWidgets.QComboBox(self.groupBox_7)
-        self.overflow_value_combo.setObjectName("overflow_value_combo")
-        self.gridLayout_6.addWidget(self.overflow_value_combo, 1, 3, 1, 1)
-        self.label_15 = QtWidgets.QLabel(self.groupBox_7)
-        self.label_15.setObjectName("label_15")
-        self.gridLayout_6.addWidget(self.label_15, 1, 4, 1, 1)
-        self.points_combo = QtWidgets.QComboBox(self.groupBox_7)
-        self.points_combo.setObjectName("points_combo")
-        self.gridLayout_6.addWidget(self.points_combo, 1, 5, 1, 1)
         self.label_13 = QtWidgets.QLabel(self.groupBox_7)
         self.label_13.setObjectName("label_13")
-        self.gridLayout_6.addWidget(self.label_13, 6, 2, 1, 1)
+        self.gridLayout_6.addWidget(self.label_13, 7, 2, 1, 1)
         self.nan_value_combo = QtWidgets.QComboBox(self.groupBox_7)
         self.nan_value_combo.setObjectName("nan_value_combo")
-        self.gridLayout_6.addWidget(self.nan_value_combo, 6, 3, 1, 1)
+        self.gridLayout_6.addWidget(self.nan_value_combo, 7, 3, 1, 1)
+        self.label_12 = QtWidgets.QLabel(self.groupBox_7)
+        self.label_12.setObjectName("label_12")
+        self.gridLayout_6.addWidget(self.label_12, 6, 2, 1, 1)
+        self.overflow_value_combo = QtWidgets.QComboBox(self.groupBox_7)
+        self.overflow_value_combo.setObjectName("overflow_value_combo")
+        self.gridLayout_6.addWidget(self.overflow_value_combo, 6, 3, 1, 1)
+        self.label_14 = QtWidgets.QLabel(self.groupBox_7)
+        self.label_14.setObjectName("label_14")
+        self.gridLayout_6.addWidget(self.label_14, 1, 2, 1, 1)
+        self.marker_combo = QtWidgets.QComboBox(self.groupBox_7)
+        self.marker_combo.setObjectName("marker_combo")
+        self.gridLayout_6.addWidget(self.marker_combo, 1, 3, 1, 1)
         self.verticalLayout_4.addWidget(self.groupBox_7)
         self.horizontalLayout_2.addWidget(self.frame_4)
         self.frame_3 = QtWidgets.QFrame(self.experiment_tab)
@@ -705,7 +699,6 @@ class Ui_ExperimentWindow(object):
         self.start_button.clicked.connect(ExperimentWindow.on_start_button_clicked)
         self.valid_points_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
         self.overflow_color_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
-        self.points_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
         self.marker_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
         self.overflow_value_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
         self.nan_value_combo.currentTextChanged['QString'].connect(ExperimentWindow.on_chart_config_changed)
@@ -726,11 +719,10 @@ class Ui_ExperimentWindow(object):
         self.label_8.setText(_translate("ExperimentWindow", "Overflow Color:"))
         self.label_11.setText(_translate("ExperimentWindow", "Min Cost:"))
         self.label_10.setText(_translate("ExperimentWindow", "NaN/Inf Color:"))
-        self.label_14.setText(_translate("ExperimentWindow", "Marker Size:"))
         self.label_9.setText(_translate("ExperimentWindow", "Valid Points Color:"))
-        self.label_12.setText(_translate("ExperimentWindow", "Overflow Value:"))
-        self.label_15.setText(_translate("ExperimentWindow", "Visualized Points:"))
         self.label_13.setText(_translate("ExperimentWindow", "NaN/Inf Value:"))
+        self.label_12.setText(_translate("ExperimentWindow", "Overflow Value:"))
+        self.label_14.setText(_translate("ExperimentWindow", "Marker Size:"))
         self.groupBox_2.setTitle(_translate("ExperimentWindow", "Scripts"))
         self.ev_edit_button.setText(_translate("ExperimentWindow", "Edit"))
         self.preev_edit_button.setText(_translate("ExperimentWindow", "Edit"))
@@ -774,7 +766,7 @@ class Ui_ExperimentWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/genealogy.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -813,7 +805,7 @@ class Ui_GenealogyWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/board_config_design.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1086,7 +1078,7 @@ class Ui_BoardConfigurationWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/edit_properties.ui'
 #
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
