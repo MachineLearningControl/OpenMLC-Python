@@ -18,6 +18,7 @@ from MLC.api.mlc import InvalidExperimentException
 from MLC.api.mlc import EvaluationScriptNotExistException
 from MLC.api.mlc import PreevaluationScriptNotExistException
 from MLC.api.mlc import ImportExperimentPathNotExistException
+from MLC.api.mlc import ConfigFilePathNotExistException
 from MLC.Application import Application
 from MLC.config import get_templates_path
 from MLC.config import set_working_directory
@@ -73,6 +74,55 @@ class MLCLocal(MLC):
             raise ClosedExperimentException("get_experiment_configuration", experiment_name)
 
         return self._open_experiments[experiment_name].get_configuration()
+
+    def reload_experiment_configuration(self, experiment_name):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_configuration", experiment_name)
+
+        return self._open_experiments[experiment_name].reload_configuration()
+
+    def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("set_experiment_configuration_parameter", experiment_name)
+
+        return MLC.set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value)
+
+    def set_experiment_configuration_from_file(self, experiment_name, config_filepath):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("set_experiment_configuration_from_file", experiment_name)
+
+        if not os.path.exists(config_filepath):
+            raise ConfigFilePathNotExistException(config_filepath)
+
+        experiment_config = ConfigParser.ConfigParser()
+        experiment_config.read(config_filepath)
+        new_config = Config.to_dictionary(experiment_config)
+        # FIXME: Remove the db file from the config. Now the DB is a fixed part of the experiment
+        new_config["BEHAVIOUR"]["savedir"] = experiment_name + ".db"
+        self.set_experiment_configuration(experiment_name, new_config)
+
+    def set_experiment_configuration(self, experiment_name, new_configuration):
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("set_experiment_configuration", experiment_name)
+
+        # FIXME: Check the way the configuration rules are being coded
+        # for section, params in new_configuration.iteritems():
+        #     for param_name, param_value in new_configuration[section].iteritems():
+        #         MLCConfigRules.get_instance().apply(section, param_name, param_value,
+        #                                             self._open_experiments[experiment_name].get_simulation())
+
+        experiment = self._open_experiments[experiment_name]
+        configuration = experiment.get_configuration()
+
+        # FIXME: Check the way the configuration rules are being coded
+        # for section, params in new_configuration.iteritems():
+        #     if not section in configuration:
+        #         configuration[section] = {}
+        #     for param_name, param_value in new_configuration[section].iteritems():
+        #         configuration[section][param_name] = new_configuration[section][param_name]
+
+        configuration.update(new_configuration)
+        experiment.set_configuration(configuration)
 
     def open_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
@@ -139,41 +189,12 @@ class MLCLocal(MLC):
         self._experiments[experiment_name] = Experiment(experiment_dir, experiment_name)
 
     def export_experiment(self, experiment_name):
-        #  Generate a tar file and store it in a variable, to be able to send
+        # Generate a tar file and store it in a variable, to be able to send
         # it via a websocket in the future
         c = cStringIO.StringIO()
         experiment_dir = os.path.join(self._working_dir, experiment_name)
         util.make_tarfile(experiment_dir, c)
         return c.getvalue()
-
-    def set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value):
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("set_experiment_configuration_parameter", experiment_name)
-
-        return MLC.set_experiment_configuration_parameter(self, experiment_name, param_section, param_name, value)
-
-    def set_experiment_configuration(self, experiment_name, new_configuration):
-        if experiment_name not in self._open_experiments:
-            raise ClosedExperimentException("set_experiment_configuration", experiment_name)
-
-        # FIXME: Check the way the configuration rules are being coded
-        # for section, params in new_configuration.iteritems():
-        #     for param_name, param_value in new_configuration[section].iteritems():
-        #         MLCConfigRules.get_instance().apply(section, param_name, param_value,
-        #                                             self._open_experiments[experiment_name].get_simulation())
-
-        experiment = self._open_experiments[experiment_name]
-        configuration = experiment.get_configuration()
-
-        # FIXME: Check the way the configuration rules are being coded
-        # for section, params in new_configuration.iteritems():
-        #     if not section in configuration:
-        #         configuration[section] = {}
-        #     for param_name, param_value in new_configuration[section].iteritems():
-        #         configuration[section][param_name] = new_configuration[section][param_name]
-
-        configuration.update(new_configuration)
-        experiment.set_configuration(configuration)
 
     def get_experiment_info(self, experiment_name):
         if experiment_name not in self._experiments:

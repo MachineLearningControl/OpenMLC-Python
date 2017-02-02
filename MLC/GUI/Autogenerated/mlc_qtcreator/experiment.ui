@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>961</width>
-    <height>552</height>
+    <height>568</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -591,25 +591,32 @@
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0">
                <widget class="QPushButton" name="import_config_button">
                 <property name="text">
                  <string>Import</string>
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="0" column="1">
                <widget class="QPushButton" name="export_config_button">
                 <property name="text">
                  <string>Export</string>
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="1" column="0">
                <widget class="QPushButton" name="save_config_button">
                 <property name="text">
                  <string>Save</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="edit_config_button">
+                <property name="text">
+                 <string>Edit</string>
                 </property>
                </widget>
               </item>
@@ -1012,6 +1019,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>edit_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_edit_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>import_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_import_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>export_config_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_export_config_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -1035,5 +1090,6 @@
   <slot>on_convergence_button_clicked()</slot>
   <slot>on_genealogy_button_clicked()</slot>
   <slot>on_board_config_button_clicked()</slot>
+  <slot>on_edit_config_button_clicked()</slot>
  </slots>
 </ui>
