@@ -628,6 +628,11 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="first_indivs_tab">
+       <attribute name="title">
+        <string>Individuals</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
