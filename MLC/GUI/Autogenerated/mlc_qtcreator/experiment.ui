@@ -632,6 +632,104 @@
        <attribute name="title">
         <string>Individuals</string>
        </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QFrame" name="frame_6">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QGroupBox" name="groupBox_10">
+             <property name="title">
+              <string>Individuals to add in the first generation</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QTableView" name="first_indivs_table">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="cornerButtonEnabled">
+                 <bool>false</bool>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_5">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QGroupBox" name="groupBox_11">
+             <property name="title">
+              <string>Management</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QPushButton" name="first_add_indiv">
+                <property name="text">
+                 <string>Add Individual</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="first_add_indiv_from_textfile">
+                <property name="text">
+                 <string>Add Individual From Text File</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="first_modifiy_indiv">
+                <property name="text">
+                 <string>Modify Individual</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="first_remove_indiv">
+                <property name="text">
+                 <string>Remove Individual</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -1072,6 +1170,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>first_add_indiv</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_first_add_indiv_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>826</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>first_add_indiv_from_textfile</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_first_add_indiv_from_textfile_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>826</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>first_modifiy_indiv</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_first_modify_indiv_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>826</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>first_remove_indiv</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_first_remove_indiv_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>826</x>
+     <y>177</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -1096,5 +1258,9 @@
   <slot>on_genealogy_button_clicked()</slot>
   <slot>on_board_config_button_clicked()</slot>
   <slot>on_edit_config_button_clicked()</slot>
+  <slot>on_first_add_indiv_button_clicked()</slot>
+  <slot>on_first_modify_indiv_button_clicked()</slot>
+  <slot>on_first_remove_indiv_button_clicked()</slot>
+  <slot>on_first_add_indiv_from_textfile_button_clicked()</slot>
  </slots>
 </ui>

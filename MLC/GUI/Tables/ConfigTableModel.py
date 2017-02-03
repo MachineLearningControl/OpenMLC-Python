@@ -14,11 +14,11 @@ logger = get_gui_logger()
 
 class ConfigTableModel(QAbstractTableModel):
 
-    def __init__(self, name, config, header, parent=None, *args):
+    def __init__(self, name, data, header, parent=None, *args):
         QAbstractTableModel.__init__(self, parent, *args)
         self._name = name
         self._header = header
-        self._data = config
+        self._data = data
         self._editable_columns = []
 
     def rowCount(self, parent):
