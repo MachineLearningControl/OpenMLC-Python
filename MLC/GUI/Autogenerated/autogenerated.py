@@ -254,6 +254,7 @@ class Ui_BoardConfigurationWindow(object):
         self.closeButton.clicked.connect(BoardConfigurationWindow.close)
         self.removeDigitalPin.clicked.connect(BoardConfigurationWindow.removeDigitalPin)
         self.removeAnalogPin.clicked.connect(BoardConfigurationWindow.removeAnalogPin)
+        self.benchTests.clicked.connect(BoardConfigurationWindow.on_bench_test_click)
         # QtCore.QMetaObject.connectSlotsByName(BoardConfigurationWindow)
 
     def retranslateUi(self, BoardConfigurationWindow):
@@ -1106,6 +1107,94 @@ class Ui_ExperimentInProgressWindow(object):
         self.indiv_label.setText(_translate("ExperimentInProgressWindow", "TextLabel"))
         self.picture_groupBox.setTitle(_translate("ExperimentInProgressWindow", "Individuals\' Costs"))
         self.cancel_button.setText(_translate("ExperimentInProgressWindow", "Cancel Experiment"))
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file './mlc_qtcreator/arduino_performance_test.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_arduino_performance_test(object):
+    def setupUi(self, arduino_performance_test):
+        arduino_performance_test.setObjectName("arduino_performance_test")
+        arduino_performance_test.resize(775, 500)
+        arduino_performance_test.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.verticalLayout = QtWidgets.QVBoxLayout(arduino_performance_test)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.graph_base = QtWidgets.QFrame(arduino_performance_test)
+        self.graph_base.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.graph_base.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.graph_base.setObjectName("graph_base")
+        self.verticalLayout.addWidget(self.graph_base)
+        self.groupBox = QtWidgets.QGroupBox(arduino_performance_test)
+        self.groupBox.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.groupBox.setAutoFillBackground(False)
+        self.groupBox.setObjectName("groupBox")
+        self.formLayout = QtWidgets.QFormLayout(self.groupBox)
+        self.formLayout.setObjectName("formLayout")
+        self.avg_op = QtWidgets.QLabel(self.groupBox)
+        self.avg_op.setObjectName("avg_op")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.avg_op)
+        self.std_dev = QtWidgets.QLabel(self.groupBox)
+        self.std_dev.setObjectName("std_dev")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.std_dev)
+        self.min_op = QtWidgets.QLabel(self.groupBox)
+        self.min_op.setObjectName("min_op")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.min_op)
+        self.max_op = QtWidgets.QLabel(self.groupBox)
+        self.max_op.setObjectName("max_op")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.max_op)
+        self.std_dev_value = QtWidgets.QLabel(self.groupBox)
+        self.std_dev_value.setObjectName("std_dev_value")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.std_dev_value)
+        self.min_op_value = QtWidgets.QLabel(self.groupBox)
+        self.min_op_value.setObjectName("min_op_value")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.min_op_value)
+        self.max_op_value = QtWidgets.QLabel(self.groupBox)
+        self.max_op_value.setObjectName("max_op_value")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.max_op_value)
+        self.avg_op_value = QtWidgets.QLabel(self.groupBox)
+        self.avg_op_value.setObjectName("avg_op_value")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.avg_op_value)
+        self.verticalLayout.addWidget(self.groupBox)
+        self.frame = QtWidgets.QFrame(arduino_performance_test)
+        self.frame.setMaximumSize(QtCore.QSize(16777215, 45))
+        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.resetButton = QtWidgets.QPushButton(self.frame)
+        self.resetButton.setObjectName("resetButton")
+        self.horizontalLayout.addWidget(self.resetButton)
+        self.closeButton = QtWidgets.QPushButton(self.frame)
+        self.closeButton.setObjectName("closeButton")
+        self.horizontalLayout.addWidget(self.closeButton)
+        self.verticalLayout.addWidget(self.frame, 0, QtCore.Qt.AlignHCenter)
+
+        self.retranslateUi(arduino_performance_test)
+        self.resetButton.clicked.connect(arduino_performance_test.on_bench_reset)
+        self.closeButton.clicked.connect(arduino_performance_test.on_close)
+        # QtCore.QMetaObject.connectSlotsByName(arduino_performance_test)
+
+    def retranslateUi(self, arduino_performance_test):
+        _translate = QtCore.QCoreApplication.translate
+        arduino_performance_test.setWindowTitle(_translate("arduino_performance_test", "Dialog"))
+        self.groupBox.setTitle(_translate("arduino_performance_test", "Stats"))
+        self.avg_op.setText(_translate("arduino_performance_test", "Avg. operations:"))
+        self.std_dev.setText(_translate("arduino_performance_test", "Standard deviation:"))
+        self.min_op.setText(_translate("arduino_performance_test", "Min. operations:"))
+        self.max_op.setText(_translate("arduino_performance_test", "Max operations:"))
+        self.std_dev_value.setText(_translate("arduino_performance_test", "0"))
+        self.min_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.max_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.avg_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.resetButton.setText(_translate("arduino_performance_test", "Reset"))
+        self.closeButton.setText(_translate("arduino_performance_test", "Close"))
 
 # -*- coding: utf-8 -*-
 

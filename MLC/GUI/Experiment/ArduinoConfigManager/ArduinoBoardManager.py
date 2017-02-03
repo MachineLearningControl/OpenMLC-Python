@@ -90,6 +90,17 @@ class ArduinoBoardManager:
          self.__main_window.update()
       else:
          self.__main_window.set_board(old_idx)
+
+   def start_bench(self):
+      from ArduinoBench import MockArduinoBench
+      from ArduinoStatsDialog import ArduinoStatsDialog
+      bench = MockArduinoBench()
+      stats = ArduinoStatsDialog(bench)
+      stats.connect_to_reset(bench)
+      bench.add_observer(stats)
+      bench.start()
+      stats.exec_()
+      bench.stop()
       
 
 class BoardSetup:

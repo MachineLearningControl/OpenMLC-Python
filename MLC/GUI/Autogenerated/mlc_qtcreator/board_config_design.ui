@@ -685,6 +685,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>benchTests</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_bench_test_click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>566</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>insertDigitalPin()</slot>
@@ -693,5 +709,6 @@
   <slot>showPinout()</slot>
   <slot>removeDigitalPin()</slot>
   <slot>removeAnalogPin()</slot>
+  <slot>on_bench_test_click()</slot>
  </slots>
 </ui>

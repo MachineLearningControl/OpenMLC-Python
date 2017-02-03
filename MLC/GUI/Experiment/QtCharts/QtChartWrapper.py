@@ -29,6 +29,10 @@ class QtChartWrapper():
         # Save the curves in order to add data to them later
         self._curves = []
 
+    def remove_all_curves(self):
+        self._chart.removeAllSeries()
+        self._curves = []
+
     def set_title(self, title, font=None):
         self._chart.setTitle(title)
 

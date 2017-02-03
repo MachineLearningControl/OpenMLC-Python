@@ -168,4 +168,7 @@ class BoardConfigurationWindow(QMainWindow):
         self.ui.arduinoBoard.blockSignals(True)
         self.ui.arduinoBoard.setCurrentIndex(idx)
         self.ui.arduinoBoard.blockSignals(False)
+
+    def on_bench_test_click(self):
+        self.__controller.start_bench()
         
