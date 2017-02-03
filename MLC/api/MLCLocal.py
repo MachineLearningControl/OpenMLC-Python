@@ -219,7 +219,8 @@ class MLCLocal(MLC):
             experiment_info["best_indiv_value"] = min_indiv_data.get_value()
         return experiment_info
 
-    def go(self, experiment_name, to_generation, from_generation=0, callbacks={}):
+    def go(self, experiment_name, to_generation, from_generation=0, 
+           callbacks={}, gen_creator=None):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
 
@@ -231,7 +232,7 @@ class MLCLocal(MLC):
         simulation = experiment.get_simulation()
 
         # launch simulation
-        app = Application(simulation, callbacks=callbacks)
+        app = Application(simulation, callbacks=callbacks, gen_creator=gen_creator)
         app.go(from_generation=from_generation, to_generation=to_generation)
 
         return True

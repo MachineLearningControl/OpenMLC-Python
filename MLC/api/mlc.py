@@ -157,12 +157,15 @@ class MLC:
         """
         raise NotImplementedError("MLC::set_experiment_configuration not implemented")
 
-    def go(self, experiment_name, to_generation, from_generation=None):
+    def go(self, experiment_name, to_generation,
+           from_generation=0, callbacks={}, gen_creator=None):
         """
             Execute experiments until to_generation generations are reached.
             :param experiment_name:
             :param to_generation: final generation.
             :param from_generation: initial generation.
+            :param callbacks: Callbacks to be triggered in special moments of the experiment
+            :param gen_creator: Modified gen_creator to add individuals manually
             :return:
         """
         raise NotImplementedError("MLC::go not implemented")

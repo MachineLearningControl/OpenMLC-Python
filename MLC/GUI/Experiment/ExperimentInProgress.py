@@ -210,7 +210,8 @@ class ExperimentInProgress(Thread):
 
     def __init__(self, mlc_local, experiment_name,
                  to_gen, from_gen, chart_params,
-                 parent_signal, parent=None):
+                 parent_signal, gen_creator=None,
+                 parent=None):
         Thread.__init__(self)
 
         self._mlc_local = mlc_local
@@ -247,11 +248,15 @@ class ExperimentInProgress(Thread):
         self._dialog.add_experiment_data(self._amount_gens, self._indivs_per_gen)
         self._dialog.show()
 
+        # Individuals to be inserted in the first generation
+        self._gen_creator = gen_creator
+
     def run(self):
         logger.debug('{0} [RUN] - Executing Thread mainloop'.format(self._log_prefix))
         try:
             self._mlc_local.go(self._experiment_name, self._to_gen,
-                               self._from_gen, self._callbacks)
+                               self._from_gen, self._callbacks,
+                               self._gen_creator)
         except ThreadCancelException, err:
             logger.info('{0} [RUN] - Thread was cancelled by the user'
                         .format(self._log_prefix))

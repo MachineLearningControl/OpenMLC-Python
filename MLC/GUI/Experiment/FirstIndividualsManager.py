@@ -3,10 +3,14 @@ from MLC.Log.log import get_gui_logger
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
+
+from MLC.Population.Creation.IndividualSelection import IndividualSelection
+from MLC.Population.Creation.CreationFactory import CreationFactory
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QMessageBox
 
 logger = get_gui_logger()
+
 
 class FirstIndividualsManager(object):
 
@@ -64,6 +68,27 @@ class FirstIndividualsManager(object):
     def remove_individual(self, indiv_index):
         pass
 
+    def get_gen_creator(self):
+        """
+        Return an IndividualSelection creator if the user added individuals
+        manually. 
+        Return None if this was not the case
+        """
+        if not self._individuals:
+            logger.info("[FIRST_INDIV] No individual")
+            return None
+
+        gen_method = Config.get_instance().get('GP', 'generation_method')
+        fill_creator = CreationFactory.make(gen_method)
+
+        # Creat the dictionary of individuals
+        indivs_dict = {}
+        for index in xrange(len(self._individuals)):
+            indiv = Individual(self._individuals[index])
+            indivs_dict[indiv] = [index]
+
+        return IndividualSelection(indivs_dict, fill_creator)
+
     def _load_table(self):
         header = ['Index', 'Value']
 
@@ -78,9 +103,11 @@ class FirstIndividualsManager(object):
                                        parent=self._parent)
 
         self._first_indivs_table.setModel(table_model)
-        self._first_indivs_table.resizeColumnsToContents()
-        self._first_indivs_table.setSortingEnabled(True)
         self._first_indivs_table.setDisabled(False)
+        self._first_indivs_table.setVisible(False)
+        self._first_indivs_table.resizeColumnsToContents()
+        self._first_indivs_table.setVisible(True)
+        self._first_indivs_table.setSortingEnabled(True)
 
     def _test_individual_value(self, indiv_value):
         """

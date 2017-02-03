@@ -110,7 +110,3 @@ class ConfigTableModel(QAbstractTableModel):
 
     def set_data_changed_callback(self, callback):
         self.dataChanged.connect(callback)
-
-    def update_layout(self):
-        self.layoutAboutToBeChanged.emit()
-        self.layoutChanged.emit()
