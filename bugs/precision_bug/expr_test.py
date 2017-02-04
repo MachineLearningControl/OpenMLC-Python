@@ -5,7 +5,7 @@ import numpy as np
 import struct
 import MLC.Log.log as lg
 
-from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -30,7 +30,7 @@ expr6 = "(root (cos (exp (- -6.3726 (* -7.1746 S0)))))"
 expr61 = "(root (exp (- -6.3726 (* -7.1746 S0))))"
 expr612 = "(root (- -6.3726 (* -7.1746 S0)))"
 
-tree = Lisp_Tree_Expr(expr6)
+tree = LispTreeExpr(expr6)
 x = np.linspace(-10.0, 10.0, num=201)
 mlc_y = tree.calculate_expression([x])
 

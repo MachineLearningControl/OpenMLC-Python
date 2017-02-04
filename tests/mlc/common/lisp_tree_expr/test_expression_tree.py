@@ -2,7 +2,7 @@ import unittest
 import MLC.Log.log as lg
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC import config as config_path
 
 import os
@@ -20,7 +20,7 @@ class ExpressionTreeTest(unittest.TestCase):
 
     def test_tree_depth_root(self):
         expression = '(root S0)'
-        tree = Lisp_Tree_Expr(expression)
+        tree = LispTreeExpr(expression)
 
         # root
         root = tree.get_root_node()
@@ -31,7 +31,7 @@ class ExpressionTreeTest(unittest.TestCase):
 
     def test_tree_depth_leaf(self):
         expression = '(root (tanh S0))'
-        tree = Lisp_Tree_Expr(expression)
+        tree = LispTreeExpr(expression)
 
         # root
         root = tree.get_root_node()
@@ -46,7 +46,7 @@ class ExpressionTreeTest(unittest.TestCase):
 
     def test_tree_subtree(self):
         expression = '(root (+ (tanh S0) (cos S1))))'
-        tree = Lisp_Tree_Expr(expression)
+        tree = LispTreeExpr(expression)
 
         # root
         root = tree.get_root_node()

@@ -4,7 +4,7 @@ import math
 from collections import Counter
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
-from MLC.Common.Lisp_Tree_Expr.Lisp_Tree_Expr import Lisp_Tree_Expr
+from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Common.RandomManager import RandomManager
 
 
@@ -96,7 +96,7 @@ class Individual(object):
     @property
     def _tree(self):
         if self._lazy_tree is None:
-            self._lazy_tree = Lisp_Tree_Expr(self.get_value())
+            self._lazy_tree = LispTreeExpr(self.get_value())
         return self._lazy_tree
 
     @staticmethod
@@ -231,7 +231,7 @@ class Individual(object):
             return new_individual_value
 
         elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
-            return self.__reparam_tree(Lisp_Tree_Expr(self.get_value()))
+            return self.__reparam_tree(LispTreeExpr(self.get_value()))
 
         elif mutation_type == Individual.MutationType.HOIST:
             controls = self._config.getint("POPULATION", "controls")
@@ -248,7 +248,7 @@ class Individual(object):
                 if (RandomManager.rand() < prob_threshold) or (k == controls and not changed):
 
                     try:
-                        _, sm, _ = self.__extract_subtree(Lisp_Tree_Expr('(root '+cl[nc - 1]+')'), mutmindepth+1, maxdepth, maxdepth+1)
+                        _, sm, _ = self.__extract_subtree(LispTreeExpr('(root '+cl[nc - 1]+')'), mutmindepth+1, maxdepth, maxdepth+1)
                         cl[nc - 1] = sm
                         changed = True
 
@@ -413,7 +413,7 @@ class Individual(object):
             value = value.replace(replace_list[i], sensor_list[i])
 
         if config.getboolean('OPTIMIZATION', 'simplify'):
-            return Lisp_Tree_Expr(value).get_simplified_tree_as_string()
+            return LispTreeExpr(value).get_simplified_tree_as_string()
 
         return value
 

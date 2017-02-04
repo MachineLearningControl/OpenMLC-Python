@@ -2,54 +2,54 @@
     op: "+"
     nbarg: 2
     complexity: 1
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Plus_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.PlusNode"
 2:
     op: "-"
     nbarg: 2
     complexity: 1
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Minus_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.MinusNode"
 3:
     op: "*"
     nbarg: 2
     complexity: 1
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Mult_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.MultNode"
 4:
     op: "/"
     nbarg: 2
     complexity: 1
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Division_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.DivisionNode"
 5:
     op: "sin"
     nbarg: 1
     complexity: 3
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Sine_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.SineNode"
 6:
     op: "cos"
     nbarg: 1
     complexity: 3
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Cosine_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.CosineNode"
 7:
     op: "log"
     nbarg: 1
     complexity: 5
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Logarithm_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.LogarithmNode"
 8:
     op: "exp"
     nbarg: 1
     complexity: 5
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Exponential_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.ExponentialNode"
 9:
     op: "tanh"
     nbarg: 1
     complexity: 5
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Tanh_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.TanhNode"
 10:
     op: "mod"
     nbarg: 2
     complexity: 5
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Plus_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.PlusNode"
 11:
     op: "pow"
     nbarg: 2
     complexity: 10
-    tree_node_class: "MLC.Common.Lisp_Tree_Expr.Operation_Nodes.Plus_Node"
+    tree_node_class: "MLC.Common.LispTreeExpr.OperationNodes.PlusNode"

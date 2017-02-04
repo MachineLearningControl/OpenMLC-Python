@@ -1,11 +1,11 @@
 import MLC.Log.log as lg
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
-from MLC.Common.Lisp_Tree_Expr.Tree_Nodes import Leaf_Node, Internal_Node
-from MLC.Common.Lisp_Tree_Expr.Operation_Nodes import Op_Node_Factory
+from MLC.Common.LispTreeExpr.TreeNodes import LeafNode, InternalNode
+from MLC.Common.LispTreeExpr.OperationNodes import OpNodeFactory
 
 
-class Lisp_Tree_Expr(object):
+class LispTreeExpr(object):
 
     def __init__(self, expr):
         self._nodes = []
@@ -126,7 +126,7 @@ class Lisp_Tree_Expr(object):
         else:
             param_len = len(expr)
 
-        leaf = Leaf_Node(expr[:param_len])
+        leaf = LeafNode(expr[:param_len])
         leaf.set_depth(parent_depth)
         leaf.set_expr_index(expr_index)
         leaf.set_subtreedepth(0)
@@ -142,7 +142,7 @@ class Lisp_Tree_Expr(object):
         op = self._get_operation(expr, is_root_expression)
 
         # Generate the arguments of the internal node as Child Nodes
-        node = Op_Node_Factory.make(op["op"])
+        node = OpNodeFactory.make(op["op"])
         node.set_depth(parent_depth + 1)
         node.set_expr_index(expr_index)
         expr_offset = 0
