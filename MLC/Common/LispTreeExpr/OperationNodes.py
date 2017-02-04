@@ -94,7 +94,6 @@ class MinusNode(InternalNode):
                                                exception_msg=err)
 
 
-
 class MultNode(InternalNode):
 
     def __init__(self):
@@ -174,7 +173,7 @@ class DivisionNode(InternalNode):
         try:
             return self._process_division(arg_list[0], arg_list[1])
         except FloatingPointError, err:
-            return execute_op_without_warnings(op=self._process_division, 
+            return execute_op_without_warnings(op=self._process_division,
                                                arg1=arg_list[0],
                                                arg2=arg_list[1],
                                                log_prefix="[DIV_NODE] Error: ",
@@ -200,7 +199,7 @@ class SineNode(InternalNode):
         try:
             return np.sin(arg_list[0])
         except FloatingPointError, err:
-            return execute_op_without_warnings(op=np.sin, 
+            return execute_op_without_warnings(op=np.sin,
                                                arg1=arg_list[0],
                                                log_prefix="[SIN_NODE] Error: ",
                                                exception_msg=err)
@@ -225,7 +224,7 @@ class CosineNode(InternalNode):
         try:
             return np.cos(arg_list[0])
         except FloatingPointError, err:
-            return execute_op_without_warnings(op=np.cos, 
+            return execute_op_without_warnings(op=np.cos,
                                                arg1=arg_list[0],
                                                log_prefix="[COS_NODE] Error: ",
                                                exception_msg=err)
@@ -297,7 +296,7 @@ class ExponentialNode(InternalNode):
         try:
             return np.exp(arg_list[0])
         except FloatingPointError, err:
-            return execute_op_without_warnings(op=np.exp, 
+            return execute_op_without_warnings(op=np.exp,
                                                arg1=arg_list[0],
                                                log_prefix="[EXP_NODE] Error: ",
                                                exception_msg=err)
@@ -322,7 +321,7 @@ class TanhNode(InternalNode):
         try:
             return np.tanh(arg_list[0])
         except FloatingPointError, err:
-            return execute_op_without_warnings(op=np.exp, 
+            return execute_op_without_warnings(op=np.exp,
                                                arg1=arg_list[0],
                                                log_prefix="[TANH_NODE] Error: ",
                                                exception_msg=err)
