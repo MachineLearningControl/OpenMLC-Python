@@ -1,16 +1,22 @@
 #from MLC.arduino.connection import MockConnection
 from MLC.arduino.connection import SerialConnection
+import MLC.arduino.protocol as protocol
 from MLC.arduino.protocol import ArduinoInterface
 from MLC.arduino import boards
+import MLC.arduino 
 import sys
 import time
 
+
+BREAK_COUNT=20000
+
 def actuate(terminal):
+    global BREAK_COUNT
     connection = SerialConnection(port=terminal)
     arduinoDue = ArduinoInterface(connection, boards.Due)
     
     arduinoDue.reset() #Just in case
-    arduinoDue.set_report_mode("AVERAGE", read_count=1, read_delay=200)
+    arduinoDue.set_report_mode(protocol.PIN_MODES.AVERAGE, read_count=5, read_delay=0)
     
     arduinoDue.add_output(40)
     arduinoDue.add_output(66)
@@ -26,12 +32,13 @@ def actuate(terminal):
 #    arduinoDue.add_input(56)
 #    arduinoDue.add_input(55)
     arduinoDue.add_input(54)
+    arduinoDue.add_input(55)
 
     last_time = time.time()
     start_time = last_time
     read_c = 0
     
-    for i in xrange(0, 2):
+    for i in xrange(0, BREAK_COUNT):
         output = arduinoDue.actuate([(40,1),(66,255)])
         #print output
         read_c = read_c + 1
