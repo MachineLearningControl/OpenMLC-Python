@@ -92,6 +92,14 @@ class ExpressionTreeTest(unittest.TestCase):
         expression = '(root (+ (* 2 3) 8))'
         self.assert_check_expression_without_exception(expression)
 
+    def test_check_expression_super_complex_correct_expression(self):
+        expression = '(root (tanh (+ (tanh (+ (sin (+ (+ (- S0 (log 3.4232)) (- S0 (log -3.3987))) (- S0 (log 7.7256)))) (sin (- S0 (log 6.3053))))) (- S0 (log 2.7057)))))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_super_complex_incorrect_expression(self):
+        expression = '(root (tanh (+ (tanh (+ (sin (+ (+ (- S0 (log 3.4232)) (- S0 (log -3.3987 123))) (- S0 (log 7.7256)))) (sin (- S0 (log 6.3053))))) (- S0 (log 2.7057)))))'
+        self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
+
     def test_tree_depth_root(self):
         expression = '(root S0)'
         tree = LispTreeExpr(expression)

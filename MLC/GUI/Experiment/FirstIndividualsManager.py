@@ -1,9 +1,8 @@
 from MLC.GUI.Tables.ConfigTableModel import ConfigTableModel
+from MLC.GUI.util import test_individual_value
 from MLC.Log.log import get_gui_logger
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
-from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
-
 from MLC.Population.Creation.IndividualSelection import IndividualSelection
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from PyQt5.QtWidgets import QInputDialog
@@ -38,8 +37,11 @@ class FirstIndividualsManager(object):
                 return
 
             indiv_value = indiv[0]
-            try:
-                self._test_individual_value(indiv_value)
+            if test_individual_value(parent=self._parent,
+                                     experiment_name=self._experiment_name,
+                                     log_prefix="[FIRST_INDIVS_MANAGER]",
+                                     indiv_value=indiv_value,
+                                     config=Config.get_instance()):
                 self._individuals.append(indiv_value)
                 self._load_table()
 
@@ -49,15 +51,6 @@ class FirstIndividualsManager(object):
                 logger.info("[FIRST_INDIVS_MANAGER] Experiment {0} - "
                             "Individual {1} was succesfully added"
                             .format(self._experiment_name, indiv_value))
-            except Exception, err:
-                QMessageBox.critical(self._parent,
-                                     "Invalid Individual",
-                                     "Individual inserted is not a valid individual. "
-                                     "Check the expression to be correct.")
-                logger.error("[FIRST_INDIVS_MANAGER] Experiment {0} - "
-                             "Individual inserted is not a valid individual. "
-                             "Check the expression to be correct."
-                             .format(self._experiment_name, err))
 
     def add_individuals_from_textfile(self):
         pass
@@ -71,7 +64,7 @@ class FirstIndividualsManager(object):
     def get_gen_creator(self):
         """
         Return an IndividualSelection creator if the user added individuals
-        manually. 
+        manually.
         Return None if this was not the case
         """
         if not self._individuals:
@@ -114,6 +107,7 @@ class FirstIndividualsManager(object):
         Evaluate an individual in order to check its correctness. If the evaluation
         throw any exception, it won't be handled in this method
         """
+        LispTreeExpr.check_expression(indiv_value)
         individual = Individual.generate(config=Config.get_instance(),
                                          rhs_value=indiv_value)
         callback = EvaluatorFactory.get_callback()

@@ -9,38 +9,46 @@ class ExprException(Exception):
     pass
 
 
-class OperationNotFoundException(Exception):
+class OperationNotFoundException(ExprException):
 
     def __init__(self, operation, expression):
-        Exception.__init__(self,
-                           "[EXPR_EXCEPTION] An invalid operation was found. "
-                           "Operation: {0} - Expression: {0}"
-                           .format(expression))
+        ExprException.__init__(self,
+                               "[EXPR_EXCEPTION] An invalid operation was found. "
+                               "Operation: {0} - Expression: {0}"
+                               .format(expression))
 
 
-class RootNotFoundExprException(Exception):
-
-    def __init__(self, expression):
-        Exception.__init__(self,
-                           "[EXPR_EXCEPTION] Root node was not found. Expression: {0}"
-                           .format(expression))
-
-
-class NotBalancedParanthesisException(Exception):
+class RootNotFoundExprException(ExprException):
 
     def __init__(self, expression):
-        Exception.__init__(self,
-                           "[EXPR_EXCEPTION] Parenthesis in expression are not okay. Expression: {0}"
-                           .format(expression))
+        ExprException.__init__(self,
+                               "[EXPR_EXCEPTION] Root node was not found. Expression: {0}"
+                               .format(expression))
 
-
-class OperationArgumentsAmountException(Exception):
+class TrailingTrashExprException(ExprException):
 
     def __init__(self, expression):
-        Exception.__init__(self,
-                           "[EXPR_EXCEPTION] The amount of arguments processed by "
-                           "the operations is not correct . Expression: {0}"
-                           .format(expression))
+        ExprException.__init__(self,
+                               "[EXPR_EXCEPTION] The expression must end with a round bracket ')'. "
+                               "Expression: {0}"
+                               .format(expression))
+
+
+class NotBalancedParanthesisException(ExprException):
+
+    def __init__(self, expression):
+        ExprException.__init__(self,
+                               "[EXPR_EXCEPTION] Parenthesis in expression are not okay. Expression: {0}"
+                               .format(expression))
+
+
+class OperationArgumentsAmountException(ExprException):
+
+    def __init__(self, expression):
+        ExprException.__init__(self,
+                               "[EXPR_EXCEPTION] The amount of arguments processed by "
+                               "the operations is not correct . Expression: {0}"
+                               .format(expression))
 
 
 class LispTreeExpr(object):
@@ -92,9 +100,12 @@ class LispTreeExpr(object):
         if counter != 0:
             raise NotBalancedParanthesisException(expression)
 
+        # Check the expression to finish with a )
+        if expression[-1] != ')':
+            raise TrailingTrashExprException(expression)
+
         # Now the expression is correct. Check the amount of arguments to be correct
         def check_operands(expr):
-            print "Init - Expression: {0}".format(expr)
             op_string = expr[1:expr.find(' ')]
             expr_op = None
             try:
