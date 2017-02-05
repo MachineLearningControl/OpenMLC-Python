@@ -5,6 +5,44 @@ from MLC.Common.LispTreeExpr.TreeNodes import LeafNode, InternalNode
 from MLC.Common.LispTreeExpr.OperationNodes import OpNodeFactory
 
 
+class ExprException(Exception):
+    pass
+
+
+class OperationNotFoundException(Exception):
+
+    def __init__(self, operation, expression):
+        Exception.__init__(self,
+                           "[EXPR_EXCEPTION] An invalid operation was found. "
+                           "Operation: {0} - Expression: {0}"
+                           .format(expression))
+
+
+class RootNotFoundExprException(Exception):
+
+    def __init__(self, expression):
+        Exception.__init__(self,
+                           "[EXPR_EXCEPTION] Root node was not found. Expression: {0}"
+                           .format(expression))
+
+
+class NotBalancedParanthesisException(Exception):
+
+    def __init__(self, expression):
+        Exception.__init__(self,
+                           "[EXPR_EXCEPTION] Parenthesis in expression are not okay. Expression: {0}"
+                           .format(expression))
+
+
+class OperationArgumentsAmountException(Exception):
+
+    def __init__(self, expression):
+        Exception.__init__(self,
+                           "[EXPR_EXCEPTION] The amount of arguments processed by "
+                           "the operations is not correct . Expression: {0}"
+                           .format(expression))
+
+
 class LispTreeExpr(object):
 
     def __init__(self, expr):
@@ -24,6 +62,88 @@ class LispTreeExpr(object):
         # Now, simplify the tree
         if Config.get_instance().getboolean('OPTIMIZATION', 'simplify'):
             self.simplify_tree()
+
+    @staticmethod
+    def check_expression(expression):
+        # Remove leading and trailing spaces
+        expression = expression.strip()
+
+        # Remove two or more whitespaces with one
+        expression = ' '.join(expression.split())
+
+        # If there are spaces before a ')', remove them
+        expression = expression.replace(' )', ')')
+
+        # Check the expression to start with the substring (root
+        if expression.find("(root") != 0:
+            raise RootNotFoundExprException(expression)
+
+        # Check the amount of parenthesis to be balanced
+        open_parenthesis = "("
+        close_parenthesis = ")"
+        string_to_find = open_parenthesis
+        counter = 0
+        for index in xrange(len(expression)):
+            if expression[index] == open_parenthesis:
+                counter += 1
+            elif expression[index] == close_parenthesis:
+                counter -= 1
+
+        if counter != 0:
+            raise NotBalancedParanthesisException(expression)
+
+        # Now the expression is correct. Check the amount of arguments to be correct
+        def check_operands(expr):
+            print "Init - Expression: {0}".format(expr)
+            op_string = expr[1:expr.find(' ')]
+            expr_op = None
+            try:
+                expr_op = Operations.get_instance().get_operation_from_op_string(op_string)
+            except KeyError:
+                raise OperationNotFoundException(op_string, expr)
+
+            # Jump directly to the first argument
+            pos = 1 + len(op_string) + 1
+            arg_counter = 0
+            argument_len = None
+            while True:
+                arg_counter += 1
+
+                if expr[pos] == '(':
+                    # The argument is another operator. Process it recursively
+                     argument_len = check_operands(expr[pos:])
+                     pos += argument_len
+                     if expr[pos] == ' ':
+                        pos += 1
+                else:
+                    # The argument is a number or a sensor
+                    next_space = expr[pos:].find(' ')
+                    next_close = expr[pos:].find(')')
+                    if next_space < next_close:
+                        # There are more arguments. Jump to them
+                        argument_len = next_space
+                        pos += argument_len + 1
+                    else:
+                        argument_len = next_close
+                        pos += argument_len
+
+                # Check if this is the last argument
+                if expr[pos] == ')':
+                    break
+
+            if arg_counter != expr_op["nbarg"]:
+                print arg_counter
+                raise OperationArgumentsAmountException(expr)
+
+            # The position always finished in the last bracket.
+            # This is the same as the length of the operator
+            return pos + 1
+
+        # Add an empty space at the end of the check_operands algorithm, to create a
+        # single cut condition in the recursive algorithm
+        expression = expression[6:-1]
+        expression += " "
+        check_operands(expression)
 
     def simplify_tree(self):
         self._root = self._root.simplify()

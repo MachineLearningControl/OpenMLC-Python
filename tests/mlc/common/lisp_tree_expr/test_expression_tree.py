@@ -1,11 +1,17 @@
 import unittest
 import MLC.Log.log as lg
+from MLC import config as config_path
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
+from MLC.Common.LispTreeExpr.LispTreeExpr import ExprException
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
-from MLC import config as config_path
+from MLC.Common.LispTreeExpr.LispTreeExpr import NotBalancedParanthesisException
+from MLC.Common.LispTreeExpr.LispTreeExpr import OperationArgumentsAmountException
+from MLC.Common.LispTreeExpr.LispTreeExpr import OperationNotFoundException
+from MLC.Common.LispTreeExpr.LispTreeExpr import RootNotFoundExprException
 
 import os
+
 
 class ExpressionTreeTest(unittest.TestCase):
 
@@ -17,6 +23,74 @@ class ExpressionTreeTest(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def test_check_expression_root_not_found(self):
+        expression = '123'
+        self.assert_check_expression_with_exception(expression, RootNotFoundExprException)
+
+    def test_check_expression_misplaced_parenthesis_1(self):
+        expression = '(root )* 2 3))'
+        self.assert_check_expression_with_exception(expression, NotBalancedParanthesisException)
+
+    def test_check_expression_misplaced_parenthesis_2(self):
+        expression = '(root (* 2 3()'
+        self.assert_check_expression_with_exception(expression, NotBalancedParanthesisException)
+
+    def test_check_expression_misplaced_parenthesis_3(self):
+        expression = '(root (* 2 3)'
+        self.assert_check_expression_with_exception(expression, NotBalancedParanthesisException)
+
+    def test_check_expression_misplaced_parenthesis_4(self):
+        expression = '(root (* 2 3)))'
+        self.assert_check_expression_with_exception(expression, NotBalancedParanthesisException)
+
+    def test_check_expression_operation_not_found(self):
+        expression = '(root (y 2 3))'
+        self.assert_check_expression_with_exception(expression, OperationNotFoundException)
+
+    def test_check_expression_incorrect_multiply_arguments_amount(self):
+        expression = '(root (* 2 3 3))'
+        self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
+
+    def test_check_expression_incorrect_tanh_arguments_amount(self):
+        expression = '(root (tanh 2 3))'
+        self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
+
+    def test_check_expression_complex_incorrect_tanh_arguments_amount(self):
+        expression = '(root (tanh 2 (* 3 (/ 2 5))))'
+        self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
+
+    def test_check_expression_complex_incorrect_plus_arguments_amount(self):
+        expression = '(root (+ (* 2 3 5) 8))'
+        self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
+
+    def test_check_expression_simple_correct_plus_arguments_amount(self):
+        expression = '(root (+ 2 3))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_simple_correct_tanh_arguments_amount(self):
+        expression = '(root (tanh 3))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_complex_correct_plus_arguments_amount_1(self):
+        expression = '(root (+ 2 (* 3 (/ 2 5))))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_complex_correct_plus_arguments_amount_2(self):
+        expression = '(root (+ 2 (* (/ 2 5) 3)))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_complex_correct_plus_arguments_amount_3(self):
+        expression = '(root (+ (* 2 3) (/ 4 5)))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_complex_correct_plus_arguments_amount_4(self):
+        expression = '(root (+ 8 (/ 4 5)))'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_complex_correct_plus_arguments_amount_5(self):
+        expression = '(root (+ (* 2 3) 8))'
+        self.assert_check_expression_without_exception(expression)
 
     def test_tree_depth_root(self):
         expression = '(root S0)'
@@ -72,3 +146,17 @@ class ExpressionTreeTest(unittest.TestCase):
 
         if not node.is_leaf():
             self.assertEquals(len(node._nodes), childs)
+
+    def assert_check_expression_with_exception(self, expression, exception_class):
+        try:
+            LispTreeExpr.check_expression(expression)
+            self.assertTrue(True, False)
+        except exception_class:
+            self.assertTrue(True, True)
+
+    def assert_check_expression_without_exception(self, expression):
+        try:
+            LispTreeExpr.check_expression(expression)
+            self.assertTrue(True, True)
+        except ExprException:
+            self.assertTrue(True, False)
