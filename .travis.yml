@@ -1,0 +1,20 @@
+language: python
+
+python:
+  - "2.7"
+
+branches:
+  only:
+    - travis_research
+
+cache:
+  - pip
+
+install:
+  - pip install numpy nose matplotlib scipy pyyaml coverage
+
+script:
+  - tests/test_application.py
+
+after_success:
+  - coverage
