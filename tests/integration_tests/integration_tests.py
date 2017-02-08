@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append("../..")
-import matlab.engine
+
 import numpy as np
 import shutil
 import unittest

@@ -1,5 +1,7 @@
 # MLC (Machine Learning Control)
 
+[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
+
 ## Table of Contents
 1. [Abstract](#abstract)
 2. [Project Structure](#project_structure)

@@ -1,5 +1,5 @@
 # Set the base image
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Update the current system
 RUN apt-get update && apt-get upgrade -y
@@ -195,4 +195,4 @@ RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
 #     cp -r /opt/mlc-python-2.7.11/Qt-5.7.1/lib/* /opt/mlc-python-2.7.11/libs
 
 # Install fpm and create .deb package
-RUN gem install fpm && fpm -s dir -t deb -v 0.6 -n mlc-python-ubuntu_14.04 /opt/mlc-python-2.7.11
+RUN gem install fpm && fpm -s dir -t deb -v 0.5 -n mlc-python /opt/mlc-python-2.7.11
