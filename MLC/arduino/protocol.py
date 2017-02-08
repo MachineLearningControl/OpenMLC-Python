@@ -13,8 +13,11 @@ _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x01%s',
                   "ACTUATE_REPORT": '\xF1'}
 
 
-PIN_MODES=collections.namedtuple('PIN', ['AVERAGE', 'BULK', 'RT'], verbose=False)(AVERAGE=0, BULK=1, RT=2)
-REPORT_MODES=collections.namedtuple('REPORT', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
+REPORT_MODES = collections.namedtuple(
+    'PIN', ['AVERAGE', 'BULK', 'RT'], verbose=False)(AVERAGE=0, BULK=1, RT=2)
+PIN_MODES = collections.namedtuple(
+    'REPORT', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
+
 
 class ArduinoInterface:
     # 0=input 1=output -- wiring_constants.h
@@ -26,7 +29,7 @@ class ArduinoInterface:
         self._anlg_outputs = []
         self._digital_outputs = []
         self._anlg_precition = 10  # Default Arduino analog precision
-        self._report_mode = PIN_MODES.AVERAGE
+        self._report_mode = REPORT_MODES.AVERAGE
         self._read_count = 0  # Default number of inputs read
         self._read_delay = 0
         self._board = board
@@ -210,3 +213,34 @@ class ArduinoInterface:
                         "Unknown port \"%d\" in response. Restart Arduino board, your software and pray" % pin)
 
         return results
+
+import boards
+from collections import namedtuple
+
+
+class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type', 'digital_input_pins', 'digital_output_pins', 'analog_input_pins', 'analog_output_pins', 'pwm_pins'])):
+
+    def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due, digital_input_pins=[], digital_output_pins=[], analog_input_pins=[], analog_output_pins=[], pwm_pins=[]):
+        return super(ProtocolConfig, cls).__new__(cls, connection, report_mode, read_count, read_delay, board_type, digital_input_pins, digital_output_pins, analog_input_pins, analog_output_pins, pwm_pins)
+
+
+def BuildSerial(protocol_config):
+    interface = ArduinoInterface(
+        protocol_config.connection, protocol_config.board_type)
+    interface.reset()
+    interface.set_report_mode(
+        protocol_config.report_mode, protocol_config.read_count, protocol_config.read_delay)
+
+    for port in protocol_config.digital_input_pins:
+        interface.add_input(port)
+
+    for port in protocol_config.analog_input_pins:
+        interface.add_input(port)
+
+    for port in protocol_config.digital_output_pins:
+        interface.add_output(port)
+
+    for port in protocol_config.analog_output_pins:
+        interface.add_output(port)
+
+    return interface

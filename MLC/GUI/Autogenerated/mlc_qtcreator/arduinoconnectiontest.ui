@@ -23,7 +23,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="status_label">
      <property name="maximumSize">
       <size>
        <width>2400</width>
