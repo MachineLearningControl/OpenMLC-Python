@@ -37,8 +37,8 @@ class ArduinoBoardManager:
     def start_connection(self):
         # TODO Este metodo debe estar enlazado a la opcion de conexion serie
         current_setup = self.__main_window.checkout_connection_config()
-        self.__connection_config = SerialConnectionConfig(port=current_setup["port"], 
-                                                          baudrate=current_setup["baudrate"], 
+        self.__connection_config = SerialConnectionConfig(port=current_setup["port"],
+                                                          baudrate=current_setup["baudrate"],
                                                           parity=self.PARITY_BITS[current_setup["parity"]],
                                                           stopbits=self.STOP_BITS[current_setup["stopbits"]],
                                                           bytesize=self.BYTE_SIZE[current_setup["bytesize"]])

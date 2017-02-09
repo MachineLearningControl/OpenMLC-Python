@@ -44,7 +44,6 @@ class ArduinoBench:
 
                 read_c = 1
                 start_time = new_time
- 
                 for i in self._observers:
                     i.update()
 

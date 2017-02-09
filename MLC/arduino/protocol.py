@@ -1,4 +1,6 @@
 import collections
+import boards
+from collections import namedtuple
 
 _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x01%s',
                   "SET_INPUT": '\x02\x01%s',
@@ -213,9 +215,6 @@ class ArduinoInterface:
                         "Unknown port \"%d\" in response. Restart Arduino board, your software and pray" % pin)
 
         return results
-
-import boards
-from collections import namedtuple
 
 
 class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type', 'digital_input_pins', 'digital_output_pins', 'analog_input_pins', 'analog_output_pins', 'pwm_pins'])):

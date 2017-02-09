@@ -44,6 +44,7 @@ class SerialConnection(BaseConnection):
         else:
             return recv
 
+
 class SerialConnectionConfig (namedtuple('SerialConnectionConfig', ['port', 'baudrate', 'parity', 'stopbits', 'bytesize'])):
 
     def __new__(cls, port, baudrate=115200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS):
