@@ -4,6 +4,8 @@ import time
 
 from threading import Thread
 
+from MLC.arduino.protocol import ProtocolConfig, BuildSerial
+
 
 class ArduinoBench:
 
@@ -20,28 +22,31 @@ class ArduinoBench:
         return self.__data
 
     def evaluate(self):
-        connection = SerialConnection(port=board_config["TERMINAL"])
-        arduinoDue = ArduinoInterface(connection, board_config["BOARD"])
-
-        arduinoDue.reset()  # Just in case
-        arduinoDue.set_report_mode("AVERAGE", read_count=2, read_delay=0)
-
-        arduinoDue.add_output(40)
-        arduinoDue.add_output(66)
-        arduinoDue.add_input(54)
+        arduino = BuildSerial(self._board_config)
 
         last_time = time.time()
         start_time = last_time
+        epoch = last_time
         read_c = 0
 
+        actuate_input = []
+        for pin in self._board_config.digital_output_pins + self._board_config.analog_output_pins:
+            actuate_input.append((pin, 0))
+
         while self._run:
-            output = arduinoDue.actuate([(40, 1), (66, 255)])
+            output = arduino.actuate(actuate_input)
             read_c = read_c + 1
             new_time = time.time()
 
             if (new_time - start_time) > 1:
+                self.get_points()["X"].append(new_time - epoch)
+                self.get_points()["Y"].append(read_c)
+
                 read_c = 1
                 start_time = new_time
+ 
+                for i in self._observers:
+                    i.update()
 
             last_time = new_time
 
@@ -62,7 +67,7 @@ class ArduinoBench:
         self.__data["Y"] = []
 
     def _runner(self):
-        while(self.__run):
+        while(self._run):
             self.evaluate()
 
     def start(self, config):

@@ -14,9 +14,9 @@ _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x01%s',
 
 
 REPORT_MODES = collections.namedtuple(
-    'PIN', ['AVERAGE', 'BULK', 'RT'], verbose=False)(AVERAGE=0, BULK=1, RT=2)
+    'REPORT_MODES', ['AVERAGE', 'BULK', 'RT'], verbose=False)(AVERAGE=0, BULK=1, RT=2)
 PIN_MODES = collections.namedtuple(
-    'REPORT', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
+    'PIN_MODES', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
 
 
 class ArduinoInterface:
@@ -103,13 +103,13 @@ class ArduinoInterface:
         if port not in self._anlg_inputs and port in self._board["ANALOG_PINS"]:
             self._anlg_inputs.append(port)
             self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
-            self.__set_pin_mode(port, REPORT_MODES.INPUT)
+            self.__set_pin_mode(port, PIN_MODES.INPUT)
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_inputs and port in self._board["DIGITAL_PINS"]:
             self._digital_inputs.append(port)
             self._connection.send(_PROTOCOL_CMDS["SET_INPUT"] % chr(port))
-            self.__set_pin_mode(port, REPORT_MODES.INPUT)
+            self.__set_pin_mode(port, PIN_MODES.INPUT)
 
     def add_output(self, port):
         if port in self._anlg_inputs or port in self._digital_inputs:
@@ -120,13 +120,13 @@ class ArduinoInterface:
         if port not in self._anlg_outputs and port in self._board["ANALOG_PINS"]:
             self._anlg_outputs.append(port)
             self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
-            self.__set_pin_mode(port, REPORT_MODES.OUTPUT)
+            self.__set_pin_mode(port, PIN_MODES.OUTPUT)
 
         # Determines if we are setting as input a Digital port
         if port not in self._digital_outputs and port in self._board["DIGITAL_PINS"]:
             self._digital_outputs.append(port)
             self._connection.send(_PROTOCOL_CMDS["SET_OUTPUT"] % chr(port))
-            self.__set_pin_mode(port, REPORT_MODES.OUTPUT)
+            self.__set_pin_mode(port, PIN_MODES.OUTPUT)
 
     def __validate_pin(self, pin):
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
@@ -194,7 +194,7 @@ class ArduinoInterface:
                     pos = pos + 2
                 pos = pos + 1
 
-                if self._report_mode == "AVERAGE":
+                if self._report_mode == REPORT_MODE.AVERAGE:
                     results["A%d" % (pin)] = [
                         sum(results["A%d" % (pin)]) / (self._read_count + 1)]
             else:

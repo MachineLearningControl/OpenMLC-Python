@@ -84,7 +84,7 @@ class BoardConfigurationWindow(QMainWindow):
         dialog = ArduinoBoardDialog(path)
         dialog.exec_()
 
-    def checkout_config(self):
+    def checkout_connection_config(self):
         # TODO Renombrar para checkout de parametros de conexion serie
         serial_config = {
             "baudrate": int(self.ui.baud_rate_selector.currentText()),
@@ -93,6 +93,12 @@ class BoardConfigurationWindow(QMainWindow):
                         "bytesize": self.ui.byte_size_selector.currentIndex(),
                         "port": self.ui.serial_interface_input.displayText()}
         return serial_config
+
+    def checkout_board_setup(self):
+        board_setup = {"report_mode": self.ui.report_mode_combo.currentIndex(), 
+                       "read_delay": self.ui.read_delay_spin.value(), 
+                       "read_count": self.ui.read_count_spin.value()}
+        return board_setup
 
     def checkConnection(self):
         self.__controller.check_connection()
