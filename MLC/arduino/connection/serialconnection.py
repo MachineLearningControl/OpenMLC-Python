@@ -39,7 +39,7 @@ class SerialConnection(BaseConnection):
         """
         recv = self._connection.read(length)
 
-        if recv != length:
+        if len(recv) != length:
             raise serial.SerialTimeoutException
         else:
             return recv

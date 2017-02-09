@@ -196,7 +196,7 @@ class ArduinoInterface:
                     pos = pos + 2
                 pos = pos + 1
 
-                if self._report_mode == REPORT_MODE.AVERAGE:
+                if self._report_mode == REPORT_MODES.AVERAGE:
                     results["A%d" % (pin)] = [
                         sum(results["A%d" % (pin)]) / (self._read_count + 1)]
             else:
@@ -206,7 +206,7 @@ class ArduinoInterface:
                             bool(ord(data[pos + 1 + i / 8]) & (0x01 << (i % 8))))
                     pos = pos + 1 + self._read_count / 8 + 1
 
-                    if self._report_mode == "AVERAGE":
+                    if self._report_mode == REPORT_MODES.AVERAGE:
                         results["D%d" % (pin)] = [
                             (sum(results["D%d" % (pin)]) * 2) > (self._read_count + 1)]
 

@@ -53,7 +53,7 @@ GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stre
   executor[SET_REPORT_MODE_CMD]   = &GenericArduinoController::set_report_mode;
   executor[ACTUATE_CMD]           = &GenericArduinoController::actuate;
   executor[RESET_PINS]            = &GenericArduinoController::reset;
-  executor[VERSION_RESPONSE]      = &GenericArduinoController::protocol_version;
+  executor[PROTOCOL_VERSION]      = &GenericArduinoController::protocol_version;
 }
 
 void GenericArduinoController::handle_commands()
@@ -86,7 +86,7 @@ void GenericArduinoController::handle_commands()
 
 void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, const char*))
 {
-    executor[handler_id] = this_;
+    executor[handler_id] = handler;
 }
 
 // NULL operation
@@ -103,7 +103,7 @@ int GenericArduinoController::protocol_version(GenericArduinoController* this_, 
   char response[] = { char(VERSION_RESPONSE), char(0x03)};
   this_->stream_.write(response, 2);
   this_->stream_.write(VERSION, 3);
-  return 5;
+  return 2;
 }
 
 /**

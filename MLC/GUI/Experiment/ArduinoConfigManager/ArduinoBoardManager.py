@@ -43,8 +43,6 @@ class ArduinoBoardManager:
                                                           stopbits=self.STOP_BITS[current_setup["stopbits"]],
                                                           bytesize=self.BYTE_SIZE[current_setup["bytesize"]])
 
-        print self.__connection_config._asdict()
-
         return SerialConnection(**self.__connection_config._asdict())
 
     def start(self):
