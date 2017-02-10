@@ -731,9 +731,6 @@ class Ui_ExperimentWindow(object):
         self.first_add_indiv_from_textfile = QtWidgets.QPushButton(self.groupBox_11)
         self.first_add_indiv_from_textfile.setObjectName("first_add_indiv_from_textfile")
         self.verticalLayout_10.addWidget(self.first_add_indiv_from_textfile)
-        self.first_modifiy_indiv = QtWidgets.QPushButton(self.groupBox_11)
-        self.first_modifiy_indiv.setObjectName("first_modifiy_indiv")
-        self.verticalLayout_10.addWidget(self.first_modifiy_indiv)
         self.first_remove_indiv = QtWidgets.QPushButton(self.groupBox_11)
         self.first_remove_indiv.setObjectName("first_remove_indiv")
         self.verticalLayout_10.addWidget(self.first_remove_indiv)
@@ -746,7 +743,7 @@ class Ui_ExperimentWindow(object):
         ExperimentWindow.setCentralWidget(self.centralWidget)
 
         self.retranslateUi(ExperimentWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         self.next_gen_button.clicked.connect(ExperimentWindow.on_next_gen_button_clicked)
         self.save_config_button.clicked.connect(ExperimentWindow.on_save_config_button_clicked)
         self.dimension_check.clicked.connect(ExperimentWindow.on_dimension_check_clicked)
@@ -776,7 +773,6 @@ class Ui_ExperimentWindow(object):
         self.export_config_button.clicked.connect(ExperimentWindow.on_export_config_button_clicked)
         self.first_add_indiv.clicked.connect(ExperimentWindow.on_first_add_indiv_button_clicked)
         self.first_add_indiv_from_textfile.clicked.connect(ExperimentWindow.on_first_add_indiv_from_textfile_button_clicked)
-        self.first_modifiy_indiv.clicked.connect(ExperimentWindow.on_first_modify_indiv_button_clicked)
         self.first_remove_indiv.clicked.connect(ExperimentWindow.on_first_remove_indiv_button_clicked)
         # QtCore.QMetaObject.connectSlotsByName(ExperimentWindow)
 
@@ -835,7 +831,6 @@ class Ui_ExperimentWindow(object):
         self.groupBox_11.setTitle(_translate("ExperimentWindow", "Management"))
         self.first_add_indiv.setText(_translate("ExperimentWindow", "Add Individual"))
         self.first_add_indiv_from_textfile.setText(_translate("ExperimentWindow", "Add Individual From Text File"))
-        self.first_modifiy_indiv.setText(_translate("ExperimentWindow", "Modify Individual"))
         self.first_remove_indiv.setText(_translate("ExperimentWindow", "Remove Individual"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.first_indivs_tab), _translate("ExperimentWindow", "Individuals"))
 
