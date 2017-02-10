@@ -573,9 +573,9 @@ class ExperimentWindow(QMainWindow):
 
         # Init the arduino singleton
         try:
-            self._board_config = self._board_config._replace(connection = SerialConnection(**self._serial_conn._asdict()))
-            #ArduinoInterfaceSingleton.get_instance(protocol_setup=self._board_config,
-            #                                       conn_setup=self._serial_conn)
+            #self._board_config = self._board_config._replace(connection = SerialConnection(**self._serial_conn._asdict()))
+            ArduinoInterfaceSingleton.get_instance(protocol_setup=self._board_config,
+                                                   conn_setup=self._serial_conn)
         except Exception, err:
             logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG] - '
                          'Serial port could not be initialized. Error Msg: {1}'
