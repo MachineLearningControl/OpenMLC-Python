@@ -1200,11 +1200,11 @@
    <sender>testInterface</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>checkConnection()</slot>
+   <slot>on_check_connection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>438</x>
-     <y>281</y>
+     <x>530</x>
+     <y>301</y>
     </hint>
     <hint type="destinationlabel">
      <x>391</x>
@@ -1216,11 +1216,11 @@
    <sender>showPinout</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>showPinout()</slot>
+   <slot>on_pinout_show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>99</y>
+     <x>652</x>
+     <y>51</y>
     </hint>
     <hint type="destinationlabel">
      <x>391</x>
@@ -1280,7 +1280,7 @@
    <sender>addAnalogPin</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>insertAnalogPin()</slot>
+   <slot>on_analog_pin_insert()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>641</x>
@@ -1296,7 +1296,7 @@
    <sender>addDigitalPin</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>insertDigitalPin()</slot>
+   <slot>on_digital_pin_insert()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>148</x>
@@ -1312,7 +1312,7 @@
    <sender>removeDigitalPin</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>removeDigitalPin()</slot>
+   <slot>on_digital_pin_remove()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>382</x>
@@ -1328,7 +1328,7 @@
    <sender>removeAnalogPin</sender>
    <signal>clicked()</signal>
    <receiver>BoardConfigurationWindow</receiver>
-   <slot>removeDigitalPin()</slot>
+   <slot>on_analog_pin_remove()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>875</x>
@@ -1342,12 +1342,12 @@
   </connection>
  </connections>
  <slots>
-  <slot>insertDigitalPin()</slot>
-  <slot>insertAnalogPin()</slot>
-  <slot>checkConnection()</slot>
-  <slot>showPinout()</slot>
-  <slot>removeDigitalPin()</slot>
-  <slot>removeAnalogPin()</slot>
+  <slot>on_digital_pin_insert()</slot>
+  <slot>on_analog_pin_insert()</slot>
+  <slot>on_check_connection()</slot>
+  <slot>on_pinout_show()</slot>
+  <slot>on_digital_pin_remove()</slot>
+  <slot>on_analog_pin_remove()</slot>
   <slot>on_bench_test_click()</slot>
   <slot>on_connection_type_toggle()</slot>
  </slots>

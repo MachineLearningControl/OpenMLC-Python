@@ -52,6 +52,7 @@ class ArduinoBoardManager:
     def insert_digital_pin(self, pin_index, pin, type_idx):
         if pin_index < 0:
             return
+
         current = self.__main_window.get_current_board()["DIGITAL_PINS"] if type_idx != 2 else \
             self.__main_window.get_current_board()["PWM_PINS"]
         target_pin = self.__setup.digital_input_pins if type_idx == 0 else \
@@ -63,8 +64,7 @@ class ArduinoBoardManager:
             self.__main_window.addDigitalPin(pin_index, type_idx)
         else:
             self.show_error(
-                "Error", "Assign error", "Could not set pin %d with the selected type" % (
-                    pin),
+                "Error", "Assign error", "Could not set pin %s with the selected type" % (pin),
                  QMessageBox.Critical, QMessageBox.Ok)
 
     # Mover a la vista
@@ -77,8 +77,15 @@ class ArduinoBoardManager:
         msg.setStandardButtons(buttons)
         return msg.exec_()
 
-    def remove_digital_pin(self, pin_index):
-        return
+    def remove_digital_pin(self, pin):
+        if pin in self.__setup.digital_input_pins:
+            self.__setup.digital_input_pins.remove(pin)
+  
+        if pin in self.__setup.digital_output_pins:
+            self.__setup.digital_output_pins.remove(int(pin))
+
+        if pin in self.__setup.pwm_pins:
+            self.__setup.pwm_pins.remove(int(pin))
 
     def insert_analog_pin(self, pin_index, pin, type_idx):
         if pin_index < 0:
@@ -91,10 +98,14 @@ class ArduinoBoardManager:
             self.__main_window.addAnalogPin(pin_index, type_idx)
         else:
             self.show_error(
-                "Error", "Assign error", "Could not set pin %d with the selected type" % (pin))
+                "Error", "Assign error", "Could not set pin %d with the selected type" % (pin), QMessageBox.Critical, QMessageBox.Ok)
 
-    def remove_analog_pin(self, pin_index):
-        return
+    def remove_analog_pin(self, pin):
+        if pin in self.__setup.analog_input_pins:
+            self.__setup.analog_input_pins.remove(pin)
+
+        if pin in self.__setup.analog_output_pins: 
+            self.__setup.analog_output_pins.remove(pin)
 
     def check_connection(self):
         self.__connection_status = self.__main_window.create_connection_dialog(
@@ -139,7 +150,13 @@ class ArduinoBoardManager:
             self.__main_window.set_board(old_idx)
 
     def start_bench(self):
-        self.__setup = self.__setup._replace(connection=self.start_connection(), **self.__main_window.checkout_board_setup())
+        try:
+            self.__setup = self.__setup._replace(connection=self.start_connection(), **self.__main_window.checkout_board_setup())
+        except serial.SerialException:
+            self.show_error(
+                "Error", "Connection failure", "Could not start connection to board", QMessageBox.Critical, QMessageBox.Ok)
+            return
+            
         bench = ArduinoBench()
         stats = ArduinoStatsDialog(bench)
         stats.connect_to_reset(bench)

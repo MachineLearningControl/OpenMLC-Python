@@ -27,33 +27,33 @@ class Foo(QObject):
 
 
 class Worker(Thread):
-   def __init__(self, bench):
-      Thread.__init__(self)
-      self.__run = True
-      self.__bench = bench
 
-   def run(self):
-      while(self.__run):
-         time.sleep(1)
-         self.__bench.evaluate()
-         #self.__signal.emit()
+    def __init__(self, bench):
+        Thread.__init__(self)
+        self.__run = True
+        self.__bench = bench
 
-   def stop(self):
-      self.__run = False
+    def run(self):
+        while(self.__run):
+            time.sleep(1)
+            self.__bench.evaluate()
+            # self.__signal.emit()
 
-   def get_bench(self):
-      return self.__bench
-   
+    def stop(self):
+        self.__run = False
+
+    def get_bench(self):
+        return self.__bench
+
 
 if __name__ == '__main__':
-   app = QApplication(sys.argv)
-   bench = MockArduinoBench()
-   stats = ArduinoStatsDialog(bench)
-   bench.add_observer(stats)
-   stats.connect_to_reset(bench)
-   #worker = Worker(bench)
-   #worker.start()
-   bench.start()
-   stats.exec_()
-   bench.stop()
-
+    app = QApplication(sys.argv)
+    bench = MockArduinoBench()
+    stats = ArduinoStatsDialog(bench)
+    bench.add_observer(stats)
+    stats.connect_to_reset(bench)
+    # worker = Worker(bench)
+    # worker.start()
+    bench.start()
+    stats.exec_()
+    bench.stop()

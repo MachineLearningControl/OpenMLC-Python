@@ -38,8 +38,9 @@ class BoardConfigurationWindow(QMainWindow):
     def update(self):
         aux_idx = 0
         self.ui.digitalPins.clear()
-        digital_pin_count = len(
-            self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"])
+        digital_pin_count = len(self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"])
+
+        # Adds the not configured digital pins
         for i in self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"]:
             if i not in self.__setup.digital_input_pins and i not in self.__setup.digital_output_pins and i not in self.__setup.pwm_pins:
                 self.setup_pin(self.ui.digitalPins, 0, "Pin " + str(i), i)
@@ -47,12 +48,13 @@ class BoardConfigurationWindow(QMainWindow):
 
         aux_idx = 0
         self.ui.analogPins.clear()
+        # Adds the not configured digital pins
         for i in self.__boards[self.ui.arduinoBoard.currentIndex()]["ANALOG_PINS"]:
             if i not in self.__setup.analog_input_pins and i not in self.__setup.analog_output_pins:
-                self.setup_pin(
-                    self.ui.analogPins, 0, "Pin A" + str(i - digital_pin_count), i)
+                self.setup_pin(self.ui.analogPins, 0, "Pin A" + str(i - digital_pin_count), i)
             aux_idx += 1
-
+        
+        # Clear the list (QTableWidget.clearContent doesn't remove the rows!)
         for i in xrange(self.ui.digitalPinsList.rowCount(), -1, -1):
             self.ui.digitalPinsList.removeRow(i)
 
@@ -60,10 +62,10 @@ class BoardConfigurationWindow(QMainWindow):
             self.ui.analogPinList.removeRow(i)
 
         for pin in self.__setup.digital_input_pins:
-            self.insertPin(pin, 0, self.ui.digitalPinsList)
+            self.insertPin(pin, "Pin " + str(pin),  0, self.ui.digitalPinsList)
 
         for pin in self.__setup.digital_output_pins:
-            self.insertPin(pin, 0, self.ui.digitalPinsList)
+            self.insertPin(pin, "Pin A" + str(pin - digital_pin_count), 0, self.ui.digitalPinsList)
 
     def setup_board(self, index, board_name, image_name):
         _translate = QtCore.QCoreApplication.translate
@@ -78,7 +80,7 @@ class BoardConfigurationWindow(QMainWindow):
         item_name = _translate("BoardConfigurationWindow", pin_name)
         combo.insertItem(index, item_name, variant)
 
-    def showPinout(self):
+    def on_pinout_show(self):
         index = self.ui.arduinoBoard.currentIndex()
         path = self.ui.arduinoBoard.itemData(index)
         dialog = ArduinoBoardDialog(path)
@@ -100,7 +102,7 @@ class BoardConfigurationWindow(QMainWindow):
                        "read_count": self.ui.read_count_spin.value()}
         return board_setup
 
-    def checkConnection(self):
+    def on_check_connection(self):
         self.__controller.check_connection()
 
     def create_connection_dialog(self):
@@ -110,65 +112,48 @@ class BoardConfigurationWindow(QMainWindow):
     def get_current_board(self):
         return self.__boards[self.ui.arduinoBoard.currentIndex()]
 
-    def insertDigitalPin(self):
+    def on_digital_pin_insert(self):
         idx = self.ui.digitalPins.currentIndex()
         self.__controller.insert_digital_pin(
             idx, self.ui.digitalPins.itemData(idx), self.ui.digitalPinType.currentIndex())
         # self.insertPin(self.ui.digitalPins, self.ui.digitalPinType,
         # self.ui.digitalPinsList)
 
-    def insertAnalogPin(self):
+    def on_analog_pin_insert(self):
         idx = self.ui.analogPins.currentIndex()
         self.__controller.insert_analog_pin(
             idx, self.ui.analogPins.itemData(idx), self.ui.analogPinType.currentIndex())
         # self.insertPin(self.ui.analogPins, self.ui.analogPinType,
         # self.ui.analogPinList)
 
-    def addDigitalPin(self, pin, pinType):
-        self.insertPin(pin, self.ui.digitalPins.itemText(pin),
+    def addDigitalPin(self, pin_idx, pinType):
+        self.insertPin(pin_idx, self.ui.digitalPins.itemText(pin_idx),
                        self.ui.digitalPinType.itemText(pinType), self.ui.digitalPinsList)
-        self.ui.digitalPins.removeItem(pin)
+        self.ui.digitalPins.removeItem(pin_idx)
 
-    def addAnalogPin(self, pin, pinType):
-        self.insertPin(pin, self.ui.analogPins.itemText(pin),
+    def addAnalogPin(self, pin_idx, pinType):
+        self.insertPin(pin_idx, self.ui.analogPins.itemText(pin_idx),
                        self.ui.analogPinType.itemText(pinType), self.ui.analogPinList)
-        self.ui.analogPins.removeItem(pin)
+        self.ui.analogPins.removeItem(pin_idx)
 
-    def removeDigitalPin(self):
-        # FIXME: Llevar al controller la logica de eliminacion
+    def on_digital_pin_remove(self):
+        # FIXME: The view pin removal should be made by the controller
         row = self.ui.digitalPinsList.currentRow()
         if row >= 0:
-            pin = self.ui.digitalPinsList.item(row, 0).text()[4:]
+            pin = int(self.ui.digitalPinsList.item(row, 0).text()[4:])
+            self.__controller.remove_digital_pin(int(pin))
             self.ui.digitalPinsList.removeRow(row)
-            try:
-                self.__setup.digital_input_pins.remove(int(pin))
-            except:
-                pass
-            try:
-                self.__setup.digital_output_pins.remove(int(pin))
-            except:
-                pass
-            try:
-                self.__setup.pwm_pins.remove(int(pin))
-            except:
-                pass
             self.setup_pin(self.ui.digitalPins, 0, "Pin " + str(pin), pin)
 
-    def removeAnalogPin(self):
-        # FIXME: Llevar al controller la logica de eliminacion
+    def on_analog_pin_remove(self):
+        # FIXME: The view pin removal should be made by the controller
         row = self.ui.analogPinList.currentRow()
         if row >= 0:
-            pin = self.ui.analogPinList.item(row, 0).text()[4:]
+            digital_pin_count = len(self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"])
+            pin = int(self.ui.analogPinList.item(row, 0).text()[5:]) + digital_pin_count
+            self.__controller.remove_analog_pin(int(pin))
             self.ui.analogPinList.removeRow(row)
-            try:
-                self.__setup.analog_input_pins.remove(int(pin))
-            except:
-                pass
-            try:
-                self.__setup.analog_output_pins.remove(int(pin))
-            except:
-                pass
-            self.setup_pin(self.ui.analogPins, 0, "Pin " + str(pin), pin)
+            self.setup_pin(self.ui.analogPins, 0, "Pin A" + str(pin - digital_pin_count), int(pin))
 
         return
 

@@ -16,7 +16,7 @@ def actuate(terminal):
     arduinoDue = ArduinoInterface(connection, boards.Due)
     
     arduinoDue.reset() #Just in case
-    arduinoDue.set_report_mode(protocol.PIN_MODES.AVERAGE, read_count=5, read_delay=0)
+    arduinoDue.set_report_mode(protocol.REPORT_MODES.AVERAGE, read_count=50, read_delay=0)
     
     arduinoDue.add_output(40)
     arduinoDue.add_output(66)
