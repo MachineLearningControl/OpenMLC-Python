@@ -399,6 +399,7 @@ class ExperimentWindow(QMainWindow):
         logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG_BUTTON] - '
                      'Executing on_first_add_indiv_from_textfile_button_clicked function'
                      .format(self._experiment_name))
+        self._first_indivs_manager.add_individuals_from_textfile()
 
     def on_first_remove_indiv_button_clicked(self):
         logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG_BUTTON] - '

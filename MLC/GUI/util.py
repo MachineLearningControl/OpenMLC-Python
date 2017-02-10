@@ -50,7 +50,7 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
 
 
 
-def check_individual_value(parent, experiment_name, log_prefix, indiv_value):
+def check_individual_value(parent, experiment_name, log_prefix, indiv_value, nodialog=False):
     try:
         """
         Evaluate an individual in order to check its correctness. Handle Exceptions
@@ -60,11 +60,12 @@ def check_individual_value(parent, experiment_name, log_prefix, indiv_value):
     except ExprException, err:
         # Print the error message returned in the exception,
         # removing the prefix ([EXPR_EXCEPTION]])
-        QMessageBox.critical(parent,
-                             "Invalid Individsual",
-                             "Individual inserted is not well-formed. "
-                             "Error Msg: {0}"
-                             .format(err.message[err.message.find(']') + 2:]))
+        if not nodialog:
+            QMessageBox.critical(parent,
+                                 "Invalid Individsual",
+                                 "Individual inserted is not well-formed. "
+                                 "Error Msg: {0}"
+                                 .format(err.message[err.message.find(']') + 2:]))
         logger.error("{0} Experiment {1} - "
                      "Individual inserted is not well-formed. "
                      "Error Msg: {2}"

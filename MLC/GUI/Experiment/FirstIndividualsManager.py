@@ -6,6 +6,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Creation.IndividualSelection import IndividualSelection
 from MLC.Population.Creation.CreationFactory import CreationFactory
 from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMessageBox
 
 logger = get_gui_logger()
@@ -59,6 +60,57 @@ class FirstIndividualsManager(object):
         logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
                      'Executing add_individuals_from_textfile function'
                      .format(self._experiment_name))
+        # Get the path of the experiment to import
+        indivs_file = QFileDialog.getOpenFileName(self._parent, "Import Individuals", ".",
+                                                  "Text File (*.txt)")[0]
+        if not indivs_file:
+            # User clicked 'Cancel' or simply closed the Dialog
+            return
+
+        # Get the individuals. Be sure to remove the end of line from every line
+        indivs = None
+        with open(indivs_file) as f:
+            indivs = f.readlines()
+        indivs = [x.strip() for x in indivs]
+
+        amount_indivs = len(indivs)
+        if amount_indivs == 0:
+            logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - Indivs from Textfile: '
+                         'The file {1} was empty. Nothing to do'
+                         .format(self._experiment_name, indivs_file))
+            QMessageBox.information(self, "Add individuals from textfile",
+                                    'The file {0} was empty. Nothing to do'
+                                    .format(indivs_file))
+            return
+
+        counter = 0
+        for indiv in indivs:
+            if check_individual_value(parent=self._parent,
+                                      experiment_name=self._experiment_name,
+                                      log_prefix="[FIRST_INDIVS_MANAGER]",
+                                      indiv_value=indiv,
+                                      nodialog=True):
+                self._individuals.append(indiv)
+                counter += 1
+
+        logger.info('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - Indivs from Textfile: '
+                    '{0} out of {1} individuals has been inserted.'
+                    .format(self._experiment_name, counter, amount_indivs))
+
+        if counter == 0:
+            QMessageBox.critical(self._parent, "Individuals from textfile",
+                                 "No individual could be inserted. Check them to be well-formed.")
+            return
+
+        if amount_indivs == counter:
+            QMessageBox.information(self._parent, "Individuals from textfile",
+                                    "{0} individuals has been succesfully inserted"
+                                    .format(counter))
+        else:
+            QMessageBox.information(self._parent, "Individuals from textfile",
+                                    "{0} out of {1} individuals has been succesfully inserted"
+                                    .format(counter, amount_indivs))
+        self._load_table()
 
     def modify_individual(self, left, right):
         logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
@@ -74,10 +126,10 @@ class FirstIndividualsManager(object):
         new_value = table_model.get_data(left.row(), left.column())
 
         # Check if the value of the new individual is valid
-        valid_indiv =  check_individual_value(parent=self._parent,
-                                              experiment_name=self._experiment_name,
-                                              log_prefix="[FIRST_INDIVS_MANAGER]",
-                                              indiv_value=new_value)
+        valid_indiv = check_individual_value(parent=self._parent,
+                                             experiment_name=self._experiment_name,
+                                             log_prefix="[FIRST_INDIVS_MANAGER]",
+                                             indiv_value=new_value)
         if not valid_indiv:
             table_model.set_data(left.row(), left.column(), old_value)
             return
@@ -148,6 +200,8 @@ class FirstIndividualsManager(object):
         indivs_dict = {}
         for index in xrange(len(self._individuals)):
             indiv = Individual(self._individuals[index])
+            print type(indiv)
+            print indiv.get_value()
             indivs_dict[indiv] = [index]
 
         return IndividualSelection(indivs_dict, fill_creator)
