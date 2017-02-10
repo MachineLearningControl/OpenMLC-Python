@@ -488,15 +488,15 @@ class Ui_BoardConfigurationWindow(object):
 
         self.retranslateUi(BoardConfigurationWindow)
         self.baud_rate_selector.setCurrentIndex(16)
-        self.testInterface.clicked.connect(BoardConfigurationWindow.checkConnection)
-        self.showPinout.clicked.connect(BoardConfigurationWindow.showPinout)
+        self.testInterface.clicked.connect(BoardConfigurationWindow.on_check_connection)
+        self.showPinout.clicked.connect(BoardConfigurationWindow.on_pinout_show)
         self.closeButton.clicked.connect(BoardConfigurationWindow.close)
         self.benchTests.clicked.connect(BoardConfigurationWindow.on_bench_test_click)
         self.connection_type_group.buttonClicked['int'].connect(BoardConfigurationWindow.on_connection_type_toggle)
-        self.addAnalogPin.clicked.connect(BoardConfigurationWindow.insertAnalogPin)
-        self.addDigitalPin.clicked.connect(BoardConfigurationWindow.insertDigitalPin)
-        self.removeDigitalPin.clicked.connect(BoardConfigurationWindow.removeDigitalPin)
-        self.removeAnalogPin.clicked.connect(BoardConfigurationWindow.removeDigitalPin)
+        self.addAnalogPin.clicked.connect(BoardConfigurationWindow.on_analog_pin_insert)
+        self.addDigitalPin.clicked.connect(BoardConfigurationWindow.on_digital_pin_insert)
+        self.removeDigitalPin.clicked.connect(BoardConfigurationWindow.on_digital_pin_remove)
+        self.removeAnalogPin.clicked.connect(BoardConfigurationWindow.on_analog_pin_remove)
         # QtCore.QMetaObject.connectSlotsByName(BoardConfigurationWindow)
 
     def retranslateUi(self, BoardConfigurationWindow):
