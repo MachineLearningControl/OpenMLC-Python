@@ -25,7 +25,10 @@ class ConfigTableModel(QAbstractTableModel):
         return len(self._data)
 
     def columnCount(self, parent):
-        return len(self._data[0])
+        try:
+            return len(self._data[0])
+        except IndexError:
+            return 0
 
     def data(self, index, role):
         if not index.isValid():

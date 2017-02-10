@@ -24,7 +24,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="experiment_tab">
        <property name="layoutDirection">
@@ -725,13 +725,6 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="first_modifiy_indiv">
-                <property name="text">
-                 <string>Modify Individual</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QPushButton" name="first_remove_indiv">
                 <property name="text">
                  <string>Remove Individual</string>
@@ -1231,22 +1224,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>first_modifiy_indiv</sender>
-   <signal>clicked()</signal>
-   <receiver>ExperimentWindow</receiver>
-   <slot>on_first_modify_indiv_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>149</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>480</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>first_remove_indiv</sender>
    <signal>clicked()</signal>
    <receiver>ExperimentWindow</receiver>
@@ -1287,7 +1264,6 @@
   <slot>on_board_config_button_clicked()</slot>
   <slot>on_edit_config_button_clicked()</slot>
   <slot>on_first_add_indiv_button_clicked()</slot>
-  <slot>on_first_modify_indiv_button_clicked()</slot>
   <slot>on_first_remove_indiv_button_clicked()</slot>
   <slot>on_first_add_indiv_from_textfile_button_clicked()</slot>
  </slots>

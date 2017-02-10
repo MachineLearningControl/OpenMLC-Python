@@ -1,5 +1,5 @@
 from MLC.GUI.Tables.ConfigTableModel import ConfigTableModel
-from MLC.GUI.util import test_individual_value
+from MLC.GUI.util import check_individual_value
 from MLC.Log.log import get_gui_logger
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -22,6 +22,10 @@ class FirstIndividualsManager(object):
         self._mlc_local = mlc_local
 
     def add_individual(self):
+        logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
+                     'Executing add_individual function'
+                     .format(self._experiment_name))
+
         indiv = QInputDialog.getText(self._parent, "Add Individual",
                                      "Insert the value of the individual to be added.")
 
@@ -37,11 +41,10 @@ class FirstIndividualsManager(object):
                 return
 
             indiv_value = indiv[0]
-            if test_individual_value(parent=self._parent,
-                                     experiment_name=self._experiment_name,
-                                     log_prefix="[FIRST_INDIVS_MANAGER]",
-                                     indiv_value=indiv_value,
-                                     config=Config.get_instance()):
+            if check_individual_value(parent=self._parent,
+                                      experiment_name=self._experiment_name,
+                                      log_prefix="[FIRST_INDIVS_MANAGER]",
+                                      indiv_value=indiv_value):
                 self._individuals.append(indiv_value)
                 self._load_table()
 
@@ -53,13 +56,80 @@ class FirstIndividualsManager(object):
                             .format(self._experiment_name, indiv_value))
 
     def add_individuals_from_textfile(self):
-        pass
+        logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
+                     'Executing add_individuals_from_textfile function'
+                     .format(self._experiment_name))
 
-    def modify_individual(self, indiv_index):
-        pass
+    def modify_individual(self, left, right):
+        logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
+                     'Executing modify_individual function'
+                     .format(self._experiment_name))
 
-    def remove_individual(self, indiv_index):
-        pass
+        if len(self._individuals) == 0:
+            return
+
+        table_model = self._first_indivs_table.model()
+        indiv_id = left.row()
+        old_value = self._individuals[indiv_id]
+        new_value = table_model.get_data(left.row(), left.column())
+
+        # Check if the value of the new individual is valid
+        valid_indiv =  check_individual_value(parent=self._parent,
+                                              experiment_name=self._experiment_name,
+                                              log_prefix="[FIRST_INDIVS_MANAGER]",
+                                              indiv_value=new_value)
+        if not valid_indiv:
+            table_model.set_data(left.row(), left.column(), old_value)
+            return
+
+        response = QMessageBox.information(self._parent,
+                                           "Editing Individual",
+                                           "Do you really want to change value of the individual?",
+                                           QMessageBox.No | QMessageBox.Yes,
+                                           QMessageBox.No)
+
+        if response == QMessageBox.No:
+            # Restore the old value
+            logger.info('[EXPERIMENT {0}] [FIRST_INDIVS] - '
+                        'Edition was canceled. Cell({1}, {2}) - Old value: {3}'
+                        .format(self._experiment_name, left.row(),
+                                left.column(), old_value))
+            table_model.set_data(left.row(), left.column(), old_value)
+        else:
+            logger.info('[EXPERIMENT {0}] [FIRST_INDIVS] - '
+                        'Individual ({1}. {2}) was modified succesfully.'
+                        .format(self._experiment_name, left.row(), new_value))
+            QMessageBox.information(self._parent,
+                                    "Individual Edition",
+                                    'Individual was modified succesfully.')
+
+    def remove_individual(self):
+        logger.debug('[EXPERIMENT {0}] [FIRST_INDIVS_MANAGER] - '
+                     'Executing remove_individual function'
+                     .format(self._experiment_name))
+
+        if len(self._individuals) == 0:
+            return
+
+        indiv_index = self._first_indivs_table.selectionModel().currentIndex().row()
+        indiv_value = self._individuals[indiv_index]
+
+        response = QMessageBox.question(self._parent,
+                                        "Remove Individual",
+                                        "Do you really want to remove individual '{0}'"
+                                        .format(indiv_value),
+                                        QMessageBox.No | QMessageBox.Yes,
+                                        QMessageBox.No)
+        if response == QMessageBox.Yes:
+            # Remove the individual
+            logger.info("[FIRST_INDIVS_MANAGER] Experiment {0} - "
+                        "Individual {1} was succesfully removed"
+                        .format(self._experiment_name, indiv_value))
+            QMessageBox.information(self._parent, "Individual Removed",
+                                    "Individual {0} was succesfully removed"
+                                    .format(indiv_value))
+            del self._individuals[indiv_index]
+            self._load_table()
 
     def get_gen_creator(self):
         """
@@ -101,6 +171,9 @@ class FirstIndividualsManager(object):
         self._first_indivs_table.resizeColumnsToContents()
         self._first_indivs_table.setVisible(True)
         self._first_indivs_table.setSortingEnabled(True)
+        table_model.set_editable_columns([1])
+        table_model.set_data_changed_callback(self.modify_individual)
+        table_model.sort_by_col(0)
 
     def _test_individual_value(self, indiv_value):
         """

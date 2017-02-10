@@ -47,3 +47,27 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
                      .format(log_prefix, experiment_name, err))
 
     return None
+
+
+
+def check_individual_value(parent, experiment_name, log_prefix, indiv_value):
+    try:
+        """
+        Evaluate an individual in order to check its correctness. Handle Exceptions
+        """
+        LispTreeExpr.check_expression(indiv_value)
+        return True
+    except ExprException, err:
+        # Print the error message returned in the exception,
+        # removing the prefix ([EXPR_EXCEPTION]])
+        QMessageBox.critical(parent,
+                             "Invalid Individsual",
+                             "Individual inserted is not well-formed. "
+                             "Error Msg: {0}"
+                             .format(err.message[err.message.find(']') + 2:]))
+        logger.error("{0} Experiment {1} - "
+                     "Individual inserted is not well-formed. "
+                     "Error Msg: {2}"
+                     .format(log_prefix, experiment_name,
+                             err.message[err.message.find(']') + 2:]))
+    return False
