@@ -17,7 +17,7 @@ import threading
 
 class ArduinoBoardManager:
 
-    def __init__(self, protocol_config, serial_config, parent_win=None):
+    def __init__(self, protocol_config, serial_config, close_handler, parent_win=None):
         self.__setup = protocol_config
         self.__connection_config = serial_config
         self.__main_window = BoardConfigurationWindow(
@@ -30,6 +30,8 @@ class ArduinoBoardManager:
             serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
         self.BYTE_SIZE = [
             serial.EIGHTBITS, serial.FIVEBITS, serial.SIXBITS, serial.SEVENBITS]
+        #FIXME the connection with the handler shold be made by a method of the window
+        self.__main_window.on_close_signal.connect(close_handler)
 
     def get_protocol_config(self):
         return self.__setup
