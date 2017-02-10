@@ -62,10 +62,19 @@ class BoardConfigurationWindow(QMainWindow):
             self.ui.analogPinList.removeRow(i)
 
         for pin in self.__setup.digital_input_pins:
-            self.insertPin(pin, "Pin " + str(pin),  0, self.ui.digitalPinsList)
+            self.insertPin(pin, "Pin " + str(pin),  self.ui.analogPinType.itemText(0), self.ui.digitalPinsList)
 
         for pin in self.__setup.digital_output_pins:
-            self.insertPin(pin, "Pin A" + str(pin - digital_pin_count), 0, self.ui.digitalPinsList)
+            self.insertPin(pin, "Pin " + str(pin), self.ui.analogPinType.itemText(1), self.ui.digitalPinsList)
+
+        for pin in self.__setup.analog_input_pins:
+            self.insertPin(pin, "Pin A" + str(pin - digital_pin_count),  self.ui.analogPinType.itemText(0), self.ui.analogPinList)
+
+        for pin in self.__setup.analog_output_pins:
+            self.insertPin(pin, "Pin A" + str(pin - digital_pin_count), self.ui.analogPinType.itemText(1), self.ui.analogPinList)
+
+        for pin in self.__setup.pwm_pins:
+            self.insertPin(pin, "Pin " + str(pin),  self.ui.digitalPinType.itemText(2), self.ui.digitalPinsList)
 
     def setup_board(self, index, board_name, image_name):
         _translate = QtCore.QCoreApplication.translate

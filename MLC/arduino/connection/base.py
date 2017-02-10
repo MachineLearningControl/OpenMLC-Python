@@ -7,8 +7,8 @@ class BaseConnection:
     '''
     def send(self,data):
        """ Sends data to arduino device """
-       raise Exception("Implement me!")
+       raise NotImplementedError
 
     def recv(self, length):
        """ Receive data from the arduino device """
-       raise Exception("Implement me!") 
+       raise NotImplementedError
