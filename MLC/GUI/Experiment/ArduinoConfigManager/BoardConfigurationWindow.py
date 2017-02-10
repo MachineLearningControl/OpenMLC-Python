@@ -43,8 +43,6 @@ class BoardConfigurationWindow(QMainWindow):
         board_setup = [self.__controller.get_protocol_config()]
         connection_cfg = [self.__controller.get_connection_config()]
         self.on_close_signal.emit(board_setup, connection_cfg)
-        event.accept()
-        #super(BoardConfigurationWindow, self).closeEvent(event)
 
     def update(self):
         aux_idx = 0

@@ -1,6 +1,7 @@
 import collections
 import boards
 from collections import namedtuple
+import MLC.Log.log as lg
 
 _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x01%s',
                   "SET_INPUT": '\x02\x01%s',
@@ -24,11 +25,20 @@ PIN_MODES = collections.namedtuple(
 class ArduinoInterfaceSingleton():
     _instance = None
 
-    def get_instance(cls, protocol_config=None, conn_setup=None):
+    @staticmethod
+    def get_instance(protocol_config=None, conn_setup=None):
         from MLC.arduino.connection.serialconnection import SerialConnection
-        if protocol_setup and conn_setup:
-            serial_conn = SerialConnection(**conn_setup)
-            protocol_config._replace(connection, serial_conn)
+        if protocol_config and conn_setup:
+
+            serial_conn = None
+            try:
+                serial_conn = SerialConnection(**conn_setup)
+            except Exception, err:
+                lg.logger_.info("[PROTOCOL] Error while loading SerialConnection. "
+                                "Err msg: {0}".format(err))
+                raise
+
+            protocol_config = protocol_config._replace(connection=serial_conn)
             ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
 
         if ArduinoInterfaceSingleton._instance is None:
@@ -268,5 +278,8 @@ def BuildSerial(protocol_config):
 
     for port in protocol_config.analog_output_pins:
         interface.add_output(port)
+
+    # FIXME: Make this variable configurable
+    interface.set_precision(12)
 
     return interface

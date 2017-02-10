@@ -35,6 +35,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QInputDialog
 
 from MLC.arduino.protocol import ProtocolConfig
+from MLC.arduino.protocol import ArduinoInterfaceSingleton
 from MLC.arduino.connection.serialconnection import SerialConnectionConfig, SerialConnection
 from MLC.arduino.connection.base import BaseConnection
 
@@ -747,8 +748,8 @@ class ExperimentWindow(QMainWindow):
 
         # Init the arduino singleton
         try:
-            ArduinoInterfaceSingleton.get_instance(protocol_setup=self._board_config,
-                                                   conn_setup=self._serial_conn)
+            ArduinoInterfaceSingleton.get_instance(protocol_config=self._board_config,
+                                                   conn_setup=self._serial_conn._asdict())
         except Exception, err:
             logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG] - '
                          'Serial port could not be initialized. Error Msg: {1}'
