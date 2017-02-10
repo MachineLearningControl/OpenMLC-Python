@@ -284,10 +284,10 @@ class ExperimentWindow(QMainWindow):
 
     def on_board_config_button_clicked(self):
         logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG_BUTTON] - Executing on_board_config_button_clicked function')
-        #FIXME Connection config name should not be related with "serial" 
+        # FIXME Connection config name should not be related with "serial"
         valid_connection = False
-        board_config_window = ArduinoBoardManager(protocol_config=self._board_config, serial_config=self._serial_conn, 
-                                                  close_handler=self.on_board_config_button_clicked, parent_win=self)
+        board_config_window = ArduinoBoardManager(protocol_config=self._board_config, serial_config=self._serial_conn,
+                                                  close_handler=self._store_board_configuration, parent_win=self)
         board_config_window.start()
 
     def _config_table_edited(self, left, right):
@@ -573,7 +573,6 @@ class ExperimentWindow(QMainWindow):
 
         # Init the arduino singleton
         try:
-            #self._board_config = self._board_config._replace(connection = SerialConnection(**self._serial_conn._asdict()))
             ArduinoInterfaceSingleton.get_instance(protocol_setup=self._board_config,
                                                    conn_setup=self._serial_conn)
         except Exception, err:
@@ -581,14 +580,12 @@ class ExperimentWindow(QMainWindow):
                          'Serial port could not be initialized. Error Msg: {1}'
                          .format(self._experiment_name, err))
             selection = QMessageBox.critical(self, "Connection failure",
-                             "The current connection setup failed during initialization. Do you want to change this configuration? \
-                             (Choosing \"no\" means that the board will not be usable in the experiment)"
-                             .format(preev_path),
-                             QMessageBox.Yes | No, QMessageBox.Yes)
+                                             "The current connection setup failed during initialization. "
+                                             "Do you want to change this configuration?. "
+                                             "Choosing \"no\" means that the board will not be usable in the experiment)",
+                                             QMessageBox.Yes | QMessageBox.No,
+                                             QMessageBox.Yes)
             if selection == QMessageBox.Yes:
-                #self.on_board_config_button_clicked()
-                print "FUCK"
+                self.on_board_config_button_clicked()
             else:
-                #FIXME: If the pin setups aren't empty then the protocol init will fail
-                self._board_config = self._board_config._replace(connection = BaseConnection())
-
+                self._board_config = self._board_config._replace(connection=BaseConnection())
