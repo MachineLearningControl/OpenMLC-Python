@@ -20,6 +20,21 @@ REPORT_MODES = collections.namedtuple(
 PIN_MODES = collections.namedtuple(
     'PIN_MODES', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
 
+class ArduinoInterfaceSingleton():
+    _instance = None
+
+    def get_instance(cls, protocol_config=None, conn_setup=None):
+        from MLC.arduino.connection.serialconnection import SerialConnection
+        if protocol_setup and conn_setup:
+            serial_conn = SerialConnection(**conn_setup)
+            protocol_config._replace(connection, serial_conn)
+            ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
+ 
+        if ArduinoInterfaceSingleton._instance is None:
+            raise Exception("ArduinoInterface was not configured.")
+
+        return ArduinoInterfaceSingleton._instance
+
 
 class ArduinoInterface:
     # 0=input 1=output -- wiring_constants.h

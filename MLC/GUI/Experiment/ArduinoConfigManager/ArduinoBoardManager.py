@@ -17,15 +17,12 @@ import threading
 
 class ArduinoBoardManager:
 
-    def __init__(self, parent_win=None):
-        # self.__setup = BoardSetup()
-        #FIXME ProtcolConfig y SerialConnectionConfig must be parameters!
-        self.__setup = ProtocolConfig(None)
-        self.__connection_config = SerialConnectionConfig('/dev/ttyACM0')
+    def __init__(self, protocol_config, serial_config, close_handler, parent_win=None):
+        self.__setup = protocol_config
+        self.__connection_config = serial_config
         self.__main_window = BoardConfigurationWindow(
             self, boards.types, self.__setup, parent=parent_win)
         self.__connectino_status = None
-        # self.__sch = EventScheduler()
         self.__sch = QTimer()
         self.PARITY_BITS = [serial.PARITY_NONE, serial.PARITY_EVEN,
                             serial.PARITY_EVEN, serial.PARITY_MARK, serial.PARITY_SPACE]
@@ -33,15 +30,24 @@ class ArduinoBoardManager:
             serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
         self.BYTE_SIZE = [
             serial.EIGHTBITS, serial.FIVEBITS, serial.SIXBITS, serial.SEVENBITS]
+        #FIXME the connection with the handler shold be made by a method of the window
+        self.__main_window.on_close_signal.connect(close_handler)
+
+    def get_protocol_config(self):
+        return self.__setup
+
+    def get_connection_config(self):
+        current_setup = self.__main_window.checkout_connection_config()
+        config = SerialConnectionConfig(port=current_setup["port"],
+                                        baudrate=current_setup["baudrate"],
+                                        parity=self.PARITY_BITS[current_setup["parity"]],
+                                        stopbits=self.STOP_BITS[current_setup["stopbits"]],
+                                        bytesize=self.BYTE_SIZE[current_setup["bytesize"]])
+        return config
 
     def start_connection(self):
         # TODO Este metodo debe estar enlazado a la opcion de conexion serie
-        current_setup = self.__main_window.checkout_connection_config()
-        self.__connection_config = SerialConnectionConfig(port=current_setup["port"],
-                                                          baudrate=current_setup["baudrate"],
-                                                          parity=self.PARITY_BITS[current_setup["parity"]],
-                                                          stopbits=self.STOP_BITS[current_setup["stopbits"]],
-                                                          bytesize=self.BYTE_SIZE[current_setup["bytesize"]])
+        self.__connection_config = self.get_connection_config()
 
         return SerialConnection(**self.__connection_config._asdict())
 
@@ -164,17 +170,6 @@ class ArduinoBoardManager:
         bench.start(self.__setup)
         stats.exec_()
         bench.stop()
-
-
-class BoardSetup:
-
-    def __init__(self):
-        self.digital_input_pins = []
-        self.digital_output_pins = []
-        self.analog_input_pins = []
-        self.analog_output_pins = []
-        self.pwm_pins = []
-        self.thread = None
 
 
 class EventScheduler:
