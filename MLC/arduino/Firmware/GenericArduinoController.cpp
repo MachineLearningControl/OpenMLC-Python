@@ -1,7 +1,9 @@
 #include "Arduino.h"
 #include "GenericArduinoController.h"
 
-#define DEBUG 1
+#ifndef DEBUG 
+#define DEBUG 0
+#endif
 
 #if DEBUG
 #include <string.h>
@@ -51,7 +53,7 @@ GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stre
   executor[SET_REPORT_MODE_CMD]   = &GenericArduinoController::set_report_mode;
   executor[ACTUATE_CMD]           = &GenericArduinoController::actuate;
   executor[RESET_PINS]            = &GenericArduinoController::reset;
-  executor[VERSION_RESPONSE]      = &GenericArduinoController::protocol_version;
+  executor[PROTOCOL_VERSION]      = &GenericArduinoController::protocol_version;
 }
 
 void GenericArduinoController::handle_commands()
@@ -80,13 +82,11 @@ void GenericArduinoController::handle_commands()
   }
   
    LOG("No data", "");
-   
-   delay(1000);
 }
 
 void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, const char*))
 {
-    executor[VERSION_RESPONSE] = handler;
+    executor[handler_id] = handler;
 }
 
 // NULL operation
@@ -103,7 +103,7 @@ int GenericArduinoController::protocol_version(GenericArduinoController* this_, 
   char response[] = { char(VERSION_RESPONSE), char(0x03)};
   this_->stream_.write(response, 2);
   this_->stream_.write(VERSION, 3);
-  return 1;
+  return 2;
 }
 
 /**

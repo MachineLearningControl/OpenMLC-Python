@@ -21,3 +21,4 @@ void MainWindow::on_experiment_list_clicked(const QModelIndex &index)
 {
 
 }
+

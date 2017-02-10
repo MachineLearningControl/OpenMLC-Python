@@ -1,6 +1,6 @@
 #include "GenericArduinoController.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 GenericArduinoController controller(SerialUSB);
 
@@ -14,16 +14,11 @@ void setup() {
 }
 
 void loop() {
+  
   controller.handle_commands();
-
-  Serial.println("Waiting for commands...");
-
-  if (SerialUSB.available() > 0)
-     Serial.println("Hay datos para leer...");
 
   /**
    * HERE the user can insert any command
    */
 
-   delay(1000);
 }

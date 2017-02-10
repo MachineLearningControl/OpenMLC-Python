@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    arduino_performance_test.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    arduino_performance_test.h
 
 FORMS    += \
     mainwindow.ui \
@@ -25,4 +27,7 @@ FORMS    += \
     genealogy.ui \
     board_config_design.ui \
     arduinoconnectiontest.ui  \
-    pinout_design.ui 
+    pinout_design.ui \ 
+    arduino_performance_test.ui
+
+DISTFILES +=

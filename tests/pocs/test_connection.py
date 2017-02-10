@@ -1,6 +1,6 @@
 #from MLC.arduino.connection import MockConnection
 from MLC.arduino.connection import SerialConnection
-from MLC.arduino.protocol import ArduinoInterface
+from MLC.arduino.protocol import ArduinoInterface, REPORT_MODES
 from MLC.arduino import boards
 import sys
 import time
@@ -10,7 +10,7 @@ def actuate(terminal):
     arduinoDue = ArduinoInterface(connection, boards.Due)
 
     arduinoDue.reset()
-#    arduinoDue.set_report_mode("BULK", read_count=5, read_delay=200)    
+    arduinoDue.set_report_mode(REPORT_MODES.BULK, read_count=5, read_delay=100)    
     arduinoDue.add_output(40)
     arduinoDue.add_input(64)
     arduinoDue.add_input(63)
