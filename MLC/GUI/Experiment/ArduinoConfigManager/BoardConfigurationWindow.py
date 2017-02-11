@@ -28,12 +28,16 @@ class BoardConfigurationWindow(QMainWindow):
         self.__setup = setup
         self.__board_idx = 0
 
+        current_board = 0
+
         for i in boards:
             self.setup_board(
                 self.__board_idx, i["NAME"], i["SHORT_NAME"] + ".png")
             self.__board_idx += 1
+            if self.__setup.board_type["SHORT_NAME"] == i["SHORT_NAME"]:
+                current_board = self.__board_idx - 1
 
-        self.__board_idx = 0
+        self.__board_idx = current_board
         self.ui.arduinoBoard.setCurrentIndex(self.__board_idx)
 
         self.update(self.__setup)
