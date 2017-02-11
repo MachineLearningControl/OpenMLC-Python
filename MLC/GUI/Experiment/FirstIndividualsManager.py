@@ -200,8 +200,6 @@ class FirstIndividualsManager(object):
         indivs_dict = {}
         for index in xrange(len(self._individuals)):
             indiv = Individual(self._individuals[index])
-            print type(indiv)
-            print indiv.get_value()
             indivs_dict[indiv] = [index]
 
         return IndividualSelection(indivs_dict, fill_creator)

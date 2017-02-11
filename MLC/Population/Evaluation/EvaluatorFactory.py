@@ -12,8 +12,9 @@ class EvaluatorFactory(object):
         module_name = Config.get_instance().get('EVALUATOR', 'evaluation_function')
         lg.logger_.debug('[EV_FACTORY] Importing module {0}'.format(module_name))
         try:
-            callback = importlib.import_module('Evaluation.' + module_name)
-            return callback
+            module = importlib.import_module('Evaluation.' + module_name)
+            reload(module)
+            return module
         except ImportError:
             lg.logger_.debug("[EV_FACTORY] Evaluation function doesn't exists. " +
                              "Aborting program...")

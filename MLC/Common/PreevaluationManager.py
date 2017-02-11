@@ -21,8 +21,9 @@ class PreevaluationManager(object):
             module_name = Config.get_instance().get('EVALUATOR', 'preev_function')
             lg.logger_.debug('[PREEV_MANAGER] Importing module {0}'.format(module_name))
             try:
-                callback = importlib.import_module('Preevaluation.' + module_name)
-                return callback
+                module = importlib.import_module('Preevaluation.' + module_name)
+                reload(module)
+                return module
             except ImportError:
                 lg.logger_.debug("[PREEV_MANAGER] Preevaluation function doesn't exists. " +
                                  "Aborting program...")
