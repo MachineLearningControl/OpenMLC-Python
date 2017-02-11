@@ -20,6 +20,7 @@ REPORT_MODES = collections.namedtuple(
 PIN_MODES = collections.namedtuple(
     'PIN_MODES', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
 
+
 class ArduinoInterfaceSingleton():
     _instance = None
 
@@ -29,7 +30,7 @@ class ArduinoInterfaceSingleton():
             serial_conn = SerialConnection(**conn_setup)
             protocol_config._replace(connection, serial_conn)
             ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
- 
+
         if ArduinoInterfaceSingleton._instance is None:
             raise Exception("ArduinoInterface was not configured.")
 
@@ -232,10 +233,21 @@ class ArduinoInterface:
         return results
 
 
-class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type', 'digital_input_pins', 'digital_output_pins', 'analog_input_pins', 'analog_output_pins', 'pwm_pins'])):
+class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type',
+                                                    'digital_input_pins', 'digital_output_pins', 'analog_input_pins',
+                                                    'analog_output_pins', 'pwm_pins'])):
 
-    def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due, digital_input_pins=[], digital_output_pins=[], analog_input_pins=[], analog_output_pins=[], pwm_pins=[]):
-        return super(ProtocolConfig, cls).__new__(cls, connection, report_mode, read_count, read_delay, board_type, digital_input_pins, digital_output_pins, analog_input_pins, analog_output_pins, pwm_pins)
+    def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due,
+                digital_input_pins=None, digital_output_pins=None, analog_input_pins=None, analog_output_pins=None,
+                pwm_pins=None):
+        digital_input_pins = [] if digital_input_pins is None else digital_input_pins
+        digital_output_pins = [] if digital_output_pins is None else digital_output_pins
+        analog_input_pins = [] if analog_input_pins is None else analog_input_pins
+        analog_output_pins = [] if analog_output_pins is None else analog_output_pins
+        pwm_pins = [] if pwm_pins is None else pwm_pins
+        return super(ProtocolConfig, cls).__new__(cls, connection, report_mode, read_count, read_delay,
+                                                  board_type, digital_input_pins, digital_output_pins,
+                                                  analog_input_pins, analog_output_pins, pwm_pins)
 
 
 def BuildSerial(protocol_config):
