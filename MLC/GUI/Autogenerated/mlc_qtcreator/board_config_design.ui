@@ -1144,6 +1144,47 @@
            </layout>
           </widget>
          </item>
+         <item>
+          <widget class="QFrame" name="frame">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <widget class="QLabel" name="analog_resolution">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Analog resolution</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="analog_resolution_spin">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>32</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -1340,6 +1381,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>analog_resolution_spin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_analog_resolution_change()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>946</x>
+     <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_digital_pin_insert()</slot>
@@ -1350,6 +1407,7 @@
   <slot>on_analog_pin_remove()</slot>
   <slot>on_bench_test_click()</slot>
   <slot>on_connection_type_toggle()</slot>
+  <slot>on_analog_resolution_change()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="connection_type_group"/>

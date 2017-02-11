@@ -44,7 +44,6 @@ class BoardConfigurationWindow(QMainWindow):
         connection_cfg = [self.__controller.get_connection_config()]
         self.on_close_signal.emit(board_setup, connection_cfg)
         event.accept()
-        #super(BoardConfigurationWindow, self).closeEvent(event)
 
     def update(self):
         aux_idx = 0
@@ -64,7 +63,7 @@ class BoardConfigurationWindow(QMainWindow):
             if i not in self.__setup.analog_input_pins and i not in self.__setup.analog_output_pins:
                 self.setup_pin(self.ui.analogPins, 0, "Pin A" + str(i - digital_pin_count), i)
             aux_idx += 1
-        
+
         # Clear the list (QTableWidget.clearContent doesn't remove the rows!)
         for i in xrange(self.ui.digitalPinsList.rowCount(), -1, -1):
             self.ui.digitalPinsList.removeRow(i)
@@ -87,6 +86,8 @@ class BoardConfigurationWindow(QMainWindow):
         for pin in self.__setup.pwm_pins:
             self.insertPin(pin, "Pin " + str(pin),  self.ui.digitalPinType.itemText(2), self.ui.digitalPinsList)
 
+        self.ui.analog_resolution_spin.setValue(self.__setup.analog_resolution)
+
     def setup_board(self, index, board_name, image_name):
         _translate = QtCore.QCoreApplication.translate
         image_path = create_local_full_path("images", image_name)
@@ -106,10 +107,13 @@ class BoardConfigurationWindow(QMainWindow):
         dialog = ArduinoBoardDialog(path)
         dialog.exec_()
 
+    def on_analog_resolution_change(self, index):
+        self.__controller.update_analog_resolution(index)
+
     def checkout_connection_config(self):
         # TODO Renombrar para checkout de parametros de conexion serie
         serial_config = {
-            "baudrate": int(self.ui.baud_rate_selector.currentText()),
+                        "baudrate": int(self.ui.baud_rate_selector.currentText()),
                         "parity": self.ui.parity_bits_selector.currentIndex(),
                         "stopbits": self.ui.stop_bits_selector.currentIndex(),
                         "bytesize": self.ui.byte_size_selector.currentIndex(),
@@ -117,9 +121,10 @@ class BoardConfigurationWindow(QMainWindow):
         return serial_config
 
     def checkout_board_setup(self):
-        board_setup = {"report_mode": self.ui.report_mode_combo.currentIndex(), 
-                       "read_delay": self.ui.read_delay_spin.value(), 
-                       "read_count": self.ui.read_count_spin.value()}
+        board_setup = {"report_mode": self.ui.report_mode_combo.currentIndex(),
+                       "read_delay": self.ui.read_delay_spin.value(),
+                       "read_count": self.ui.read_count_spin.value(),
+                       "analog_resolution": self.ui.analog_resolution_spin.value()}
         return board_setup
 
     def on_check_connection(self):

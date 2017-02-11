@@ -20,17 +20,14 @@ class ArduinoBoardManager:
     def __init__(self, protocol_config, serial_config, close_handler, parent_win=None):
         self.__setup = protocol_config
         self.__connection_config = serial_config
-        self.__main_window = BoardConfigurationWindow(
-            self, boards.types, self.__setup, parent=parent_win)
+        self.__main_window = BoardConfigurationWindow(self, boards.types, self.__setup, parent=parent_win)
         self.__connectino_status = None
         self.__sch = QTimer()
         self.PARITY_BITS = [serial.PARITY_NONE, serial.PARITY_EVEN,
                             serial.PARITY_EVEN, serial.PARITY_MARK, serial.PARITY_SPACE]
-        self.STOP_BITS = [
-            serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
-        self.BYTE_SIZE = [
-            serial.EIGHTBITS, serial.FIVEBITS, serial.SIXBITS, serial.SEVENBITS]
-        #FIXME the connection with the handler shold be made by a method of the window
+        self.STOP_BITS = [serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
+        self.BYTE_SIZE = [serial.EIGHTBITS, serial.FIVEBITS, serial.SIXBITS, serial.SEVENBITS]
+        # FIXME the connection with the handler shold be made by a method of the window
         self.__main_window.on_close_signal.connect(close_handler)
 
     def get_protocol_config(self):
@@ -71,7 +68,7 @@ class ArduinoBoardManager:
         else:
             self.show_error(
                 "Error", "Assign error", "Could not set pin %s with the selected type" % (pin),
-                 QMessageBox.Critical, QMessageBox.Ok)
+                QMessageBox.Critical, QMessageBox.Ok)
 
     # Mover a la vista
     def show_error(self, title, text, info, icon, buttons):
@@ -86,7 +83,7 @@ class ArduinoBoardManager:
     def remove_digital_pin(self, pin):
         if pin in self.__setup.digital_input_pins:
             self.__setup.digital_input_pins.remove(pin)
-  
+
         if pin in self.__setup.digital_output_pins:
             self.__setup.digital_output_pins.remove(int(pin))
 
@@ -104,13 +101,14 @@ class ArduinoBoardManager:
             self.__main_window.addAnalogPin(pin_index, type_idx)
         else:
             self.show_error(
-                "Error", "Assign error", "Could not set pin %d with the selected type" % (pin), QMessageBox.Critical, QMessageBox.Ok)
+                "Error", "Assign error", "Could not set pin %d with the selected type" % (pin),
+                QMessageBox.Critical, QMessageBox.Ok)
 
     def remove_analog_pin(self, pin):
         if pin in self.__setup.analog_input_pins:
             self.__setup.analog_input_pins.remove(pin)
 
-        if pin in self.__setup.analog_output_pins: 
+        if pin in self.__setup.analog_output_pins:
             self.__setup.analog_output_pins.remove(pin)
 
     def check_connection(self):
@@ -142,7 +140,8 @@ class ArduinoBoardManager:
         if self.__setup.digital_input_pins or self.__setup.digital_output_pins or \
            self.__setup.analog_input_pins or self.__setup.analog_output_pins or self.__setup.pwm_pins:
             ret = self.show_error(
-                "Warning", "Configuration reset", "Changing the board will reset all I/O pins configuration! Continue?", QMessageBox.Critical, QMessageBox.Yes | QMessageBox.No)
+                "Warning", "Configuration reset", "Changing the board will reset all I/O pins configuration! Continue?",
+                QMessageBox.Critical, QMessageBox.Yes | QMessageBox.No)
 
         if (ret == QMessageBox.Yes):
             del self.__setup.digital_input_pins[:]
@@ -162,7 +161,7 @@ class ArduinoBoardManager:
             self.show_error(
                 "Error", "Connection failure", "Could not start connection to board", QMessageBox.Critical, QMessageBox.Ok)
             return
-            
+
         bench = ArduinoBench()
         stats = ArduinoStatsDialog(bench)
         stats.connect_to_reset(bench)
@@ -170,6 +169,9 @@ class ArduinoBoardManager:
         bench.start(self.__setup)
         stats.exec_()
         bench.stop()
+
+    def update_analog_resolution(self, value):
+        self.__setup = self.__setup._replace(analog_resolution=value)
 
 
 class EventScheduler:

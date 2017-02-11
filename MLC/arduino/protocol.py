@@ -235,19 +235,22 @@ class ArduinoInterface:
 
 class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type',
                                                     'digital_input_pins', 'digital_output_pins', 'analog_input_pins',
-                                                    'analog_output_pins', 'pwm_pins'])):
+                                                    'analog_output_pins', 'pwm_pins', 'analog_resolution'])):
 
     def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due,
                 digital_input_pins=None, digital_output_pins=None, analog_input_pins=None, analog_output_pins=None,
-                pwm_pins=None):
+                pwm_pins=None, analog_resolution=None):
+
         digital_input_pins = [] if digital_input_pins is None else digital_input_pins
         digital_output_pins = [] if digital_output_pins is None else digital_output_pins
         analog_input_pins = [] if analog_input_pins is None else analog_input_pins
         analog_output_pins = [] if analog_output_pins is None else analog_output_pins
         pwm_pins = [] if pwm_pins is None else pwm_pins
+        analog_resolution = boards.Due["ANALOG_DEFAULT_RESOLUTION"] if analog_resolution is None else analog_resolution
+
         return super(ProtocolConfig, cls).__new__(cls, connection, report_mode, read_count, read_delay,
                                                   board_type, digital_input_pins, digital_output_pins,
-                                                  analog_input_pins, analog_output_pins, pwm_pins)
+                                                  analog_input_pins, analog_output_pins, pwm_pins, analog_resolution)
 
 
 def BuildSerial(protocol_config):
@@ -256,6 +259,8 @@ def BuildSerial(protocol_config):
     interface.reset()
     interface.set_report_mode(
         protocol_config.report_mode, protocol_config.read_count, protocol_config.read_delay)
+
+    interface.set_precision(protocol_config.analog_resolution)
 
     for port in protocol_config.digital_input_pins:
         interface.add_input(port)
