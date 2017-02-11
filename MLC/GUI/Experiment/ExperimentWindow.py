@@ -755,8 +755,8 @@ class ExperimentWindow(QMainWindow):
                          .format(self._experiment_name, err))
             selection = QMessageBox.critical(self, "Connection failure",
                                              "The current connection setup failed during initialization. "
-                                             "Do you want to change this configuration?. "
-                                             "Choosing \"no\" means that the board will not be usable in the experiment)",
+                                             "Do you want to change this configuration? "
+                                             "(Choosing \"no\" means that the board will not be usable in the experiment)",
                                              QMessageBox.Yes | QMessageBox.No,
                                              QMessageBox.Yes)
             if selection == QMessageBox.Yes:

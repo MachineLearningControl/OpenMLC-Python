@@ -36,7 +36,7 @@ class BoardConfigurationWindow(QMainWindow):
         self.__board_idx = 0
         self.ui.arduinoBoard.setCurrentIndex(self.__board_idx)
 
-        self.update()
+        self.update(self.__setup)
         self.ui.arduinoBoard.currentIndexChanged.connect(self.index_change)
 
     def closeEvent(self, event):
@@ -45,14 +45,14 @@ class BoardConfigurationWindow(QMainWindow):
         self.on_close_signal.emit(board_setup, connection_cfg)
         event.accept()
 
-    def update(self):
+    def update(self, setup):
         aux_idx = 0
         self.ui.digitalPins.clear()
         digital_pin_count = len(self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"])
 
         # Adds the not configured digital pins
         for i in self.__boards[self.ui.arduinoBoard.currentIndex()]["DIGITAL_PINS"]:
-            if i not in self.__setup.digital_input_pins and i not in self.__setup.digital_output_pins and i not in self.__setup.pwm_pins:
+            if i not in setup.digital_input_pins and i not in setup.digital_output_pins and i not in setup.pwm_pins:
                 self.setup_pin(self.ui.digitalPins, 0, "Pin " + str(i), i)
             aux_idx += 1
 
@@ -60,7 +60,7 @@ class BoardConfigurationWindow(QMainWindow):
         self.ui.analogPins.clear()
         # Adds the not configured digital pins
         for i in self.__boards[self.ui.arduinoBoard.currentIndex()]["ANALOG_PINS"]:
-            if i not in self.__setup.analog_input_pins and i not in self.__setup.analog_output_pins:
+            if i not in setup.analog_input_pins and i not in setup.analog_output_pins:
                 self.setup_pin(self.ui.analogPins, 0, "Pin A" + str(i - digital_pin_count), i)
             aux_idx += 1
 
@@ -71,22 +71,22 @@ class BoardConfigurationWindow(QMainWindow):
         for i in xrange(self.ui.analogPinList.rowCount(), -1, -1):
             self.ui.analogPinList.removeRow(i)
 
-        for pin in self.__setup.digital_input_pins:
+        for pin in setup.digital_input_pins:
             self.insertPin(pin, "Pin " + str(pin),  self.ui.analogPinType.itemText(0), self.ui.digitalPinsList)
 
-        for pin in self.__setup.digital_output_pins:
+        for pin in setup.digital_output_pins:
             self.insertPin(pin, "Pin " + str(pin), self.ui.analogPinType.itemText(1), self.ui.digitalPinsList)
 
-        for pin in self.__setup.analog_input_pins:
+        for pin in setup.analog_input_pins:
             self.insertPin(pin, "Pin A" + str(pin - digital_pin_count),  self.ui.analogPinType.itemText(0), self.ui.analogPinList)
 
-        for pin in self.__setup.analog_output_pins:
+        for pin in setup.analog_output_pins:
             self.insertPin(pin, "Pin A" + str(pin - digital_pin_count), self.ui.analogPinType.itemText(1), self.ui.analogPinList)
 
-        for pin in self.__setup.pwm_pins:
+        for pin in setup.pwm_pins:
             self.insertPin(pin, "Pin " + str(pin),  self.ui.digitalPinType.itemText(2), self.ui.digitalPinsList)
 
-        self.ui.analog_resolution_spin.setValue(self.__setup.analog_resolution)
+        self.ui.analog_resolution_spin.setValue(setup.analog_resolution)
 
     def setup_board(self, index, board_name, image_name):
         _translate = QtCore.QCoreApplication.translate

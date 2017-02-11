@@ -149,8 +149,10 @@ class ArduinoBoardManager:
             del self.__setup.analog_input_pins[:]
             del self.__setup.analog_output_pins[:]
             del self.__setup.pwm_pins[:]
+            self.__setup = self.__setup._replace(board_type=boards.types[new_idx],
+                                                 analog_resolution=boards.types[new_idx]["ANALOG_DEFAULT_RESOLUTION"])
             self.__main_window.set_board(new_idx)
-            self.__main_window.update()
+            self.__main_window.update(self.__setup)
         else:
             self.__main_window.set_board(old_idx)
 
