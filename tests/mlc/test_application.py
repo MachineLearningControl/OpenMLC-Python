@@ -12,6 +12,7 @@ from MLC.mlc_parameters.mlc_parameters import saved
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Creation import BaseCreation
 from MLC.Simulation import Simulation
+from nose.tools import nottest
 from tests.test_helpers import TestHelper
 
 
@@ -45,6 +46,7 @@ class ApplicationTest(unittest.TestCase):
     def tearDownClass(cls):
         # Erase the MLC workspace dir of this tests
         shutil.rmtree(ApplicationTest.workspace_dir)
+        pass
 
     def test_callback_on_evaluate(self):
         with saved(Config.get_instance()) as config:
@@ -112,6 +114,7 @@ class ApplicationTest(unittest.TestCase):
             self.assertEqual(ApplicationTest.on_start, 1)
             self.assertEqual(ApplicationTest.on_start_counter_2, 1)
 
+    @unittest.skip
     def test_set_custom_gen_creator(self):
         with saved(Config.get_instance()) as config:
             Config.get_instance().set("POPULATION", "size", "5")
