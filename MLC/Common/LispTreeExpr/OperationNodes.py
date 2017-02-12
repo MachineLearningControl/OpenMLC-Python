@@ -340,10 +340,15 @@ class RootNode(InternalNode):
         return self
 
     def compute(self):
+        np.seterr(all='raise')
         if len(self._nodes) == 1:
-            return self._nodes[0].compute()
+            result = self._nodes[0].compute()
+            np.seterr(all='warn')
+            return result
 
-        return [node.compute() for node in self._nodes]
+        result = [node.compute() for node in self._nodes]
+        np.seterr(all='warn')
+        return result
 
     def formal(self):
         if len(self._nodes) == 1:
