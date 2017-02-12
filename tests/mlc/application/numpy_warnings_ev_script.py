@@ -32,6 +32,9 @@ def individual_data(indiv):
 
     y2 = y
 
+    # Force a numpy warning BEFORE the LispTreeExpr calculation
+    np.cos(np.inf)
+
     if isinstance(indiv.get_formal(), str):
         formal = indiv.get_formal().replace('S0', 'x')
     else:
@@ -50,18 +53,21 @@ def individual_data(indiv):
     if type(mlc_y3) == float:
         mlc_y3 = np.repeat(mlc_y3, len(x))
 
+    # Force a numpy warning AFTER the LispTreeExpr calculation
+    np.cos(np.inf)
+
     return x, y, y2, mlc_y3
 
 
 def cost(indiv):
     x, y, y2, mlc_y3 = individual_data(indiv)
-
-    # Deactivate the numpy warnings, because this sum raise an overflow
-    # Runtime warning from time to time
-    np.seterr(all='ignore')
-    cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
-    np.seterr(all='warn')
-
+    cost_mlc_y3 = None
+    try:
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    except FloatingPointError, err:
+        np.seterr(all='ignore')
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+        np.seterr(all='raise')
     return cost_mlc_y3
 
 
