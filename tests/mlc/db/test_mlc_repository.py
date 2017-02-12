@@ -8,10 +8,28 @@ from MLC.individual.Individual import Individual
 from MLC.Population.Population import Population
 from MLC.config import set_working_directory
 
+from MLC.arduino.protocol import ProtocolConfig, REPORT_MODES
+from MLC.arduino.boards import Mega, Due
+
 
 class MLCRepositoryTest(unittest.TestCase):
     WORKSPACE_DIR = os.path.abspath("/tmp/")
     EXPERIMENT_NAME = "test_mlc_repository"
+
+    test_board_config = ProtocolConfig(connection=None,
+                                       board_type=Mega,
+                                       report_mode=REPORT_MODES.BULK,
+                                       read_count=1000,
+                                       read_delay=2000,
+                                       analog_resolution=12)
+
+    def __create_board_config(self, digital_input_pins, digital_output_pins, analog_input_pins, analog_output_pins, pwm_pins):
+        return ProtocolConfig(connection=None, board_type=Mega, report_mode=REPORT_MODES.BULK, read_count=1000, read_delay=2000, analog_resolution=12,
+                              digital_input_pins=digital_input_pins ,
+                              digital_output_pins=digital_output_pins,
+                              analog_input_pins=analog_input_pins,
+                              analog_output_pins=analog_output_pins,
+                              pwm_pins=pwm_pins)
 
     @classmethod
     def setUpClass(cls):
@@ -571,3 +589,102 @@ class MLCRepositoryTest(unittest.TestCase):
         # Remove all generations (1 to 3)
         mlc_repo.remove_population_to(10)
         self.assertEqual(mlc_repo.count_population(), 0)
+
+    def test_save_board_configuration_empty_pins(self):
+        mlc_repo = self.__get_new_repo()
+        board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
+        board_config = mlc_repo.load_board_configuration(board_id)
+
+        self.assertEqual(board_id, 1)
+        self.assertEqual(board_config.board_type, MLCRepositoryTest.test_board_config.board_type)
+        self.assertEqual(board_config.report_mode, MLCRepositoryTest.test_board_config.report_mode)
+        self.assertEqual(board_config.read_count, MLCRepositoryTest.test_board_config.read_count)
+        self.assertEqual(board_config.read_delay, MLCRepositoryTest.test_board_config.read_delay)
+        self.assertEqual(board_config.analog_resolution, MLCRepositoryTest.test_board_config.analog_resolution)
+
+    def test_update_board_config(self):
+        # add board configuration
+        mlc_repo = self.__get_new_repo()
+        board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
+
+        # update board configuration
+        new_board_config = ProtocolConfig(connection=None, board_type=Due, report_mode=REPORT_MODES.AVERAGE, read_count=2000, read_delay=3000, analog_resolution=10)
+        updated_board_id = mlc_repo.save_board_configuration(board_config=new_board_config, board_id=board_id)
+        self.assertEqual(updated_board_id, board_id)
+
+        # load board configuration and check values
+        board_config = mlc_repo.load_board_configuration(updated_board_id)
+        self.assertEqual(board_config.board_type, new_board_config.board_type)
+        self.assertEqual(board_config.report_mode, new_board_config.report_mode)
+        self.assertEqual(board_config.read_count, new_board_config.read_count)
+        self.assertEqual(board_config.read_delay, new_board_config.read_delay)
+        self.assertEqual(board_config.analog_resolution, new_board_config.analog_resolution)
+
+    def test_update_board_config_invalid_id(self):
+        # add board configuration
+        mlc_repo = self.__get_new_repo()
+        board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
+
+        try:
+            updated_board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config, board_id=board_id+1)
+            self.assertTrue(False)
+        except KeyError:
+            self.assertTrue(True)
+
+    def test_load_invalid_id(self):
+        mlc_repo = self.__get_new_repo()
+        board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
+
+        try:
+            board_config = mlc_repo.load_board_configuration(board_id+1)
+            self.assertTrue(False)
+        except KeyError:
+            self.assertTrue(True)
+
+    def test_save_board_pins(self):
+        mlc_repo = self.__get_new_repo()
+
+        board = self.__create_board_config(digital_input_pins=[1, 2, 3],
+                                           digital_output_pins=[4, 5, 6],
+                                           analog_input_pins=[7, 8, 9],
+                                           analog_output_pins=[10, 11, 12],
+                                           pwm_pins=[13, 14, 15])
+
+        board_id = mlc_repo.save_board_configuration(board)
+        board_config = mlc_repo.load_board_configuration(board_id)
+
+        self.assertEqual(board_id, 1)
+        self.assertEqual(board_config.digital_input_pins,  [1, 2, 3])
+        self.assertEqual(board_config.digital_output_pins, [4, 5, 6])
+        self.assertEqual(board_config.analog_input_pins,   [7, 8, 9])
+        self.assertEqual(board_config.analog_output_pins,  [10, 11, 12])
+        self.assertEqual(board_config.pwm_pins,            [13, 14, 15])
+
+    def test_update_board_pins(self):
+        mlc_repo = self.__get_new_repo()
+
+        # save a board configuration
+        board = self.__create_board_config(digital_input_pins=[1, 2, 3],
+                                           digital_output_pins=[4, 5, 6],
+                                           analog_input_pins=[7, 8, 9],
+                                           analog_output_pins=[10, 11, 12],
+                                           pwm_pins=[13, 14, 15])
+
+        board_id = mlc_repo.save_board_configuration(board)
+
+        # update board configuration
+        updated_board = self.__create_board_config(digital_input_pins=[21, 22, 23],
+                                                   digital_output_pins=[24, 25, 26],
+                                                   analog_input_pins=[27, 28, 29],
+                                                   analog_output_pins=[30, 31, 32],
+                                                   pwm_pins=[33, 34, 35])
+
+        updated_board_id = mlc_repo.save_board_configuration(updated_board, board_id=board_id)
+
+        # check pin values update
+        self.assertEqual(updated_board_id, board_id)
+        self.assertEqual(updated_board.digital_input_pins, [21, 22, 23])
+        self.assertEqual(updated_board.digital_output_pins, [24, 25, 26])
+        self.assertEqual(updated_board.analog_input_pins, [27, 28, 29])
+        self.assertEqual(updated_board.analog_output_pins, [30, 31, 32])
+        self.assertEqual(updated_board.pwm_pins, [33, 34, 35])

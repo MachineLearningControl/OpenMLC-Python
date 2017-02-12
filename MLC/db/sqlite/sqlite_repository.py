@@ -7,6 +7,9 @@ from MLC.individual.Individual import Individual
 from MLC.Log.log import get_gui_logger
 from MLC.Simulation import Simulation
 from sql_statements import *
+from sql_statements_board_configuration import *
+from MLC.arduino.protocol import ProtocolConfig
+from MLC.arduino.boards import types
 
 logger = get_gui_logger()
 
@@ -43,8 +46,18 @@ class SQLiteRepository(MLCRepository):
 
     def __initialize_db(self):
         cursor = self._conn.cursor()
+
+        # MLC Population tables
         cursor.execute(stmt_create_table_individuals())
         cursor.execute(stmt_create_table_population())
+
+        # Board configuration tables
+        cursor.execute(stmt_create_table_board())
+        cursor.execute(stmt_create_table_serial_connection())
+        cursor.execute(stmt_create_table_digital_pin())
+        cursor.execute(stmt_create_table_analog_pin())
+        cursor.execute(stmt_create_table_pwm_pin())
+
         cursor.close()
         self._conn.commit()
 
@@ -239,6 +252,7 @@ class SQLiteRepository(MLCRepository):
         self.__execute(stmt_to_update_cost)
 
     def __execute(self, statement):
+        # print ">>> %s" % statement
         conn = self.__get_db_connection()
         cursor = conn.cursor()
         cursor.execute(statement)
@@ -289,3 +303,113 @@ class SQLiteRepository(MLCRepository):
         cursor.close()
         conn.commit()
         return individuals
+
+    # board configuration
+    def save_board_configuration(self, board_config, board_id=None):
+
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # save/update board configuration
+            if board_id is None:
+                cursor.execute(stmt_insert_board(board_config.board_type["SHORT_NAME"],
+                                                 0, # serial connection hardcoded
+                                                 board_config.read_count,
+                                                 board_config.read_delay,
+                                                 board_config.report_mode,
+                                                 board_config.analog_resolution))
+                board_id = cursor.lastrowid
+            else:
+                cursor.execute(stmt_update_board(board_id,
+                                                 board_config.board_type["SHORT_NAME"],
+                                                 0,
+                                                 board_config.read_count,
+                                                 board_config.read_delay,
+                                                 board_config.report_mode,
+                                                 board_config.analog_resolution))
+                if cursor.rowcount < 1:
+                    raise KeyError("Board %s does not exist" % board_id)
+
+            # if board update is successful, update board pins
+            # delete board pin configuration
+            cursor.execute(stmt_delete_digital_pin(board_id))
+            cursor.execute(stmt_delete_analog_pin(board_id))
+            cursor.execute(stmt_delete_pwm_pin(board_id))
+
+            # update digital pins
+            self.__insert_pins(board_config.digital_input_pins, cursor, stmt_insert_digital_pin, board_id, 0)
+            self.__insert_pins(board_config.digital_output_pins, cursor, stmt_insert_digital_pin, board_id, 1)
+
+            # update analog pins
+            self.__insert_pins(board_config.analog_input_pins, cursor, stmt_insert_analog_pin, board_id, 0)
+            self.__insert_pins(board_config.analog_output_pins, cursor, stmt_insert_analog_pin, board_id, 1)
+
+            # update pwm pins
+            for pin_id in board_config.pwm_pins:
+                cursor.execute(stmt_insert_pwm_pin(board_id, pin_id))
+
+        except Exception:
+            raise
+        finally:
+            cursor.close()
+            conn.commit()
+
+        return board_id
+
+    def __insert_pins(self, pin_list, cursor, stmt_insert_pin, board_id, pin_type):
+        for pin_id in pin_list:
+            cursor.execute(stmt_insert_pin(board_id, pin_id, pin_type))
+
+    def __get_pins(self, cursor, stmt_get_pins, board_id):
+        input_pins = []
+        output_pins = []
+
+        for row in cursor.execute(stmt_get_pins(board_id)):
+            pin_id, pin_type = row[0], row[1]
+            if pin_type == 0:
+                input_pins.append(pin_id)
+            else:
+                output_pins.append(pin_id)
+        return input_pins, output_pins
+
+    def load_board_configuration(self, board_id):
+        protocol = None
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_board(board_id))
+
+        for row in cursor:
+            board_type = filter(lambda x: x["SHORT_NAME"] == row[0], types)
+
+            protocol = ProtocolConfig(connection=None,
+                                      board_type=board_type[0],
+                                      report_mode=row[1],
+                                      read_count=row[2],
+                                      read_delay=row[3],
+                                      analog_resolution=row[4])
+            break
+
+        if protocol is None:
+            raise KeyError("Board %s dows not exists" % board_id)
+
+        # load pins
+        input_pins, output_pins = self.__get_pins(cursor, stmt_get_analog_pins, board_id)
+        protocol.analog_input_pins.extend(input_pins)
+        protocol.analog_output_pins.extend(output_pins)
+
+        input_pins, output_pins = self.__get_pins(cursor, stmt_get_digital_pins, board_id)
+        protocol.digital_input_pins.extend(input_pins)
+        protocol.digital_output_pins.extend(output_pins)
+
+        for row in cursor.execute(stmt_get_pwm_pins(board_id)):
+            protocol.pwm_pins.append(row[0])
+
+        cursor.close()
+
+        return protocol
+
+    def save_connection(self, serial_connection, board_id, connection_id=None):
+        raise NotImplementedError("This method must be implemented")
+
+    def load_connection(self, connection_id):
+        raise NotImplementedError("This method must be implemented")

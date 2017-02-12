@@ -103,6 +103,19 @@ class MLCRepository:
     def remove_unused_individuals(self):
         raise NotImplementedError("This method must be implemented")
 
+    # board configuration
+    def save_board_configuration(self, board_config, board_id=None):
+        raise NotImplementedError("This method must be implemented")
+
+    def load_board_configuration(self, board_id):
+        raise NotImplementedError("This method must be implemented")
+
+    def save_connection(self, serial_connection, board_id, connection_id=None):
+        raise NotImplementedError("This method must be implemented")
+
+    def load_connection(self, connection_id):
+        raise NotImplementedError("This method must be implemented")
+
     @staticmethod
     def get_instance():
         # FIXME: use factories instead of this
