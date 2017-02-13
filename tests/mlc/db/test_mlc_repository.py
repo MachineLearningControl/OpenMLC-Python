@@ -10,6 +10,9 @@ from MLC.config import set_working_directory
 
 from MLC.arduino.protocol import ProtocolConfig, REPORT_MODES
 from MLC.arduino.boards import Mega, Due
+from MLC.arduino.connection.serialconnection import SerialConnectionConfig
+
+from serial import serialutil
 
 
 class MLCRepositoryTest(unittest.TestCase):
@@ -23,13 +26,20 @@ class MLCRepositoryTest(unittest.TestCase):
                                        read_delay=2000,
                                        analog_resolution=12)
 
-    def __create_board_config(self, digital_input_pins, digital_output_pins, analog_input_pins, analog_output_pins, pwm_pins):
+    def __create_board_config(self, digital_input_pins=[], digital_output_pins=[], analog_input_pins=[], analog_output_pins=[], pwm_pins=[]):
         return ProtocolConfig(connection=None, board_type=Mega, report_mode=REPORT_MODES.BULK, read_count=1000, read_delay=2000, analog_resolution=12,
                               digital_input_pins=digital_input_pins ,
                               digital_output_pins=digital_output_pins,
                               analog_input_pins=analog_input_pins,
                               analog_output_pins=analog_output_pins,
                               pwm_pins=pwm_pins)
+
+    def __create_serial_connection(self):
+        return SerialConnectionConfig(baudrate=1,
+                                      parity=2,
+                                      stopbits=3,
+                                      bytesize=4,
+                                      port=5)
 
     @classmethod
     def setUpClass(cls):
@@ -688,3 +698,53 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(updated_board.analog_input_pins, [27, 28, 29])
         self.assertEqual(updated_board.analog_output_pins, [30, 31, 32])
         self.assertEqual(updated_board.pwm_pins, [33, 34, 35])
+
+    def test_save_serial_connection(self):
+        mlc_repo = self.__get_new_repo()
+        board = self.__create_board_config()
+        board_id = mlc_repo.save_board_configuration(board)
+
+        serial_connection = self.__create_serial_connection()
+        serial_connection_id = mlc_repo.save_serial_connection(serial_connection, board_id)
+
+        loaded_serial_connection = mlc_repo.load_serial_connection(board_id)
+
+        self.assertEquals(serial_connection.port, loaded_serial_connection.port)
+        self.assertEquals(serial_connection.baudrate, loaded_serial_connection.baudrate)
+        self.assertEquals(serial_connection.parity, loaded_serial_connection.parity)
+        self.assertEquals(serial_connection.stopbits, loaded_serial_connection.stopbits)
+        self.assertEquals(serial_connection.bytesize, loaded_serial_connection.bytesize)
+
+    def test_save_serial_connection_invalid_board_id(self):
+        mlc_repo = self.__get_new_repo()
+        serial_connection = self.__create_serial_connection()
+        try:
+            serial_connection_id = mlc_repo.save_serial_connection(serial_connection, 1)
+            self.assertTrue(False)
+        except KeyError:
+            self.assertTrue(True)
+
+    def test_update_serial_connection(self):
+        mlc_repo = self.__get_new_repo()
+        board = self.__create_board_config()
+        board_id = mlc_repo.save_board_configuration(board)
+
+        serial_connection = self.__create_serial_connection()
+        serial_connection_id = mlc_repo.save_serial_connection(serial_connection, board_id)
+
+        updated_serial_connection = SerialConnectionConfig(baudrate=100,
+                                                           parity=200,
+                                                           stopbits=300,
+                                                           bytesize=400,
+                                                           port=500)
+
+        updated_serial_connection_id = mlc_repo.save_serial_connection(updated_serial_connection, board_id, connection_id=serial_connection_id)
+
+        self.assertEqual(updated_serial_connection_id, serial_connection_id)
+        serial_connection = mlc_repo.load_serial_connection(board_id)
+
+        self.assertEquals(serial_connection.port, updated_serial_connection.port)
+        self.assertEquals(serial_connection.baudrate, updated_serial_connection.baudrate)
+        self.assertEquals(serial_connection.parity, updated_serial_connection.parity)
+        self.assertEquals(serial_connection.stopbits, updated_serial_connection.stopbits)
+        self.assertEquals(serial_connection.bytesize, updated_serial_connection.bytesize)

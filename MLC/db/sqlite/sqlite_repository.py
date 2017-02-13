@@ -9,6 +9,7 @@ from MLC.Simulation import Simulation
 from sql_statements import *
 from sql_statements_board_configuration import *
 from MLC.arduino.protocol import ProtocolConfig
+from MLC.arduino.connection.serialconnection import SerialConnectionConfig
 from MLC.arduino.boards import types
 
 logger = get_gui_logger()
@@ -408,8 +409,55 @@ class SQLiteRepository(MLCRepository):
 
         return protocol
 
-    def save_connection(self, serial_connection, board_id, connection_id=None):
-        raise NotImplementedError("This method must be implemented")
+    def save_serial_connection(self, serial_connection, board_id, connection_id=None):
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
 
-    def load_connection(self, connection_id):
-        raise NotImplementedError("This method must be implemented")
+        try:
+            # save/update board configuration
+            if connection_id is None:
+                cursor.execute(stmt_insert_serial_connection(board_id,
+                                                             serial_connection.port,
+                                                             serial_connection.baudrate,
+                                                             serial_connection.parity,
+                                                             serial_connection.stopbits,
+                                                             serial_connection.bytesize))
+                connection_id = cursor.lastrowid
+            else:
+                cursor.execute(stmt_update_serial_connection(connection_id,
+                                                             board_id,
+                                                             serial_connection.port,
+                                                             serial_connection.baudrate,
+                                                             serial_connection.parity,
+                                                             serial_connection.stopbits,
+                                                             serial_connection.bytesize))
+                if cursor.rowcount < 1:
+                    raise KeyError("Connection %s does not exist" % board_id)
+        except sqlite3.IntegrityError:
+            raise KeyError("Board %s does not exist" % board_id)
+        except Exception:
+            raise
+        finally:
+            cursor.close()
+            conn.commit()
+
+        return connection_id
+
+    def load_serial_connection(self, board_id):
+        serial_connection = None
+
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_serial_connection(board_id))
+
+        for row in cursor:
+            serial_connection = SerialConnectionConfig(port=row[0],
+                                                       baudrate=row[1],
+                                                       parity=row[2],
+                                                       stopbits=row[3],
+                                                       bytesize=row[4])
+            break
+
+        if serial_connection is None:
+            raise KeyError("Serial Connectio %s doess not exists" % board_id)
+
+        return serial_connection
