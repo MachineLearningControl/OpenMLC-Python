@@ -24,7 +24,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="experiment_tab">
        <property name="layoutDirection">
@@ -473,27 +473,26 @@
            <item>
             <widget class="QGroupBox" name="groupBox_3">
              <property name="title">
-              <string>DB</string>
+              <string>Generations</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13">
               <item>
-               <widget class="QPushButton" name="pushButton_3">
-                <property name="text">
-                 <string>Create</string>
+               <widget class="QPushButton" name="gen_cut_button">
+                <property name="toolTip">
+                 <string>Remove generations ahead of the current generation</string>
                 </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_4">
                 <property name="text">
                  <string>Cut</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_8">
+               <widget class="QPushButton" name="gen_start_over_button">
+                <property name="toolTip">
+                 <string>Remove all the generations, maintaining only the last generation computed</string>
+                </property>
                 <property name="text">
-                 <string>Import</string>
+                 <string>Start Over</string>
                 </property>
                </widget>
               </item>
@@ -1239,6 +1238,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gen_cut_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_gen_cut_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>835</x>
+     <y>309</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gen_start_over_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_gen_start_over_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>835</x>
+     <y>337</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -1266,5 +1297,7 @@
   <slot>on_first_add_indiv_button_clicked()</slot>
   <slot>on_first_remove_indiv_button_clicked()</slot>
   <slot>on_first_add_indiv_from_textfile_button_clicked()</slot>
+  <slot>on_gen_cut_button_clicked()</slot>
+  <slot>on_gen_start_over_button_clicked()</slot>
  </slots>
 </ui>

@@ -263,6 +263,16 @@ class MLCLocal(MLC):
 
         return simulation.get_generation(generation_number)
 
+    def remove_generations_from(self, experiment_name, gen_number):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        MLCRepository.get_instance().remove_population_from(gen_number)
+        MLCRepository.get_instance().remove_unused_individuals()
+
     def get_individual(self, experiment_name, individual_id):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)

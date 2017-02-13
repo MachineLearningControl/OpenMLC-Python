@@ -188,6 +188,13 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_generation not implemented")
 
+    def remove_generations_from(self, experiment_name, gen_number):
+        """
+        Remove all the generations above the given as a parameter
+        :param experiment_name
+        :param gen_number
+        """
+
     def get_individuals(self, experiment_name):
         """
             Obtained generated individuals during the simulation.
@@ -204,7 +211,8 @@ class MLC:
         """
         raise NotImplementedError("MLC::get_individual not implemented")
 
-    def update_individual_cost(self, experiment_name, indiv_id, new_cost, new_ev_time, generation=-1):
+    def update_individual_cost(self, experiment_name, indiv_id,
+                               new_cost, new_ev_time, generation=-1):
         """
             Update individual cost. If generation == -1 Individual cost will
             be updated in all generations.
@@ -215,10 +223,10 @@ class MLC:
 
     def show_best(self, experiment_name, generation_number):
         """
-        Plot the best individual of the populations evaluated. This method ought not 
+        Plot the best individual of the populations evaluated. This method ought not
         to be called before calling the function go at least once
         :param experiment_name:
-        :param generation_number: The generation in which we are looking 
+        :param generation_number: The generation in which we are looking
         for the best individual
         """
         raise NotImplementedError("MLC::get_individuals not implemented")
