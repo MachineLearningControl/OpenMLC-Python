@@ -144,7 +144,6 @@ class LispTreeExpr(object):
                     break
 
             if arg_counter != expr_op["nbarg"]:
-                print arg_counter
                 raise OperationArgumentsAmountException(expr)
 
             # The position always finished in the last bracket.

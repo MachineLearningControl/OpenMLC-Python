@@ -190,7 +190,15 @@ class MLC:
 
     def remove_generations_from(self, experiment_name, gen_number):
         """
-        Remove all the generations above the given as a parameter
+        Remove all the generations above the given as a parameter (include the gen given)
+        :param experiment_name
+        :param gen_number
+        """
+
+    def remove_generations_to(self, experiment_name, gen_number):
+        """
+        Remove all the generations below the given as a parameter (include the gen given)
+        the one passed as an argument
         :param experiment_name
         :param gen_number
         """

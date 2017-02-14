@@ -219,7 +219,7 @@ class MLCLocal(MLC):
             experiment_info["best_indiv_value"] = min_indiv_data.get_value()
         return experiment_info
 
-    def go(self, experiment_name, to_generation, from_generation=0, 
+    def go(self, experiment_name, to_generation, from_generation=0,
            callbacks={}, gen_creator=None):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
@@ -271,6 +271,16 @@ class MLCLocal(MLC):
             raise ClosedExperimentException("get_experiment_info", experiment_name)
 
         MLCRepository.get_instance().remove_population_from(gen_number)
+        MLCRepository.get_instance().remove_unused_individuals()
+
+    def remove_generations_to(self, experiment_name, gen_number):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        MLCRepository.get_instance().remove_population_to(gen_number)
         MLCRepository.get_instance().remove_unused_individuals()
 
     def get_individual(self, experiment_name, individual_id):

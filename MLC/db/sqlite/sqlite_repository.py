@@ -129,7 +129,7 @@ class SQLiteRepository(MLCRepository):
         if self.__generations == 0:
             self.__base_gen = 1
         else:
-            self.__base_gen = to_generation + 1
+            self.__base_gen = self.__base_gen + to_generation
 
     def remove_unused_individuals(self):
         to_delete = []
