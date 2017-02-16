@@ -16,6 +16,10 @@ from MLC.GUI.Experiment.ExperimentWindow import ExperimentWindow
 from MLC.GUI.Tables.ConfigParserTableModel import ConfigParserTableModel
 from MLC.Log.log import get_gui_logger
 
+# Load a QCoreApplication class to load the qt.conf file
+from PyQt5.QtCore import QCoreApplication
+QCoreApplication(sys.argv)
+
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
