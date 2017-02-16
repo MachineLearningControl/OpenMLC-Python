@@ -93,7 +93,7 @@ class SQLiteRepository(MLCRepository):
         cursor = conn.cursor()
 
         try:
-            next_gen_id = self.__base_gen+self.__generations
+            next_gen_id = self.__base_gen + self.__generations
             for i in range(len(population._individuals)):
                 individual_id = population._individuals[i]
                 individual_cost = population._costs[i]
@@ -124,10 +124,10 @@ class SQLiteRepository(MLCRepository):
 
     # special methods
     def remove_population_from(self, from_generation):
-        if from_generation>self.__generations:
+        if from_generation > self.__generations:
             return
 
-        gen_id = self.__base_gen+from_generation-1
+        gen_id = self.__base_gen + from_generation - 1
         self.__execute(stmt_delete_from_generations(gen_id))
         self.__generations = from_generation - 1
         if from_generation == 1:
@@ -139,11 +139,11 @@ class SQLiteRepository(MLCRepository):
 
         gen_id = self.__base_gen + to_generation - 1
         self.__execute(stmt_delete_to_generations(gen_id))
-        self.__generations = self.__generations-to_generation
+        self.__generations = self.__generations - to_generation
         if self.__generations == 0:
             self.__base_gen = 1
         else:
-            self.__base_gen = to_generation + 1
+            self.__base_gen = self.__base_gen + to_generation
 
     def remove_unused_individuals(self):
         to_delete = []

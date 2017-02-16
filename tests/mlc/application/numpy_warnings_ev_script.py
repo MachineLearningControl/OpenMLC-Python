@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import MLC.Log.log as lg
 import matplotlib.pyplot as plt
@@ -5,6 +7,8 @@ import sys
 import time
 
 from MLC.mlc_parameters.mlc_parameters import Config
+from PyQt5.QtCore import Qt
+
 
 def individual_data(indiv):
     x = np.linspace(-10.0, 10.0, num=201)
@@ -28,6 +32,9 @@ def individual_data(indiv):
 
     y2 = y
 
+    # Force a numpy warning BEFORE the LispTreeExpr calculation
+    np.cos(np.inf)
+
     if isinstance(indiv.get_formal(), str):
         formal = indiv.get_formal().replace('S0', 'x')
     else:
@@ -46,24 +53,38 @@ def individual_data(indiv):
     if type(mlc_y3) == float:
         mlc_y3 = np.repeat(mlc_y3, len(x))
 
+    # Force a numpy warning AFTER the LispTreeExpr calculation
+    np.cos(np.inf)
+
     return x, y, y2, mlc_y3
 
 
 def cost(indiv):
     x, y, y2, mlc_y3 = individual_data(indiv)
-    cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    cost_mlc_y3 = None
+    try:
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    except FloatingPointError, err:
+        np.seterr(all='ignore')
+        cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+        np.seterr(all='raise')
     return cost_mlc_y3
 
 
-def show_best(index, indiv, cost, block=True):
+def show_best(index, generation, indiv, cost, block=True):
     x, y, y2, mlc_y3 = individual_data(indiv)
     # FIXME: Absolute only makes sense if we're working with complex numbers. It's not the case...
     y4 = np.sqrt((y - mlc_y3)**2 / (1 + np.absolute(x**2)))
 
-    plt.clf()
-    plt.suptitle("Individual N#{0} - Cost: {1} \n Formal: {2}".format(index,
-                                                                      cost,
-                                                                      indiv.get_formal()))
+    fig = plt.figure()
+    # Put figure window on top of all other windows
+    fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
+
+    plt.suptitle("Generation N#{0} - Individual N#{1}\n"
+                 "Cost: {2}\n Formal: {3}".format(generation,
+                                                  index,
+                                                  cost,
+                                                  indiv.get_formal()))
     plt.subplot(2, 1, 1)
     plt.plot(x, y, x, y2, '*', x, mlc_y3)
 

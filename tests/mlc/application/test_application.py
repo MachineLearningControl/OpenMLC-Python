@@ -12,6 +12,7 @@ from MLC.mlc_parameters.mlc_parameters import saved
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Creation import BaseCreation
 from MLC.Simulation import Simulation
+from nose.tools import nottest
 from tests.test_helpers import TestHelper
 
 
@@ -45,6 +46,39 @@ class ApplicationTest(unittest.TestCase):
     def tearDownClass(cls):
         # Erase the MLC workspace dir of this tests
         shutil.rmtree(ApplicationTest.workspace_dir)
+
+    def test_numpy_warnings_on_evaluation_script(self):
+        # MLC catches the numpy warnings and notify them in its log. By doing this,
+        # numpy warnings are set to throw exception. The idea of this test is to
+        # prove that this behaviour (numpy warnings as Exceptions) does not affect
+        # the evaluation scripts
+        experiment_name = "numpy_warnings"
+
+        numpy_ev_script = "numpy_warnings_ev_script.py"
+        numpy_ev_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), numpy_ev_script)
+
+        numpy_config = "numpy_warnings_config.ini"
+        numpy_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), numpy_config)
+
+        ApplicationTest.mlc_local.new_experiment(experiment_name=experiment_name,
+                                                 experiment_configuration=numpy_config_path,
+                                                 evaluation_script=numpy_ev_path)
+
+        Config.get_instance().set("EVALUATOR", "evaluation_function", "numpy_warnings_ev_script")
+
+        ApplicationTest.mlc_local.open_experiment(experiment_name)
+        try:
+            ApplicationTest.mlc_local.go(experiment_name=experiment_name,
+                                         to_generation=2,
+                                         from_generation=0,
+                                         callbacks={})
+        except FloatingPointError:
+            self.assertEquals(True, False)
+
+        ApplicationTest.mlc_local.close_experiment(experiment_name)
+        ApplicationTest.mlc_local.delete_experiment(experiment_name)
+
+        self.assertEquals(True, True)
 
     def test_callback_on_evaluate(self):
         with saved(Config.get_instance()) as config:
@@ -112,6 +146,7 @@ class ApplicationTest(unittest.TestCase):
             self.assertEqual(ApplicationTest.on_start, 1)
             self.assertEqual(ApplicationTest.on_start_counter_2, 1)
 
+    @unittest.skip
     def test_set_custom_gen_creator(self):
         with saved(Config.get_instance()) as config:
             Config.get_instance().set("POPULATION", "size", "5")

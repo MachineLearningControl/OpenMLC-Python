@@ -25,6 +25,7 @@ class RootNotFoundExprException(ExprException):
                                "[EXPR_EXCEPTION] Root node was not found. Expression: {0}"
                                .format(expression))
 
+
 class TrailingTrashExprException(ExprException):
 
     def __init__(self, expression):
@@ -122,9 +123,9 @@ class LispTreeExpr(object):
 
                 if expr[pos] == '(':
                     # The argument is another operator. Process it recursively
-                     argument_len = check_operands(expr[pos:])
-                     pos += argument_len
-                     if expr[pos] == ' ':
+                    argument_len = check_operands(expr[pos:])
+                    pos += argument_len
+                    if expr[pos] == ' ':
                         pos += 1
                 else:
                     # The argument is a number or a sensor
@@ -143,7 +144,6 @@ class LispTreeExpr(object):
                     break
 
             if arg_counter != expr_op["nbarg"]:
-                print arg_counter
                 raise OperationArgumentsAmountException(expr)
 
             # The position always finished in the last bracket.
@@ -181,6 +181,8 @@ class LispTreeExpr(object):
         # First, replace the sensors
         visitor = Replace_Sensors_Visitor(sensor_replacement_list)
         self._root.accept(visitor)
+
+        # Transform printed warnings to real warnings
         return self._root.compute()
 
     def get_root_node(self):

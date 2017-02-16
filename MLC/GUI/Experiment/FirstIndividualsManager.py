@@ -226,14 +226,3 @@ class FirstIndividualsManager(object):
         table_model.set_editable_columns([1])
         table_model.set_data_changed_callback(self.modify_individual)
         table_model.sort_by_col(0)
-
-    def _test_individual_value(self, indiv_value):
-        """
-        Evaluate an individual in order to check its correctness. If the evaluation
-        throw any exception, it won't be handled in this method
-        """
-        LispTreeExpr.check_expression(indiv_value)
-        individual = Individual.generate(config=Config.get_instance(),
-                                         rhs_value=indiv_value)
-        callback = EvaluatorFactory.get_callback()
-        return callback.cost(individual)

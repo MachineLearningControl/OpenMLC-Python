@@ -79,8 +79,6 @@ class Application(object):
         np.set_printoptions(threshold=np.inf)
         # Don't show scientific notation
         np.set_printoptions(suppress=True)
-        # Transform printed warnings to real warnings
-        np.seterr(all='raise')
 
     def go(self, to_generation, from_generation=None, display_best=False):
         """
@@ -154,9 +152,6 @@ class Application(object):
 
         # emit app finish event
         self.__callbacks_manager.on_event(MLC_CALLBACKS.ON_FINISH)
-
-        # Return the numpy warning configuration to its original value
-        np.seterr(all='warn')
 
     def get_simulation(self):
         return self._simulation

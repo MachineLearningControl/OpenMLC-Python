@@ -148,6 +148,17 @@ class ExpressionTreeTest(unittest.TestCase):
         self.assertNode(subtree_1, depth=3, childs=1, expr_index=19)
         self.assertNode(subtree_1._nodes[0], depth=3, childs=0, expr_index=24)
 
+    def test_do_not_raise_exception_when_numpy_warning_appear(self):
+        # This expression raise a numpy warning
+        expression = '(root (cos (exp 1e20)))'
+        tree = LispTreeExpr(expression)
+
+        try:
+            tree.calculate_expression(sensor_replacement_list=[])
+            self.assertEquals(True, True)
+        except FloatingPointError:
+            self.assertEquals(True, False)
+
     def assertNode(self, node, depth, childs, expr_index):
         self.assertEquals(node.get_depth(), depth)
         self.assertEquals(node.get_expr_index(), expr_index)
