@@ -109,9 +109,7 @@ class ExperimentWindow(QMainWindow):
                                                              mlc_local=self._mlc_local)
 
         # Arduino board configurations
-        # FIXME Board configuration must come from the experiment DB
-        self._board_config = ProtocolConfig(None)
-        self._serial_conn = SerialConnectionConfig('/dev/ttyACM0')
+        self._board_config, self._serial_conn = mlc_local.get_board_configuration(self._experiment_name)
 
     def closeEvent(self, event):
         logger.debug('[EXPERIMENT {0}] [CLOSE_DIALOG] - Executing overriden closeEvent function'.format(self._experiment_name))
@@ -750,6 +748,11 @@ class ExperimentWindow(QMainWindow):
         try:
             ArduinoInterfaceSingleton.get_instance(protocol_config=self._board_config,
                                                    conn_setup=self._serial_conn._asdict())
+
+
+            # Update board configuration in the DB
+            self._mlc_local.save_board_configuration(self._experiment_name, self._board_config, self._serial_conn)
+
         except Exception, err:
             logger.debug('[EXPERIMENT {0}] [BOARD_CONFIG] - '
                          'Serial port could not be initialized. Error Msg: {1}'
@@ -764,3 +767,6 @@ class ExperimentWindow(QMainWindow):
                 self.on_board_config_button_clicked()
             else:
                 self._board_config = self._board_config._replace(connection=BaseConnection())
+                self._mlc_local.save_board_configuration(self._experiment_name,
+                                                         self._board_config,
+                                                         self._serial_conn)

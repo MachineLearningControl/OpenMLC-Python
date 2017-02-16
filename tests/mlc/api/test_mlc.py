@@ -18,7 +18,9 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Population import Population as MLCPopulation
 from MLC.Simulation import Simulation
 
-
+from MLC.arduino import boards
+from MLC.arduino.protocol import ProtocolConfig
+from MLC.arduino.connection.serialconnection import SerialConnectionConfig
 
 class MLCWorkspaceTest(unittest.TestCase):
     WORKSPACE_DIR = os.path.abspath("/tmp/mlc_workspace/")
@@ -200,6 +202,85 @@ class MLCWorkspaceTest(unittest.TestCase):
         self._assert_key_value(info, "individuals_per_generation", 10)
 
         mlc.close_experiment(MLCWorkspaceTest.ORIGINAL_EXPERIMENT)
+
+    def test_create_experiment_and_obtain_configuration(self):
+        try:
+            mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+            mlc.new_experiment(MLCWorkspaceTest.NEW_EXPERIMENT,
+                               MLCWorkspaceTest.NEW_CONFIGURATION)
+            mlc.open_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+            configuration = mlc.get_experiment_configuration(
+                MLCWorkspaceTest.NEW_EXPERIMENT)
+            print configuration
+            mlc.close_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+            # check configuration structure
+            self.assertIsInstance(configuration, dict)
+            self.assertTrue(configuration.has_key("PARAMS"))
+            self.assertIsInstance(configuration["PARAMS"], dict)
+            self.assertTrue(configuration["PARAMS"].has_key("test_param"))
+            self.assertEqual(configuration["PARAMS"]["test_param"],
+                             "test_value")
+
+        finally:
+            # FIXME: use Setup/TearDown testcase
+            mlc.delete_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+    def test_get_default_board_configuration(self):
+        try:
+            mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+            mlc.new_experiment(MLCWorkspaceTest.NEW_EXPERIMENT,
+                               MLCWorkspaceTest.NEW_CONFIGURATION)
+            mlc.open_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+            board_configuration, serial_connection = mlc.get_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+            self.assertEqual(board_configuration.board_type, boards.Due)
+            self.assertEqual(board_configuration.read_count, 2)
+            self.assertEqual(board_configuration.read_delay, 0)
+            self.assertEqual(board_configuration.report_mode, 0)
+            self.assertEqual(board_configuration.analog_resolution, 12)
+
+            self.assertEqual(serial_connection.port, "/dev/ttyACM0")
+            self.assertEqual(serial_connection.baudrate, 115200)
+            self.assertEqual(serial_connection.parity, "N")
+            self.assertEqual(serial_connection.stopbits, 1)
+            self.assertEqual(serial_connection.bytesize, 8)
+
+        finally:
+            # FIXME: use Setup/TearDown testcase
+            mlc.delete_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+    def test_update_board_configuration(self):
+        try:
+            mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
+            mlc.new_experiment(MLCWorkspaceTest.NEW_EXPERIMENT, MLCWorkspaceTest.NEW_CONFIGURATION)
+            mlc.open_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+            board_configuration, serial_connection = mlc.get_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+            new_board_config = ProtocolConfig(None, report_mode=12, read_count=10, read_delay=11, board_type=boards.Leonardo, analog_resolution=13)
+            new_connection = SerialConnectionConfig("/dev/ttyACM1", baudrate=5000, parity="P", stopbits=2, bytesize=6)
+            mlc.save_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT, new_board_config, new_connection)
+
+            loaded_board_configuration, loaded_connection = mlc.get_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT)
+
+
+            self.assertEqual(loaded_board_configuration.board_type, boards.Leonardo)
+            self.assertEqual(loaded_board_configuration.read_count, 10)
+            self.assertEqual(loaded_board_configuration.read_delay, 11)
+            self.assertEqual(loaded_board_configuration.report_mode, 12)
+            self.assertEqual(loaded_board_configuration.analog_resolution, 13)
+
+            self.assertEqual(loaded_connection.port, "/dev/ttyACM1")
+            self.assertEqual(loaded_connection.baudrate, 5000)
+            self.assertEqual(loaded_connection.parity, "P")
+            self.assertEqual(loaded_connection.stopbits, 2)
+            self.assertEqual(loaded_connection.bytesize, 6)
+
+        finally:
+            # FIXME: use Setup/TearDown testcase
+            mlc.delete_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
 
     @nottest
     def test_go_and_check_simulation_info(self):

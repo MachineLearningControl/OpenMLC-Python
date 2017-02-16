@@ -374,6 +374,15 @@ class SQLiteRepository(MLCRepository):
                 output_pins.append(pin_id)
         return input_pins, output_pins
 
+    def get_board_configuration_ids(self):
+        board_ids = []
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_board_configuration_ids())
+        for row in cursor:
+            board_ids.append(row[0])
+        cursor.close()
+        return board_ids
+
     def load_board_configuration(self, board_id):
         protocol = None
         conn = self.__get_db_connection()

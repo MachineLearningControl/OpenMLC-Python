@@ -11,9 +11,9 @@ def stmt_create_table_board():
 def stmt_create_table_serial_connection():
     return ''' CREATE TABLE serial_connection(id INTEGER PRIMARY KEY AUTOINCREMENT,
                                               board_id INTEGER,
-                                              port INTEGER,
+                                              port TEXT,
                                               baudrate INTEGER,
-                                              parity INTEGER,
+                                              parity TEXT,
                                               stopbits INTEGER,
                                               bytesize INTEGER,
                                               FOREIGN KEY(board_id) REFERENCES board(id))'''
@@ -118,19 +118,19 @@ def stmt_get_pwm_pins(board_id):
 
 def stmt_insert_serial_connection(board_id, port, baudrate, parity, stopbits, bytesize):
     return '''INSERT INTO serial_connection (board_id, port, baudrate, parity, stopbits, bytesize)
-              VALUES (%s, %s, %s, %s, %s, %s)''' % (board_id,
-                                                    port,
-                                                    baudrate,
-                                                    parity,
-                                                    stopbits,
-                                                    bytesize)
+              VALUES (%s, "%s", %s, "%s", %s, %s)''' % (board_id,
+                                                        port,
+                                                        baudrate,
+                                                        parity,
+                                                        stopbits,
+                                                        bytesize)
 
 def stmt_update_serial_connection(connection_id, board_id, port, baudrate, parity, stopbits, bytesize):
     return '''UPDATE serial_connection SET
               board_id = "%s",
-              port = %s,
+              port = "%s",
               baudrate = %s,
-              parity = %s,
+              parity = "%s",
               stopbits = %s,
               bytesize = %s
               WHERE id = %s''' % (board_id,
@@ -141,6 +141,11 @@ def stmt_update_serial_connection(connection_id, board_id, port, baudrate, parit
                                   bytesize,
                                   connection_id)
 
+
 def stmt_get_serial_connection(board_id):
     return '''SELECT port, baudrate, parity, stopbits, bytesize
               FROM serial_connection WHERE board_id = %s''' % board_id
+
+
+def stmt_get_board_configuration_ids():
+    return '''SELECT id FROM board'''

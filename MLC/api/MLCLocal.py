@@ -26,6 +26,8 @@ from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import get_gui_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Simulation import Simulation
+from MLC.arduino.protocol import ProtocolConfig
+from MLC.arduino.connection.serialconnection import SerialConnectionConfig
 
 logger = get_gui_logger()
 
@@ -218,6 +220,57 @@ class MLCLocal(MLC):
             experiment_info["best_indiv_id"] = min_indiv_id
             experiment_info["best_indiv_value"] = min_indiv_data.get_value()
         return experiment_info
+
+    def get_board_configuration(self, experiment_name):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        mlc_repo = MLCRepository.get_instance()
+
+        boards = mlc_repo.get_board_configuration_ids()
+
+        if len(boards) == 0:
+            # creates default board configuration if not exists
+            serial_connection = SerialConnectionConfig('/dev/ttyACM0')
+            board_configuration = ProtocolConfig(serial_connection)
+
+            # save default board configuration and serial connection
+            board_id = mlc_repo.save_board_configuration(board_configuration)
+            mlc_repo.save_serial_connection(serial_connection, board_id)
+
+            return board_configuration, serial_connection
+        else:
+            # take first board configuration
+            board_id = boards[0]
+
+            # load board configuration and serial connection
+            board_configuration = mlc_repo.load_board_configuration(board_id)
+            serial_connection = mlc_repo.load_serial_connection(board_id)
+
+            return board_configuration, serial_connection
+
+    def save_board_configuration(self, experiment_name, board_configuration, connection):
+        if experiment_name not in self._experiments:
+            raise ExperimentNotExistException(experiment_name)
+
+        if experiment_name not in self._open_experiments:
+            raise ClosedExperimentException("get_experiment_info", experiment_name)
+
+        mlc_repo = MLCRepository.get_instance()
+
+        boards = mlc_repo.get_board_configuration_ids()
+
+        if len(boards) == 0:
+            # save board configuration and serial connection
+            board_id = mlc_repo.save_board_configuration(board_configuration)
+            mlc_repo.save_serial_connection(connection, board_id)
+        else:
+            board_id = boards[0]
+            mlc_repo.save_board_configuration(board_configuration, board_id=board_id)
+            mlc_repo.save_serial_connection(connection, board_id=board_id, connection_id=board_id)
 
     def go(self, experiment_name, to_generation, from_generation=0, 
            callbacks={}, gen_creator=None):
