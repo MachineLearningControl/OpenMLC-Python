@@ -106,6 +106,12 @@ RUN git clone git://code.qt.io/qt/qtbase.git && \
     make -j4 && make install && \
     rm -rf /tmp/qtbase
 
+RUN git clone git://code.qt.io/qt/qttools.git && \
+    cd qttools && \
+    git checkout 5.7 && \
+    /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    rm -rf /tmp/qttools
+
 RUN git clone git://code.qt.io/qt/qtcharts.git && \
     cd qtcharts && \
     git checkout 5.7 && \
