@@ -1,5 +1,6 @@
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Common.LispTreeExpr.LispTreeExpr import ExprException
+from MLC.Common.PreevaluationManager import PreevaluationManager
 from MLC.individual.Individual import Individual
 from MLC.Log.log import get_gui_logger
 from MLC.Population.Evaluation.EvaluatorFactory import EvaluatorFactory
@@ -49,7 +50,6 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
     return None
 
 
-
 def check_individual_value(parent, experiment_name, log_prefix, indiv_value, nodialog=False):
     try:
         """
@@ -72,3 +72,40 @@ def check_individual_value(parent, experiment_name, log_prefix, indiv_value, nod
                      .format(log_prefix, experiment_name,
                              err.message[err.message.find(']') + 2:]))
     return False
+
+
+def check_if_indiv_pass_preevaluation(parent, experiment_name, log_prefix, indiv_value, config):
+    try:
+        """
+        Evaluate an individual in order to check its correctness. Handle Exceptions
+        """
+        LispTreeExpr.check_expression(indiv_value)
+        individual = Individual.generate(config=config,
+                                         rhs_value=indiv_value)
+        callback = PreevaluationManager.get_callback()
+        return callback.preev(individual)
+    except ExprException, err:
+        # Print the error message returned in the exception,
+        # removing the prefix ([EXPR_EXCEPTION]])
+        QMessageBox.critical(parent,
+                             "Invalid Individual",
+                             "Individual inserted is not well-formed. "
+                             "Error Msg: {0}"
+                             .format(err.message[err.message.find(']') + 2:]))
+        logger.error("{0} Experiment {1} - "
+                     "Individual inserted is not well-formed. "
+                     "Error Msg: {2}"
+                     .format(log_prefix, experiment_name,
+                             err.message[err.message.find(']') + 2:]))
+    except Exception, err:
+        QMessageBox.critical(parent,
+                             "Invalid Evaluation Script",
+                             "Check the evaluation script to be correct. "
+                             "Error Msg: {0}.".format(err))
+        logger.error("{0} Experiment {1} - "
+                     "Individual inserted is not a valid individual. "
+                     "Check the evaluation script to be correct. "
+                     "Error Msg: {2}."
+                     .format(log_prefix, experiment_name, err))
+
+    return None

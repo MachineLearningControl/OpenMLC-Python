@@ -21,12 +21,13 @@ class Operations(object):
         for operation_id in opsetrange:
             self._ops[operation_id] = available_operations[operation_id]
 
-
-    def get_operation_from_op_num(self, op_num):
+    def get_operation_from_op_num(self, op_num_index):
         try:
-            return self._ops[op_num]
+            return self._ops.values()[int(op_num_index) - 1]
         except KeyError:
-            raise IndexError("get_operation", "Index must be one of the following values: " + str(self._ops.keys()))
+            raise IndexError("get_operation_from_op_num",
+                             "Index must be one of the following values: {0}"
+                             .format(str(self._ops.keys())))
 
     def get_operation_from_op_string(self, str_op):
         for k, op in self._ops.iteritems():
@@ -40,8 +41,8 @@ class Operations(object):
         return len(self._ops)
 
     @staticmethod
-    def get_instance():
-        if Operations._instance is None:
+    def get_instance(reload_operations=False):
+        if reload_operations or Operations._instance is None:
             Operations._instance = Operations()
 
         return Operations._instance

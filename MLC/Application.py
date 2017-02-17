@@ -2,6 +2,7 @@ import numpy as np
 import MLC.Log.log as lg
 
 from MLC.Common.PreevaluationManager import PreevaluationManager
+from MLC.Common.Operations import Operations
 from MLC.db.mlc_repository import MLCRepository
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -21,6 +22,8 @@ class Application(object):
 
     def __init__(self, simulation, callbacks={}, gen_creator=None):
         self._config = Config.get_instance()
+        # Reload the Operations supported
+        Operations.get_instance(reload_operations=True)
 
         self._simulation = simulation
         self._mlc_repository = MLCRepository.get_instance()
