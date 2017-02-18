@@ -6,6 +6,7 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Common.RandomManager import RandomManager
+from MLC.Common.PreevaluationManager import PreevaluationManager
 
 
 class IndividualException(Exception):
@@ -118,7 +119,13 @@ class Individual(object):
         """
         try:
             new_value_1, new_value_2 = self.__crossover_tree(other_individual)
-            return Individual(new_value_1), Individual(new_value_2)
+            indiv1 = Individual(new_value_1)
+            indiv2 = Individual(new_value_2)
+
+            # Check if the individual is valid
+            preev_function = PreevaluationManager.get_callback()
+            success = preev_function.preev(indiv1) and preev_function.preev(indiv2)
+            return Individual(new_value_1), Individual(new_value_2), not success
 
         except TreeException, ex:
             raise OperationOverIndividualFail(self._value, "CROSSOVER", str(ex))
@@ -181,8 +188,6 @@ class Individual(object):
         value_1 = value_1.replace('@', sm2)
         value_2 = value_2.replace('@', sm1)
 
-        # TODO preevaluation over value_1 and value_2
-
         return value_1, value_2
 
     def __mutate_tree(self, mutation_type):
@@ -223,7 +228,9 @@ class Individual(object):
                 except TreeException:
                     pass
 
-                preevok = True
+                # Preevaluate the Individual
+                preev_function = PreevaluationManager.get_callback()
+                preevok = preev_function.preev(Individual(new_individual_value))
 
             if not new_individual_value:
                 raise TreeException("Subtree cannot be generated")

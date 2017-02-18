@@ -217,6 +217,12 @@
                   </property>
                   <item>
                    <widget class="QFrame" name="frame_11">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="MinimumExpanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::StyledPanel</enum>
                     </property>
@@ -226,6 +232,12 @@
                     <layout class="QVBoxLayout" name="verticalLayout_8">
                      <item>
                       <widget class="QRadioButton" name="serial_radio">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="text">
                         <string>Serial</string>
                        </property>
@@ -239,6 +251,12 @@
                      </item>
                      <item>
                       <widget class="QRadioButton" name="ethernet_radio">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="text">
                         <string>Ethernet</string>
                        </property>
@@ -258,29 +276,8 @@
                     <property name="frameShadow">
                      <enum>QFrame::Raised</enum>
                     </property>
-                    <layout class="QFormLayout" name="formLayout_2">
-                     <item row="0" column="0">
-                      <widget class="QLabel" name="serial_interface_label">
-                       <property name="text">
-                        <string>Interface</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QLineEdit" name="serial_interface_input">
-                       <property name="text">
-                        <string>/dev/ttyACM0</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="baud_rate_label">
-                       <property name="text">
-                        <string>Baud Rate</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="1">
+                    <layout class="QGridLayout" name="gridLayout">
+                     <item row="2" column="1" colspan="2">
                       <widget class="QComboBox" name="baud_rate_selector">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -443,14 +440,20 @@
                        </item>
                       </widget>
                      </item>
-                     <item row="3" column="0">
-                      <widget class="QLabel" name="parity_bits_label">
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="serial_interface_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="text">
-                        <string>Parity Bits</string>
+                        <string>Interface</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1">
+                     <item row="3" column="1" colspan="2">
                       <widget class="QComboBox" name="parity_bits_selector">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -485,14 +488,46 @@
                        </item>
                       </widget>
                      </item>
+                     <item row="0" column="2">
+                      <widget class="QPushButton" name="permissions_button">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Give Permissions</string>
+                       </property>
+                      </widget>
+                     </item>
                      <item row="4" column="0">
                       <widget class="QLabel" name="stop_bits_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="text">
                         <string>Stop Bits</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="1">
+                     <item row="5" column="0">
+                      <widget class="QLabel" name="byte_size_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Byte size</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1" colspan="2">
                       <widget class="QComboBox" name="stop_bits_selector">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -517,14 +552,36 @@
                        </item>
                       </widget>
                      </item>
-                     <item row="5" column="0">
-                      <widget class="QLabel" name="byte_size_label">
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="baud_rate_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
                        <property name="text">
-                        <string>Byte size</string>
+                        <string>Baud Rate</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="5" column="1">
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="parity_bits_label">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="text">
+                        <string>Parity Bits</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QComboBox" name="interface_combo"/>
+                     </item>
+                     <item row="5" column="1" colspan="2">
                       <widget class="QComboBox" name="byte_size_selector">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1397,6 +1454,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>permissions_button</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_permission_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_digital_pin_insert()</slot>
@@ -1408,6 +1481,7 @@
   <slot>on_bench_test_click()</slot>
   <slot>on_connection_type_toggle()</slot>
   <slot>on_analog_resolution_change()</slot>
+  <slot>on_permission_button_clicked()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="connection_type_group"/>

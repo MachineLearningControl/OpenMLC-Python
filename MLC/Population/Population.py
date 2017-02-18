@@ -303,8 +303,7 @@ class Population(object):
                         old_indiv = self._mlc_repository.get_individual(indiv_index)
                         old_indiv2 = self._mlc_repository.get_individual(indiv_index2)
                         try:
-                            new_ind, new_ind2 = old_indiv.crossover(old_indiv2)
-                            fail = False
+                            new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
                         except OperationOverIndividualFail, ex:
                             lg.logger_.debug(str(ex))
 

@@ -1,3 +1,5 @@
+import os
+
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Common.LispTreeExpr.LispTreeExpr import ExprException
 from MLC.Common.PreevaluationManager import PreevaluationManager
@@ -109,3 +111,16 @@ def check_if_indiv_pass_preevaluation(parent, experiment_name, log_prefix, indiv
                      .format(log_prefix, experiment_name, err))
 
     return None
+
+
+def add_permissions_to_file(filepath, permissions, user_password=None):
+    # Create the command to execute
+    cmd = 'chmod {0} {1}'.format(permissions, filepath)
+    logger.info('Proceed to give {0} permissions to file {1}'.format(permissions, filepath))
+    if user_password:
+        cmd_error_code = os.system('echo %s |sudo -S %s' % (user_password, cmd))
+        # Erase the passwd stored, so sudo obliged us to insert it again
+        os.system('sudo -K')
+        return cmd_error_code == 0
+    else:
+        return os.system(cmd) == 0
