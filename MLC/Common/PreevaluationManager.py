@@ -44,5 +44,6 @@ class PreevaluationManager(object):
                 lg.logger_.debug("[PREEV_MANAGER] Preevaluation function doesn't exists. " +
                                  "Aborting program...")
                 sys.exit(-1)
+        return None
 
 

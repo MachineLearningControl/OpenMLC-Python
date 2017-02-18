@@ -793,9 +793,9 @@ class MLCRepositoryTest(unittest.TestCase):
 
         loaded_serial_connection = mlc_repo.load_serial_connection(board_id)
 
-        self.assertEquals(serial_connection.port, loaded_serial_connection.port)
+        self.assertEquals(serial_connection.port, int(loaded_serial_connection.port))
         self.assertEquals(serial_connection.baudrate, loaded_serial_connection.baudrate)
-        self.assertEquals(serial_connection.parity, loaded_serial_connection.parity)
+        self.assertEquals(serial_connection.parity, int(loaded_serial_connection.parity))
         self.assertEquals(serial_connection.stopbits, loaded_serial_connection.stopbits)
         self.assertEquals(serial_connection.bytesize, loaded_serial_connection.bytesize)
 
@@ -827,8 +827,8 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(updated_serial_connection_id, serial_connection_id)
         serial_connection = mlc_repo.load_serial_connection(board_id)
 
-        self.assertEquals(serial_connection.port, updated_serial_connection.port)
+        self.assertEquals(serial_connection.port, str(updated_serial_connection.port))
         self.assertEquals(serial_connection.baudrate, updated_serial_connection.baudrate)
-        self.assertEquals(serial_connection.parity, updated_serial_connection.parity)
+        self.assertEquals(serial_connection.parity, str(updated_serial_connection.parity))
         self.assertEquals(serial_connection.stopbits, updated_serial_connection.stopbits)
         self.assertEquals(serial_connection.bytesize, updated_serial_connection.bytesize)

@@ -107,7 +107,7 @@ class IndividualTest(unittest.TestCase):
         individual_1 = Individual("(root (cos 5.046))", Config.get_instance())
         individual_2 = Individual("(root (cos 5.046))", Config.get_instance())
 
-        new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
+        new_ind_1, new_ind_2, _ = individual_1.crossover(individual_2)
 
         self._assert_individual(new_ind_1, complexity=4,
                                 value="(root (cos 5.046))",
@@ -120,7 +120,7 @@ class IndividualTest(unittest.TestCase):
     def test_crossover_same_level_2(self):
         individual_1 = Individual("(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))", Config.get_instance())
         individual_2 = Individual("(root (cos (* (+ (* -1.912 -9.178) (cos S0)) 3.113)))", Config.get_instance())
-        new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
+        new_ind_1, new_ind_2, _ = individual_1.crossover(individual_2)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 value="(root (cos (* (* -1.912 -9.178) 3.113)))",
@@ -135,13 +135,13 @@ class IndividualTest(unittest.TestCase):
         individual_2 = Individual("(root S0)", Config.get_instance())
 
         try:
-            new_ind_1, new_ind_2 = individual_1.crossover(individual_2)
+            new_ind_1, new_ind_2, _ = individual_1.crossover(individual_2)
             self.assertFalse(True, "crossover with individual type 4 should fail")
         except OperationOverIndividualFail, ex:
             self.assertTrue(True)
 
     def test_crossover_same_individual(self):
-        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l2)
+        new_ind_1, new_ind_2, _ = self._individual_l2.crossover(self._individual_l2)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 value="(root (cos (* (* -1.912 -9.178) 3.113)))",
@@ -153,7 +153,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_crossover_different_levels_2_3(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l3)
+        new_ind_1, new_ind_2, _ = self._individual_l2.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 value="(root (cos (* (- -8.815 -3.902) 3.113)))",
@@ -164,7 +164,7 @@ class IndividualTest(unittest.TestCase):
                                 formal="my_log((my_div((sin(4.37) .* (((-1.912) .* (-9.178)) + cos(S0))),my_log((2.025 + (-8.685))))))")
 
         # make another to crossover in order to check randomness
-        new_ind_1, new_ind_2 = self._individual_l2.crossover(self._individual_l3)
+        new_ind_1, new_ind_2, _ = self._individual_l2.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=8,
                                 value="(root (log (+ 2.025 -8.685)))",
@@ -176,7 +176,7 @@ class IndividualTest(unittest.TestCase):
 
     def test_crossover_different_levels_0_3(self):
         # self._engine.rand('seed', 40.0, nargout=0)
-        new_ind_1, new_ind_2 = self._individual_l0.crossover(self._individual_l3)
+        new_ind_1, new_ind_2, _ = self._individual_l0.crossover(self._individual_l3)
 
         self._assert_individual(new_ind_1, complexity=3,
                                 value="(root (- -8.815 -3.902))",

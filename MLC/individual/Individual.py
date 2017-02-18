@@ -124,7 +124,10 @@ class Individual(object):
 
             # Check if the individual is valid
             preev_function = PreevaluationManager.get_callback()
-            success = preev_function.preev(indiv1) and preev_function.preev(indiv2)
+            success = True
+            if preev_function is not None:
+                success = preev_function.preev(indiv1) and preev_function.preev(indiv2)
+
             return Individual(new_value_1), Individual(new_value_2), not success
 
         except TreeException, ex:
@@ -230,7 +233,10 @@ class Individual(object):
 
                 # Preevaluate the Individual
                 preev_function = PreevaluationManager.get_callback()
-                preevok = preev_function.preev(Individual(new_individual_value))
+                if preev_function is not None:
+                    preevok = preev_function.preev(Individual(new_individual_value))
+                else:
+                    preevok = True
 
             if not new_individual_value:
                 raise TreeException("Subtree cannot be generated")
