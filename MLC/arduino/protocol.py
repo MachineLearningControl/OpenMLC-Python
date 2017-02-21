@@ -227,7 +227,7 @@ class ArduinoInterface:
 
         pos = 0
         digital_res = {"D%d" % (x): [] for x in self._digital_inputs}
-        analog_res = {"A%d" % (x): [] for x in self._anlg_inputs}
+        analog_res = {"A%d" % (x-len(self._board["DIGITAL_PINS"])): [] for x in self._anlg_inputs}
         # results = {x: []
         # for x in self._anlg_inputs + self._digital_inputs}  # One dictionary
         # to save all ports results
@@ -238,14 +238,14 @@ class ArduinoInterface:
             pin = ord(data[pos])
             if pin in self._anlg_inputs:
                 for i in range(0, self._read_count + 1):
-                    results["A%d" % (pin)].append(
+                    results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))].append(
                         (ord(data[pos + 1]) << 8) + ord(data[pos + 2]))
                     pos = pos + 2
                 pos = pos + 1
 
                 if self._report_mode == REPORT_MODES.AVERAGE:
-                    results["A%d" % (pin)] = [
-                        sum(results["A%d" % (pin)]) / (self._read_count + 1)]
+                    results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))] = [
+                        sum(results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))]) / (self._read_count + 1)]
             else:
                 if pin in self._digital_inputs:
                     for i in range(0, self._read_count + 1):
