@@ -172,7 +172,7 @@
      <x>0</x>
      <y>0</y>
      <width>749</width>
-     <height>19</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMLC">
@@ -193,6 +193,17 @@
    <addaction name="menuProperties"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
   <action name="menu_properties">
    <property name="text">
     <string>Properties</string>
@@ -381,6 +392,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>menu_about</sender>
+   <signal>triggered()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>menu_about()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_new_button_clicked()</slot>
@@ -391,5 +418,6 @@
   <slot>on_experiment_list_clicked()</slot>
   <slot>on_import_button_clicked()</slot>
   <slot>on_export_button_clicked()</slot>
+  <slot>menu_about()</slot>
  </slots>
 </ui>

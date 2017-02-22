@@ -28,6 +28,7 @@ FORMS    += \
     board_config_design.ui \
     arduinoconnectiontest.ui  \
     pinout_design.ui \ 
-    arduino_performance_test.ui
+    arduino_performance_test.ui \
+    about.ui
 
 DISTFILES +=
