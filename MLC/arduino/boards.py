@@ -28,7 +28,8 @@ Due = {"NAME": "Arduino Due",
        "ANALOG_DEFAULT_RESOLUTION": 12}
 
 Uno = {"NAME": "Arduino Uno",
-       "SHORT_NAME": "uno", "ANALOG_PINS": range(14, 20),
+       "SHORT_NAME": "uno",
+       "ANALOG_PINS": range(14, 20),
        "DIGITAL_PINS": range(0, 14),
        "PWM_PINS": (3, 5, 6, 9, 10, 11),
        "ANALOG_DEFAULT_RESOLUTION": 10}
