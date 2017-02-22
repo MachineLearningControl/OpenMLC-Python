@@ -116,7 +116,12 @@ class BoardConfigurationWindow(QMainWindow):
         for pin in setup.pwm_pins:
             self.insertPin(pin, "Pin " + str(pin),  self.ui.digitalPinType.itemText(2), self.ui.digitalPinsList)
 
+        # setup board values
         self.ui.analog_resolution_spin.setValue(setup.analog_resolution)
+        self.ui.read_count_spin.setValue(setup.read_count)
+        self.ui.read_delay_spin.setValue(setup.read_delay)
+
+        self.ui.report_mode_combo.setCurrentIndex(self.__controller.REPORT_MODE.index(setup.report_mode))
 
     def setup_board(self, index, board_name, image_name):
         _translate = QtCore.QCoreApplication.translate
@@ -139,6 +144,15 @@ class BoardConfigurationWindow(QMainWindow):
 
     def on_analog_resolution_change(self, index):
         self.__controller.update_analog_resolution(index)
+
+    def on_read_delay_change(self, index):
+        self.__controller.update_read_delay(index)
+
+    def on_read_count_change(self, index):
+        self.__controller.update_read_count(index)
+
+    def on_report_mode_change(self, index):
+        self.__controller.update_report_mode(index)
 
     def checkout_connection_config(self):
         # TODO Renombrar para checkout de parametros de conexion serie
@@ -239,6 +253,15 @@ class BoardConfigurationWindow(QMainWindow):
     def on_connection_type_toggle(self):
         print "Type toggled!"
 
+    def _update_interfaces(self):
+        # Search for all the files which starts with tty and end with ACM in the /dev directory
+        # FIXME: This is not portable. I don't know where the Arduino is mounted in
+        # Windows (is mounted?)
+
+        self.ui.interface_combo.clear()
+        valid_files = ['/dev/' + file for file in os.listdir('/dev') if 'ttyACM' in file]
+        self.ui.interface_combo.addItems(valid_files)
+
     def on_permission_button_clicked(self):
         response = QInputDialog.getText(self,
                                         "Giving Executing Permission to Port",
@@ -259,12 +282,3 @@ class BoardConfigurationWindow(QMainWindow):
                                      "Permissions could not be given to {0}. "
                                      "Check the password inserted to be correct"
                                      .format(interface_name))
-
-    def _update_interfaces(self):
-        # Search for all the files which starts with tty and end with ACM in the /dev directory
-        # FIXME: This is not portable. I don't know where the Arduino is mounted in
-        # Windows (is mounted?)
-
-        self.ui.interface_combo.clear()
-        valid_files = ['/dev/' + file for file in os.listdir('/dev') if 'ttyACM' in file]
-        self.ui.interface_combo.addItems(valid_files)

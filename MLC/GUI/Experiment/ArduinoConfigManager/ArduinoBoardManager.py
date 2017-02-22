@@ -28,6 +28,7 @@ from MLC.GUI.Experiment.ArduinoConfigManager.BoardConfigurationWindow import Boa
 from MLC.arduino import boards
 from MLC.arduino.connection.serialconnection import SerialConnection, SerialConnectionConfig
 from MLC.arduino.protocol import ProtocolConfig, BuildSerial
+from MLC.arduino.protocol import REPORT_MODES
 
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QTimer
@@ -37,6 +38,7 @@ import threading
 
 
 class ArduinoBoardManager:
+    REPORT_MODE = [REPORT_MODES.AVERAGE, REPORT_MODES.BULK]
 
     def __init__(self, protocol_config, serial_config, close_handler, parent_win=None):
         self.__setup = protocol_config
@@ -48,6 +50,7 @@ class ArduinoBoardManager:
                             serial.PARITY_EVEN, serial.PARITY_MARK, serial.PARITY_SPACE]
         self.STOP_BITS = [serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
         self.BYTE_SIZE = [serial.EIGHTBITS, serial.FIVEBITS, serial.SIXBITS, serial.SEVENBITS]
+
         # FIXME the connection with the handler shold be made by a method of the window
         self.__main_window.on_close_signal.connect(close_handler)
 
@@ -195,6 +198,15 @@ class ArduinoBoardManager:
 
     def update_analog_resolution(self, value):
         self.__setup = self.__setup._replace(analog_resolution=value)
+
+    def update_read_delay(self, value):
+        self.__setup = self.__setup._replace(read_delay=value)
+
+    def update_read_count(self, value):
+        self.__setup = self.__setup._replace(read_count=value)
+
+    def update_report_mode(self, value):
+        self.__setup = self.__setup._replace(report_mode=self.REPORT_MODE[value])
 
 
 class EventScheduler:

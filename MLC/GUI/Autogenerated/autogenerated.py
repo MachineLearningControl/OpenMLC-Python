@@ -308,6 +308,7 @@ class Ui_BoardConfigurationWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.baud_rate_selector.sizePolicy().hasHeightForWidth())
         self.baud_rate_selector.setSizePolicy(sizePolicy)
+        self.baud_rate_selector.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContentsOnFirstShow)
         self.baud_rate_selector.setObjectName("baud_rate_selector")
         self.baud_rate_selector.addItem("")
         self.baud_rate_selector.addItem("")
@@ -746,6 +747,9 @@ class Ui_BoardConfigurationWindow(object):
         self.removeAnalogPin.clicked.connect(BoardConfigurationWindow.on_analog_pin_remove)
         self.analog_resolution_spin.valueChanged['int'].connect(BoardConfigurationWindow.on_analog_resolution_change)
         self.permissions_button.clicked.connect(BoardConfigurationWindow.on_permission_button_clicked)
+        self.read_count_spin.valueChanged['int'].connect(BoardConfigurationWindow.on_read_count_change)
+        self.read_delay_spin.valueChanged['int'].connect(BoardConfigurationWindow.on_read_delay_change)
+        self.report_mode_combo.activated['int'].connect(BoardConfigurationWindow.on_report_mode_change)
         # QtCore.QMetaObject.connectSlotsByName(BoardConfigurationWindow)
 
     def retranslateUi(self, BoardConfigurationWindow):
@@ -1378,7 +1382,7 @@ class Ui_MLCAboutDialog(object):
     def setupUi(self, MLCAboutDialog):
         MLCAboutDialog.setObjectName("MLCAboutDialog")
         MLCAboutDialog.resize(403, 464)
-        MLCAboutDialog.setSizeGripEnabled(True)
+        MLCAboutDialog.setSizeGripEnabled(False)
         self.gridLayout = QtWidgets.QGridLayout(MLCAboutDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.mlcimage = QtWidgets.QWidget(MLCAboutDialog)

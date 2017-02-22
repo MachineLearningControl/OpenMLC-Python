@@ -288,6 +288,9 @@
                        <property name="currentIndex">
                         <number>16</number>
                        </property>
+                       <property name="sizeAdjustPolicy">
+                        <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+                       </property>
                        <item>
                         <property name="text">
                          <string>50</string>
@@ -1470,6 +1473,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>read_count_spin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_read_count_change()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>684</x>
+     <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>read_delay_spin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_read_delay_change()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>report_mode_combo</sender>
+   <signal>activated(int)</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_report_mode_change()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>608</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_digital_pin_insert()</slot>
@@ -1482,6 +1533,9 @@
   <slot>on_connection_type_toggle()</slot>
   <slot>on_analog_resolution_change()</slot>
   <slot>on_permission_button_clicked()</slot>
+  <slot>on_read_delay_change()</slot>
+  <slot>on_read_count_change()</slot>
+  <slot>on_report_mode_change()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="connection_type_group"/>
