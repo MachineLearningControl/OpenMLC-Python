@@ -20,10 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #from MLC.arduino.connection import MockConnection
+import sys
+sys.path.append("../..")
 from MLC.arduino.connection import SerialConnection
 from MLC.arduino.protocol import ArduinoInterface, REPORT_MODES
 from MLC.arduino import boards
-import sys
 import time
 
 def actuate(terminal):

@@ -234,7 +234,7 @@ class MLCLocal(MLC):
         experiment_info["individuals"] = MLCRepository.get_instance().count_individual()
         experiment_info["individuals_per_generation"] = Config.get_instance().getint("POPULATION", "size")
 
-        if MLCRepository.get_instance().count_individual() != 0:
+        if simulation.number_of_generations() != 0:
             # Get the best indiv description
             min_indiv_id = MLCRepository.get_instance().get_individual_with_min_cost()
             min_indiv_data = MLCRepository.get_instance().get_individual_data(min_indiv_id)
