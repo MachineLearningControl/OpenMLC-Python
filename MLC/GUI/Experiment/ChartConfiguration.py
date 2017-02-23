@@ -55,7 +55,7 @@ class ChartConfiguration():
 
     # Min, Max, Step
     AMOUNT_POINTS = [100, 1000, 100]
-    MAX_COST_VALUES = [50, 1000, 50]
+    MAX_COST_VALUES = [50, 5000, 50]
     MIN_COST_VALUES = [-200, 0, 50]
     MARKER_SIZE_VALUES = [1, 10, 1]
 

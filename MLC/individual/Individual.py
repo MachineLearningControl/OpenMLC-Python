@@ -35,8 +35,9 @@ class IndividualException(Exception):
 
 
 class OperationOverIndividualFail(IndividualException):
+
     def __init__(self, individual_value, operation_name, cause):
-        IndividualException.__init__(self, "Operation '%s' over individual '%s' fail due %s" % (operation_name, individual_value, cause) )
+        IndividualException.__init__(self, "Operation '%s' over individual '%s' fail due %s" % (operation_name, individual_value, cause))
 
 
 class TreeException(Exception):
@@ -146,7 +147,10 @@ class Individual(object):
             # Check if the individual is valid
             preev_function = PreevaluationManager.get_callback()
             success = True
-            if preev_function is not None:
+            if preev_function is None:
+                success = True
+            else:
+                preev_function = PreevaluationManager.get_callback()
                 success = preev_function.preev(indiv1) and preev_function.preev(indiv2)
 
             return Individual(new_value_1), Individual(new_value_2), not success
@@ -206,7 +210,8 @@ class Individual(object):
             count += 1
 
         if not correct:
-            raise TreeException("we could not find a candidate substitution in %s tests" % maxtries)
+            raise TreeException("[CROSSOVER] Candidate could not found a "
+                                "substitution {0} tests".format(maxtries))
 
         # Replacing subtrees
         value_1 = value_1.replace('@', sm2)
@@ -249,48 +254,65 @@ class Individual(object):
                         for i in range(len(config_sensor_list)):
                             new_individual_value = new_individual_value.replace("z%d" % i, "S%d" % config_sensor_list[i])
 
+                        # Preevaluate the Individual
+                        preevok = self._preevaluate_individual(new_individual_value)
+                    else:
+                        raise TreeException()
+
                 except TreeException:
-                    pass
-
-                # Preevaluate the Individual
-                preev_function = PreevaluationManager.get_callback()
-                if preev_function is not None:
-                    preevok = preev_function.preev(Individual(new_individual_value))
-                else:
-                    preevok = True
-
-            if not new_individual_value:
-                raise TreeException("Subtree cannot be generated")
+                    raise TreeException("[MUTATE_TREE] A non subtractable Individual was generated. "
+                                        "Individual: {0}".format(self._tree.get_expanded_tree_as_string()))
 
             return new_individual_value
 
         elif mutation_type == Individual.MutationType.REPARAMETRIZATION:
-            return self.__reparam_tree(LispTreeExpr(self.get_value()))
+            new_individual_value = None
+            preevok = False
+            while not preevok:
+                new_individual_value = self.__reparam_tree(LispTreeExpr(self.get_value()))
+                preevok = self._preevaluate_individual(new_individual_value)
+
+            return new_individual_value
 
         elif mutation_type == Individual.MutationType.HOIST:
-            controls = self._config.getint("POPULATION", "controls")
-            prob_threshold = 1 / float(controls)
+            preevok = False
+            counter = 0
+            maxtries = self._config.getint("GP", "maxtries")
 
-            cl = [stree.to_string() for stree in self.get_tree().get_root_node()._nodes]
+            while not preevok and counter < maxtries:
+                counter += 1
+                controls = self._config.getint("POPULATION", "controls")
+                prob_threshold = 1 / float(controls)
 
-            changed = False
-            k = 0
+                cl = [stree.to_string() for stree in self.get_tree().get_root_node()._nodes]
 
-            for nc in RandomManager.randperm(controls):
-                k += 1
-                # control law is cropped if it is the last one and no change happend before
-                if (RandomManager.rand() < prob_threshold) or (k == controls and not changed):
+                changed = False
+                k = 0
 
-                    try:
-                        _, sm, _ = self.__extract_subtree(LispTreeExpr('(root '+cl[nc - 1]+')'), mutmindepth+1, maxdepth, maxdepth+1)
-                        cl[nc - 1] = sm
-                        changed = True
+                for nc in RandomManager.randperm(controls):
+                    k += 1
+                    # control law is cropped if it is the last one and no change happend before
+                    if (RandomManager.rand() < prob_threshold) or (k == controls and not changed):
 
-                    except TreeException:
-                        changed = False
+                        try:
+                            _, sm, _ = self.__extract_subtree(LispTreeExpr('(root ' + cl[nc - 1] + ')'),
+                                                              mutmindepth + 1,
+                                                              maxdepth,
+                                                              maxdepth + 1)
+                            cl[nc - 1] = sm
+                            changed = True
 
-            return "(root %s)" % " ".join(cl[:controls])
+                        except TreeException:
+                            changed = False
 
+                new_individual_value = "(root %s)" % " ".join(cl[:controls])
+                preevok = self._preevaluate_individual(new_individual_value)
+
+            if counter == maxtries:
+                raise TreeException("[MUTATE HOIST] Candidate could not found a "
+                                    "substitution {0} tests".format(maxtries))
+
+            return new_individual_value
         else:
             raise NotImplementedError("Mutation type %s not implemented" % mutation_type)
 
@@ -381,7 +403,7 @@ class Individual(object):
         # Check if the seed character is in the string
         index = value.find('@')
         if index == -1:
-            return
+            return None
 
         # Split the value in two strings, not containing the first seed character
         begin_str = value[:index]
@@ -412,7 +434,7 @@ class Individual(object):
                 precision = config.get('POPULATION', 'precision')
                 # Generate a float number between -range and +range with a precision of 'precision'
                 new_exp = (("%." + precision + "f") % (
-                (RandomManager.rand() - 0.5) * 2 * range))
+                    (RandomManager.rand() - 0.5) * 2 * range))
                 new_value = begin_str + new_exp + end_str
         else:
             # Create a node
@@ -427,6 +449,13 @@ class Individual(object):
                 new_value = Individual.__generate_indiv_regressive_tree(new_value, config, indiv_type)
                 new_value = Individual.__generate_indiv_regressive_tree(new_value, config, indiv_type)
         return new_value
+
+    def _preevaluate_individual(self, new_indiv):
+        preev_function = PreevaluationManager.get_callback()
+        if preev_function is not None:
+            return preev_function.preev(Individual(new_indiv))
+        else:
+            return True
 
     @staticmethod
     def __simplify_and_sensors_tree(value, config):

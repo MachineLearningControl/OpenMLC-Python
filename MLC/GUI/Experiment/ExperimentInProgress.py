@@ -26,6 +26,7 @@ import numpy as np
 import os
 import sys
 import threading
+import traceback
 sys.path.append(os.path.abspath(".") + "/../..")
 
 from MLC.Application import MLC_CALLBACKS
@@ -282,6 +283,11 @@ class ExperimentInProgress(Thread):
             logger.info('{0} [RUN] - Thread was cancelled by the user'
                         .format(self._log_prefix))
             self._dialog.simulation_finished.emit()
+        except Exception:
+            logger.info('{0} [RUN] - Unknown Exception catch. Aborting experiment'
+                        .format(self._log_prefix))
+            traceback.print_exc()
+            sys.exit(-1)
 
     def indiv_evaluated(self, individual_id, cost):
         logger.debug('{0} [INDIV_EV] - Executing indiv_evaluated callback. '

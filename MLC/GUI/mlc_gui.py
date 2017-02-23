@@ -117,7 +117,12 @@ class MLC_GUI(QMainWindow):
                         break
 
                 # Create the new experiment and refresh the View
-                self._experiments_manager.add_experiment_even_if_repeated(experiment_name)
+                if not self._experiments_manager.add_experiment(experiment_name):
+                    QMessageBox.critical(self, 'New Experiment',
+                                         ('Experiment {0} already exists but has errors. '
+                                          'Check it to be correct in your workspace'
+                                          .format(experiment_name)))
+                    return
                 self._refresh_experiment_list_view()
                 self._clean_experiment_selection()
 

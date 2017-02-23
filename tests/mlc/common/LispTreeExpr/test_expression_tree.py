@@ -85,6 +85,29 @@ class ExpressionTreeTest(unittest.TestCase):
         expression = '(root (+ (* 2 3 5) 8))'
         self.assert_check_expression_with_exception(expression, OperationArgumentsAmountException)
 
+    def test_check_expression_with_just_a_sensor(self):
+        expression = '(root S0)'
+        self.assert_check_expression_without_exception(expression)
+
+        expression = '(root S1)'
+        self.assert_check_expression_without_exception(expression)
+
+        expression = '(root S23)'
+        self.assert_check_expression_without_exception(expression)
+
+    def test_check_expression_with_just_a_number(self):
+        expression = '(root 4)'
+        self.assert_check_expression_without_exception(expression)
+
+        expression = '(root -4)'
+        self.assert_check_expression_without_exception(expression)
+
+        expression = '(root 4.23)'
+        self.assert_check_expression_without_exception(expression)
+
+        expression = '(root -234.23)'
+        self.assert_check_expression_without_exception(expression)
+
     def test_check_expression_simple_correct_plus_arguments_amount(self):
         expression = '(root (+ 2 3))'
         self.assert_check_expression_without_exception(expression)

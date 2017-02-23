@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import MLC.Log.log as lg
+import re
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.LispTreeExpr.TreeNodes import LeafNode, InternalNode
@@ -107,6 +108,16 @@ class LispTreeExpr(object):
         # Check the expression to start with the substring (root
         if expression.find("(root") != 0:
             raise RootNotFoundExprException(expression)
+
+        # Check that the expression is just a sensor
+        r = re.compile("\(root S[0-9]*\)$")
+        if r.match(expression) != None:
+            return True
+
+        # Check that the expression is just a number
+        r = re.compile("\(root [0-9,\-]*\.{0,1}[0-9]*\)$")
+        if r.match(expression) != None:
+            return True
 
         # Check the amount of parenthesis to be balanced
         open_parenthesis = "("
