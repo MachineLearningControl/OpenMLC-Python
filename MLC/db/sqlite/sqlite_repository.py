@@ -212,7 +212,7 @@ class SQLiteRepository(MLCRepository):
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_individual_with_min_cost())
 
-        # We are expecting just one result
+        # We are expecting just one resultte
         min_indiv_id = cursor.fetchone()[0]
         cursor.close()
         return min_indiv_id
@@ -230,7 +230,7 @@ class SQLiteRepository(MLCRepository):
             cursor = conn.execute(stmt_get_individual_data(individual_id))
 
             for row in cursor:
-                data._add_data(row[0], row[1], row[2])
+                data._add_data(row[0] - self.__base_gen + 1, row[1], row[2])
 
             cursor.close()
             conn.commit()
@@ -267,7 +267,9 @@ class SQLiteRepository(MLCRepository):
         if generation == -1:
             stmt_to_update_cost = stmt_update_all_costs(individual_id, cost, evaluation_time)
         else:
-            stmt_to_update_cost = stmt_update_cost(individual_id, cost, evaluation_time, generation)
+            stmt_to_update_cost = stmt_update_cost(individual_id, cost,
+                                                   evaluation_time,
+                                                   generation + self.__base_gen - 1)
 
         logger.debug("[SQLITE_REPO] [UPDATE_INDIV_COST] - Query executed: {0}"
                      .format(stmt_to_update_cost))
