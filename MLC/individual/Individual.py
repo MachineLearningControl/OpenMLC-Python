@@ -112,6 +112,7 @@ class Individual(object):
         else:
             self._formal = self._tree.formal()
             self._complexity = self._tree.complexity()
+            self._value = self._tree.get_expanded_tree_as_string()
 
         self._range = self._config.getint("POPULATION", "range")
         self._precision = self._config.getint("POPULATION", "precision")
@@ -163,9 +164,6 @@ class Individual(object):
 
     def get_value(self):
         return self._value
-
-    def set_value(self, value):
-        self._value = value
 
     def get_formal(self):
         return self._formal

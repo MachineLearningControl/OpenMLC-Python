@@ -102,44 +102,44 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(mlc_repo.count_individual(), 0)
 
         # add the first individual
-        indiv_id, exists = mlc_repo.add_individual(Individual("1+1"))
+        indiv_id, exists = mlc_repo.add_individual(Individual("(root (+ 1 1))"))
         self.assertEqual(indiv_id, 1)
         self.assertFalse(exists)
         self.assertEqual(mlc_repo.count_individual(), 1)
 
         # trying to add an Individual with the same value
-        indiv_id, exists = mlc_repo.add_individual(Individual("1+1"))
+        indiv_id, exists = mlc_repo.add_individual(Individual("(root (+ 1 1))"))
         self.assertEqual(indiv_id, 1)
         self.assertTrue(exists)
         self.assertEqual(mlc_repo.count_individual(), 1)
 
         # adds another individual
-        indiv_id, exists = mlc_repo.add_individual(Individual("2+2"))
+        indiv_id, exists = mlc_repo.add_individual(Individual("(root (+ 2 2))"))
         self.assertEqual(indiv_id, 2)
         self.assertFalse(exists)
         self.assertEqual(mlc_repo.count_individual(), 2)
 
     def test_get_individuals(self):
         mlc_repo = self.__get_new_repo()
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
         # get individuals
         individual = mlc_repo.get_individual(1)
-        self.assertEqual(individual.get_value(), "1+1")
+        self.assertEqual(individual.get_value(), "(root (+ 1 1))")
 
         individual = mlc_repo.get_individual(2)
-        self.assertEqual(individual.get_value(), "2+2")
+        self.assertEqual(individual.get_value(), "(root (+ 2 2))")
 
         # get individual data
         data = mlc_repo.get_individual_data(1)
         self.assertEqual(data.get_appearances(), 0)
-        self.assertEqual(data.get_value(), "1+1")
+        self.assertEqual(data.get_value(), "(root (+ 1 1))")
         self.assertEqual(data.get_cost_history(), {})
 
         data = mlc_repo.get_individual_data(2)
         self.assertEqual(data.get_appearances(), 0)
-        self.assertEqual(data.get_value(), "2+2")
+        self.assertEqual(data.get_value(), "(root (+ 2 2))")
         self.assertEqual(data.get_cost_history(), {})
 
         # invalid id
@@ -152,9 +152,9 @@ class MLCRepositoryTest(unittest.TestCase):
     def test_add_population(self):
         mlc_repo = self.__get_new_repo()
 
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
         self.assertEqual(mlc_repo.count_individual(), 3)
 
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -194,10 +194,10 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
 
         # first population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -219,25 +219,25 @@ class MLCRepositoryTest(unittest.TestCase):
 
         # Individual 1 have two appearances in the first generation
         data = mlc_repo.get_individual_data(1)
-        self.assertEqual(data.get_value(), "1+1")
+        self.assertEqual(data.get_value(), "(root (+ 1 1))")
         self.assertEqual(data.get_appearances(), 2)
         self.assertEqual(data.get_cost_history(), {1: [(4.0, 5), (6.0, 7)]})
 
         # Individual 2 have two appearances
         data = mlc_repo.get_individual_data(2)
-        self.assertEqual(data.get_value(), "2+2")
+        self.assertEqual(data.get_value(), "(root (+ 2 2))")
         self.assertEqual(data.get_appearances(), 2)
         self.assertEqual(data.get_cost_history(), {1: [(5.0, 6)], 2: [(9.0, 10)]})
 
         # Individual 3 have one appearances
         data = mlc_repo.get_individual_data(3)
-        self.assertEqual(data.get_value(), "3+3")
+        self.assertEqual(data.get_value(), "(root (+ 3 3))")
         self.assertEqual(data.get_appearances(), 1)
         self.assertEqual(data.get_cost_history(), {2: [(7.0, 8)]})
 
         # Individual 4 have one appearances
         data = mlc_repo.get_individual_data(4)
-        self.assertEqual(data.get_value(), "4+4")
+        self.assertEqual(data.get_value(), "(root (+ 4 4))")
         self.assertEqual(data.get_appearances(), 1)
         self.assertEqual(data.get_cost_history(), {2: [(4.0, 5)]})
 
@@ -252,8 +252,8 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
         # add first population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -288,8 +288,8 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
         # add first population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -324,8 +324,8 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
         # add population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -347,8 +347,8 @@ class MLCRepositoryTest(unittest.TestCase):
             mlc_repo = self.__get_new_repo()
 
             # add individuals
-            mlc_repo.add_individual(Individual("1+1"))
-            mlc_repo.add_individual(Individual("2+2"))
+            mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+            mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
             # add population
             p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -368,10 +368,10 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
 
         # add first population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -407,10 +407,10 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(mlc_repo.count_individual(), 2)
 
         individual = mlc_repo.get_individual(1)
-        self.assertEqual(individual.get_value(), "1+1")
+        self.assertEqual(individual.get_value(), "(root (+ 1 1))")
 
         individual = mlc_repo.get_individual(2)
-        self.assertEqual(individual.get_value(), "2+2")
+        self.assertEqual(individual.get_value(), "(root (+ 2 2))")
 
         try:
             individual = mlc_repo.get_individual(3)
@@ -422,11 +422,11 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
-        mlc_repo.add_individual(Individual("5+5"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
+        mlc_repo.add_individual(Individual("(root (+ 5 5))"))
 
         # add  population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -480,11 +480,11 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
-        mlc_repo.add_individual(Individual("5+5"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
+        mlc_repo.add_individual(Individual("(root (+ 5 5))"))
 
         # add  population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -541,11 +541,11 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
-        mlc_repo.add_individual(Individual("5+5"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
+        mlc_repo.add_individual(Individual("(root (+ 5 5))"))
 
         # add  population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -588,7 +588,7 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(p._individuals, [4, 4, 4])
 
         individual = mlc_repo.get_individual(4)
-        self.assertEqual(individual.get_value(), "4+4")
+        self.assertEqual(individual.get_value(), "(root (+ 4 4))")
 
 
     def test_cut_generations_more_than_once(self):
@@ -599,14 +599,14 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
-        mlc_repo.add_individual(Individual("5+5"))
-        mlc_repo.add_individual(Individual("6+6"))
-        mlc_repo.add_individual(Individual("7+7"))
-        mlc_repo.add_individual(Individual("8+8"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
+        mlc_repo.add_individual(Individual("(root (+ 5 5))"))
+        mlc_repo.add_individual(Individual("(root (+ 6 6))"))
+        mlc_repo.add_individual(Individual("(root (+ 7 7))"))
+        mlc_repo.add_individual(Individual("(root (+ 8 8))"))
 
         # add  population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
@@ -671,18 +671,18 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(p._individuals, [7, 7, 7])
 
         individual = mlc_repo.get_individual(7)
-        self.assertEqual(individual.get_value(), "7+7")
+        self.assertEqual(individual.get_value(), "(root (+ 7 7))")
 
 
     def test_remove_population_to_from_bad_values(self):
         mlc_repo = self.__get_new_repo()
 
         # add individuals
-        mlc_repo.add_individual(Individual("1+1"))
-        mlc_repo.add_individual(Individual("2+2"))
-        mlc_repo.add_individual(Individual("3+3"))
-        mlc_repo.add_individual(Individual("4+4"))
-        mlc_repo.add_individual(Individual("5+5"))
+        mlc_repo.add_individual(Individual("(root (+ 1 1))"))
+        mlc_repo.add_individual(Individual("(root (+ 2 2))"))
+        mlc_repo.add_individual(Individual("(root (+ 3 3))"))
+        mlc_repo.add_individual(Individual("(root (+ 4 4))"))
+        mlc_repo.add_individual(Individual("(root (+ 5 5))"))
 
         # add  population
         p = Population(3, 0, Config.get_instance(), mlc_repo)
