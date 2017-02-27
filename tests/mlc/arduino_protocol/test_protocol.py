@@ -25,11 +25,11 @@ from MLC.arduino.protocol import ArduinoInterface
 from MLC.arduino.protocol import REPORT_MODES
 from MLC.arduino import boards
 
-ACK = "\xFF\x00"
-NACK = "\xFF\x01"
-REPORT = "\xF1\x05\x10\x01\x3D\x05\x20"
-REPORT_B = "\xF1\x1A\x10\xF1\x0A\x3D\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"
-REPORT_C = "\xF1\x16\x3D\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x3E\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"
+ACK = "\xFF\x00\x00\x00\x00"
+NACK = "\xFF\x00\x00\x00\x01"
+REPORT = "\xF1\x00\x00\x00\x05\x10\x01\x3D\x05\x20"
+REPORT_B = "\xF1\x00\x00\x00\x1A\x10\xF1\x0A\x3D\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"
+REPORT_C = "\xF1\x00\x00\x00\x16\x3D\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x3E\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"
 
 
 class TestArduinoInterface(unittest.TestCase):
@@ -37,29 +37,29 @@ class TestArduinoInterface(unittest.TestCase):
         self._connection = MockConnection(ACK)
         self._interface = ArduinoInterface(self._connection, boards.Due)
 
-    def test_set_precition(self):
+    def test_set_precision(self):
         self._interface.set_precision(12)
         data = self._connection.pop_data()
-        self.assertEqual("\x01\x01\x0C", data)
+        self.assertEqual("\x01\x00\x00\x00\x01\x0C", data)
         with self.assertRaises(Exception):
             self._interface.set_precition(33)
 
     def test_report_mode(self):
         self._interface.set_report_mode(REPORT_MODES.AVERAGE)
         data = self._connection.pop_data()
-        self.assertEqual("\x05\x03\x00\x00\x00", data)
+        self.assertEqual("\x05\x00\x00\x00\x03\x00\x00\x00", data)
         self._interface.set_report_mode(REPORT_MODES.AVERAGE, read_count=10, read_delay=5)
         data = self._connection.pop_data()
-        self.assertEqual("\x05\x03\x00\x09\x05", data)
+        self.assertEqual("\x05\x00\x00\x00\x03\x00\x09\x05", data)
         with self.assertRaises(Exception):
             self._interface.set_report_mode(12334)  # Invalid report mode
 
     def test_add_input(self):
         self._interface.add_input(60)
         data = self._connection.pop_data()
-        self.assertEqual("\x02\x01\x3C", data)
+        self.assertEqual("\x02\x00\x00\x00\x01\x3C", data)
         data = self._connection.pop_data()
-        self.assertEqual("\x04\x02\x3C\x00", data)
+        self.assertEqual("\x04\x00\x00\x00\x02\x3C\x00", data)
         self._interface.add_input(60)
         with self.assertRaises(Exception):  # Checks that no data has been sent
             data = self._connection.pop_data()
@@ -69,9 +69,9 @@ class TestArduinoInterface(unittest.TestCase):
     def test_add_output(self):
         self._interface.add_output(60)
         data = self._connection.pop_data()
-        self.assertEqual("\x03\x01\x3C", data)
+        self.assertEqual("\x03\x00\x00\x00\x01\x3C", data)
         data = self._connection.pop_data()
-        self.assertEqual("\x04\x02\x3C\x01", data)
+        self.assertEqual("\x04\x00\x00\x00\x02\x3C\x01", data)
         self._interface.add_output(60)
         with self.assertRaises(Exception):  # Checks that no data has been sent
             data = self._connection.pop_data()
@@ -110,6 +110,8 @@ class TestArduinoInterface(unittest.TestCase):
         self._interface.add_input(16)
         response = self._interface.actuate([(60, 128)])
         self.assertEqual(2, len(response))
+        self.assertTrue("D16" in response.keys())
+        self.assertEqual(11, len(response["D16"]))
         self.assertTrue(response["D16"][0])
         self.assertTrue(response["D16"][6])
         self.assertTrue(response["D16"][7])

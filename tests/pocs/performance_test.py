@@ -29,7 +29,7 @@ import sys
 import time
 
 
-BREAK_COUNT=20000
+BREAK_COUNT=10000
 
 def actuate(terminal):
     global BREAK_COUNT
@@ -37,7 +37,8 @@ def actuate(terminal):
     arduinoDue = ArduinoInterface(connection, boards.Due)
     
     arduinoDue.reset() #Just in case
-    arduinoDue.set_report_mode(protocol.REPORT_MODES.AVERAGE, read_count=50, read_delay=0)
+    arduinoDue.set_report_mode(protocol.REPORT_MODES.AVERAGE, read_count=100, read_delay=0)
+    arduinoDue.set_precision(12)
     
     arduinoDue.add_output(40)
     arduinoDue.add_output(66)
@@ -54,6 +55,7 @@ def actuate(terminal):
 #    arduinoDue.add_input(55)
     arduinoDue.add_input(54)
     arduinoDue.add_input(55)
+    arduinoDue.add_input(56)
 
     last_time = time.time()
     start_time = last_time
