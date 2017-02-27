@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "GenericArduinoController.h"
 
-#ifndef DEBUG 
+#ifndef DEBUG
 #define DEBUG 0
 #endif
 
@@ -9,13 +9,13 @@
 #include <string.h>
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define LOG(x,y) Serial.print(__FILENAME__); Serial.print(":"); Serial.print(__LINE__);\
-Serial.print(" -- [DEBUG] -- ");Serial.print(x); Serial.println(y);
+  Serial.print(" -- [DEBUG] -- ");Serial.print(x); Serial.println(y);
 #else
 #define LOG(x,y)
 
 void inline dump_digital_buffer(const int &digital_pins_count, const int &report_read_count, const uint8_t** digital_input_buffer)
 {
-    for (int i = 0; i < digital_pins_count; i++)
+  for (int i = 0; i < digital_pins_count; i++)
   {
     for (int j = 0; j < report_read_count / 8 + 1; j++)
     {
@@ -26,10 +26,10 @@ void inline dump_digital_buffer(const int &digital_pins_count, const int &report
 }
 
 #endif
- 
+
 #define VERSION "0.1"
 
-const char* ACK = "\xFF\x00";
+const char* ACK = "\xFF\x00\x00\x00\x00";
 
 GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stream)
 {
@@ -38,7 +38,7 @@ GenericArduinoController::GenericArduinoController(Stream &stream): stream_(stre
   {
     executor[i] = &GenericArduinoController::not_implemented;
   }
-  
+
   REPORT_READ_COUNT = 0;
   REPORT_READ_DELAY = 0;
   REPORT_MODE = average;
@@ -61,67 +61,75 @@ void GenericArduinoController::handle_commands()
   if (stream_.available() > 0)
   {
     LOG("Data available ", stream_.available());
-    char input[64]; // Esto se reserva en el stack, tal vez hacerlo global consume menos recursos...
+    char input[128]; // Esto se reserva en el stack, tal vez hacerlo global consume menos recursos...
 
     byte b_read = 0;
-    byte b_pos = 0;
 
-    while (stream_.available() > 0)
+    if (stream_.available() >= 5)
     {
-      b_read += stream_.readBytes(input, stream_.available());
-    }
+      while (b_read < 5)
+      {
+        b_read += stream_.readBytes(&input[b_read], 5 - b_read);
+      }
 
-    LOG("Bytes obtained: ", b_read);
-    // Loop to process all commands received in the buffer
-    while (b_pos < b_read)
-    {
-      LOG("command: ", int(input[b_pos]));
-      b_pos += executor[input[b_pos]](this, &input[b_pos]); // Does the callback for the command
-      LOG("b_pos ", b_pos);
+      uint32_t data_len = (uint32_t(input[1]) << 24) + (uint32_t(input[2]) << 16) + (uint32_t(input[3]) << 8) + uint32_t(input[4]);
+
+      LOG("Command: ", int(input[0]));
+      LOG("Command of length: ", data_len);
+
+      while (b_read - 5 < data_len)
+      {
+        b_read += stream_.readBytes(&input[b_read], data_len + 5 - b_read);
+
+        LOG("Received command part: ", data_len + 5 - b_read);
+      }
+
+      executor[input[0]](this, data_len, &input[0]); // Does the callback for the command
+
     }
   }
-  
-   LOG("No data", "");
+
 }
 
-void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, const char*))
+void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, uint32_t &buff_len, const char*))
 {
-    executor[handler_id] = handler;
+  executor[handler_id] = handler;
 }
 
 // NULL operation
-int GenericArduinoController::not_implemented(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::not_implemented(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-   return 1; //Breaks the loop
+  LOG("Unknown command received!! Operation: ", data[0]);
+  return 1 + buff_len; //Breaks the loop
 }
 
 /**
- * PROTOCOL_VERSION 0x07 0x03 X . Y
- */
-int GenericArduinoController::protocol_version(GenericArduinoController* this_, const char* data)
+   PROTOCOL_VERSION 0x07 0x00 0x00 0x00 0x03 X . Y
+*/
+int GenericArduinoController::protocol_version(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  char response[] = { char(VERSION_RESPONSE), char(0x03)};
-  this_->stream_.write(response, 2);
+  char response[] = { char(VERSION_RESPONSE), char(0), char(0), char(0), char(0x03)};
+  this_->stream_.write(response, 5);
   this_->stream_.write(VERSION, 3);
-  return 2;
+  return 8;
 }
 
 /**
- * ANALOG_WRITE: 0x06 0x03 [PIN] [H_VALUE][L_VALUE]
- */
-int GenericArduinoController::analog_write(GenericArduinoController* this_, const char* data)
+   ANALOG_WRITE: 0x06 0x00 0x00 0x00 0x03 [PIN] [H_VALUE][L_VALUE]
+*/
+int GenericArduinoController::analog_write(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  uint16_t value = (data[3] << 8) + data[4];
-  analogWrite(data[2], value);
-  return 5;
+  uint16_t value = (data[7] << 8) + data[8];
+  analogWrite(data[6], value);
+  return 8;
 }
 
 /**
- *   ANALOG_PRECISION: 0x01 0x01 [BITS]
- */
-int GenericArduinoController::set_analog_precision(GenericArduinoController* this_, const char* data)
+     ANALOG_PRECISION: 0x01 0x00 0x00 0x00 0x01 [BITS]
+*/
+int GenericArduinoController::set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  int i = byte(data[2]);
+  int i = byte(data[6]);
   // Tal vez conviene separar estas funciones ya que hay boards con resoluciones distintas...
   // Igual, así funciona bien con el due (y con todos, ya que no hay problema en superar el máximo de la resolución)
   analogWriteResolution(i);
@@ -129,63 +137,62 @@ int GenericArduinoController::set_analog_precision(GenericArduinoController* thi
 
   LOG("Resolution changed to: ", i);
 
-  return 3; // Command of 3 bytes
-}
-
-
-/**
-*   PIN_MODE: 0x04 0x02 [PIN] [MODE]
-*/
-int GenericArduinoController::set_pin_mode(GenericArduinoController* this_, const char* data)
-{
-  pinMode(data[2], data[3]);
-  LOG("Changed pin mode on pin ", uint8_t(data[2]));
-  LOG("Mode set to ", uint8_t(data[3]));
-
-  return 4; // Command of 4 bytes
+  return 6; // Command of 6 bytes
 }
 
 /**
-*   REPORT_MODE: 0x05 0x03 [MODE] [READ_COUNT] [READ_DELAY]
+    PIN_MODE: 0x04 0x00 0x00 0x00 0x02 [PIN] [MODE]
 */
-int GenericArduinoController::set_report_mode(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::set_pin_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  this_->REPORT_MODE = (ReportModes)(data[2]);
-  this_->REPORT_READ_COUNT = byte(data[3]);
-  this_->REPORT_READ_DELAY = byte(data[4]);
+  pinMode(data[5], data[6]);
+  LOG("Changed pin mode on pin ", uint8_t(data[5]));
+  LOG("Mode set to ", uint8_t(data[6]));
+
+  return 7; // Command of 7 bytes
+}
+
+/**
+    REPORT_MODE: 0x05 0x00 0x00 0x00 0x03 [MODE] [READ_COUNT] [READ_DELAY]
+*/
+int GenericArduinoController::set_report_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+{
+  this_->REPORT_MODE = (ReportModes)(data[5]);
+  this_->REPORT_READ_COUNT = byte(data[6]);
+  this_->REPORT_READ_DELAY = byte(data[7]);
   LOG("Report mode changed", "")
   LOG("Report mode: ", this_->REPORT_MODE);
-  LOG("New Read count: ", byte(data[3]));
-  LOG("New Read delay: ", byte(data[4]));
+  LOG("New Read count: ", this_->REPORT_READ_COUNT);
+  LOG("New Read delay: ", this_->REPORT_READ_DELAY);
 
-  return 5; // Command of 5 bytes
+  return 8; // Command of 8 bytes
 }
 
 /**
-*   ANALOG_INPUT: 0x02 0x01 [PORT]
+    ANALOG_INPUT: 0x02 0x00 0x00 0x00 0x01 [PORT]
 */
-int GenericArduinoController::set_analog_input(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::set_analog_input(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
   this_->INPUT_PORTS[0] += 1;
-  this_->INPUT_PORTS[this_->INPUT_PORTS[0]] = byte(data[2]);
+  this_->INPUT_PORTS[this_->INPUT_PORTS[0]] = byte(data[5]);
 
   if ( this_->INPUT_PORTS[this_->INPUT_PORTS[0]] >= A0 )
   {
     this_->ANALOG_PINS_COUNT++;
-    LOG("New analog input: ", byte(data[2]));
+    LOG("New analog input: ", byte(data[5]));
   } else
   {
     this_->DIGITAL_PINS_COUNT++;
-    LOG("New digital input: ", byte(data[2]));
+    LOG("New digital input: ", byte(data[5]));
   }
 
-  return 3; // Command of 3 bytes
+  return 6; // Command of 6 bytes
 }
 
 /**
-*   RESET: 0xFF
+    RESET: 0xFF 0x00 0x00 0x00 0x00
 */
-int GenericArduinoController::reset(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::reset(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
   for ( int i = 1; i <= byte(this_->INPUT_PORTS[0]); i++)
   {
@@ -199,34 +206,33 @@ int GenericArduinoController::reset(GenericArduinoController* this_, const char*
 
   LOG("System reset executed", "");
 
-  return 1;
+  return 5;
 }
 
 /**
-*   ANALOG_OUTPUT: 0x03 0x01 [PORT]
+    ANALOG_OUTPUT: 0x03 0x00 0x00 0x00 0x01 [PORT]
 */
-int GenericArduinoController::set_analog_output(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
   // No se si vale la pena guardar registro de pines de salida...
 
-  return 3; // Command of 3 bytes
+  return 6; // Command of 3 bytes
 }
 
 /**
-*   ACTUATE: 0xF0 [DATA_LEN] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
+    ACTUATE: 0xF0 [DATA_LEN] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
 */
-int GenericArduinoController::actuate(GenericArduinoController* this_, const char* data)
+int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  int offset = 0;
-  int byte_count = byte(data[1]); // Un byte puede llegar a limitar la cantidad de salidas... creo
+  uint32_t offset = 0;
 
   uint8_t digital_input_buffer[this_->DIGITAL_PINS_COUNT][this_->REPORT_READ_COUNT / 8 + 2]; // 255 lectures of 1 bit for every digital pin -- 1 extra byte for the port address
   uint8_t analog_input_buffer[this_->ANALOG_PINS_COUNT][(2 * this_->REPORT_READ_COUNT) + 3]; // 255 lectures of 2 bytes for every analog pin -- 1 extra byte for the port address
 
-  LOG("Actutating over payload of size: ", byte_count);
+  LOG("Actutating over payload of size: ", buff_len);
 
   // ACTUATION ZONE
-  while (offset < byte_count)
+  while (offset < buff_len)
   {
     //Se aplica la acción a cada puerto indicado
     int port = byte(data[2 + offset]);
@@ -253,7 +259,7 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, const cha
 
   char response[130];
   response[0] = '\xF1';
-  uint16_t len = 0;  // Inicia en 1 para evitar pisar el id de comando
+  uint32_t len = 0;  // Inicia en 1 para evitar pisar el id de comando
 
   // Resets of digital buffers (required due the buffering strategy for digital pins)
   memset(digital_input_buffer, 0, this_->DIGITAL_PINS_COUNT * (this_->REPORT_READ_COUNT / 8 + 2));
@@ -306,37 +312,45 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, const cha
 
   LOG("Finish", "");
 
+  // Stores digital & analog used bytes
+  uint32_t analog_len = 0;
+  uint32_t digital_len = 0;
+
   // Every analog output will be in the buffer as
   if (this_->ANALOG_PINS_COUNT > 0)
   {
-    len += this_->ANALOG_PINS_COUNT + ((this_->REPORT_READ_COUNT + 1) * 2 * this_->ANALOG_PINS_COUNT);
+    analog_len = this_->ANALOG_PINS_COUNT + ((this_->REPORT_READ_COUNT + 1) * 2 * this_->ANALOG_PINS_COUNT);
+    len += analog_len;
   }
 
   if (this_->DIGITAL_PINS_COUNT > 0)
   {
-    len +=  this_->DIGITAL_PINS_COUNT + (((this_->REPORT_READ_COUNT + 1) / 8 ) + 1) * this_->DIGITAL_PINS_COUNT;
+    digital_len =  this_->DIGITAL_PINS_COUNT + (((this_->REPORT_READ_COUNT + 1) / 8 ) + (1 ? (this_->REPORT_READ_COUNT + 1) % 8 != 0 : 0)) * this_->DIGITAL_PINS_COUNT;
+    len += digital_len;
   }
 
   LOG("Reporting actuate results ", len - 1);
-  LOG("No idea...", "");
-  response[1] = len;
-  this_->stream_.write(response, 2); // 2 bytes extras por el id de comando y la longitud y -1 por el padding
+
+  response[1] = len >> 24;
+  response[2] = (len & 0x00FF0000) >> 16;
+  response[3] = (len & 0x0000FF00) >> 8;
+  response[4] = len & 0x000000FF;
+
+  this_->stream_.write(response, 5); // 5 bytes extras por el id de comando y la longitud y -1 por el padding
 
   //response[len + 1] = INPUT_PORTS[i];
   if ( this_->ANALOG_PINS_COUNT > 0)
   {
-    this_->stream_.write(analog_input_buffer[0], this_->ANALOG_PINS_COUNT + ((this_->REPORT_READ_COUNT + 1) * 2 * this_->ANALOG_PINS_COUNT));
-    //SerialUSB.write(INPUT_PORTS[i]);
-    //SerialUSB.write(analog_input_buffer[INPUT_PORTS[i] - A0], (REPORT_READ_COUNT + 1) * 2);
-    LOG("Reported an analog port with a read count len of: ", this_->ANALOG_PINS_COUNT + (this_->REPORT_READ_COUNT + 1) * 2 * this_->ANALOG_PINS_COUNT);
-  }
-  
-  if ( this_->DIGITAL_PINS_COUNT > 0) {
-    this_->stream_.write(digital_input_buffer[0], this_->DIGITAL_PINS_COUNT + (((this_->REPORT_READ_COUNT + 1) / 8 ) + 1) * this_->DIGITAL_PINS_COUNT );
-    LOG("Reported an digital port with a read count len of: ",  this_->DIGITAL_PINS_COUNT + (((this_->REPORT_READ_COUNT + 1) / 8 ) + 1) * this_->DIGITAL_PINS_COUNT );
+    this_->stream_.write(analog_input_buffer[0], analog_len);
+    LOG("Reported an analog port with a read count len of: ", analog_len);
   }
 
-  return len + 2;
+  if ( this_->DIGITAL_PINS_COUNT > 0) {
+    this_->stream_.write(digital_input_buffer[0], digital_len );
+    LOG("Reported a digital port with a read count len of: ",  digital_len );
+  }
+
+  return len + 5;
 }
 
 

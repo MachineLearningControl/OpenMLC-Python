@@ -24,18 +24,17 @@ import boards
 from collections import namedtuple
 import MLC.Log.log as lg
 
-_PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x01%s',
-                  "SET_INPUT": '\x02\x01%s',
-                  "SET_OUTPUT": '\x03\x01%s',
-                  "PIN_MODE": '\x04\x02%s%s',
-                  "REPORT_MODE": '\x05\x03%s%s%s',
-                  "ANALOG_WRITE": '\x06\x03%s%s%s',
-                  "ACK": '\xFF\x00',
+_PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x00\x00\x00\x01%s',
+                  "SET_INPUT": '\x02\x00\x00\x00\x01%s',
+                  "SET_OUTPUT": '\x03\x00\x00\x00\x01%s',
+                  "PIN_MODE": '\x04\x00\x00\x00\x02%s%s',
+                  "REPORT_MODE": '\x05\x00\x00\x00\x03%s%s%s',
+                  "ANALOG_WRITE": '\x06\x00\x00\x00\x03%s%s%s',
+                  "ACK": '\xFF',
                   "ACTUATE": '\xF0',
-                  "PROT_VERSION": '\xF2\x00',
-                  "RESET": '\xFE',
+                  "PROT_VERSION": '\xF2\x00\x00\x00\x00',
+                  "RESET": '\xFE\x00\x00\x00\x00',
                   "ACTUATE_REPORT": '\xF1'}
-
 
 REPORT_MODES = collections.namedtuple(
     'REPORT_MODES', ['AVERAGE', 'BULK', 'RT'], verbose=False)(AVERAGE=0, BULK=1, RT=2)
@@ -211,23 +210,27 @@ class ArduinoInterface:
                 size += 2
 
         self._connection.send(
-            "".join([_PROTOCOL_CMDS["ACTUATE"], chr(size), payload]))
+            "".join([_PROTOCOL_CMDS["ACTUATE"], chr((size & 0xFF000000) >> 24), chr((size & 0x00FF0000) >> 16),
+                     chr((size & 0x0000FF00) >> 8), chr(size & 0x000000FF), payload]))
+
         response = self._connection.recv(1)
 
         if response == _PROTOCOL_CMDS["ACK"]:
-            response = self._connection.recv(1)
+            response = self._connection.recv(4) # Clears buffer
             raise Exception("Actuate error. Code: %s" % response)
 
         if response != _PROTOCOL_CMDS["ACTUATE_REPORT"]:
+            response = self._connection.recv(4)
             raise Exception(
                 "Actuate error. Unknown response %s after actuate operation" % ord(response))
 
-        length = ord(self._connection.recv(1))
+        raw_len = self._connection.recv(4)
+        length = (ord(raw_len[0]) << 24) + (ord(raw_len[1]) << 16) + (ord(raw_len[2]) << 8) + ord(raw_len[3])
         data = self._connection.recv(length)
 
         pos = 0
         digital_res = {"D%d" % (x): [] for x in self._digital_inputs}
-        analog_res = {"A%d" % (x-len(self._board["DIGITAL_PINS"])): [] for x in self._anlg_inputs}
+        analog_res = {"A%d" % (x - len(self._board["DIGITAL_PINS"])): [] for x in self._anlg_inputs}
         # results = {x: []
         # for x in self._anlg_inputs + self._digital_inputs}  # One dictionary
         # to save all ports results
@@ -264,14 +267,13 @@ class ArduinoInterface:
         return results
 
 
-class ProtocolConfig (namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type',
-                                                    'digital_input_pins', 'digital_output_pins', 'analog_input_pins',
-                                                    'analog_output_pins', 'pwm_pins', 'analog_resolution'])):
-
+class ProtocolConfig(
+    namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type',
+                                  'digital_input_pins', 'digital_output_pins', 'analog_input_pins',
+                                  'analog_output_pins', 'pwm_pins', 'analog_resolution'])):
     def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due,
                 digital_input_pins=None, digital_output_pins=None, analog_input_pins=None, analog_output_pins=None,
                 pwm_pins=None, analog_resolution=None):
-
         digital_input_pins = [] if digital_input_pins is None else digital_input_pins
         digital_output_pins = [] if digital_output_pins is None else digital_output_pins
         analog_input_pins = [] if analog_input_pins is None else analog_input_pins
