@@ -41,6 +41,16 @@ REPORT_MODES = collections.namedtuple(
 PIN_MODES = collections.namedtuple(
     'PIN_MODES', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
 
+class ProtocolException(Exception):
+    pass
+
+class ProtocolIOException(ProtocolException):
+    def __init__(self,what):
+        ProtocolException.__init__(self, "Protocol IO error: %s" % (what))
+
+class ProtocolSetupException(ProtocolException):
+    def __init__(self, what):
+        ProtocolException.__init__(self, "Setup error: %s" % (what))
 
 class ArduinoInterfaceSingleton():
     _instance = None
@@ -53,16 +63,16 @@ class ArduinoInterfaceSingleton():
             serial_conn = None
             try:
                 serial_conn = SerialConnection(**conn_setup)
-            except Exception, err:
+            except ConnectionException, err:
                 lg.logger_.info("[PROTOCOL] Error while loading SerialConnection. "
-                                "Err msg: {0}".format(err))
+                                "Err info: {0}".format(err))
                 raise
 
             protocol_config = protocol_config._replace(connection=serial_conn)
             ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
 
         if ArduinoInterfaceSingleton._instance is None:
-            raise Exception("ArduinoInterface was not configured.")
+            raise ValueError("ArduinoInterface was not configured.")
 
         return ArduinoInterfaceSingleton._instance
 
@@ -108,20 +118,20 @@ class ArduinoInterface:
 
     def set_pwm(self, pin, duty_cicle):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise Exception("Port %s is configured as input!" % port)
+            raise ProtocolSetupException("Port %s is configured as input!" % port)
 
         self._connection.send(_PROTOCOL_CMDS["ANALAOG_WRITE"] % (
             chr(pin), chr((duty_cicle & 0xFF00) >> 8), chr(duty_cicle & 0x00FF)))
 
     def set_precision(self, bits):
         if bits > 32 or bits < 1:
-            raise Exception("Precision bits must be between 1 and 32!")
+            raise ValueError("Precision bits must be between 1 and 32!")
         self._connection.send(_PROTOCOL_CMDS["ANALOG_PRECISION"] % chr(bits))
         self._anlg_precition = bits
 
     def __set_pin_mode(self, port, mode):
         if mode not in PIN_MODES._asdict().values():
-            raise Exception("Pind mode error. Unknown mode: %s. Modes availables: %s " %
+            raise ValueError("Pind mode error. Unknown mode: %s. Modes availables: %s " %
                             (mode, str(PIN_MODES_asdict().keys())))
 
         self._connection.send(
@@ -129,10 +139,10 @@ class ArduinoInterface:
 
     def set_report_mode(self, mode, read_count=1, read_delay=0):
         if mode not in REPORT_MODES._asdict().values():
-            raise Exception("Report mode error. Unknown value: %s" % mode)
+            raise ValueError("Report mode error. Unknown value: %s" % mode)
 
         if read_count <= 0:
-            raise Exception("Read count value must be > 0")
+            raise ValueError("Read count value must be > 0")
 
         self._report_mode = mode
         self._read_count = read_count - 1
@@ -143,7 +153,7 @@ class ArduinoInterface:
 
     def add_input(self, port):
         if port in self._anlg_outputs or port in self._digital_outputs:
-            raise Exception("Pin %s is configured as output!" % port)
+            raise ProtocolSetupException("Pin %s is configured as output!" % port)
 
         self.__validate_pin(port)
 
@@ -161,7 +171,7 @@ class ArduinoInterface:
 
     def add_output(self, port):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise Exception("Port %s is configured as input!" % port)
+            raise ProtocolSetupException("Port %s is configured as input!" % port)
 
         self.__validate_pin(port)
 
@@ -178,7 +188,7 @@ class ArduinoInterface:
 
     def __validate_pin(self, pin):
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
-            raise Exception("Invalid pin %s for board %s" %
+            raise ValueError("Invalid pin %s for board %s" %
                             (pin, self._board["NAME"]))
 
     def reset(self):
@@ -200,7 +210,7 @@ class ArduinoInterface:
         # Sets as payload every digital or analog port
         for i in data:
             if i[0] not in self._anlg_outputs and i[0] not in self._digital_outputs:
-                raise Exception("Port %s not configured as output!" % i[0])
+                raise ProtocolSetupException("Port %s not configured as output!" % i[0])
             if i[0] in self._anlg_outputs:
                 payload = "".join(
                     [payload, chr(i[0]), chr((i[1] & 0xFF00) >> 8), chr(i[1] & 0x00FF)])
@@ -212,20 +222,21 @@ class ArduinoInterface:
         self._connection.send(
             "".join([_PROTOCOL_CMDS["ACTUATE"], chr((size & 0xFF000000) >> 24), chr((size & 0x00FF0000) >> 16),
                      chr((size & 0x0000FF00) >> 8), chr(size & 0x000000FF), payload]))
-
+        #FIXME catch connection exceptions
         response = self._connection.recv(1)
 
         if response == _PROTOCOL_CMDS["ACK"]:
             response = self._connection.recv(4) # Clears buffer
-            raise Exception("Actuate error. Code: %s" % response)
+            raise ProtocolIOException("Actuate error. Code: %s" % response)
 
         if response != _PROTOCOL_CMDS["ACTUATE_REPORT"]:
             response = self._connection.recv(4)
-            raise Exception(
+            raise ProtocolIOException(
                 "Actuate error. Unknown response %s after actuate operation" % ord(response))
-
+        # FIXME catch connection exceptions
         raw_len = self._connection.recv(4)
         length = (ord(raw_len[0]) << 24) + (ord(raw_len[1]) << 16) + (ord(raw_len[2]) << 8) + ord(raw_len[3])
+        # FIXME catch connection exceptions
         data = self._connection.recv(length)
 
         pos = 0
@@ -261,8 +272,8 @@ class ArduinoInterface:
                             (sum(results["D%d" % (pin)]) * 2) > (self._read_count + 1)]
 
                 else:
-                    raise Exception(
-                        "Unknown port \"%d\" in response. Restart Arduino board, your software and pray" % pin)
+                    raise ProtocolIOException(
+                        "Unknown port \"%d\" in response. Please, restart the Arduino board and the experiment." % pin)
 
         return results
 
@@ -287,11 +298,9 @@ class ProtocolConfig(
 
 
 def BuildSerial(protocol_config):
-    interface = ArduinoInterface(
-        protocol_config.connection, protocol_config.board_type)
+    interface = ArduinoInterface(protocol_config.connection, protocol_config.board_type)
     interface.reset()
-    interface.set_report_mode(
-        protocol_config.report_mode, protocol_config.read_count, protocol_config.read_delay)
+    interface.set_report_mode(protocol_config.report_mode, protocol_config.read_count, protocol_config.read_delay)
 
     interface.set_precision(protocol_config.analog_resolution)
 
@@ -307,7 +316,6 @@ def BuildSerial(protocol_config):
     for port in protocol_config.analog_output_pins:
         interface.add_output(port)
 
-    # FIXME: Make this variable configurable
-    interface.set_precision(12)
+    interface.set_precision(protocol_config.analog_resolution)
 
     return interface

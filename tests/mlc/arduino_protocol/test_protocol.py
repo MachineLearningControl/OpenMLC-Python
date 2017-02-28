@@ -21,7 +21,7 @@
 
 import unittest
 from MLC.arduino.connection import MockConnection
-from MLC.arduino.protocol import ArduinoInterface
+from MLC.arduino.protocol import ArduinoInterface, ProtocolSetupException, ProtocolIOException
 from MLC.arduino.protocol import REPORT_MODES
 from MLC.arduino import boards
 
@@ -41,8 +41,8 @@ class TestArduinoInterface(unittest.TestCase):
         self._interface.set_precision(12)
         data = self._connection.pop_data()
         self.assertEqual("\x01\x00\x00\x00\x01\x0C", data)
-        with self.assertRaises(Exception):
-            self._interface.set_precition(33)
+        with self.assertRaises(ValueError):
+            self._interface.set_precision(33)
 
     def test_report_mode(self):
         self._interface.set_report_mode(REPORT_MODES.AVERAGE)
@@ -51,7 +51,7 @@ class TestArduinoInterface(unittest.TestCase):
         self._interface.set_report_mode(REPORT_MODES.AVERAGE, read_count=10, read_delay=5)
         data = self._connection.pop_data()
         self.assertEqual("\x05\x00\x00\x00\x03\x00\x09\x05", data)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self._interface.set_report_mode(12334)  # Invalid report mode
 
     def test_add_input(self):
@@ -63,7 +63,7 @@ class TestArduinoInterface(unittest.TestCase):
         self._interface.add_input(60)
         with self.assertRaises(Exception):  # Checks that no data has been sent
             data = self._connection.pop_data()
-        with self.assertRaises(Exception):  # Checks that no data has been sent
+        with self.assertRaises(ValueError):  # Checks that no data has been sent
             self._interface.add_output(128)
 
     def test_add_output(self):
@@ -75,18 +75,18 @@ class TestArduinoInterface(unittest.TestCase):
         self._interface.add_output(60)
         with self.assertRaises(Exception):  # Checks that no data has been sent
             data = self._connection.pop_data()
-        with self.assertRaises(Exception):  # Checks that no data has been sent
+        with self.assertRaises(ValueError):  # Checks that no data has been sent
             self._interface.add_output(128)
 
     def test_error_adding_output_that_is_input(self):
         self._interface.add_input(60)
-        with self.assertRaises(Exception):
-            self._interface.add_analog_output(60)
+        with self.assertRaises(ProtocolSetupException):
+            self._interface.add_output(60)
 
     def test_actuate_error_response(self):
         self._interface.add_output(60)
         self._connection.pop_data()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ProtocolIOException):
             self._interface.actuate([(60, 128)])
 
     def test_actuate_with_one_read(self):
