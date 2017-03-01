@@ -28,6 +28,7 @@ from MLC.GUI.Experiment.ArduinoConfigManager.BoardConfigurationWindow import Boa
 from MLC.arduino import boards
 from MLC.arduino.connection.serialconnection import SerialConnection, SerialConnectionConfig
 from MLC.arduino.protocol import ProtocolConfig, BuildSerial
+from MLC.arduino.connection.base import ConnectionException, ConnectionTimeoutException
 
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QTimer
@@ -150,10 +151,12 @@ class ArduinoBoardManager:
             arduino_if = BuildSerial(config)
             version = arduino_if.get_version()
             self.__connection_status.set_ok()
-        except serial.SerialTimeoutException:
+        except ConnectionTimeoutException:
             self.__connection_status.set_error("Error: connection timeout")
-        except serial.SerialException:
+        except ConnectionException:
             self.__connection_status.set_error("Error: Board unreachable")
+        except ValueError, err:
+            self.__connection_status.set_error("Error: {0}".format(err))
 
     def board_changed(self, new_idx, old_idx):
         ret = QMessageBox.Yes
@@ -180,7 +183,7 @@ class ArduinoBoardManager:
     def start_bench(self):
         try:
             self.__setup = self.__setup._replace(connection=self.start_connection(), **self.__main_window.checkout_board_setup())
-        except serial.SerialException:
+        except SerialConnectionException:
             self.show_error(
                 "Error", "Connection failure", "Could not start connection to board", QMessageBox.Critical, QMessageBox.Ok)
             return

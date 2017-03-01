@@ -25,7 +25,7 @@ import serial
 
 class SerialConnectionException(ConnectionException):
     def __init__(self, what):
-        ConnectionException.__init__("Error in connection initialization. {0}".format(what))
+        ConnectionException.__init__(self, "Error in connection initialization. {0}".format(what))
 
 class SerialConnection(BaseConnection):
 
@@ -58,7 +58,7 @@ class SerialConnection(BaseConnection):
 
         try:
             self._connection = serial.Serial(**args)
-        except SerialException, err:
+        except serial.SerialException, err:
             raise SerialConnectionException(str(err))
 
     def send(self, data):

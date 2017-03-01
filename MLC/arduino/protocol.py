@@ -22,6 +22,7 @@
 import collections
 import boards
 from collections import namedtuple
+from connection.base import ConnectionException
 import MLC.Log.log as lg
 
 _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x00\x00\x00\x01%s',
@@ -72,7 +73,7 @@ class ArduinoInterfaceSingleton():
             ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
 
         if ArduinoInterfaceSingleton._instance is None:
-            raise ValueError("ArduinoInterface was not configured.")
+            raise ProtocolSetupException("The arduino interface cannot be used if it isn't configured.")
 
         return ArduinoInterfaceSingleton._instance
 
@@ -118,7 +119,7 @@ class ArduinoInterface:
 
     def set_pwm(self, pin, duty_cicle):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise ProtocolSetupException("Port %s is configured as input!" % port)
+            raise ProtocolSetupException("Port %s is configured as input!" % self.__get_arduino_pin(port))
 
         self._connection.send(_PROTOCOL_CMDS["ANALAOG_WRITE"] % (
             chr(pin), chr((duty_cicle & 0xFF00) >> 8), chr(duty_cicle & 0x00FF)))
@@ -153,7 +154,7 @@ class ArduinoInterface:
 
     def add_input(self, port):
         if port in self._anlg_outputs or port in self._digital_outputs:
-            raise ProtocolSetupException("Pin %s is configured as output!" % port)
+            raise ProtocolSetupException("Pin %s is configured as output!" % self.__get_arduino_pin(port))
 
         self.__validate_pin(port)
 
@@ -171,7 +172,7 @@ class ArduinoInterface:
 
     def add_output(self, port):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise ProtocolSetupException("Port %s is configured as input!" % port)
+            raise ProtocolSetupException("Pin %s is configured as input!" % self.__get_arduino_pin(port))
 
         self.__validate_pin(port)
 
@@ -190,6 +191,16 @@ class ArduinoInterface:
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
             raise ValueError("Invalid pin %s for board %s" %
                             (pin, self._board["NAME"]))
+
+    def __get_arduino_pin_id(self, pin):
+        ret = pin
+        if pin in self._board["DIGITAL_PINS"]:
+            ret = "D{0}".format(pin)
+
+        if pin in self._board["ANALOG_PINS"]:
+            ret = "A{0}".format(pin - len(self._board["DIGITAL_PINS"]))
+
+        return ret
 
     def reset(self):
         self._connection.send(_PROTOCOL_CMDS["RESET"])
@@ -210,7 +221,8 @@ class ArduinoInterface:
         # Sets as payload every digital or analog port
         for i in data:
             if i[0] not in self._anlg_outputs and i[0] not in self._digital_outputs:
-                raise ProtocolSetupException("Port %s not configured as output!" % i[0])
+                pin = self.__get_arduino_pin_id(i[0])
+                raise ProtocolSetupException("Port %s not configured as output!" % pin)
             if i[0] in self._anlg_outputs:
                 payload = "".join(
                     [payload, chr(i[0]), chr((i[1] & 0xFF00) >> 8), chr(i[1] & 0x00FF)])
