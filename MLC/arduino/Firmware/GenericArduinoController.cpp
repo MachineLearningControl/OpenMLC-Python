@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "GenericArduinoController.h"
 
+#define DEBUG 0
+
 #ifndef DEBUG
 #define DEBUG 0
 #endif
@@ -81,7 +83,7 @@ void GenericArduinoController::handle_commands()
       {
         b_read += stream_.readBytes(&input[b_read], data_len + 5 - b_read);
 
-        LOG("Received command part: ", data_len + 5 - b_read);
+        LOG("Data remaining: ", data_len + 5 - b_read);
       }
 
       executor[input[0]](this, data_len, &input[0]); // Does the callback for the command
@@ -110,7 +112,8 @@ int GenericArduinoController::protocol_version(GenericArduinoController* this_, 
 {
   char response[] = { char(VERSION_RESPONSE), char(0), char(0), char(0), char(0x03)};
   this_->stream_.write(response, 5);
-  this_->stream_.write(VERSION, 3);
+  this_->stream_.write(VERSION, sizeof(VERSION));
+  LOG("Arduino Protocol Version ", VERSION);
   return 8;
 }
 
@@ -129,7 +132,7 @@ int GenericArduinoController::analog_write(GenericArduinoController* this_, uint
 */
 int GenericArduinoController::set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
-  int i = byte(data[6]);
+  int i = byte(data[5]);
   // Tal vez conviene separar estas funciones ya que hay boards con resoluciones distintas...
   // Igual, así funciona bien con el due (y con todos, ya que no hay problema en superar el máximo de la resolución)
   analogWriteResolution(i);
@@ -160,7 +163,7 @@ int GenericArduinoController::set_report_mode(GenericArduinoController* this_, u
   this_->REPORT_MODE = (ReportModes)(data[5]);
   this_->REPORT_READ_COUNT = byte(data[6]);
   this_->REPORT_READ_DELAY = byte(data[7]);
-  LOG("Report mode changed", "")
+  LOG("Report mode changed", "");
   LOG("Report mode: ", this_->REPORT_MODE);
   LOG("New Read count: ", this_->REPORT_READ_COUNT);
   LOG("New Read delay: ", this_->REPORT_READ_DELAY);
@@ -215,7 +218,7 @@ int GenericArduinoController::reset(GenericArduinoController* this_, uint32_t &b
 int GenericArduinoController::set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
 {
   // No se si vale la pena guardar registro de pines de salida...
-
+  LOG("Added as output the pin", data[5]);
   return 6; // Command of 3 bytes
 }
 
@@ -235,19 +238,19 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t 
   while (offset < buff_len)
   {
     //Se aplica la acción a cada puerto indicado
-    int port = byte(data[2 + offset]);
+    int port = byte(data[5 + offset]);
 
     //Detects an analog port
     if ( port >= A0 )
     {
-      int value = (data[3 + offset] << 8) + data[4 + offset];
+      int value = (data[6 + offset] << 8) + data[7 + offset];
       analogWrite(port, value);
       offset += 3;
 
       LOG("Analog pin written", port);
     } else
     {
-      int value = data[3 + offset] > 0 ? HIGH : LOW; // Creo que da igual si pongo el entero directamente
+      int value = data[6 + offset] > 0 ? HIGH : LOW; // Creo que da igual si pongo el entero directamente
       digitalWrite(port, value);
       offset += 2;
 

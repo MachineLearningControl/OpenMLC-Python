@@ -24,7 +24,7 @@ class ConnectionException(Exception):
 
 class ConnectionTimeoutException(ConnectionException):
     def __init__(self, what):
-        ConnectionException.__init__("Connection timeout: %s" % (what))
+        ConnectionException.__init__(self, "Connection timeout: %s" % (what))
 
 class BaseConnection:
     '''
