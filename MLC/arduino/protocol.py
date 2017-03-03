@@ -119,7 +119,7 @@ class ArduinoInterface:
 
     def set_pwm(self, pin, duty_cicle):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise ProtocolSetupException("Port %s is configured as input!" % self.__get_arduino_pin(port))
+            raise ProtocolSetupException("Port %s is configured as input!" % self.__get_arduino_pin_id(port))
 
         self._connection.send(_PROTOCOL_CMDS["ANALAOG_WRITE"] % (
             chr(pin), chr((duty_cicle & 0xFF00) >> 8), chr(duty_cicle & 0x00FF)))
@@ -154,7 +154,7 @@ class ArduinoInterface:
 
     def add_input(self, port):
         if port in self._anlg_outputs or port in self._digital_outputs:
-            raise ProtocolSetupException("Pin %s is configured as output!" % self.__get_arduino_pin(port))
+            raise ProtocolSetupException("Pin %s is configured as output!" % self.__get_arduino_pin_id(port))
 
         self.__validate_pin(port)
 
@@ -172,7 +172,7 @@ class ArduinoInterface:
 
     def add_output(self, port):
         if port in self._anlg_inputs or port in self._digital_inputs:
-            raise ProtocolSetupException("Pin %s is configured as input!" % self.__get_arduino_pin(port))
+            raise ProtocolSetupException("Pin %s is configured as input!" % self.__get_arduino_pin_id(port))
 
         self.__validate_pin(port)
 
