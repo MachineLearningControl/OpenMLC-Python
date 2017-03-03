@@ -1,180 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './mlc_qtcreator/mainwindow.ui'
-#
-# Created by: PyQt5 UI code generator 5.7.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-class Ui_MLCManager(object):
-    def setupUi(self, MLCManager):
-        MLCManager.setObjectName("MLCManager")
-        MLCManager.setWindowModality(QtCore.Qt.ApplicationModal)
-        MLCManager.resize(749, 585)
-        self.centralWidget = QtWidgets.QWidget(MLCManager)
-        self.centralWidget.setObjectName("centralWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralWidget)
-        self.horizontalLayout.setContentsMargins(11, 11, 11, 11)
-        self.horizontalLayout.setSpacing(6)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.projects_box = QtWidgets.QGroupBox(self.centralWidget)
-        self.projects_box.setObjectName("projects_box")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.projects_box)
-        self.verticalLayout.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout.setSpacing(6)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.frame = QtWidgets.QFrame(self.projects_box)
-        self.frame.setMinimumSize(QtCore.QSize(0, 0))
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout.setContentsMargins(2, 2, 2, 2)
-        self.gridLayout.setSpacing(6)
-        self.gridLayout.setObjectName("gridLayout")
-        self.open_button = QtWidgets.QToolButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.open_button.sizePolicy().hasHeightForWidth())
-        self.open_button.setSizePolicy(sizePolicy)
-        self.open_button.setObjectName("open_button")
-        self.gridLayout.addWidget(self.open_button, 2, 0, 1, 1)
-        self.new_button = QtWidgets.QToolButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.new_button.sizePolicy().hasHeightForWidth())
-        self.new_button.setSizePolicy(sizePolicy)
-        self.new_button.setObjectName("new_button")
-        self.gridLayout.addWidget(self.new_button, 0, 0, 1, 1)
-        self.import_button = QtWidgets.QPushButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.import_button.sizePolicy().hasHeightForWidth())
-        self.import_button.setSizePolicy(sizePolicy)
-        self.import_button.setObjectName("import_button")
-        self.gridLayout.addWidget(self.import_button, 4, 0, 1, 1)
-        self.line_2 = QtWidgets.QFrame(self.frame)
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_2.setObjectName("line_2")
-        self.gridLayout.addWidget(self.line_2, 3, 0, 1, 2)
-        self.clone_button = QtWidgets.QToolButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.clone_button.sizePolicy().hasHeightForWidth())
-        self.clone_button.setSizePolicy(sizePolicy)
-        self.clone_button.setObjectName("clone_button")
-        self.gridLayout.addWidget(self.clone_button, 2, 1, 1, 1)
-        self.remove_button = QtWidgets.QToolButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.remove_button.sizePolicy().hasHeightForWidth())
-        self.remove_button.setSizePolicy(sizePolicy)
-        self.remove_button.setObjectName("remove_button")
-        self.gridLayout.addWidget(self.remove_button, 0, 1, 1, 1)
-        self.line = QtWidgets.QFrame(self.frame)
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line.setObjectName("line")
-        self.gridLayout.addWidget(self.line, 1, 0, 1, 2)
-        self.export_button = QtWidgets.QPushButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.export_button.sizePolicy().hasHeightForWidth())
-        self.export_button.setSizePolicy(sizePolicy)
-        self.export_button.setObjectName("export_button")
-        self.gridLayout.addWidget(self.export_button, 4, 1, 1, 1)
-        self.verticalLayout.addWidget(self.frame)
-        self.experiment_list = QtWidgets.QListView(self.projects_box)
-        self.experiment_list.setObjectName("experiment_list")
-        self.verticalLayout.addWidget(self.experiment_list)
-        self.horizontalLayout.addWidget(self.projects_box)
-        self.description_box = QtWidgets.QGroupBox(self.centralWidget)
-        self.description_box.setObjectName("description_box")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.description_box)
-        self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
-        self.horizontalLayout_2.setSpacing(6)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.experiment_description = QtWidgets.QTextBrowser(self.description_box)
-        self.experiment_description.setObjectName("experiment_description")
-        self.horizontalLayout_2.addWidget(self.experiment_description)
-        self.horizontalLayout.addWidget(self.description_box)
-        MLCManager.setCentralWidget(self.centralWidget)
-        self.menuBar = QtWidgets.QMenuBar(MLCManager)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 749, 23))
-        self.menuBar.setObjectName("menuBar")
-        self.menuMLC = QtWidgets.QMenu(self.menuBar)
-        self.menuMLC.setObjectName("menuMLC")
-        self.menuProperties = QtWidgets.QMenu(self.menuBar)
-        self.menuProperties.setObjectName("menuProperties")
-        MLCManager.setMenuBar(self.menuBar)
-        self.statusBar = QtWidgets.QStatusBar(MLCManager)
-        self.statusBar.setObjectName("statusBar")
-        MLCManager.setStatusBar(self.statusBar)
-        self.toolBar = QtWidgets.QToolBar(MLCManager)
-        self.toolBar.setObjectName("toolBar")
-        MLCManager.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
-        self.menu_properties = QtWidgets.QAction(MLCManager)
-        self.menu_properties.setObjectName("menu_properties")
-        self.menu_close = QtWidgets.QAction(MLCManager)
-        self.menu_close.setObjectName("menu_close")
-        self.menu_about = QtWidgets.QAction(MLCManager)
-        self.menu_about.setObjectName("menu_about")
-        self.menuMLC.addAction(self.menu_properties)
-        self.menuMLC.addSeparator()
-        self.menuMLC.addAction(self.menu_close)
-        self.menuProperties.addAction(self.menu_about)
-        self.menuBar.addAction(self.menuMLC.menuAction())
-        self.menuBar.addAction(self.menuProperties.menuAction())
-
-        self.retranslateUi(MLCManager)
-        self.menu_close.triggered.connect(MLCManager.close)
-        self.clone_button.clicked.connect(MLCManager.on_clone_button_clicked)
-        self.new_button.clicked.connect(MLCManager.on_new_button_clicked)
-        self.remove_button.clicked.connect(MLCManager.on_remove_button_clicked)
-        self.open_button.clicked.connect(MLCManager.on_open_button_clicked)
-        self.experiment_list.clicked['QModelIndex'].connect(MLCManager.on_experiment_list_clicked)
-        self.menu_properties.triggered.connect(MLCManager.edit_gui_config)
-        self.experiment_list.activated['QModelIndex'].connect(MLCManager.on_experiment_list_clicked)
-        self.import_button.clicked.connect(MLCManager.on_import_button_clicked)
-        self.export_button.clicked.connect(MLCManager.on_export_button_clicked)
-        self.menu_about.triggered.connect(MLCManager.menu_about)
-        # QtCore.QMetaObject.connectSlotsByName(MLCManager)
-
-    def retranslateUi(self, MLCManager):
-        _translate = QtCore.QCoreApplication.translate
-        MLCManager.setWindowTitle(_translate("MLCManager", "MLC Project Manager"))
-        self.projects_box.setTitle(_translate("MLCManager", "Projects"))
-        self.open_button.setText(_translate("MLCManager", "Open"))
-        self.new_button.setText(_translate("MLCManager", "New"))
-        self.import_button.setText(_translate("MLCManager", "Import"))
-        self.clone_button.setText(_translate("MLCManager", "Clone"))
-        self.remove_button.setText(_translate("MLCManager", "Remove"))
-        self.export_button.setText(_translate("MLCManager", "Export"))
-        self.description_box.setTitle(_translate("MLCManager", "Description"))
-        self.menuMLC.setTitle(_translate("MLCManager", "MLC"))
-        self.menuProperties.setTitle(_translate("MLCManager", "Help"))
-        self.toolBar.setWindowTitle(_translate("MLCManager", "toolBar"))
-        self.menu_properties.setText(_translate("MLCManager", "Properties"))
-        self.menu_properties.setToolTip(_translate("MLCManager", "Manager Properties"))
-        self.menu_close.setText(_translate("MLCManager", "Close"))
-        self.menu_close.setToolTip(_translate("MLCManager", "Close MLC Manager"))
-        self.menu_about.setText(_translate("MLCManager", "About"))
-        self.menu_about.setToolTip(_translate("MLCManager", "Project Information"))
-
-# -*- coding: utf-8 -*-
-
 # Form implementation generated from reading ui file './mlc_qtcreator/board_config_design.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -682,8 +510,9 @@ class Ui_BoardConfigurationWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.read_count_spin.sizePolicy().hasHeightForWidth())
         self.read_count_spin.setSizePolicy(sizePolicy)
-        self.read_count_spin.setMinimum(2)
+        self.read_count_spin.setMinimum(1)
         self.read_count_spin.setMaximum(255)
+        self.read_count_spin.setProperty("value", 1)
         self.read_count_spin.setObjectName("read_count_spin")
         self.horizontalLayout_14.addWidget(self.read_count_spin)
         self.horizontalLayout_11.addWidget(self.count_frame)
@@ -846,9 +675,217 @@ class Ui_BoardConfigurationWindow(object):
 
 # -*- coding: utf-8 -*-
 
+# Form implementation generated from reading ui file './mlc_qtcreator/mainwindow.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_MLCManager(object):
+    def setupUi(self, MLCManager):
+        MLCManager.setObjectName("MLCManager")
+        MLCManager.setWindowModality(QtCore.Qt.ApplicationModal)
+        MLCManager.resize(749, 585)
+        self.centralWidget = QtWidgets.QWidget(MLCManager)
+        self.centralWidget.setObjectName("centralWidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralWidget)
+        self.horizontalLayout.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout.setSpacing(6)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.projects_box = QtWidgets.QGroupBox(self.centralWidget)
+        self.projects_box.setObjectName("projects_box")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.projects_box)
+        self.verticalLayout.setContentsMargins(11, 11, 11, 11)
+        self.verticalLayout.setSpacing(6)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.frame = QtWidgets.QFrame(self.projects_box)
+        self.frame.setMinimumSize(QtCore.QSize(0, 0))
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout.setContentsMargins(2, 2, 2, 2)
+        self.gridLayout.setSpacing(6)
+        self.gridLayout.setObjectName("gridLayout")
+        self.open_button = QtWidgets.QToolButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.open_button.sizePolicy().hasHeightForWidth())
+        self.open_button.setSizePolicy(sizePolicy)
+        self.open_button.setObjectName("open_button")
+        self.gridLayout.addWidget(self.open_button, 2, 0, 1, 1)
+        self.new_button = QtWidgets.QToolButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.new_button.sizePolicy().hasHeightForWidth())
+        self.new_button.setSizePolicy(sizePolicy)
+        self.new_button.setObjectName("new_button")
+        self.gridLayout.addWidget(self.new_button, 0, 0, 1, 1)
+        self.import_button = QtWidgets.QPushButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.import_button.sizePolicy().hasHeightForWidth())
+        self.import_button.setSizePolicy(sizePolicy)
+        self.import_button.setObjectName("import_button")
+        self.gridLayout.addWidget(self.import_button, 4, 0, 1, 1)
+        self.line_2 = QtWidgets.QFrame(self.frame)
+        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.gridLayout.addWidget(self.line_2, 3, 0, 1, 2)
+        self.clone_button = QtWidgets.QToolButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.clone_button.sizePolicy().hasHeightForWidth())
+        self.clone_button.setSizePolicy(sizePolicy)
+        self.clone_button.setObjectName("clone_button")
+        self.gridLayout.addWidget(self.clone_button, 2, 1, 1, 1)
+        self.remove_button = QtWidgets.QToolButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.remove_button.sizePolicy().hasHeightForWidth())
+        self.remove_button.setSizePolicy(sizePolicy)
+        self.remove_button.setObjectName("remove_button")
+        self.gridLayout.addWidget(self.remove_button, 0, 1, 1, 1)
+        self.line = QtWidgets.QFrame(self.frame)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.gridLayout.addWidget(self.line, 1, 0, 1, 2)
+        self.export_button = QtWidgets.QPushButton(self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.export_button.sizePolicy().hasHeightForWidth())
+        self.export_button.setSizePolicy(sizePolicy)
+        self.export_button.setObjectName("export_button")
+        self.gridLayout.addWidget(self.export_button, 4, 1, 1, 1)
+        self.verticalLayout.addWidget(self.frame)
+        self.experiment_list = QtWidgets.QListView(self.projects_box)
+        self.experiment_list.setObjectName("experiment_list")
+        self.verticalLayout.addWidget(self.experiment_list)
+        self.horizontalLayout.addWidget(self.projects_box)
+        self.description_box = QtWidgets.QGroupBox(self.centralWidget)
+        self.description_box.setObjectName("description_box")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.description_box)
+        self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_2.setSpacing(6)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.experiment_description = QtWidgets.QTextBrowser(self.description_box)
+        self.experiment_description.setObjectName("experiment_description")
+        self.horizontalLayout_2.addWidget(self.experiment_description)
+        self.horizontalLayout.addWidget(self.description_box)
+        MLCManager.setCentralWidget(self.centralWidget)
+        self.menuBar = QtWidgets.QMenuBar(MLCManager)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 749, 23))
+        self.menuBar.setObjectName("menuBar")
+        self.menuMLC = QtWidgets.QMenu(self.menuBar)
+        self.menuMLC.setObjectName("menuMLC")
+        self.menuProperties = QtWidgets.QMenu(self.menuBar)
+        self.menuProperties.setObjectName("menuProperties")
+        MLCManager.setMenuBar(self.menuBar)
+        self.statusBar = QtWidgets.QStatusBar(MLCManager)
+        self.statusBar.setObjectName("statusBar")
+        MLCManager.setStatusBar(self.statusBar)
+        self.toolBar = QtWidgets.QToolBar(MLCManager)
+        self.toolBar.setObjectName("toolBar")
+        MLCManager.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+        self.menu_properties = QtWidgets.QAction(MLCManager)
+        self.menu_properties.setObjectName("menu_properties")
+        self.menu_close = QtWidgets.QAction(MLCManager)
+        self.menu_close.setObjectName("menu_close")
+        self.menu_about = QtWidgets.QAction(MLCManager)
+        self.menu_about.setObjectName("menu_about")
+        self.menuMLC.addAction(self.menu_properties)
+        self.menuMLC.addSeparator()
+        self.menuMLC.addAction(self.menu_close)
+        self.menuProperties.addAction(self.menu_about)
+        self.menuBar.addAction(self.menuMLC.menuAction())
+        self.menuBar.addAction(self.menuProperties.menuAction())
+
+        self.retranslateUi(MLCManager)
+        self.menu_close.triggered.connect(MLCManager.close)
+        self.clone_button.clicked.connect(MLCManager.on_clone_button_clicked)
+        self.new_button.clicked.connect(MLCManager.on_new_button_clicked)
+        self.remove_button.clicked.connect(MLCManager.on_remove_button_clicked)
+        self.open_button.clicked.connect(MLCManager.on_open_button_clicked)
+        self.experiment_list.clicked['QModelIndex'].connect(MLCManager.on_experiment_list_clicked)
+        self.menu_properties.triggered.connect(MLCManager.edit_gui_config)
+        self.experiment_list.activated['QModelIndex'].connect(MLCManager.on_experiment_list_clicked)
+        self.import_button.clicked.connect(MLCManager.on_import_button_clicked)
+        self.export_button.clicked.connect(MLCManager.on_export_button_clicked)
+        self.menu_about.triggered.connect(MLCManager.menu_about)
+        # QtCore.QMetaObject.connectSlotsByName(MLCManager)
+
+    def retranslateUi(self, MLCManager):
+        _translate = QtCore.QCoreApplication.translate
+        MLCManager.setWindowTitle(_translate("MLCManager", "MLC Project Manager"))
+        self.projects_box.setTitle(_translate("MLCManager", "Projects"))
+        self.open_button.setText(_translate("MLCManager", "Open"))
+        self.new_button.setText(_translate("MLCManager", "New"))
+        self.import_button.setText(_translate("MLCManager", "Import"))
+        self.clone_button.setText(_translate("MLCManager", "Clone"))
+        self.remove_button.setText(_translate("MLCManager", "Remove"))
+        self.export_button.setText(_translate("MLCManager", "Export"))
+        self.description_box.setTitle(_translate("MLCManager", "Description"))
+        self.menuMLC.setTitle(_translate("MLCManager", "MLC"))
+        self.menuProperties.setTitle(_translate("MLCManager", "Help"))
+        self.toolBar.setWindowTitle(_translate("MLCManager", "toolBar"))
+        self.menu_properties.setText(_translate("MLCManager", "Properties"))
+        self.menu_properties.setToolTip(_translate("MLCManager", "Manager Properties"))
+        self.menu_close.setText(_translate("MLCManager", "Close"))
+        self.menu_close.setToolTip(_translate("MLCManager", "Close MLC Manager"))
+        self.menu_about.setText(_translate("MLCManager", "About"))
+        self.menu_about.setToolTip(_translate("MLCManager", "Project Information"))
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file './mlc_qtcreator/pinout_design.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_ArduinoBoardDialog(object):
+    def setupUi(self, ArduinoBoardDialog):
+        ArduinoBoardDialog.setObjectName("ArduinoBoardDialog")
+        ArduinoBoardDialog.resize(400, 300)
+        self.gridLayout = QtWidgets.QGridLayout(ArduinoBoardDialog)
+        self.gridLayout.setObjectName("gridLayout")
+        self.buttonBox = QtWidgets.QDialogButtonBox(ArduinoBoardDialog)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.gridLayout.addWidget(self.buttonBox, 1, 0, 1, 1)
+        self.boardImage = QtWidgets.QWidget(ArduinoBoardDialog)
+        self.boardImage.setStyleSheet("image: url(:/boards/images/uno.jpg);")
+        self.boardImage.setObjectName("boardImage")
+        self.gridLayout.addWidget(self.boardImage, 0, 0, 1, 1)
+
+        self.retranslateUi(ArduinoBoardDialog)
+        self.buttonBox.accepted.connect(ArduinoBoardDialog.accept)
+        self.buttonBox.rejected.connect(ArduinoBoardDialog.reject)
+        # QtCore.QMetaObject.connectSlotsByName(ArduinoBoardDialog)
+
+    def retranslateUi(self, ArduinoBoardDialog):
+        _translate = QtCore.QCoreApplication.translate
+        ArduinoBoardDialog.setWindowTitle(_translate("ArduinoBoardDialog", "Dialog"))
+
+# -*- coding: utf-8 -*-
+
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1366,217 +1403,48 @@ class Ui_ExperimentWindow(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './mlc_qtcreator/about.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/edit_properties.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-class Ui_MLCAboutDialog(object):
-    def setupUi(self, MLCAboutDialog):
-        MLCAboutDialog.setObjectName("MLCAboutDialog")
-        MLCAboutDialog.resize(403, 464)
-        MLCAboutDialog.setSizeGripEnabled(True)
-        self.gridLayout = QtWidgets.QGridLayout(MLCAboutDialog)
-        self.gridLayout.setObjectName("gridLayout")
-        self.mlcimage = QtWidgets.QWidget(MLCAboutDialog)
-        self.mlcimage.setStyleSheet("image: url(:/boards/images/uno.jpg);")
-        self.mlcimage.setObjectName("mlcimage")
-        self.gridLayout.addWidget(self.mlcimage, 0, 0, 1, 1)
-        self.buttonBox = QtWidgets.QDialogButtonBox(MLCAboutDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName("buttonBox")
-        self.gridLayout.addWidget(self.buttonBox, 2, 0, 1, 1)
-        self.labelabout = QtWidgets.QLabel(MLCAboutDialog)
-        self.labelabout.setText("")
-        self.labelabout.setTextFormat(QtCore.Qt.RichText)
-        self.labelabout.setWordWrap(True)
-        self.labelabout.setOpenExternalLinks(True)
-        self.labelabout.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
-        self.labelabout.setObjectName("labelabout")
-        self.gridLayout.addWidget(self.labelabout, 1, 0, 1, 1)
-
-        self.retranslateUi(MLCAboutDialog)
-        self.buttonBox.accepted.connect(MLCAboutDialog.accept)
-        self.buttonBox.rejected.connect(MLCAboutDialog.reject)
-        # QtCore.QMetaObject.connectSlotsByName(MLCAboutDialog)
-
-    def retranslateUi(self, MLCAboutDialog):
-        _translate = QtCore.QCoreApplication.translate
-        MLCAboutDialog.setWindowTitle(_translate("MLCAboutDialog", "MLC"))
-
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file './mlc_qtcreator/arduino_performance_test.ui'
-#
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_arduino_performance_test(object):
-    def setupUi(self, arduino_performance_test):
-        arduino_performance_test.setObjectName("arduino_performance_test")
-        arduino_performance_test.resize(775, 500)
-        arduino_performance_test.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.verticalLayout = QtWidgets.QVBoxLayout(arduino_performance_test)
+class Ui_PropertiesDialog(object):
+    def setupUi(self, PropertiesDialog):
+        PropertiesDialog.setObjectName("PropertiesDialog")
+        PropertiesDialog.setWindowModality(QtCore.Qt.ApplicationModal)
+        PropertiesDialog.resize(400, 300)
+        self.verticalLayout = QtWidgets.QVBoxLayout(PropertiesDialog)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.graph_base = QtWidgets.QFrame(arduino_performance_test)
-        self.graph_base.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.graph_base.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.graph_base.setObjectName("graph_base")
-        self.verticalLayout.addWidget(self.graph_base)
-        self.groupBox = QtWidgets.QGroupBox(arduino_performance_test)
-        self.groupBox.setMaximumSize(QtCore.QSize(16777215, 150))
-        self.groupBox.setAutoFillBackground(False)
-        self.groupBox.setObjectName("groupBox")
-        self.formLayout = QtWidgets.QFormLayout(self.groupBox)
-        self.formLayout.setObjectName("formLayout")
-        self.avg_op = QtWidgets.QLabel(self.groupBox)
-        self.avg_op.setObjectName("avg_op")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.avg_op)
-        self.std_dev = QtWidgets.QLabel(self.groupBox)
-        self.std_dev.setObjectName("std_dev")
-        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.std_dev)
-        self.min_op = QtWidgets.QLabel(self.groupBox)
-        self.min_op.setObjectName("min_op")
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.min_op)
-        self.max_op = QtWidgets.QLabel(self.groupBox)
-        self.max_op.setObjectName("max_op")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.max_op)
-        self.std_dev_value = QtWidgets.QLabel(self.groupBox)
-        self.std_dev_value.setObjectName("std_dev_value")
-        self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.std_dev_value)
-        self.min_op_value = QtWidgets.QLabel(self.groupBox)
-        self.min_op_value.setObjectName("min_op_value")
-        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.min_op_value)
-        self.max_op_value = QtWidgets.QLabel(self.groupBox)
-        self.max_op_value.setObjectName("max_op_value")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.max_op_value)
-        self.avg_op_value = QtWidgets.QLabel(self.groupBox)
-        self.avg_op_value.setObjectName("avg_op_value")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.avg_op_value)
-        self.verticalLayout.addWidget(self.groupBox)
-        self.frame = QtWidgets.QFrame(arduino_performance_test)
-        self.frame.setMaximumSize(QtCore.QSize(16777215, 45))
-        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.resetButton = QtWidgets.QPushButton(self.frame)
-        self.resetButton.setObjectName("resetButton")
-        self.horizontalLayout.addWidget(self.resetButton)
-        self.closeButton = QtWidgets.QPushButton(self.frame)
-        self.closeButton.setObjectName("closeButton")
-        self.horizontalLayout.addWidget(self.closeButton)
-        self.verticalLayout.addWidget(self.frame, 0, QtCore.Qt.AlignHCenter)
-
-        self.retranslateUi(arduino_performance_test)
-        self.resetButton.clicked.connect(arduino_performance_test.on_bench_reset)
-        self.closeButton.clicked.connect(arduino_performance_test.on_close)
-        # QtCore.QMetaObject.connectSlotsByName(arduino_performance_test)
-
-    def retranslateUi(self, arduino_performance_test):
-        _translate = QtCore.QCoreApplication.translate
-        arduino_performance_test.setWindowTitle(_translate("arduino_performance_test", "Dialog"))
-        self.groupBox.setTitle(_translate("arduino_performance_test", "Stats"))
-        self.avg_op.setText(_translate("arduino_performance_test", "Avg. operations:"))
-        self.std_dev.setText(_translate("arduino_performance_test", "Standard deviation:"))
-        self.min_op.setText(_translate("arduino_performance_test", "Min. operations:"))
-        self.max_op.setText(_translate("arduino_performance_test", "Max operations:"))
-        self.std_dev_value.setText(_translate("arduino_performance_test", "0"))
-        self.min_op_value.setText(_translate("arduino_performance_test", "0"))
-        self.max_op_value.setText(_translate("arduino_performance_test", "0"))
-        self.avg_op_value.setText(_translate("arduino_performance_test", "0"))
-        self.resetButton.setText(_translate("arduino_performance_test", "Reset"))
-        self.closeButton.setText(_translate("arduino_performance_test", "Close"))
-
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file './mlc_qtcreator/pinout_design.ui'
-#
-# Created by: PyQt5 UI code generator 5.7.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-class Ui_ArduinoBoardDialog(object):
-    def setupUi(self, ArduinoBoardDialog):
-        ArduinoBoardDialog.setObjectName("ArduinoBoardDialog")
-        ArduinoBoardDialog.resize(400, 300)
-        self.gridLayout = QtWidgets.QGridLayout(ArduinoBoardDialog)
-        self.gridLayout.setObjectName("gridLayout")
-        self.buttonBox = QtWidgets.QDialogButtonBox(ArduinoBoardDialog)
+        self.tableView = QtWidgets.QTableView(PropertiesDialog)
+        self.tableView.setFrameShape(QtWidgets.QFrame.HLine)
+        self.tableView.setSortingEnabled(True)
+        self.tableView.setObjectName("tableView")
+        self.tableView.horizontalHeader().setSortIndicatorShown(True)
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.verticalLayout.addWidget(self.tableView)
+        self.buttonBox = QtWidgets.QDialogButtonBox(PropertiesDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.gridLayout.addWidget(self.buttonBox, 1, 0, 1, 1)
-        self.boardImage = QtWidgets.QWidget(ArduinoBoardDialog)
-        self.boardImage.setStyleSheet("image: url(:/boards/images/uno.jpg);")
-        self.boardImage.setObjectName("boardImage")
-        self.gridLayout.addWidget(self.boardImage, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.buttonBox)
 
-        self.retranslateUi(ArduinoBoardDialog)
-        self.buttonBox.accepted.connect(ArduinoBoardDialog.accept)
-        self.buttonBox.rejected.connect(ArduinoBoardDialog.reject)
-        # QtCore.QMetaObject.connectSlotsByName(ArduinoBoardDialog)
+        self.retranslateUi(PropertiesDialog)
+        self.buttonBox.accepted.connect(PropertiesDialog.accept)
+        self.buttonBox.rejected.connect(PropertiesDialog.reject)
+        # QtCore.QMetaObject.connectSlotsByName(PropertiesDialog)
 
-    def retranslateUi(self, ArduinoBoardDialog):
+    def retranslateUi(self, PropertiesDialog):
         _translate = QtCore.QCoreApplication.translate
-        ArduinoBoardDialog.setWindowTitle(_translate("ArduinoBoardDialog", "Dialog"))
-
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file './mlc_qtcreator/genealogy.ui'
-#
-# Created by: PyQt5 UI code generator 5.7.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
-
-class Ui_GenealogyWindow(object):
-    def setupUi(self, GenealogyWindow):
-        GenealogyWindow.setObjectName("GenealogyWindow")
-        GenealogyWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        GenealogyWindow.resize(400, 300)
-        self.centralWidget = QtWidgets.QWidget(GenealogyWindow)
-        self.centralWidget.setObjectName("centralWidget")
-        self.chart_layout = QtWidgets.QVBoxLayout(self.centralWidget)
-        self.chart_layout.setObjectName("chart_layout")
-        self.textEdit = QtWidgets.QTextEdit(self.centralWidget)
-        self.textEdit.setObjectName("textEdit")
-        self.chart_layout.addWidget(self.textEdit)
-        GenealogyWindow.setCentralWidget(self.centralWidget)
-        self.menuBar = QtWidgets.QMenuBar(GenealogyWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 400, 19))
-        self.menuBar.setObjectName("menuBar")
-        GenealogyWindow.setMenuBar(self.menuBar)
-        self.toolBar = QtWidgets.QToolBar(GenealogyWindow)
-        self.toolBar.setObjectName("toolBar")
-        GenealogyWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
-
-        self.retranslateUi(GenealogyWindow)
-        # QtCore.QMetaObject.connectSlotsByName(GenealogyWindow)
-
-    def retranslateUi(self, GenealogyWindow):
-        _translate = QtCore.QCoreApplication.translate
-        GenealogyWindow.setWindowTitle(_translate("GenealogyWindow", "Genealogy Chart"))
-        self.toolBar.setWindowTitle(_translate("GenealogyWindow", "toolBar"))
+        PropertiesDialog.setWindowTitle(_translate("PropertiesDialog", "MLC Manager Properties"))
 
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file './mlc_qtcreator/arduinoconnectiontest.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1620,48 +1488,54 @@ class Ui_ArduinoConnectionDialog(object):
 
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './mlc_qtcreator/edit_properties.ui'
+# Form implementation generated from reading ui file './mlc_qtcreator/about.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_PropertiesDialog(object):
-    def setupUi(self, PropertiesDialog):
-        PropertiesDialog.setObjectName("PropertiesDialog")
-        PropertiesDialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        PropertiesDialog.resize(400, 300)
-        self.verticalLayout = QtWidgets.QVBoxLayout(PropertiesDialog)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.tableView = QtWidgets.QTableView(PropertiesDialog)
-        self.tableView.setFrameShape(QtWidgets.QFrame.HLine)
-        self.tableView.setSortingEnabled(True)
-        self.tableView.setObjectName("tableView")
-        self.tableView.horizontalHeader().setSortIndicatorShown(True)
-        self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.verticalLayout.addWidget(self.tableView)
-        self.buttonBox = QtWidgets.QDialogButtonBox(PropertiesDialog)
+class Ui_MLCAboutDialog(object):
+    def setupUi(self, MLCAboutDialog):
+        MLCAboutDialog.setObjectName("MLCAboutDialog")
+        MLCAboutDialog.resize(403, 464)
+        MLCAboutDialog.setSizeGripEnabled(False)
+        self.gridLayout = QtWidgets.QGridLayout(MLCAboutDialog)
+        self.gridLayout.setObjectName("gridLayout")
+        self.mlcimage = QtWidgets.QWidget(MLCAboutDialog)
+        self.mlcimage.setStyleSheet("image: url(:/boards/images/uno.jpg);")
+        self.mlcimage.setObjectName("mlcimage")
+        self.gridLayout.addWidget(self.mlcimage, 0, 0, 1, 1)
+        self.buttonBox = QtWidgets.QDialogButtonBox(MLCAboutDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName("buttonBox")
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.gridLayout.addWidget(self.buttonBox, 2, 0, 1, 1)
+        self.labelabout = QtWidgets.QLabel(MLCAboutDialog)
+        self.labelabout.setText("")
+        self.labelabout.setTextFormat(QtCore.Qt.RichText)
+        self.labelabout.setWordWrap(True)
+        self.labelabout.setOpenExternalLinks(True)
+        self.labelabout.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.labelabout.setObjectName("labelabout")
+        self.gridLayout.addWidget(self.labelabout, 1, 0, 1, 1)
 
-        self.retranslateUi(PropertiesDialog)
-        self.buttonBox.accepted.connect(PropertiesDialog.accept)
-        self.buttonBox.rejected.connect(PropertiesDialog.reject)
-        # QtCore.QMetaObject.connectSlotsByName(PropertiesDialog)
+        self.retranslateUi(MLCAboutDialog)
+        self.buttonBox.accepted.connect(MLCAboutDialog.accept)
+        self.buttonBox.rejected.connect(MLCAboutDialog.reject)
+        # QtCore.QMetaObject.connectSlotsByName(MLCAboutDialog)
 
-    def retranslateUi(self, PropertiesDialog):
+    def retranslateUi(self, MLCAboutDialog):
         _translate = QtCore.QCoreApplication.translate
-        PropertiesDialog.setWindowTitle(_translate("PropertiesDialog", "MLC Manager Properties"))
+        MLCAboutDialog.setWindowTitle(_translate("MLCAboutDialog", "MLC"))
 
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment_in_progress.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -1757,4 +1631,131 @@ class Ui_ExperimentInProgressWindow(object):
         self.indiv_label.setText(_translate("ExperimentInProgressWindow", "TextLabel"))
         self.picture_groupBox.setTitle(_translate("ExperimentInProgressWindow", "Individuals\' Costs"))
         self.cancel_button.setText(_translate("ExperimentInProgressWindow", "Cancel Experiment"))
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file './mlc_qtcreator/arduino_performance_test.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_arduino_performance_test(object):
+    def setupUi(self, arduino_performance_test):
+        arduino_performance_test.setObjectName("arduino_performance_test")
+        arduino_performance_test.resize(775, 500)
+        arduino_performance_test.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.verticalLayout = QtWidgets.QVBoxLayout(arduino_performance_test)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.graph_base = QtWidgets.QFrame(arduino_performance_test)
+        self.graph_base.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.graph_base.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.graph_base.setObjectName("graph_base")
+        self.verticalLayout.addWidget(self.graph_base)
+        self.groupBox = QtWidgets.QGroupBox(arduino_performance_test)
+        self.groupBox.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.groupBox.setAutoFillBackground(False)
+        self.groupBox.setObjectName("groupBox")
+        self.formLayout = QtWidgets.QFormLayout(self.groupBox)
+        self.formLayout.setObjectName("formLayout")
+        self.avg_op = QtWidgets.QLabel(self.groupBox)
+        self.avg_op.setObjectName("avg_op")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.avg_op)
+        self.std_dev = QtWidgets.QLabel(self.groupBox)
+        self.std_dev.setObjectName("std_dev")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.std_dev)
+        self.min_op = QtWidgets.QLabel(self.groupBox)
+        self.min_op.setObjectName("min_op")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.min_op)
+        self.max_op = QtWidgets.QLabel(self.groupBox)
+        self.max_op.setObjectName("max_op")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.max_op)
+        self.std_dev_value = QtWidgets.QLabel(self.groupBox)
+        self.std_dev_value.setObjectName("std_dev_value")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.std_dev_value)
+        self.min_op_value = QtWidgets.QLabel(self.groupBox)
+        self.min_op_value.setObjectName("min_op_value")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.min_op_value)
+        self.max_op_value = QtWidgets.QLabel(self.groupBox)
+        self.max_op_value.setObjectName("max_op_value")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.max_op_value)
+        self.avg_op_value = QtWidgets.QLabel(self.groupBox)
+        self.avg_op_value.setObjectName("avg_op_value")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.avg_op_value)
+        self.verticalLayout.addWidget(self.groupBox)
+        self.frame = QtWidgets.QFrame(arduino_performance_test)
+        self.frame.setMaximumSize(QtCore.QSize(16777215, 45))
+        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.resetButton = QtWidgets.QPushButton(self.frame)
+        self.resetButton.setObjectName("resetButton")
+        self.horizontalLayout.addWidget(self.resetButton)
+        self.closeButton = QtWidgets.QPushButton(self.frame)
+        self.closeButton.setObjectName("closeButton")
+        self.horizontalLayout.addWidget(self.closeButton)
+        self.verticalLayout.addWidget(self.frame, 0, QtCore.Qt.AlignHCenter)
+
+        self.retranslateUi(arduino_performance_test)
+        self.resetButton.clicked.connect(arduino_performance_test.on_bench_reset)
+        self.closeButton.clicked.connect(arduino_performance_test.on_close)
+        # QtCore.QMetaObject.connectSlotsByName(arduino_performance_test)
+
+    def retranslateUi(self, arduino_performance_test):
+        _translate = QtCore.QCoreApplication.translate
+        arduino_performance_test.setWindowTitle(_translate("arduino_performance_test", "Dialog"))
+        self.groupBox.setTitle(_translate("arduino_performance_test", "Stats"))
+        self.avg_op.setText(_translate("arduino_performance_test", "Avg. operations:"))
+        self.std_dev.setText(_translate("arduino_performance_test", "Standard deviation:"))
+        self.min_op.setText(_translate("arduino_performance_test", "Min. operations:"))
+        self.max_op.setText(_translate("arduino_performance_test", "Max operations:"))
+        self.std_dev_value.setText(_translate("arduino_performance_test", "0"))
+        self.min_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.max_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.avg_op_value.setText(_translate("arduino_performance_test", "0"))
+        self.resetButton.setText(_translate("arduino_performance_test", "Reset"))
+        self.closeButton.setText(_translate("arduino_performance_test", "Close"))
+
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file './mlc_qtcreator/genealogy.ui'
+#
+# Created by: PyQt5 UI code generator 5.7
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_GenealogyWindow(object):
+    def setupUi(self, GenealogyWindow):
+        GenealogyWindow.setObjectName("GenealogyWindow")
+        GenealogyWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+        GenealogyWindow.resize(400, 300)
+        self.centralWidget = QtWidgets.QWidget(GenealogyWindow)
+        self.centralWidget.setObjectName("centralWidget")
+        self.chart_layout = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.chart_layout.setObjectName("chart_layout")
+        self.textEdit = QtWidgets.QTextEdit(self.centralWidget)
+        self.textEdit.setObjectName("textEdit")
+        self.chart_layout.addWidget(self.textEdit)
+        GenealogyWindow.setCentralWidget(self.centralWidget)
+        self.menuBar = QtWidgets.QMenuBar(GenealogyWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 400, 19))
+        self.menuBar.setObjectName("menuBar")
+        GenealogyWindow.setMenuBar(self.menuBar)
+        self.toolBar = QtWidgets.QToolBar(GenealogyWindow)
+        self.toolBar.setObjectName("toolBar")
+        GenealogyWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+
+        self.retranslateUi(GenealogyWindow)
+        # QtCore.QMetaObject.connectSlotsByName(GenealogyWindow)
+
+    def retranslateUi(self, GenealogyWindow):
+        _translate = QtCore.QCoreApplication.translate
+        GenealogyWindow.setWindowTitle(_translate("GenealogyWindow", "Genealogy Chart"))
+        self.toolBar.setWindowTitle(_translate("GenealogyWindow", "toolBar"))
 

@@ -17,8 +17,6 @@ void loop() {
   controller.handle_commands();
 
   /**
-   * 
-   * 
    * HERE the user can insert any command
    */
 
