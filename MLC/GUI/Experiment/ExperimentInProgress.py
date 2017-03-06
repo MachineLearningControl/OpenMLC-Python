@@ -147,6 +147,13 @@ class ExperimentInProgressWindow(QMainWindow):
 
         # Condition variable used to check when the experiment has been stopped or cancelled
         self._experiment_condition = ExperimentCondition()
+        self._simulation_has_finished = False
+
+    def closeEvent(self, event):
+        logger.debug('[EXPERIMENT_IN_PROGRESS] [CLOSE_DIALOG] - Executing overriden closeEvent function')
+        if not self._simulation_has_finished:
+            if not self.on_cancel_button_clicked():
+                event.ignore()
 
     def add_experiment_data(self, amount_gens, indivs_per_gen):
         self._amount_gens = amount_gens
@@ -167,9 +174,14 @@ class ExperimentInProgressWindow(QMainWindow):
                                            QMessageBox.No)
 
         if response == QMessageBox.Yes:
+
             self._experiment_condition.cancel_experiment()
+            # Set the MainWindow to invisible to not see the it after press 'Yes'
+            self.setVisible(False)
+            return True
         else:
             self._experiment_condition.continue_experiment()
+            return False
 
     def _update_dialog(self, indivs_per_gen_counter, total_indivs_counter, gen_counter, cost):
         logger.debug('{0} [UPDATE_EXP_IN_PROGRESS] - Executing update_dialog function'.format(self._log_prefix))
@@ -192,6 +204,8 @@ class ExperimentInProgressWindow(QMainWindow):
         logger.debug('{0} [SIM_FINISHED] - Executing _simulation_finished function'.format(self._log_prefix))
         self._parent_signal.emit(self._experiment_condition.experiment_cancelled(),
                                  self._experiment_condition.experiment_failure())
+        self._simulation_has_finished = True
+        self.close()
 
     def _update_current_gen_experiment(self, indiv_index, cost):
         if cost > self._chart_params["max_cost"]:
@@ -249,18 +263,19 @@ class ExperimentInProgressWindow(QMainWindow):
     def _board_setup_failure(self, error):
         logger.debug('{0} [SIM_FINISHED] - Board setup failure: {1}'.format(self._log_prefix, error))
         selection = QMessageBox.critical(self, "Board Setup error",
-                                            error,
-                                            QMessageBox.Ok)
+                                         error,
+                                         QMessageBox.Ok)
         self._experiment_condition.cancel_experiment()
         self._simulation_finished()
 
     def _board_io_error(self, error):
         logger.debug('{0} [SIM_FINISHED] - Board IO error: {1}'.format(self._log_prefix, error))
         selection = QMessageBox.critical(self, "Board IO error",
-                                            error,
-                                            QMessageBox.Ok)
+                                         error,
+                                         QMessageBox.Ok)
         self._experiment_condition.cancel_experiment()
         self._simulation_finished()
+
 
 class ExperimentInProgress(Thread):
 
@@ -362,8 +377,6 @@ class ExperimentInProgress(Thread):
     def simulation_finished(self):
         logger.debug('{0} [SIM_FINISHED] - Executing simulation_finished function'.format(self._log_prefix))
         self._dialog.simulation_finished.emit()
-
-    def close_window(self):
         self._dialog.close()
 
     def _check_if_project_stopped_or_cancelled(self):
