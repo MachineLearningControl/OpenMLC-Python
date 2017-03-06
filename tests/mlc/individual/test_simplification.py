@@ -48,6 +48,9 @@ class SimplificationTest(unittest.TestCase):
                               "test_simplify_log_node_number": "(root 0.5379)",
                               "test_simplify_log_node_sensor": "(root (log S0))",
                               "test_simplify_log_node_zero": "(root -4.6052)",
+                              "test_simplify_minus_node_equal_numbers": "(root 0.0000)",
+                              "test_simplify_minus_node_equal_sensors": "(root 0.0000)",
+                              "test_simplify_minus_node_number_and_sensor": "(root (- 3.4092 S0))",
                               "test_simplify_minus_node_both_numbers": "(root -0.8031)",
                               "test_simplify_minus_node_number_and_sensor": "(root (- 3.4092 S0))",
                               "test_simplify_minus_node_sensor_and_left_identity": "(root 0.0000)",
@@ -104,6 +107,14 @@ class SimplificationTest(unittest.TestCase):
         self._assert_expressions(expression, sys._getframe().f_code.co_name)
 
     ########################### MINUS NODE ####################################
+    def test_simplify_minus_node_equal_numbers(self):
+        expression = '(root (- 3.4092 3.4092))'
+        self._assert_expressions(expression, sys._getframe().f_code.co_name)
+
+    def test_simplify_minus_node_equal_sensors(self):
+        expression = '(root (- S0 S0))'
+        self._assert_expressions(expression, sys._getframe().f_code.co_name)
+
     def test_simplify_minus_node_number_and_sensor(self):
         expression = '(root (- 3.4092 S0))'
         self._assert_expressions(expression, sys._getframe().f_code.co_name)

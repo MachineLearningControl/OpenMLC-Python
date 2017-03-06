@@ -93,6 +93,10 @@ class MinusNode(InternalNode):
         return "(" + self._nodes[0].formal() + " - " + self._nodes[1].formal() + ")"
 
     def op_simplify(self):
+        # if both arguments are equals, return 0
+        if self._nodes[0].to_string() == self._nodes[1].to_string():
+            return LeafNode(process_float(0))
+
         # If the second argument is zero, avoid the operation.
         if self._node_arg_x_is_y(1, 0):
             return LeafNode(self._nodes[0].to_string())
