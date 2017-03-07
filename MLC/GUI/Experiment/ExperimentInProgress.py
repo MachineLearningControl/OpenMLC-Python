@@ -151,6 +151,7 @@ class ExperimentInProgressWindow(QMainWindow):
 
     def closeEvent(self, event):
         logger.debug('[EXPERIMENT_IN_PROGRESS] [CLOSE_DIALOG] - Executing overriden closeEvent function')
+        logger.debug('TUVIEJAAA: {0}'.format(self._simulation_has_finished))
         if not self._simulation_has_finished:
             if not self.on_cancel_button_clicked():
                 event.ignore()
@@ -202,9 +203,12 @@ class ExperimentInProgressWindow(QMainWindow):
 
     def _simulation_finished(self):
         logger.debug('{0} [SIM_FINISHED] - Executing _simulation_finished function'.format(self._log_prefix))
+        self._simulation_has_finished = True
+        # Set the MainWindow to invisible to not see the it after press 'Yes'
+        self.setVisible(False)
+        
         self._parent_signal.emit(self._experiment_condition.experiment_cancelled(),
                                  self._experiment_condition.experiment_failure())
-        self._simulation_has_finished = True
         self.close()
 
     def _update_current_gen_experiment(self, indiv_index, cost):
@@ -377,7 +381,6 @@ class ExperimentInProgress(Thread):
     def simulation_finished(self):
         logger.debug('{0} [SIM_FINISHED] - Executing simulation_finished function'.format(self._log_prefix))
         self._dialog.simulation_finished.emit()
-        self._dialog.close()
 
     def _check_if_project_stopped_or_cancelled(self):
         self._experiment_condition.wait_if_experiment_stopped()

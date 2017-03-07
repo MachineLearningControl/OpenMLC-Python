@@ -24,6 +24,7 @@
 import numpy as np
 import MLC.Log.log as lg
 import matplotlib.pyplot as plt
+import random
 import sys
 import time
 
@@ -32,26 +33,13 @@ from PyQt5.QtCore import Qt
 
 
 def individual_data(indiv):
-    x = np.linspace(-10.0, 10.0, num=201)
+    SAMPLES = 201
+    x = np.linspace(-10.0, 10.0, num=SAMPLES)
     y = np.tanh(x**3 - x**2 - 1)
 
-    # FIXME: Added timeout to visualize
-    # time.sleep(0.5)
-
     config = Config.get_instance()
-    # artificial_noise = self._config.getint('EVALUATOR', 'artificialnoise')
-
-    # In this test we have no noise by config file. But, if this were the
-    # case, we would a have problem because the random of MATLAB is not
-    # the random of Python :(
-    # WORKAROUND: Generate the noise in matlab and process it in python
-
-    # MAKE SOME NOISE!!!
-    # noise = eng.eval('rand(length(zeros(1, ' + str(len(x)) + ')))-0.5')
-    # np_noise = np.array([s for s in noise[0]])
-    # y2 = y + np_noise * 500 * artificial_noise
-
-    y2 = y
+    artificial_noise = config.getint('EVALUATOR', 'artificialnoise')
+    y_with_noise = y + [random.random() - 0.5 for _ in xrange(SAMPLES)] + artificial_noise * 500
 
     if isinstance(indiv.get_formal(), str):
         formal = indiv.get_formal().replace('S0', 'x')
@@ -61,35 +49,33 @@ def individual_data(indiv):
 
     # Calculate J like the sum of the square difference of the
     # functions in every point
-
     lg.logger_.debug('[POP][TOY_PROBLEM] Individual Formal: ' + formal)
-    mlc_y3 = indiv.get_tree().calculate_expression([x])
+    b = indiv.get_tree().calculate_expression([x])
 
     # If the expression doesn't have the term 'x',
     # the eval returns a value (float) instead of an array.
     # In that case transform it to an array
-    if type(mlc_y3) == float:
-        mlc_y3 = np.repeat(mlc_y3, len(x))
+    if type(b) == float:
+        b = np.repeat(b, SAMPLES)
 
-    return x, y, y2, mlc_y3
+    return x, y, y_with_noise, b
 
 
 def cost(indiv):
-    x, y, y2, mlc_y3 = individual_data(indiv)
+    x, y, y_with_noise, b = individual_data(indiv)
 
-    # Deactivate the numpy warnings, because this sum raise an overflow
+    # Deactivate the numpy warnings, because this sum could raise an overflow
     # Runtime warning from time to time
     np.seterr(all='ignore')
-    cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
+    cost_value = float(np.sum((b - y_with_noise)**2))
     np.seterr(all='warn')
 
-    return cost_mlc_y3
+    return cost_value
 
 
 def show_best(index, generation, indiv, cost, block=True):
-    x, y, y2, mlc_y3 = individual_data(indiv)
-    # FIXME: Absolute only makes sense if we're working with complex numbers. It's not the case...
-    y4 = np.sqrt((y - mlc_y3)**2 / (1 + np.absolute(x**2)))
+    x, y, y_with_noise, b = individual_data(indiv)
+    cuadratic_error = np.sqrt((y_with_noise - b)**2 / (1 + np.absolute(x**2)))
 
     fig = plt.figure()
     # Put figure window on top of all other windows
@@ -101,9 +87,9 @@ def show_best(index, generation, indiv, cost, block=True):
                                                   cost,
                                                   indiv.get_formal()))
     plt.subplot(2, 1, 1)
-    plt.plot(x, y, x, y2, '*', x, mlc_y3)
+    plt.plot(x, y, x, y_with_noise, '*', x, b)
 
     plt.subplot(2, 1, 2)
-    plt.plot(x, y4, '*r')
+    plt.plot(x, cuadratic_error, '*r')
     plt.yscale('log')
     plt.show(block=block)
