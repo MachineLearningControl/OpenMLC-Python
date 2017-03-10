@@ -44,7 +44,6 @@ class ArduinoBoardManager:
         self.__connection_config = serial_config
         self.__main_window = BoardConfigurationWindow(self, boards.types, self.__setup, parent=parent_win)
         self.__connectino_status = None
-        self.__sch = QTimer()
         self.PARITY_BITS = [serial.PARITY_NONE, serial.PARITY_EVEN,
                             serial.PARITY_EVEN, serial.PARITY_MARK, serial.PARITY_SPACE]
         self.STOP_BITS = [serial.STOPBITS_ONE, serial.STOPBITS_ONE_POINT_FIVE, serial.STOPBITS_TWO]
@@ -72,7 +71,6 @@ class ArduinoBoardManager:
 
     def start(self):
         self.__main_window.show()
-        self.__sch.start()
 
     def insert_digital_pin(self, pin_index, pin, type_idx):
         if pin_index < 0:
@@ -134,13 +132,9 @@ class ArduinoBoardManager:
             self.__setup.analog_output_pins.remove(pin)
 
     def check_connection(self):
-        self.__connection_status = self.__main_window.create_connection_dialog(
-        )
+        self.__connection_status = self.__main_window.create_connection_dialog()
         conn_checker = threading.Thread(target=self.conn_check)
         conn_checker.start()
-        # self.__sch.push_task(self.dummy_conn_check)
-        # self.__sch.timeout.connect(self.dummy_conn_check)
-        # self.__sch.start(100)
         self.__connection_status.exec_()
         conn_checker.join()
 
