@@ -135,8 +135,10 @@ int GenericArduinoController::set_analog_precision(GenericArduinoController* thi
   int i = byte(data[5]);
   // Tal vez conviene separar estas funciones ya que hay boards con resoluciones distintas...
   // Igual, así funciona bien con el due (y con todos, ya que no hay problema en superar el máximo de la resolución)
+  #if defined(ARDUINO_SAM_DUE) || defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000)
   analogWriteResolution(i);
   analogReadResolution(i);
+  #endif
 
   LOG("Resolution changed to: ", i);
 
