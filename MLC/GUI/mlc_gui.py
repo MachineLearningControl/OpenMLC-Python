@@ -119,13 +119,16 @@ class MLC_GUI(QMainWindow):
                     else:
                         break
 
-                # Create the new experiment and refresh the View
+                # Create the new experiment and refresh the view
                 if not self._experiments_manager.add_experiment(experiment_name):
+                    logger.error('[MLC_MANAGER] [NEW_EXPERIMENT] - Experiment {0} could not be created. '
+                                 'Check it to be correct in your workspace'.format(experiment_name))
                     QMessageBox.critical(self, 'New Experiment',
-                                         ('Experiment {0} already exists but has errors. '
-                                          'Check it to be correct in your workspace'
-                                          .format(experiment_name)))
+                                         'Experiment {0} could not be created. '
+                                         'Check the experiment to be correct in your workspace'
+                                         .format(experiment_name))
                     return
+
                 self._refresh_experiment_list_view()
                 self._clean_experiment_selection()
 
@@ -151,8 +154,68 @@ class MLC_GUI(QMainWindow):
         experiment.show()
 
     def on_clone_button_clicked(self):
-        logger.debug("[MLC_MANAGER] [CLONE_BUTTON] - Open button clicked")
-        # TODO
+        logger.debug("[MLC_MANAGER] [CLONE_BUTTON] - Clone button clicked")
+        cloned_experiment = ""
+        dialog_ok = False
+
+        if self._experiment_selected is None:
+            logger.info("[MLC MANAGER] [OPEN_BUTTON] - No experiment was selected yet. Don't do anything")
+            return
+        experiment_name = self._experiment_selected
+
+        while True:
+            cloned_experiment, dialog_ok = QInputDialog.getText(self, 'Clone Experiment',
+                                                              'Enter the name of the new cloned experiment:')
+
+            if dialog_ok:
+                if cloned_experiment == "":
+                    logger.info('[MLC_MANAGER] [CLONE_EXPERIMENT] - Cloned experiment name cannot an empty string.')
+                    msg_ok = QMessageBox.information(self, 'Clone Experiment',
+                                                     'Cloned experiment name experiment cannot be an empty string. '
+                                                     'Please, insert a valid name',
+                                                     QMessageBox.Ok | QMessageBox.Cancel,
+                                                     QMessageBox.Ok)
+
+                    if msg_ok == QMessageBox.Ok:
+                        continue
+                    else:
+                        break
+
+                # Check if the experiment already exists
+                if cloned_experiment in self._experiments_manager.get_experiment_list():
+                    msg_ok = QMessageBox.question(self, 'Clone Experiment',
+                                                  ('The cloned experiment name has already been taken. '
+                                                   'Do you want to create the project with a different name?'),
+                                                  QMessageBox.Yes | QMessageBox.No,
+                                                  QMessageBox.Yes)
+                    if msg_ok == QMessageBox.Yes:
+                        continue
+                    else:
+                        break
+
+                # Create the new experiment and refresh the View
+                if not self._experiments_manager.clone_experiment(experiment_name, cloned_experiment):
+                    logger.error('[MLC_MANAGER] [CLONE_EXPERIMENT] - Experiment {0} could not be created. '
+                                 'Check it to be correct in your workspace'.format(experiment_name))
+                    QMessageBox.critical(self, 'Clone Experiment',
+                                         'Experiment {0} could not be cloned. '
+                                         'Check the experiment to be correct in your workspace'
+                                         .format(experiment_name))
+                    return
+
+                self._refresh_experiment_list_view()
+                self._clean_experiment_selection()
+
+                QMessageBox.information(self, 'Clone Experiment',
+                                        'Experiment {0} was succesfully cloned. Cloned Experiment: {1}'
+                                        .format(experiment_name, cloned_experiment))
+                logger.debug('[MLC_MANAGER] [CLONE_EXPERIMENT] - Experiment {0} was succesfully cloned. '
+                             'Cloned Experiment {1}'.format(experiment_name, cloned_experiment))
+                return
+            else:
+                break
+        logger.debug('[MLC_MANAGER] New experiment could not be cloned')
+
 
     def on_remove_button_clicked(self):
         logger.debug("[MLC_MANAGER] [REMOVE_EXPERIMENT] - Remove button clicked")

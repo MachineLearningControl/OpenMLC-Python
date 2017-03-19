@@ -112,6 +112,14 @@ class MLC:
         """
         raise NotImplementedError("MLC::delete_experiment not implemented")
 
+    def clone_experiment(self, experiment_name, cloned_experiment):
+        """
+            Clone an experiment from the workspace.
+            :param experiment_name:
+            :param cloned_experiment
+        """
+        raise NotImplementedError("MLC::cloned_experiment not implemented")
+
     def import_experiment(self, experiment_path):
         """
             Import an experiment and add it to the workspace

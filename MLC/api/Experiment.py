@@ -45,6 +45,8 @@ class Experiment:
     __last_simulation = None
 
     def __init__(self, working_dir, experiment_name):
+        logger.info("[EXPERIMENT {0}] Proceed to load {1} experiment"
+                    .format(experiment_name, os.path.join(working_dir)))
         Experiment.check_configuration(working_dir, experiment_name)
         cfg, db = Experiment.get_experiment_files(working_dir, experiment_name)
         self._name = experiment_name

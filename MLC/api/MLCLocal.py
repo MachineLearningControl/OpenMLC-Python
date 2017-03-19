@@ -178,6 +178,37 @@ class MLCLocal(MLC):
                                   evaluation_script,
                                   preevaluation_script)
 
+    def clone_experiment(self, experiment_name, cloned_experiment):
+        source_path = os.path.join(self._working_dir, experiment_name)
+        cloned_path = os.path.join(self._working_dir, cloned_experiment)
+
+        # Copy the desired experiment and then change the config and db files names
+        try:
+            shutil.copytree(source_path, cloned_path)
+            shutil.move(os.path.join(cloned_path, experiment_name + ".conf"),
+                        os.path.join(cloned_path, cloned_experiment + ".conf"))
+
+            shutil.move(os.path.join(cloned_path, experiment_name + ".db"),
+                        os.path.join(cloned_path, cloned_experiment + ".db"))
+
+            # Change the DB name inside the experiment
+            experiment_config = ConfigParser.ConfigParser()
+            experiment_config.read(os.path.join(cloned_path, cloned_experiment + ".conf"))
+            experiment_config.set('BEHAVIOUR', 'savedir', cloned_experiment + ".db")
+            with open(os.path.join(cloned_path, cloned_experiment + ".conf"), "w") as f:
+                experiment_config.write(f)
+
+            # Add the experiment to the list of experiments
+            self._experiments[cloned_experiment] = Experiment(cloned_path, cloned_experiment)
+
+        except Exception, err:
+            logger.error("[MLC_LOCAL] [CLONE] - "
+                         "An error ocurred while cloning project {0}. "
+                         "Error {1}".format(experiment_name, err))
+            return False
+
+        return True
+
     def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
@@ -292,7 +323,6 @@ class MLCLocal(MLC):
             board_id = boards[0]
             mlc_repo.save_board_configuration(board_configuration, board_id=board_id)
             mlc_repo.save_serial_connection(connection, board_id=board_id, connection_id=board_id)
-
 
     def go(self, experiment_name, to_generation, from_generation=0, callbacks={}, gen_creator=None):
         if experiment_name not in self._experiments:

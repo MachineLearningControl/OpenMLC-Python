@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import os
+import sys
+import traceback
 
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
 from MLC.Common.LispTreeExpr.LispTreeExpr import ExprException
@@ -63,12 +65,14 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
         QMessageBox.critical(parent,
                              "Invalid Evaluation Script",
                              "Check the evaluation script to be correct. "
-                             "Error Msg: {0}.".format(err))
+                             "Error Msg: {0}. \n Traceback: {1}"
+                             .format(err, traceback.format_exc()))
+
         logger.error("{0} Experiment {1} - "
                      "Individual inserted is not a valid individual. "
                      "Check the evaluation script to be correct. "
-                     "Error Msg: {2}."
-                     .format(log_prefix, experiment_name, err))
+                     "Error Msg: {2}. Traceback:\n{3}"
+                     .format(log_prefix, experiment_name, err, traceback.format_exc()))
 
     return None
 

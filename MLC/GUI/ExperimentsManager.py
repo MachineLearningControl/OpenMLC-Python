@@ -21,6 +21,7 @@
 
 import os
 import sys
+import shutil
 import time
 
 from MLC.api.mlc import DuplicatedExperimentError
@@ -142,6 +143,7 @@ class ExperimentsManager():
             raise
 
         self._experiment_list.append(experiment_name)
+        self._experiment_list.sort()
         self.load_experiment_info(experiment_name)
 
     def export_experiment(self, export_dir, experiment_name):
@@ -157,6 +159,15 @@ class ExperimentsManager():
                          "An error ocurred while exporting project {0}. "
                          "Error {1}".format(experiment_name, err))
             raise
+
+    def clone_experiment(self, experiment_name, cloned_experiment):
+        if not self._mlc_local.clone_experiment(experiment_name, cloned_experiment):
+            return False
+
+        self._experiment_list.append(cloned_experiment)
+        self._experiment_list.sort()
+        self.load_experiment_info(cloned_experiment)
+        return True
 
     def get_experiment_list(self):
         return self._experiment_list
