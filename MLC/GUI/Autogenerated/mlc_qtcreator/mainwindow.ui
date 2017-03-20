@@ -199,6 +199,7 @@
     <property name="title">
      <string>MLC</string>
     </property>
+    <addaction name="edit_workspace"/>
     <addaction name="menu_properties"/>
     <addaction name="separator"/>
     <addaction name="menu_close"/>
@@ -246,6 +247,11 @@
    </property>
    <property name="toolTip">
     <string>Project Information</string>
+   </property>
+  </action>
+  <action name="edit_workspace">
+   <property name="text">
+    <string>Edit Workspace Location</string>
    </property>
   </action>
  </widget>
@@ -460,6 +466,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>edit_workspace</sender>
+   <signal>triggered()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_edit_workspace_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_new_button_clicked()</slot>
@@ -473,5 +495,6 @@
   <slot>menu_about()</slot>
   <slot>on_experiment_list_context_menu()</slot>
   <slot>on_rename_button_clicked()</slot>
+  <slot>on_edit_workspace_clicked()</slot>
  </slots>
 </ui>

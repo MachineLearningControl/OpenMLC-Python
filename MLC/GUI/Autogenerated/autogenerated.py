@@ -220,6 +220,9 @@ class Ui_MLCManager(object):
         self.menu_close.setObjectName("menu_close")
         self.menu_about = QtWidgets.QAction(MLCManager)
         self.menu_about.setObjectName("menu_about")
+        self.edit_workspace = QtWidgets.QAction(MLCManager)
+        self.edit_workspace.setObjectName("edit_workspace")
+        self.menuMLC.addAction(self.edit_workspace)
         self.menuMLC.addAction(self.menu_properties)
         self.menuMLC.addSeparator()
         self.menuMLC.addAction(self.menu_close)
@@ -241,6 +244,7 @@ class Ui_MLCManager(object):
         self.menu_about.triggered.connect(MLCManager.menu_about)
         self.experiment_list.customContextMenuRequested['QPoint'].connect(MLCManager.on_experiment_list_context_menu)
         self.rename_button.clicked.connect(MLCManager.on_rename_button_clicked)
+        self.edit_workspace.triggered.connect(MLCManager.on_edit_workspace_clicked)
         # QtCore.QMetaObject.connectSlotsByName(MLCManager)
 
     def retranslateUi(self, MLCManager):
@@ -264,6 +268,7 @@ class Ui_MLCManager(object):
         self.menu_close.setToolTip(_translate("MLCManager", "Close MLC Manager"))
         self.menu_about.setText(_translate("MLCManager", "About"))
         self.menu_about.setToolTip(_translate("MLCManager", "Project Information"))
+        self.edit_workspace.setText(_translate("MLCManager", "Edit Workspace Location"))
 
 # -*- coding: utf-8 -*-
 
