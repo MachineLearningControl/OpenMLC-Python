@@ -169,6 +169,29 @@ class ExperimentsManager():
         self.load_experiment_info(cloned_experiment)
         return True
 
+    def rename_experiment(self, experiment_name_old, experiment_name_new):
+        try:
+            if not self._mlc_local.rename_experiment(experiment_name_old, experiment_name_new):
+                logger.error("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
+                             "Experiment {0} could not be renamed because there "
+                             "is a conflict with the rename value of the experiment. "
+                             "Check the workspace to be OK or choose another experiment name"
+                             .format(experiment_name_new))
+                return False
+        except OSError:
+            logger.error("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
+                         "Experiment to be renamed ({0}) could not be removed. "
+                         "Check the workspace to be OK".format(experiment_new_old))
+            return False
+
+        # Everything went OK. Remove the last experiment and add the new one
+        self._experiment_list.remove(experiment_name_old)
+        del self._experiment_info_dict[experiment_name_old]
+        self._experiment_list.append(experiment_name_new)
+        self._experiment_list.sort()
+        self.load_experiment_info(experiment_name_new)
+        return True
+
     def get_experiment_list(self):
         return self._experiment_list
 

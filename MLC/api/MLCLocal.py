@@ -205,9 +205,37 @@ class MLCLocal(MLC):
             logger.error("[MLC_LOCAL] [CLONE] - "
                          "An error ocurred while cloning project {0}. "
                          "Error {1}".format(experiment_name, err))
+
+            # Try to remove the folder of the experiment created
+            try:
+                shutil.rmtree(cloned_path)
+            except OSError:
+                # If the directory does not exists, an exception is raised
+                pass
             return False
 
         return True
+
+    def rename_experiment(self, experiment_name_old, experiment_name_new):
+        # Rename can be implemented as a clone and remove operation
+        logger.info("[MLC_LOCAL] [RENAME] - Proceed to clone and remove the experiment given. "
+                    "Old: {0} - New: {1}".format(experiment_name_old, experiment_name_new))
+        if self.clone_experiment(experiment_name_old, experiment_name_new):
+            try:
+                self.delete_experiment(experiment_name_old)
+            except OSError, err:
+                # The experiment could not be removed
+                logger.error("[MLC_LOCAL] [RENAME] - "
+                             "Experiment {0} could not be deleted. Err: {1}"
+                             .format(experiment_name_old, err))
+                return False
+            return True
+
+        logger.error("[MLC_LOCAL] [RENAME] - "
+                     "Experiment {0} could not be cloned. Aborting experiment rename."
+                     .format(experiment_name_new))
+        return False
+
 
     def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
@@ -221,6 +249,7 @@ class MLCLocal(MLC):
                 del self._open_experiments[experiment_name]
         except OSError:
             logger.info("[MLC_LOCAL] Error while trying to delete experiment file: {0}".format(file))
+            raise
 
     def import_experiment(self, experiment_path):
         if not os.path.exists(experiment_path):

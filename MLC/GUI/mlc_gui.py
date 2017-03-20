@@ -53,6 +53,7 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QMessageBox
 
 logger = get_gui_logger()
@@ -159,17 +160,17 @@ class MLC_GUI(QMainWindow):
         dialog_ok = False
 
         if self._experiment_selected is None:
-            logger.info("[MLC MANAGER] [OPEN_BUTTON] - No experiment was selected yet. Don't do anything")
+            logger.info("[MLC MANAGER] [CLONE_BUTTON] - No experiment was selected yet. Don't do anything")
             return
         experiment_name = self._experiment_selected
 
         while True:
             cloned_experiment, dialog_ok = QInputDialog.getText(self, 'Clone Experiment',
-                                                              'Enter the name of the new cloned experiment:')
+                                                                'Enter the name of the new cloned experiment:')
 
             if dialog_ok:
                 if cloned_experiment == "":
-                    logger.info('[MLC_MANAGER] [CLONE_EXPERIMENT] - Cloned experiment name cannot an empty string.')
+                    logger.info('[MLC_MANAGER] [CLONE_EXPERIMENT] - Cloned experiment name cannot be an empty string.')
                     msg_ok = QMessageBox.information(self, 'Clone Experiment',
                                                      'Cloned experiment name experiment cannot be an empty string. '
                                                      'Please, insert a valid name',
@@ -215,7 +216,6 @@ class MLC_GUI(QMainWindow):
             else:
                 break
         logger.debug('[MLC_MANAGER] New experiment could not be cloned')
-
 
     def on_remove_button_clicked(self):
         logger.debug("[MLC_MANAGER] [REMOVE_EXPERIMENT] - Remove button clicked")
@@ -291,6 +291,96 @@ class MLC_GUI(QMainWindow):
             QMessageBox.critical(self, "Experiment Not Exported",
                                  "Experiment could not be exported. "
                                  "Error {0}".format(err))
+
+    def on_rename_button_clicked(self):
+        logger.debug("[MLC_MANAGER] [EXPORT_BUTTON] - Export button_clicked")
+        cloned_experiment = ""
+        dialog_ok = False
+
+        if self._experiment_selected is None:
+            logger.info("[MLC MANAGER] [RENAME_BUTTON] - No experiment was selected yet. Don't do anything")
+            return
+        experiment_name = self._experiment_selected
+
+        while True:
+            renamed_experiment, dialog_ok = QInputDialog.getText(self, 'Rename Experiment',
+                                                                'Enter the new name of the experiment:')
+
+            if dialog_ok:
+                if renamed_experiment == "":
+                    logger.info('[MLC_MANAGER] [RENAME_EXPERIMENT] - The experiment name cannot be an empty string.')
+                    msg_ok = QMessageBox.information(self, 'Rename Experiment',
+                                                     'Renamed experiment name experiment cannot be an empty string. '
+                                                     'Please, insert a valid name',
+                                                     QMessageBox.Ok | QMessageBox.Cancel,
+                                                     QMessageBox.Ok)
+
+                    if msg_ok == QMessageBox.Ok:
+                        continue
+                    else:
+                        break
+
+                # Check if the experiment already exists
+                if renamed_experiment in self._experiments_manager.get_experiment_list():
+                    msg_ok = QMessageBox.question(self, 'Rename Experiment',
+                                                  ('The experiment name has already been taken. '
+                                                   'Do you want to choose a different experiment name?'),
+                                                  QMessageBox.Yes | QMessageBox.No,
+                                                  QMessageBox.Yes)
+                    if msg_ok == QMessageBox.Yes:
+                        continue
+                    else:
+                        break
+
+                # Create the new experiment and refresh the View
+                if not self._experiments_manager.rename_experiment(experiment_name, renamed_experiment):
+                    logger.error('[MLC_MANAGER] [CLONE_EXPERIMENT] - Experiment {0} could not be renamed. '
+                                 'Check it to be correct in your workspace'.format(experiment_name))
+                    QMessageBox.critical(self, 'Clone Experiment',
+                                         'Experiment {0} could not be renamed. '
+                                         'Check the experiment to be correct in your workspace'
+                                         .format(experiment_name))
+                    return
+
+                self._refresh_experiment_list_view()
+                self._clean_experiment_selection()
+
+                QMessageBox.information(self, 'Rename Experiment',
+                                        'Experiment {0} was succesfully renamed. Renamed Experiment: {1}'
+                                        .format(experiment_name, renamed_experiment))
+                logger.debug('[MLC_MANAGER] [RENAME_EXPERIMENT] - Experiment {0} was succesfully renamed. '
+                             'Renamed Experiment {1}'.format(experiment_name, renamed_experiment))
+                return
+            else:
+                break
+        logger.debug('[MLC_MANAGER] New experiment could not be renamed')
+
+    def on_experiment_list_context_menu(self, point):
+        logger.debug('[MLC_MANAGER] [LIST_CONTEXT_MENU] - Context Menu displayed')
+
+        menu = QMenu(self)
+
+        action_open = QAction("Open", self)
+        action_open.triggered.connect(self.on_open_button_clicked)
+        menu.addAction(action_open)
+
+        action_remove = QAction("Remove", self)
+        action_remove.triggered.connect(self.on_remove_button_clicked)
+        menu.addAction(action_remove)
+
+        action_clone = QAction("Clone", self)
+        action_clone.triggered.connect(self.on_clone_button_clicked)
+        menu.addAction(action_clone)
+
+        action_export = QAction("Export", self)
+        action_export.triggered.connect(self.on_export_button_clicked)
+        menu.addAction(action_export)
+
+        action_rename = QAction("Rename", self)
+        action_rename.triggered.connect(self.on_rename_button_clicked)
+        menu.addAction(action_rename)
+
+        menu.popup(self._autogenerated_object.experiment_list.mapToGlobal(point))
 
     def load_gui_config(self):
         abspath = os.path.abspath(".")

@@ -120,6 +120,14 @@ class MLC:
         """
         raise NotImplementedError("MLC::cloned_experiment not implemented")
 
+    def rename_experiment(self, experiment_name_old, experiment_name_new):
+        """
+            Rename an experiment from the workspace.
+            :param experiment_name_old:
+            :param experiment_name_new
+        """
+        raise NotImplementedError("MLC::cloned_experiment not implemented")
+
     def import_experiment(self, experiment_path):
         """
             Import an experiment and add it to the workspace

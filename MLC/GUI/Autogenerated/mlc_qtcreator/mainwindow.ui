@@ -51,19 +51,6 @@
           <property name="bottomMargin">
            <number>2</number>
           </property>
-          <item row="2" column="0">
-           <widget class="QToolButton" name="open_button">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Open</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QToolButton" name="new_button">
             <property name="sizePolicy">
@@ -73,40 +60,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>New</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QPushButton" name="import_button">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Import</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QToolButton" name="clone_button">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Clone</string>
+             <string>Create</string>
             </property>
            </widget>
           </item>
@@ -123,14 +77,73 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
+          <item row="0" column="2">
+           <widget class="QToolButton" name="clone_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Clone</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
            <widget class="Line" name="line">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
+          <item row="3" column="0" colspan="3">
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="1">
+           <widget class="QPushButton" name="rename_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Rename</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QToolButton" name="open_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Open</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="import_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Import</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
            <widget class="QPushButton" name="export_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -147,7 +160,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="experiment_list"/>
+        <widget class="QListView" name="experiment_list">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="layoutMode">
+          <enum>QListView::SinglePass</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -172,7 +192,7 @@
      <x>0</x>
      <y>0</y>
      <width>749</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMLC">
@@ -408,6 +428,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>experiment_list</sender>
+   <signal>customContextMenuRequested(QPoint)</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_experiment_list_context_menu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rename_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MLCManager</receiver>
+   <slot>on_rename_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>160</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_new_button_clicked()</slot>
@@ -419,5 +471,7 @@
   <slot>on_import_button_clicked()</slot>
   <slot>on_export_button_clicked()</slot>
   <slot>menu_about()</slot>
+  <slot>on_experiment_list_context_menu()</slot>
+  <slot>on_rename_button_clicked()</slot>
  </slots>
 </ui>
