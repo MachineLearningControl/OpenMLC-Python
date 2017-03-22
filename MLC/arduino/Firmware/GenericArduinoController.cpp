@@ -63,9 +63,9 @@ void GenericArduinoController::handle_commands()
   if (stream_.available() > 0)
   {
     LOG("Data available ", stream_.available());
-    char input[128]; // Esto se reserva en el stack, tal vez hacerlo global consume menos recursos...
+    uint8_t input[128]; // Esto se reserva en el stack, tal vez hacerlo global consume menos recursos...
 
-    byte b_read = 0;
+    uint8_t b_read = 0;
 
     if (stream_.available() >= 5)
     {
@@ -76,9 +76,9 @@ void GenericArduinoController::handle_commands()
 
       uint32_t data_len = (uint32_t(input[1]) << 24) + (uint32_t(input[2]) << 16) + (uint32_t(input[3]) << 8) + uint32_t(input[4]);
 
-      LOG("Command: ", int(input[0]));
-      LOG("Command of length: ", data_len);
-
+      LOG("Command: ", uint8_t(input[0]));
+      LOG("Command of length: ", static_cast<unsigned long>(data_len));
+      
       while (b_read - 5 < data_len)
       {
         b_read += stream_.readBytes(&input[b_read], data_len + 5 - b_read);
@@ -93,13 +93,13 @@ void GenericArduinoController::handle_commands()
 
 }
 
-void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, uint32_t &buff_len, const char*))
+void GenericArduinoController::add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t*))
 {
   executor[handler_id] = handler;
 }
 
 // NULL operation
-int GenericArduinoController::not_implemented(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::not_implemented(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   LOG("Unknown command received!! Operation: ", data[0]);
   return 1 + buff_len; //Breaks the loop
@@ -108,7 +108,7 @@ int GenericArduinoController::not_implemented(GenericArduinoController* this_, u
 /**
    PROTOCOL_VERSION 0x07 0x00 0x00 0x00 0x03 X . Y
 */
-int GenericArduinoController::protocol_version(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::protocol_version(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   char response[] = { char(VERSION_RESPONSE), char(0), char(0), char(0), char(0x03)};
   this_->stream_.write(response, 5);
@@ -120,7 +120,7 @@ int GenericArduinoController::protocol_version(GenericArduinoController* this_, 
 /**
    ANALOG_WRITE: 0x06 0x00 0x00 0x00 0x03 [PIN] [H_VALUE][L_VALUE]
 */
-int GenericArduinoController::analog_write(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::analog_write(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   uint16_t value = (data[7] << 8) + data[8];
   analogWrite(data[6], value);
@@ -130,7 +130,7 @@ int GenericArduinoController::analog_write(GenericArduinoController* this_, uint
 /**
      ANALOG_PRECISION: 0x01 0x00 0x00 0x00 0x01 [BITS]
 */
-int GenericArduinoController::set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   int i = byte(data[5]);
   // Tal vez conviene separar estas funciones ya que hay boards con resoluciones distintas...
@@ -148,7 +148,7 @@ int GenericArduinoController::set_analog_precision(GenericArduinoController* thi
 /**
     PIN_MODE: 0x04 0x00 0x00 0x00 0x02 [PIN] [MODE]
 */
-int GenericArduinoController::set_pin_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::set_pin_mode(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   pinMode(data[5], data[6]);
   LOG("Changed pin mode on pin ", uint8_t(data[5]));
@@ -160,11 +160,11 @@ int GenericArduinoController::set_pin_mode(GenericArduinoController* this_, uint
 /**
     REPORT_MODE: 0x05 0x00 0x00 0x00 0x03 [MODE] [READ_COUNT] [READ_DELAY]
 */
-int GenericArduinoController::set_report_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::set_report_mode(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   this_->REPORT_MODE = (ReportModes)(data[5]);
-  this_->REPORT_READ_COUNT = byte(data[6]);
-  this_->REPORT_READ_DELAY = byte(data[7]);
+  this_->REPORT_READ_COUNT = uint8_t(data[6]);
+  this_->REPORT_READ_DELAY = uint8_t(data[7]);
   LOG("Report mode changed", "");
   LOG("Report mode: ", this_->REPORT_MODE);
   LOG("New Read count: ", this_->REPORT_READ_COUNT);
@@ -176,7 +176,7 @@ int GenericArduinoController::set_report_mode(GenericArduinoController* this_, u
 /**
     ANALOG_INPUT: 0x02 0x00 0x00 0x00 0x01 [PORT]
 */
-int GenericArduinoController::set_analog_input(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::set_analog_input(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   this_->INPUT_PORTS[0] += 1;
   this_->INPUT_PORTS[this_->INPUT_PORTS[0]] = byte(data[5]);
@@ -197,7 +197,7 @@ int GenericArduinoController::set_analog_input(GenericArduinoController* this_, 
 /**
     RESET: 0xFF 0x00 0x00 0x00 0x00
 */
-int GenericArduinoController::reset(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::reset(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   for ( int i = 1; i <= byte(this_->INPUT_PORTS[0]); i++)
   {
@@ -217,7 +217,7 @@ int GenericArduinoController::reset(GenericArduinoController* this_, uint32_t &b
 /**
     ANALOG_OUTPUT: 0x03 0x00 0x00 0x00 0x01 [PORT]
 */
-int GenericArduinoController::set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   // No se si vale la pena guardar registro de pines de salida...
   LOG("Added as output the pin", data[5]);
@@ -227,32 +227,32 @@ int GenericArduinoController::set_analog_output(GenericArduinoController* this_,
 /**
     ACTUATE: 0xF0 [DATA_LEN] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
 */
-int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t &buff_len, const char* data)
+int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data)
 {
   uint32_t offset = 0;
 
   uint8_t digital_input_buffer[this_->DIGITAL_PINS_COUNT][this_->REPORT_READ_COUNT / 8 + 2]; // 255 lectures of 1 bit for every digital pin -- 1 extra byte for the port address
   uint8_t analog_input_buffer[this_->ANALOG_PINS_COUNT][(2 * this_->REPORT_READ_COUNT) + 3]; // 255 lectures of 2 bytes for every analog pin -- 1 extra byte for the port address
 
-  LOG("Actutating over payload of size: ", buff_len);
+  LOG("Actuating over payload of size: ", buff_len);
 
   // ACTUATION ZONE
   while (offset < buff_len)
   {
     //Se aplica la acción a cada puerto indicado
-    int port = byte(data[5 + offset]);
+    uint8_t port = byte(data[5 + offset]);
 
     //Detects an analog port
     if ( port >= A0 )
     {
-      int value = (data[6 + offset] << 8) + data[7 + offset];
+      uint8_t value = (data[6 + offset] << 8) + data[7 + offset];
       analogWrite(port, value);
       offset += 3;
 
       LOG("Analog pin written", port);
     } else
     {
-      int value = data[6 + offset] > 0 ? HIGH : LOW; // Creo que da igual si pongo el entero directamente
+      uint8_t value = data[6 + offset] > 0 ? HIGH : LOW; // Creo que da igual si pongo el entero directamente
       digitalWrite(port, value);
       offset += 2;
 
@@ -262,7 +262,7 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t 
 
   delayMicroseconds(this_->REPORT_READ_DELAY); // FIXME: Usamos variable de 8 bits cuando la precisión de esta función llega a 16 bits.
 
-  char response[130];
+  uint8_t response[130];
   response[0] = '\xF1';
   uint32_t len = 0;  // Inicia en 1 para evitar pisar el id de comando
 
@@ -271,23 +271,23 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t 
 
   // Tracks count of digital and analog ports
   LOG("Number of lectures to report: ", this_->REPORT_READ_COUNT);
-  for (int lecture = 0; lecture <= this_->REPORT_READ_COUNT; lecture++)
+  for (uint8_t lecture = 0; lecture <= this_->REPORT_READ_COUNT; lecture++)
   {
     uint8_t current_digital = 0;
     uint8_t current_analog = 0;
     LOG("Input ports count: ", this_->INPUT_PORTS[0]);
-    for (int i = 1; i <= byte(this_->INPUT_PORTS[0]); i++)
+    for (uint8_t i = 1; i <= uint8_t(this_->INPUT_PORTS[0]); i++)
     {
       //response[len + 1] = INPUT_PORTS[i];
       if ( this_->INPUT_PORTS[i] >= A0 )
       {
         LOG("Reading analog port A", this_->INPUT_PORTS[i] - A0);
-        int data = analogRead(this_->INPUT_PORTS[i] - A0);
+        uint16_t data = analogRead(this_->INPUT_PORTS[i] - A0);
         //response[len + 2] = byte((data & 0xFF00) >> 8); // Se guarda el msb en el buffer
         //response[len + 3] = byte(data & 0xFF);        // Se guarda el lsb en el buffer
         analog_input_buffer[current_analog][0] = this_->INPUT_PORTS[i];
-        analog_input_buffer[current_analog][(lecture * 2) + 1] = byte((data & 0xFF00) >> 8);
-        analog_input_buffer[current_analog][(lecture * 2) + 2] = byte(data & 0xFF);
+        analog_input_buffer[current_analog][(lecture * 2) + 1] = uint8_t((data & 0xFF00) >> 8);
+        analog_input_buffer[current_analog][(lecture * 2) + 2] = uint8_t(data & 0xFF);
 
         //len += 3; // Cada lectura de un recurso analógico ocupa dos bytes. FIXME: se puede optimizar con bajas resoluciones
         LOG("=====================================", "");
@@ -297,19 +297,19 @@ int GenericArduinoController::actuate(GenericArduinoController* this_, uint32_t 
         current_analog++;
       } else
       {
-        int data = digitalRead(this_->INPUT_PORTS[i]);
+        uint8_t data = digitalRead(this_->INPUT_PORTS[i]);
         //response[len + 2] = byte(data);
         digital_input_buffer[current_digital][0] = this_->INPUT_PORTS[i];
-        digital_input_buffer[current_digital][(lecture / 8) + 1] += (byte(data) & 0x01) << (lecture % 8); // Just keep first bit
+        digital_input_buffer[current_digital][(lecture / 8) + 1] += (data & 0x01) << (lecture % 8); // Just keep first bit
         current_digital++;
         //len += 2;
         LOG("=====================================", "");
         LOG("Digital pin read: ", this_->INPUT_PORTS[i]);
         LOG("Raw read: ", data);
         LOG("Lecture: ", lecture);
-        LOG("Filtered read: ", (byte(data) & 0x01));
+        LOG("Filtered read: ", (data & 0x01));
         LOG("Left padding: ", (lecture % 8));
-        LOG("Added: ",  (byte(data) & 0x01) << (lecture % 8));
+        LOG("Added: ",  (data & 0x01) << (lecture % 8));
         LOG("Digital read value: ", digital_input_buffer[current_digital - 1][(lecture / 8) + 1]);
       }
     };

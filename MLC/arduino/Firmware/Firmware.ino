@@ -1,12 +1,11 @@
 #define DEBUG 0
 #include "GenericArduinoController.h"
 
-GenericArduinoController controller(Serial);
+GenericArduinoController controller(SerialUSB);
 
 void setup() {
-  //SerialUSB.begin(115200);
-  
-  Serial.begin(115200);
+  SerialUSB.begin(115200);
+
 #if DEBUG
   Serial.begin(115200);
 #endif
@@ -14,7 +13,6 @@ void setup() {
 }
 
 void loop() {
-  
   controller.handle_commands();
 
   /**

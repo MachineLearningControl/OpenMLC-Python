@@ -29,7 +29,7 @@ class GenericArduinoController
 
     void handle_commands(); 
 
-    void add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, uint32_t &buff_len, const char*));
+    void add_handler(uint8_t handler_id, int (*handler)(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t*));
 
   private:
     Stream &stream_;
@@ -41,55 +41,55 @@ class GenericArduinoController
     uint8_t ANALOG_PINS_COUNT;
     uint8_t DIGITAL_PINS_COUNT;
 
-    int (*executor[255])(GenericArduinoController*, uint32_t &buff_len, const char*);
+    int (*executor[255])(GenericArduinoController*, uint32_t &buff_len, const uint8_t*);
 
     // NULL operation
-    static int not_implemented(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int not_implemented(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
    
     /**
      * PROTOCOL_VERSION 0x07 0x00 0x00 0x00 0x03 X . Y
      */ 
-    static int protocol_version(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int protocol_version(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
 
     /**
      * ANALOG_WRITE: 0x06 0x00 0x00 0x00 0x03 [PIN] [H_VALUE][L_VALUE]
      */
-    static int analog_write(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int analog_write(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
 
     /**
      *   ANALOG_PRECISION: 0x01 0x00 0x00 0x00 0x01 [BITS]
      */
-    static int set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int set_analog_precision(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
 
     /**
     *   PIN_MODE: 0x04 0x00 0x00 0x00 0x02 [PIN] [MODE]
     */
-    static int set_pin_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int set_pin_mode(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
     
     /**
     *   REPORT_MODE: 0x05 0x00 0x00 0x00 0x03 [MODE] [READ_COUNT] [READ_DELAY]
     */
-    static int set_report_mode(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int set_report_mode(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
     
     /**
     *   ANALOG_INPUT: 0x02 0x00 0x00 0x00 0x01 [PORT]
     */
-    static int set_analog_input(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int set_analog_input(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
     
     /**
     *   RESET: 0xFF 0x00 0x00 0x00 0x00
     */
-    static int reset(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int reset(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
     
     /**
     *   ANALOG_OUTPUT: 0x03 0x01 0x00 0x00 0x00 [PORT]
     */
-    static int set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int set_analog_output(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
     
     /**
     *   ACTUATE: 0xF0 [DATA_LEN] [PIN_A] [VALUE_PIN_A] ... [PIN_N] [VALUE_PIN_N]
     */
-    static int actuate(GenericArduinoController* this_, uint32_t &buff_len, const char* data);
+    static int actuate(GenericArduinoController* this_, uint32_t &buff_len, const uint8_t* data);
 
 };
 
