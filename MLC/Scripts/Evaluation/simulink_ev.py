@@ -81,7 +81,12 @@ def individual_data(indiv):
     badvalue = config.getfloat('EVALUATOR', 'badvalue')
 
     # Get the Individual as a formal expressions and make some replacements
-    formal = indiv.get_formal()
+    formal = None
+    if type(indiv.get_formal()) == list:
+        formal = indiv.get_formal()[0]
+    else:
+        formal = indiv.get_formal()
+
     # Simulink does not support .*
     formal = formal.replace('.*', '*')
     # Replace the sensor with a Heaviside step function
@@ -189,14 +194,17 @@ def cost(indiv):
     return simulink_results['j0']
 
 
-def show_best(index, indiv, block=True):
+def show_best(index, generation, indiv, cost, block=True):
     # TODO: Add texlive-latex-extra and textlive-latex-recommended in the Wiki if we want to use LaTeX fonts
     sl_results = individual_data(indiv)
     config = Config.get_instance()
     problem_variables = retrieve_problem_variables(config)
     fig_title = create_figure_title(problem_variables, indiv.get_value())
 
-    plt.clf()
+    fig = plt.figure()
+    # Put figure window on top of all other windows
+    fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
+
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     plt.suptitle(fig_title)

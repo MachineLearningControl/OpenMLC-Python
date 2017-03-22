@@ -174,7 +174,8 @@ class MLCLocal(MLC):
         if experiment_configuration is None:
             config = MLCLocal.DEFAULT_EXPERIMENT_CONFIG
 
-        self._load_new_experiment(experiment_name, config,
+        self._load_new_experiment(experiment_name, 
+                                  config,
                                   evaluation_script,
                                   preevaluation_script)
 
@@ -219,7 +220,9 @@ class MLCLocal(MLC):
     def rename_experiment(self, experiment_name_old, experiment_name_new):
         # Rename can be implemented as a clone and remove operation
         logger.info("[MLC_LOCAL] [RENAME] - Proceed to clone and remove the experiment given. "
-                    "Old: {0} - New: {1}".format(experiment_name_old, experiment_name_new))
+                    "Old: {0} - New: {1}"
+                    .format(experiment_name_old.encode('utf-8'), 
+                            experiment_name_new.encode('utf-8')))
         if self.clone_experiment(experiment_name_old, experiment_name_new):
             try:
                 self.delete_experiment(experiment_name_old)

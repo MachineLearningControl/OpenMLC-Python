@@ -21,6 +21,9 @@
 
 import os
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 mlc_gui_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(*[mlc_gui_dir, "..", ".."])
 sys.path.append(root_dir)

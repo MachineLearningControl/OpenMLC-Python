@@ -183,6 +183,10 @@ class ExperimentsManager():
                          "Experiment to be renamed ({0}) could not be removed. "
                          "Check the workspace to be OK".format(experiment_new_old))
             return False
+        except ExperimentNotExistException:
+            logger.error("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
+                         "Experiment to be renamed ({0}) could not be removed. "
+                         "Check the workspace to be OK".format(experiment_new_old))
 
         # Everything went OK. Remove the last experiment and add the new one
         self._experiment_list.remove(experiment_name_old)

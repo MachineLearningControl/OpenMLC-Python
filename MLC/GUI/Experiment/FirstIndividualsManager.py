@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from MLC.GUI.Tables.ConfigTableModel import ConfigTableModel
-from MLC.GUI.util import check_individual_value
+from MLC.GUI.Common.util import check_individual_value
 from MLC.Log.log import get_gui_logger
 from MLC.individual.Individual import Individual
 from MLC.mlc_parameters.mlc_parameters import Config
