@@ -3,6 +3,7 @@
 </p>
 
 # MLC (Machine Learning Control)
+[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
 
 ## Table of Contents
 1. [Abstract](#abstract)
@@ -17,12 +18,10 @@
 5. [How To Run MLC](#how_to_run_mlc)
 6. [Testing](#testing)
 
-<div id='abstract'/>
 ## Abstract
 MLC is a framework designed to solve chaotic problems related with the field of fluodynamics.  
 The input of the system it's an script which models a problem. This problem is solved evolving populations, which are groups of non related individuals, through the use of a set of genetic algorithms. Every individual is modeled as a linear combination of diffenrent operators (-,+, sin, cos, exp, etc.).
 
-<div id='project_structure'/>
 ## Project Structure
 * **[MLC](MLC)**: The files inside this path are related with the Python code use
 * **[conf](conf)**: Directory where the differents config files of the project are stored. For the moment, the app read config files from this directory, so be sure to persist your desired configuration within them.
@@ -31,19 +30,15 @@ The input of the system it's an script which models a problem. This problem is s
 * **[tests](tests)**: Tests related with the project (functional, unit tests, etc.) can be found here.
 * **[tools](tools)**: Additional scripts and files are stored in this directory.
 
-<div id='installation'/>
 ## Installation
 
-<div id='python_engine_and_mlc_python'/>
 ### Python Engine and MLC Python
 Previous versions of MLC ran in MATLAB&reg;. The last version is being ported to Python, so the actual implementation is a hybrid between this two languages.  
 
-<div id='matlab_versions_supported'/>
 #### MATLAB versions supported
 The main program starts running in Python and make calls to MATLAB&reg; when it is needed. To be able to run MATLAB&reg; code inside Python, the module [Python Engine](http://www.mathworks.com/help/matlab/matlab-engine-for-python.html) is used.  
 Python Engine is available in versions of MATLAB&reg; 2014b and ahead.
 
-<div id='mlc_python'/>
 #### MLC Python
 In order to succesfully run the [Python Engine Module](http://www.mathworks.com/help/matlab/matlab-engine-for-python.html), Python must compiled in a special way. For more details, the [Python Engine Documentation](http://www.mathworks.com/help/matlab/matlab_external/system-requirements-for-matlab-engine-for-python.html) can be inspected.  
 A pre-compiled version of Python can be found in the following [link](https://drive.google.com/file/d/0B1yBBZBneUgZb2gwb1hOTDF4Tjg/view). The file it's a .deb package and it was succesfully installed in the following operating systems:
@@ -87,17 +82,14 @@ The new Python is installed in the directory **/opt/mlc-python-2.7.11**. This ve
 * **/opt/mlc-python-2.7.11/bin/mlc_pip**: All new Python dependencies that would like to be installed, must be installed with this version of pip. In other case, the dependencies must be built and installed with the mlc_python script.
 * **/opt/mlc-python-2.7.11/bin/mlc_nosetests**: The project tests must be executed with the following script.
 
-<div id='configuration'/>
 ## Configuration
 *All the configuration files of the application can be found in the [conf directory](conf). **MLC consumes them directly
 from there,*** so beware of make all your desired changes in files inside this folder.
 
-<div id='parameters'/>
 ### Parameters
 All the parameters associated with the MLC must be set in the file [configuration.conf](conf/configuration.conf).  
 A short description of every parameter and also the valid values supported can be found in the [Wiki](https://github.com/Ezetowers/taller3_final/wiki/Configuration-Parameters).
 
-<div id='logging'/>
 ### Logging
 MLC provides log facilities based on the [Python Logging Module](https://docs.python.org/2/library/logging.html). The   application consumes the file [logging.conf](conf/logging.conf) in order to retrieve the different log configuration   available. The present available log configuration are the following:
 * **console**: Redirects the output of the MLC to standard output. The log-level is set to *DEBUG*.
@@ -109,7 +101,6 @@ content is stored in */tmp/mlc.log*.
 The log configuration can be changed modifying the parameter **logmode** in the **LOGGING** section of the  
 [config file](conf/configuration.conf). Take care to put a valid value in order to avoid problems running the application.
 
-<div id='how_to_run_mlc'/>
 ## How to Run MLC
 For the moment, MLC does not receive any parameters to run. As it was said in previous sections, it retrieves the  
 desired configuration from the [configuration file](conf/configuration.conf) and redirects the output obeying the rules dictated by the [logging config file](conf/logging.conf).  
@@ -120,7 +111,6 @@ follows:
 user@hostname:/path/to/MLC_Project$ ./opt/mlc-python-2.7.11/bin/mlc_python main.py
 ```
 
-<div id='testing'/>
 ## Testing
 By default, tests (Unit tests, Integration tests, Smoke tests, etc.) are placed in the folder [test](tests).  
 The tests are designed using the [Python Unittest Module](https://docs.python.org/2/library/unittest.html). To avoid
