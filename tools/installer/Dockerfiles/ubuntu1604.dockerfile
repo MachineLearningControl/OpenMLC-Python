@@ -6,7 +6,6 @@ WORKDIR /tmp
 RUN mkdir -p /opt/mlc-python-2.7.11/bin /tmp/MLC /tmp/Scripts
 
 # Create project structure
-ADD deploy_scripts/* /tmp/deploy_scripts/
 ADD mlc_python_scripts/* /opt/mlc-python-2.7.11/bin/
 
 # Update the current system
@@ -156,6 +155,10 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN export LD_LIBRARY_PATH=/usr/local/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
     export PATH=/usr/local/Qt-5.7.1/bin:$PATH && \
-    /opt/mlc-python-2.7.11/bin/mlc_pip install cython numpy flask requests pyserial nose pyyaml coverage matplotlib scipy
+    /opt/mlc-python-2.7.11/bin/mlc_pip install ipython numpy flask requests pyserial nose pyyaml coverage matplotlib scipy
 
-CMD /tmp/deploy_scripts/create_MLC_folder.sh ${RELEASE}
+ARG RELEASE
+ENV RELEASE ${RELEASE}
+ENV OS_VERSION ubuntu-16.04
+ADD deploy_scripts/* /tmp/deploy_scripts/
+ENTRYPOINT ["/tmp/deploy_scripts/create_MLC_folder.sh"]

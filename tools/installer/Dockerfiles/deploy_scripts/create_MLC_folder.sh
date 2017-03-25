@@ -1,9 +1,8 @@
 #!/bin/bash
-RELEASE=$1
 MLC_PATH="/tmp/MLC-$RELEASE"
-
 # Create the containing folder
 mkdir -p $MLC_PATH/tools
+ENTRYPOINT ["/tmp/deploy_scripts/create_MLC_folder.sh"]
 
 # Download the MLC code from Github
 wget "https://github.com/Ezetowers/MLC/archive/v$RELEASE.tar.gz"
@@ -22,3 +21,5 @@ cp -r /tmp/deploy_scripts/install_matlab_engine.sh $MLC_PATH/tools
 cd $MLC_PATH
 ln -s mlc_python/bin/mlc_python mlc_python.sh
 ln -s mlc_python/bin/mlc_ipython mlc_ipython.sh
+tar cJvpf /tmp/MLC-$RELEASE-$OS_VERSION.tar.xz -C /tmp MLC-$RELEASE
+bash

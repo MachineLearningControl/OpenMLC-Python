@@ -1,0 +1,5 @@
+# First generate the OS image with the following command
+docker build -f ubuntu1604.dockerfile -t mlc_ubuntu:16.04 --build-arg RELEASE=0.0.2 .
+
+# Then get the .tar.gz related with the OS running the docker container
+docker run --rm -it mlc_ubuntu:16.04 bash
