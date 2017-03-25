@@ -1,6 +1,8 @@
-# MLC (Machine Learning Control)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ezetowers/MLC/master/MLC/GUI/images/mlc_icon.png" width="350"/>
+</p>
 
-[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
+# MLC (Machine Learning Control)
 
 ## Table of Contents
 1. [Abstract](#abstract)
@@ -15,10 +17,13 @@
 5. [How To Run MLC](#how_to_run_mlc)
 6. [Testing](#testing)
 
+## Status
+[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
+
 <div id='abstract'/>
 ## Abstract
 MLC is a framework designed to solve chaotic problems related with the field of fluodynamics.  
-The input of the system it's an script which model a problem. This problem is solved evolving populations, which are groups of non related individuals, through the use of a set of genetic algorithms. Every individual is modeled as a linear combination of diffenrent operators (-,+, sin, cos, exp, etc.).
+The input of the system it's an script which models a problem. This problem is solved evolving populations, which are groups of non related individuals, through the use of a set of genetic algorithms. Every individual is modeled as a linear combination of diffenrent operators (-,+, sin, cos, exp, etc.).
 
 <div id='project_structure'/>
 ## Project Structure
