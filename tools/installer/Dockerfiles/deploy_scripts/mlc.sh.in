@@ -1,0 +1,6 @@
+#!/bin/bash
+export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."
+RELEASE=@release_version@
+
+# Execute the MLC_GUI
+$ROOTPATH/mlc_python/bin/mlc_python $ROOTPATH/MLC-$RELEASE/MLC/GUI/mlc_gui.py

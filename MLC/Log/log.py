@@ -21,16 +21,34 @@
 
 import logging
 import logging.config
+import platform
 import os
 
+os_platform = platform.system()
+log_file = os.path.join(*[os.path.dirname(os.path.realpath(__file__)),
+                          "..",
+                          "..",
+                          "conf",
+                          "logging.{0}.conf".format(os_platform.lower())])
+
+if os.path.isfile(log_file):
+    print "Platform {0} is not supported. Using default logging file.".format(os_platform)
+    log_file = os.path.join(*[os.path.dirname(os.path.realpath(__file__)),
+                              "..",
+                              "..",
+                              "conf",
+                              "logging.default.conf"])
+print log_file
 logger_ = None
-logging.config.fileConfig(os.path.dirname(os.path.realpath(__file__)) +
-                          "/../../conf/logging.conf")
+logging.config.fileConfig(log_file)
 
 
 def set_logger(mode):
-    if mode == "console" or mode == "testing" or \
-       mode == "root" or mode == "file":
+    if (mode == "console" or
+        mode == "testing" or
+        mode == "root" or
+        mode == "file"):
+
         global logger_
         logger_ = logging.getLogger(mode)
 
