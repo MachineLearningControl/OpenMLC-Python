@@ -158,7 +158,7 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
 
 # Create .sh who will load the desired enviroment to run pip within it
 RUN echo '#!/bin/bash' >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
-    echo 'export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+    echo 'export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."' >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
     echo "" >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
     echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
     echo 'export LD_LIBRARY_PATH=$ROOTPATH/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_pyuic5 && \
@@ -179,7 +179,7 @@ RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib sc
 
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN echo '#!/bin/bash' > /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
-    echo 'export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."' >> /opt/mlc-python-2.7.11/bin/mlc_pip && \
+    echo 'export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     echo "" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     echo "# Add the correct path to the LD_LIBRARY_PATH enviroment variable" >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
     echo 'export LD_LIBRARY_PATH=$ROOTPATH/lib:$LD_LIBRARY_PATH' >> /opt/mlc-python-2.7.11/bin/mlc_nosetests && \
