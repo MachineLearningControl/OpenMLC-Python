@@ -17,9 +17,6 @@
 5. [How To Run MLC](#how_to_run_mlc)
 6. [Testing](#testing)
 
-## Status
-[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
-
 <div id='abstract'/>
 ## Abstract
 MLC is a framework designed to solve chaotic problems related with the field of fluodynamics.  
@@ -112,7 +109,7 @@ content is stored in */tmp/mlc.log*.
 The log configuration can be changed modifying the parameter **logmode** in the **LOGGING** section of the  
 [config file](conf/configuration.conf). Take care to put a valid value in order to avoid problems running the application.
 
-<div id='how_to_run_MLC'/>
+<div id='how_to_run_mlc'/>
 ## How to Run MLC
 For the moment, MLC does not receive any parameters to run. As it was said in previous sections, it retrieves the  
 desired configuration from the [configuration file](conf/configuration.conf) and redirects the output obeying the rules dictated by the [logging config file](conf/logging.conf).  
