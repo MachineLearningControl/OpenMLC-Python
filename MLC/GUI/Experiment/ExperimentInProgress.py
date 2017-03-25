@@ -151,7 +151,6 @@ class ExperimentInProgressWindow(QMainWindow):
 
     def closeEvent(self, event):
         logger.debug('[EXPERIMENT_IN_PROGRESS] [CLOSE_DIALOG] - Executing overriden closeEvent function')
-        logger.debug('TUVIEJAAA: {0}'.format(self._simulation_has_finished))
         if not self._simulation_has_finished:
             if not self.on_cancel_button_clicked():
                 event.ignore()
@@ -206,7 +205,7 @@ class ExperimentInProgressWindow(QMainWindow):
         self._simulation_has_finished = True
         # Set the MainWindow to invisible to not see the it after press 'Yes'
         self.setVisible(False)
-        
+
         self._parent_signal.emit(self._experiment_condition.experiment_cancelled(),
                                  self._experiment_condition.experiment_failure())
         self.close()

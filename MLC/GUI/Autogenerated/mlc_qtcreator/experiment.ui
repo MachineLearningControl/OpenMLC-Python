@@ -812,6 +812,50 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>textEdit</tabstop>
+  <tabstop>max_cost_combo</tabstop>
+  <tabstop>min_cost_combo</tabstop>
+  <tabstop>valid_points_combo</tabstop>
+  <tabstop>marker_combo</tabstop>
+  <tabstop>overflow_color_combo</tabstop>
+  <tabstop>overflow_value_combo</tabstop>
+  <tabstop>nan_color_combo</tabstop>
+  <tabstop>nan_value_combo</tabstop>
+  <tabstop>preev_edit_button</tabstop>
+  <tabstop>ev_edit_button</tabstop>
+  <tabstop>test_indiv_edit</tabstop>
+  <tabstop>test_button</tabstop>
+  <tabstop>test_preev_indiv_edit</tabstop>
+  <tabstop>test_preev_indiv_button</tabstop>
+  <tabstop>from_gen_combo</tabstop>
+  <tabstop>to_gen_combo</tabstop>
+  <tabstop>start_button</tabstop>
+  <tabstop>board_config_button</tabstop>
+  <tabstop>textEdit_2</tabstop>
+  <tabstop>db_view</tabstop>
+  <tabstop>prev_gen_button</tabstop>
+  <tabstop>gen_count_combo</tabstop>
+  <tabstop>next_gen_button</tabstop>
+  <tabstop>log_check</tabstop>
+  <tabstop>show_all_check</tabstop>
+  <tabstop>dimension_check</tabstop>
+  <tabstop>gen_cut_button</tabstop>
+  <tabstop>gen_start_over_button</tabstop>
+  <tabstop>best_indiv_button</tabstop>
+  <tabstop>convergence_button</tabstop>
+  <tabstop>genealogy_button</tabstop>
+  <tabstop>config_table</tabstop>
+  <tabstop>import_config_button</tabstop>
+  <tabstop>export_config_button</tabstop>
+  <tabstop>save_config_button</tabstop>
+  <tabstop>edit_config_button</tabstop>
+  <tabstop>first_indivs_table</tabstop>
+  <tabstop>first_add_indiv</tabstop>
+  <tabstop>first_add_indiv_from_textfile</tabstop>
+  <tabstop>first_remove_indiv</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -46,6 +46,62 @@ class Ui_ArduinoConnectionDialog(object):
 
 # -*- coding: utf-8 -*-
 
+# Form implementation generated from reading ui file './mlc_qtcreator/generic_spinner.ui'
+#
+# Created by: PyQt5 UI code generator 5.7.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_GenericSpinnerDialog(object):
+    def setupUi(self, GenericSpinnerDialog):
+        GenericSpinnerDialog.setObjectName("GenericSpinnerDialog")
+        GenericSpinnerDialog.setWindowModality(QtCore.Qt.ApplicationModal)
+        GenericSpinnerDialog.resize(400, 300)
+        self.spinner_layout = QtWidgets.QVBoxLayout(GenericSpinnerDialog)
+        self.spinner_layout.setSizeConstraint(QtWidgets.QLayout.SetMaximumSize)
+        self.spinner_layout.setObjectName("spinner_layout")
+        self.spinner_widget = QtWidgets.QWidget(GenericSpinnerDialog)
+        self.spinner_widget.setObjectName("spinner_widget")
+        self.spinner_layout.addWidget(self.spinner_widget)
+        self.spinner_label = QtWidgets.QLabel(GenericSpinnerDialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.spinner_label.sizePolicy().hasHeightForWidth())
+        self.spinner_label.setSizePolicy(sizePolicy)
+        self.spinner_label.setTextFormat(QtCore.Qt.RichText)
+        self.spinner_label.setScaledContents(False)
+        self.spinner_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.spinner_label.setWordWrap(False)
+        self.spinner_label.setObjectName("spinner_label")
+        self.spinner_layout.addWidget(self.spinner_label, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.cancel_button = QtWidgets.QPushButton(GenericSpinnerDialog)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cancel_button.sizePolicy().hasHeightForWidth())
+        self.cancel_button.setSizePolicy(sizePolicy)
+        self.cancel_button.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.cancel_button.setAutoDefault(True)
+        self.cancel_button.setDefault(False)
+        self.cancel_button.setFlat(False)
+        self.cancel_button.setObjectName("cancel_button")
+        self.spinner_layout.addWidget(self.cancel_button, 0, QtCore.Qt.AlignHCenter)
+
+        self.retranslateUi(GenericSpinnerDialog)
+        self.cancel_button.clicked.connect(GenericSpinnerDialog.on_cancel_button_clicked)
+        # QtCore.QMetaObject.connectSlotsByName(GenericSpinnerDialog)
+
+    def retranslateUi(self, GenericSpinnerDialog):
+        _translate = QtCore.QCoreApplication.translate
+        GenericSpinnerDialog.setWindowTitle(_translate("GenericSpinnerDialog", "Dialog"))
+        self.spinner_label.setText(_translate("GenericSpinnerDialog", "TextLabel"))
+        self.cancel_button.setText(_translate("GenericSpinnerDialog", "Cancel"))
+
+# -*- coding: utf-8 -*-
+
 # Form implementation generated from reading ui file './mlc_qtcreator/pinout_design.ui'
 #
 # Created by: PyQt5 UI code generator 5.7.1
@@ -246,6 +302,14 @@ class Ui_MLCManager(object):
         self.rename_button.clicked.connect(MLCManager.on_rename_button_clicked)
         self.edit_workspace.triggered.connect(MLCManager.on_edit_workspace_clicked)
         # QtCore.QMetaObject.connectSlotsByName(MLCManager)
+        MLCManager.setTabOrder(self.new_button, self.remove_button)
+        MLCManager.setTabOrder(self.remove_button, self.clone_button)
+        MLCManager.setTabOrder(self.clone_button, self.import_button)
+        MLCManager.setTabOrder(self.import_button, self.export_button)
+        MLCManager.setTabOrder(self.export_button, self.open_button)
+        MLCManager.setTabOrder(self.open_button, self.rename_button)
+        MLCManager.setTabOrder(self.rename_button, self.experiment_list)
+        MLCManager.setTabOrder(self.experiment_list, self.experiment_description)
 
     def retranslateUi(self, MLCManager):
         _translate = QtCore.QCoreApplication.translate
@@ -960,6 +1024,47 @@ class Ui_ExperimentWindow(object):
         self.gen_start_over_button.clicked.connect(ExperimentWindow.on_gen_start_over_button_clicked)
         self.test_preev_indiv_button.clicked.connect(ExperimentWindow.on_test_preev_indiv_button_clicked)
         # QtCore.QMetaObject.connectSlotsByName(ExperimentWindow)
+        ExperimentWindow.setTabOrder(self.tabWidget, self.textEdit)
+        ExperimentWindow.setTabOrder(self.textEdit, self.max_cost_combo)
+        ExperimentWindow.setTabOrder(self.max_cost_combo, self.min_cost_combo)
+        ExperimentWindow.setTabOrder(self.min_cost_combo, self.valid_points_combo)
+        ExperimentWindow.setTabOrder(self.valid_points_combo, self.marker_combo)
+        ExperimentWindow.setTabOrder(self.marker_combo, self.overflow_color_combo)
+        ExperimentWindow.setTabOrder(self.overflow_color_combo, self.overflow_value_combo)
+        ExperimentWindow.setTabOrder(self.overflow_value_combo, self.nan_color_combo)
+        ExperimentWindow.setTabOrder(self.nan_color_combo, self.nan_value_combo)
+        ExperimentWindow.setTabOrder(self.nan_value_combo, self.preev_edit_button)
+        ExperimentWindow.setTabOrder(self.preev_edit_button, self.ev_edit_button)
+        ExperimentWindow.setTabOrder(self.ev_edit_button, self.test_indiv_edit)
+        ExperimentWindow.setTabOrder(self.test_indiv_edit, self.test_button)
+        ExperimentWindow.setTabOrder(self.test_button, self.test_preev_indiv_edit)
+        ExperimentWindow.setTabOrder(self.test_preev_indiv_edit, self.test_preev_indiv_button)
+        ExperimentWindow.setTabOrder(self.test_preev_indiv_button, self.from_gen_combo)
+        ExperimentWindow.setTabOrder(self.from_gen_combo, self.to_gen_combo)
+        ExperimentWindow.setTabOrder(self.to_gen_combo, self.start_button)
+        ExperimentWindow.setTabOrder(self.start_button, self.board_config_button)
+        ExperimentWindow.setTabOrder(self.board_config_button, self.textEdit_2)
+        ExperimentWindow.setTabOrder(self.textEdit_2, self.db_view)
+        ExperimentWindow.setTabOrder(self.db_view, self.prev_gen_button)
+        ExperimentWindow.setTabOrder(self.prev_gen_button, self.gen_count_combo)
+        ExperimentWindow.setTabOrder(self.gen_count_combo, self.next_gen_button)
+        ExperimentWindow.setTabOrder(self.next_gen_button, self.log_check)
+        ExperimentWindow.setTabOrder(self.log_check, self.show_all_check)
+        ExperimentWindow.setTabOrder(self.show_all_check, self.dimension_check)
+        ExperimentWindow.setTabOrder(self.dimension_check, self.gen_cut_button)
+        ExperimentWindow.setTabOrder(self.gen_cut_button, self.gen_start_over_button)
+        ExperimentWindow.setTabOrder(self.gen_start_over_button, self.best_indiv_button)
+        ExperimentWindow.setTabOrder(self.best_indiv_button, self.convergence_button)
+        ExperimentWindow.setTabOrder(self.convergence_button, self.genealogy_button)
+        ExperimentWindow.setTabOrder(self.genealogy_button, self.config_table)
+        ExperimentWindow.setTabOrder(self.config_table, self.import_config_button)
+        ExperimentWindow.setTabOrder(self.import_config_button, self.export_config_button)
+        ExperimentWindow.setTabOrder(self.export_config_button, self.save_config_button)
+        ExperimentWindow.setTabOrder(self.save_config_button, self.edit_config_button)
+        ExperimentWindow.setTabOrder(self.edit_config_button, self.first_indivs_table)
+        ExperimentWindow.setTabOrder(self.first_indivs_table, self.first_add_indiv)
+        ExperimentWindow.setTabOrder(self.first_add_indiv, self.first_add_indiv_from_textfile)
+        ExperimentWindow.setTabOrder(self.first_add_indiv_from_textfile, self.first_remove_indiv)
 
     def retranslateUi(self, ExperimentWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -1641,6 +1746,32 @@ class Ui_BoardConfigurationWindow(object):
         self.analog_resolution_spin.valueChanged['int'].connect(BoardConfigurationWindow.on_analog_resolution_change)
         self.permissions_button.clicked.connect(BoardConfigurationWindow.on_permission_button_clicked)
         # QtCore.QMetaObject.connectSlotsByName(BoardConfigurationWindow)
+        BoardConfigurationWindow.setTabOrder(self.arduinoBoard, self.showPinout)
+        BoardConfigurationWindow.setTabOrder(self.showPinout, self.serial_radio)
+        BoardConfigurationWindow.setTabOrder(self.serial_radio, self.ethernet_radio)
+        BoardConfigurationWindow.setTabOrder(self.ethernet_radio, self.interface_combo)
+        BoardConfigurationWindow.setTabOrder(self.interface_combo, self.permissions_button)
+        BoardConfigurationWindow.setTabOrder(self.permissions_button, self.baud_rate_selector)
+        BoardConfigurationWindow.setTabOrder(self.baud_rate_selector, self.parity_bits_selector)
+        BoardConfigurationWindow.setTabOrder(self.parity_bits_selector, self.stop_bits_selector)
+        BoardConfigurationWindow.setTabOrder(self.stop_bits_selector, self.byte_size_selector)
+        BoardConfigurationWindow.setTabOrder(self.byte_size_selector, self.testInterface)
+        BoardConfigurationWindow.setTabOrder(self.testInterface, self.digitalPins)
+        BoardConfigurationWindow.setTabOrder(self.digitalPins, self.digitalPinType)
+        BoardConfigurationWindow.setTabOrder(self.digitalPinType, self.addDigitalPin)
+        BoardConfigurationWindow.setTabOrder(self.addDigitalPin, self.removeDigitalPin)
+        BoardConfigurationWindow.setTabOrder(self.removeDigitalPin, self.digitalPinsList)
+        BoardConfigurationWindow.setTabOrder(self.digitalPinsList, self.analogPins)
+        BoardConfigurationWindow.setTabOrder(self.analogPins, self.analogPinType)
+        BoardConfigurationWindow.setTabOrder(self.analogPinType, self.addAnalogPin)
+        BoardConfigurationWindow.setTabOrder(self.addAnalogPin, self.removeAnalogPin)
+        BoardConfigurationWindow.setTabOrder(self.removeAnalogPin, self.analogPinList)
+        BoardConfigurationWindow.setTabOrder(self.analogPinList, self.report_mode_combo)
+        BoardConfigurationWindow.setTabOrder(self.report_mode_combo, self.read_delay_spin)
+        BoardConfigurationWindow.setTabOrder(self.read_delay_spin, self.read_count_spin)
+        BoardConfigurationWindow.setTabOrder(self.read_count_spin, self.analog_resolution_spin)
+        BoardConfigurationWindow.setTabOrder(self.analog_resolution_spin, self.benchTests)
+        BoardConfigurationWindow.setTabOrder(self.benchTests, self.closeButton)
 
     def retranslateUi(self, BoardConfigurationWindow):
         _translate = QtCore.QCoreApplication.translate

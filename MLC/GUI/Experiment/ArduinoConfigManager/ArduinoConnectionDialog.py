@@ -33,7 +33,6 @@ from MLC.GUI.Experiment.ArduinoConfigManager.Common import create_local_full_pat
 
 
 class ArduinoConnectionDialog(QDialog, QObject):
-
     signal_update = pyqtSignal()
 
     def __init__(self, parent=None):

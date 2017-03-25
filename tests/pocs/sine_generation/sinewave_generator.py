@@ -44,9 +44,9 @@ import matplotlib.pyplot as plt
 A = 1.1
 # Offset
 Offset = 1.65
-f0 = 10
+f0 = 110
 w0 = 2 * np.pi * f0
-fs = 1e3
+fs = 5e3
 
 n = np.linspace(0, fs, num=fs)
 sinewave = Offset + A * np.cos(w0 * n / fs)

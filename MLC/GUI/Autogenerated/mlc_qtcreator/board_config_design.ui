@@ -1295,6 +1295,35 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>arduinoBoard</tabstop>
+  <tabstop>showPinout</tabstop>
+  <tabstop>serial_radio</tabstop>
+  <tabstop>ethernet_radio</tabstop>
+  <tabstop>interface_combo</tabstop>
+  <tabstop>permissions_button</tabstop>
+  <tabstop>baud_rate_selector</tabstop>
+  <tabstop>parity_bits_selector</tabstop>
+  <tabstop>stop_bits_selector</tabstop>
+  <tabstop>byte_size_selector</tabstop>
+  <tabstop>testInterface</tabstop>
+  <tabstop>digitalPins</tabstop>
+  <tabstop>digitalPinType</tabstop>
+  <tabstop>addDigitalPin</tabstop>
+  <tabstop>removeDigitalPin</tabstop>
+  <tabstop>digitalPinsList</tabstop>
+  <tabstop>analogPins</tabstop>
+  <tabstop>analogPinType</tabstop>
+  <tabstop>addAnalogPin</tabstop>
+  <tabstop>removeAnalogPin</tabstop>
+  <tabstop>analogPinList</tabstop>
+  <tabstop>report_mode_combo</tabstop>
+  <tabstop>read_delay_spin</tabstop>
+  <tabstop>read_count_spin</tabstop>
+  <tabstop>analog_resolution_spin</tabstop>
+  <tabstop>benchTests</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

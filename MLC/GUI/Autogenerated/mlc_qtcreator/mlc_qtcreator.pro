@@ -29,6 +29,7 @@ FORMS    += \
     arduinoconnectiontest.ui  \
     pinout_design.ui \ 
     arduino_performance_test.ui \
-    about.ui
+    about.ui \
+    generic_spinner.ui
 
 DISTFILES +=

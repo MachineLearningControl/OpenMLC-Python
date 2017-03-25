@@ -256,6 +256,17 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>new_button</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>clone_button</tabstop>
+  <tabstop>import_button</tabstop>
+  <tabstop>export_button</tabstop>
+  <tabstop>open_button</tabstop>
+  <tabstop>rename_button</tabstop>
+  <tabstop>experiment_list</tabstop>
+  <tabstop>experiment_description</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
