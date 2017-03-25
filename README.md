@@ -7,15 +7,15 @@
 
 ## Table of Contents
 1. [Abstract](#abstract)
-2. [Project Structure](#project_structure)
+2. [Project Structure](#project-structure)
 3. [Installation](#installation)  
-3.1 [Python Engine and MLC Python](#python_engine_and_mlc_python)    
-3.2 [MATLAB versions supported](#matlab_versions_supported)    
-3.3 [MLC Python](#mlc_python)  
+3.1 [Python Engine and MLC Python](#python-engine-and-mlc-python)    
+3.2 [MATLAB versions supported](#matlab-versions-supported)    
+3.3 [MLC Python](#mlc-python)  
 4. [Configuration](#configuration)  
 4.1 [Parameters](#parameters)  
 4.2 [Logging](#logging)
-5. [How To Run MLC](#how_to_run_mlc)
+5. [How To Run MLC](#how-to-run-mlc)
 6. [Testing](#testing)
 
 ## Abstract
