@@ -31,14 +31,13 @@ log_file = os.path.join(*[os.path.dirname(os.path.realpath(__file__)),
                           "conf",
                           "logging.{0}.conf".format(os_platform.lower())])
 
-if os.path.isfile(log_file):
+if not os.path.isfile(log_file):
     print "Platform {0} is not supported. Using default logging file.".format(os_platform)
     log_file = os.path.join(*[os.path.dirname(os.path.realpath(__file__)),
                               "..",
                               "..",
                               "conf",
                               "logging.default.conf"])
-print log_file
 logger_ = None
 logging.config.fileConfig(log_file)
 
