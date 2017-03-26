@@ -19,12 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 class ConnectionException(Exception):
     pass
+
 
 class ConnectionTimeoutException(ConnectionException):
     def __init__(self, what):
         ConnectionException.__init__(self, "Connection timeout: %s" % (what))
+
 
 class BaseConnection:
     '''
@@ -32,10 +35,31 @@ class BaseConnection:
     
     Defines method for I/O with an Arduino device
     '''
-    def send(self,data):
-       """ Sends data to arduino device """
-       raise NotImplementedError
+    def send(self, data):
+        """ Sends data to arduino device """
+        raise NotImplementedError
 
     def recv(self, length):
-       """ Receive data from the arduino device """
-       raise NotImplementedError
+        """ Receive data from the arduino device """
+        raise NotImplementedError
+
+    def wake_up(self):
+        raise NotImplementedError
+
+
+class InvalidConnection(BaseConnection):
+    def __init__(self):
+        return
+
+    def send(self, data):
+        raise ConnectionException("Invalid setup of connection")
+
+    def recv(self, length):
+        raise ConnectionException("Invalid setup of connection")
+
+    def wake_up(self):
+        raise ConnectionException("Invalid setup of connection")
+
+
+def invalid_connection_builder(params):
+    return InvalidConnection()

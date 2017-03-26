@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import os
+from threading import Condition
 
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
@@ -39,6 +40,8 @@ class ArduinoConnectionDialog(QDialog, QObject):
         super(ArduinoConnectionDialog, self).__init__(parent)
         self.ui = Ui_ArduinoConnectionDialog()
         self.ui.setupUi(self)
+        self._dialog_started = Condition()
+        self._started = False
         # Init status images
         self.__ok_tick = QPixmap()
         self.__ok_tick.load(create_local_full_path("images", "ok_b.png"))
@@ -71,6 +74,14 @@ class ArduinoConnectionDialog(QDialog, QObject):
 
         self.ui.widget.layout().removeWidget(self.__label)
 
+    def exec_(self):
+        self._dialog_started.acquire()
+        self._started = True
+        self._dialog_started.notify_all()
+        self._dialog_started.release()
+        # Race condition here :/
+        QDialog.exec_(self)
+
     def __no_change(self):
         return
 
@@ -91,10 +102,16 @@ class ArduinoConnectionDialog(QDialog, QObject):
         self.ui.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
 
     def set_ok(self):
+        self._dialog_started.acquire()
+        if not self._started:
+            self._dialog_started.wait()
         self.__update_callback = self.__config_ok_tick
         self.signal_update.emit()
 
     def set_error(self, msg):
+        self._dialog_started.acquire()
+        if not self._started:
+            self._dialog_started.wait()
         self.__update_callback = self.__config_error_tick
         self.__error = msg
         self.signal_update.emit()

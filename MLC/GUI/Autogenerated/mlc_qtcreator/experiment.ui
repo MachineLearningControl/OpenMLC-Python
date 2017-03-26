@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>965</width>
-    <height>615</height>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -376,24 +376,53 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_9">
+            <widget class="QGroupBox" name="board_config_group">
              <property name="title">
               <string>Board Configuration</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="1">
-               <widget class="QPushButton" name="board_config_button">
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QCheckBox" name="disable_board_check">
+                <property name="toolTip">
+                 <string extracomment="Disable board initialization"/>
+                </property>
+                <property name="statusTip">
+                 <string/>
+                </property>
+                <property name="whatsThis">
+                 <string extracomment="Disable board initialization"/>
+                </property>
+                <property name="accessibleDescription">
+                 <string/>
+                </property>
                 <property name="text">
-                 <string>Configure</string>
+                 <string>Disable board</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_16">
-                <property name="text">
-                 <string>Board:</string>
+              <item>
+               <layout class="QHBoxLayout" name="board_group">
+                <property name="topMargin">
+                 <number>6</number>
                 </property>
-               </widget>
+                <property name="bottomMargin">
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="board_label">
+                  <property name="text">
+                   <string>Board:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="board_config_button">
+                  <property name="text">
+                   <string>Configure</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -865,8 +894,8 @@
    <slot>on_next_gen_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>878</x>
-     <y>121</y>
+     <x>922</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -881,8 +910,8 @@
    <slot>on_save_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>921</x>
-     <y>507</y>
+     <x>479</x>
+     <y>647</y>
     </hint>
     <hint type="destinationlabel">
      <x>277</x>
@@ -897,8 +926,8 @@
    <slot>on_dimension_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>241</y>
+     <x>922</x>
+     <y>283</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -913,8 +942,8 @@
    <slot>on_show_all_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>215</y>
+     <x>922</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -945,8 +974,8 @@
    <slot>on_log_check_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>189</y>
+     <x>922</x>
+     <y>223</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -977,8 +1006,8 @@
    <slot>on_test_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>251</y>
+     <x>922</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>277</x>
@@ -993,8 +1022,8 @@
    <slot>on_prev_gen_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>121</y>
+     <x>836</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1041,8 +1070,8 @@
    <slot>on_start_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>376</y>
+     <x>922</x>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>205</x>
@@ -1057,8 +1086,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>437</y>
+     <x>341</x>
+     <y>580</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1073,8 +1102,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>465</y>
+     <x>341</x>
+     <y>612</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1089,8 +1118,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>372</y>
+     <x>647</x>
+     <y>580</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1105,8 +1134,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>400</y>
+     <x>647</x>
+     <y>612</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1121,8 +1150,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>428</y>
+     <x>647</x>
+     <y>644</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1137,8 +1166,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>372</y>
+     <x>647</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1153,8 +1182,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>203</x>
-     <y>372</y>
+     <x>341</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1169,8 +1198,8 @@
    <slot>on_chart_config_changed(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>203</x>
-     <y>428</y>
+     <x>341</x>
+     <y>644</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1185,8 +1214,8 @@
    <slot>on_genealogy_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>488</y>
+     <x>922</x>
+     <y>533</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1201,8 +1230,8 @@
    <slot>on_best_indiv_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>433</y>
+     <x>922</x>
+     <y>469</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1217,8 +1246,8 @@
    <slot>on_convergence_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>461</y>
+     <x>922</x>
+     <y>501</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1233,8 +1262,8 @@
    <slot>on_board_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>864</x>
-     <y>434</y>
+     <x>921</x>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1249,8 +1278,8 @@
    <slot>on_edit_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>702</x>
-     <y>517</y>
+     <x>925</x>
+     <y>647</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1265,8 +1294,8 @@
    <slot>on_import_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>258</x>
-     <y>489</y>
+     <x>288</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1281,8 +1310,8 @@
    <slot>on_export_config_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>702</x>
-     <y>489</y>
+     <x>925</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1313,8 +1342,8 @@
    <slot>on_first_add_indiv_from_textfile_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>121</y>
+     <x>922</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1345,8 +1374,8 @@
    <slot>on_gen_cut_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>309</y>
+     <x>922</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1361,8 +1390,8 @@
    <slot>on_gen_start_over_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>337</y>
+     <x>922</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>480</x>
@@ -1377,12 +1406,28 @@
    <slot>on_test_preev_indiv_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>860</x>
-     <y>359</y>
+     <x>922</x>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>482</x>
      <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>disable_board_check</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_disable_arduino_toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>736</x>
+     <y>588</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>956</x>
+     <y>682</y>
     </hint>
    </hints>
   </connection>
@@ -1416,5 +1461,6 @@
   <slot>on_gen_cut_button_clicked()</slot>
   <slot>on_gen_start_over_button_clicked()</slot>
   <slot>on_test_preev_indiv_button_clicked()</slot>
+  <slot>on_disable_arduino_toggle()</slot>
  </slots>
 </ui>

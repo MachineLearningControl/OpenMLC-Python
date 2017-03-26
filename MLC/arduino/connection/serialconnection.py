@@ -23,9 +23,11 @@ from base import BaseConnection, ConnectionException, ConnectionTimeoutException
 from collections import namedtuple
 import serial
 
+
 class SerialConnectionException(ConnectionException):
     def __init__(self, what):
         ConnectionException.__init__(self, "Error in connection initialization. {0}".format(what))
+
 
 class SerialConnection(BaseConnection):
 
@@ -93,8 +95,17 @@ class SerialConnection(BaseConnection):
         else:
             return recv
 
+    def wake_up(self):
+        self._connection.cancel_read()
+        self._connection.cancel_write()
+
 
 class SerialConnectionConfig (namedtuple('SerialConnectionConfig', ['port', 'baudrate', 'parity', 'stopbits', 'bytesize'])):
 
     def __new__(cls, port, baudrate=115200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS):
         return super(SerialConnectionConfig, cls).__new__(cls, port, baudrate, parity, stopbits, bytesize)
+
+
+# Creates the serial connection using a SerialConnectionConfig
+def serial_connection_builder(params):
+    return SerialConnection(**(params._asdict()))

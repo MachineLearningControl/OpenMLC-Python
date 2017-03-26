@@ -36,7 +36,7 @@ def actuate(terminal):
     arduinoDue.add_output(40)
     arduinoDue.add_input(64)
     arduinoDue.add_input(63)
-    arduinoDue.add_input(30)
+#    arduinoDue.add_input(2)
 
     output = arduinoDue.actuate([(40,1)])
     for i in output.keys():

@@ -25,7 +25,7 @@ import time
 
 from threading import Thread
 
-from MLC.arduino.protocol import ProtocolConfig, BuildSerial
+from MLC.arduino.protocol import ProtocolConfig, init_interface
 
 
 class ArduinoBench:
@@ -43,7 +43,7 @@ class ArduinoBench:
         return self.__data
 
     def evaluate(self):
-        arduino = BuildSerial(self._board_config)
+        arduino = init_interface(self._board_config)
 
         last_time = time.time()
         start_time = last_time

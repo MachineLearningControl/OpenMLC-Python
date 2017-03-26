@@ -23,6 +23,7 @@ import collections
 import boards
 from collections import namedtuple
 from connection.base import ConnectionException
+from connection.base import invalid_connection_builder
 import MLC.Log.log as lg
 
 _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x00\x00\x00\x01%s',
@@ -42,41 +43,19 @@ REPORT_MODES = collections.namedtuple(
 PIN_MODES = collections.namedtuple(
     'PIN_MODES', ['INPUT', 'OUTPUT'], verbose=False)(INPUT=0, OUTPUT=1)
 
+
 class ProtocolException(Exception):
     pass
 
+
 class ProtocolIOException(ProtocolException):
-    def __init__(self,what):
+    def __init__(self, what):
         ProtocolException.__init__(self, "Protocol IO error: %s" % (what))
+
 
 class ProtocolSetupException(ProtocolException):
     def __init__(self, what):
         ProtocolException.__init__(self, "Setup error: %s" % (what))
-
-class ArduinoInterfaceSingleton():
-    _instance = None
-
-    @staticmethod
-    def get_instance(protocol_config=None, conn_setup=None):
-        from MLC.arduino.connection.serialconnection import SerialConnection
-        if protocol_config and conn_setup:
-
-            serial_conn = None
-            try:
-                serial_conn = SerialConnection(**conn_setup)
-            except ConnectionException, err:
-                lg.logger_.info("[PROTOCOL] Error while loading SerialConnection. "
-                                "Err info: {0}".format(err))
-                raise
-
-            protocol_config = protocol_config._replace(connection=serial_conn)
-            ArduinoInterfaceSingleton._instance = BuildSerial(protocol_config)
-
-        if ArduinoInterfaceSingleton._instance is None:
-            raise ProtocolSetupException("The arduino interface cannot be used if it isn't configured.")
-
-        return ArduinoInterfaceSingleton._instance
-
 
 class ArduinoInterface:
     # 0=input 1=output -- wiring_constants.h
@@ -133,7 +112,7 @@ class ArduinoInterface:
     def __set_pin_mode(self, port, mode):
         if mode not in PIN_MODES._asdict().values():
             raise ValueError("Pind mode error. Unknown mode: %s. Modes availables: %s " %
-                            (mode, str(PIN_MODES_asdict().keys())))
+                             (mode, str(PIN_MODES_asdict().keys())))
 
         self._connection.send(
             _PROTOCOL_CMDS["PIN_MODE"] % (chr(port), chr(mode)))
@@ -190,7 +169,7 @@ class ArduinoInterface:
     def __validate_pin(self, pin):
         if pin not in self._board["DIGITAL_PINS"] and pin not in self._board["ANALOG_PINS"]:
             raise ValueError("Invalid pin %s for board %s" %
-                            (pin, self._board["NAME"]))
+                             (pin, self._board["NAME"]))
 
     def __get_arduino_pin_id(self, pin):
         ret = pin
@@ -234,11 +213,11 @@ class ArduinoInterface:
         self._connection.send(
             "".join([_PROTOCOL_CMDS["ACTUATE"], chr((size & 0xFF000000) >> 24), chr((size & 0x00FF0000) >> 16),
                      chr((size & 0x0000FF00) >> 8), chr(size & 0x000000FF), payload]))
-        #FIXME catch connection exceptions
+        # FIXME catch connection exceptions
         response = self._connection.recv(1)
 
         if response == _PROTOCOL_CMDS["ACK"]:
-            response = self._connection.recv(4) # Clears buffer
+            response = self._connection.recv(4)  # Clears buffer
             raise ProtocolIOException("Actuate error. Code: %s" % response)
 
         if response != _PROTOCOL_CMDS["ACTUATE_REPORT"]:
@@ -309,7 +288,7 @@ class ProtocolConfig(
                                                   analog_input_pins, analog_output_pins, pwm_pins, analog_resolution)
 
 
-def BuildSerial(protocol_config):
+def init_interface(protocol_config):
     interface = ArduinoInterface(protocol_config.connection, protocol_config.board_type)
     interface.reset()
     interface.set_report_mode(protocol_config.report_mode, protocol_config.read_count, protocol_config.read_delay)
@@ -331,3 +310,43 @@ def BuildSerial(protocol_config):
     interface.set_precision(protocol_config.analog_resolution)
 
     return interface
+
+
+class ArduinoInterfaceSingleton:
+    _instance = None
+    _connection_builder = [invalid_connection_builder]
+    _interface_builder = [init_interface]
+
+    @staticmethod
+    def get_instance(protocol_config=None, conn_setup=None):
+        if protocol_config and conn_setup:
+            serial_conn = None
+            try:
+                #serial_conn = SerialConnection(**conn_setup)
+                connection = ArduinoInterfaceSingleton._connection_builder[0](conn_setup)
+            except ConnectionException, err:
+                lg.logger_.info("[PROTOCOL] Error while building connection. "
+                                "Err info: {0}".format(err))
+                raise
+
+            protocol_config = protocol_config._replace(connection=connection)
+            ArduinoInterfaceSingleton._instance = ArduinoInterfaceSingleton._interface_builder[0](protocol_config)
+
+        if ArduinoInterfaceSingleton._instance is None:
+            raise ProtocolSetupException("The arduino interface cannot be used if it isn't configured.")
+
+        return ArduinoInterfaceSingleton._instance
+
+    @staticmethod
+    def set_connection_builder(builder):
+        ArduinoInterfaceSingleton._connection_builder[0] = builder
+        ArduinoInterfaceSingleton._interface_builder[0] = init_interface
+
+    @staticmethod
+    def __null_initialization(config):
+        return ArduinoInterface(config.connection, config.board_type)
+
+    @staticmethod
+    def disable_interface():
+        ArduinoInterfaceSingleton._interface_builder[0] = ArduinoInterfaceSingleton.__null_initialization
+        ArduinoInterfaceSingleton._connection_builder[0] = invalid_connection_builder
