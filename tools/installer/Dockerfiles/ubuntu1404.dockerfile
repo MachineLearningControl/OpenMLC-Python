@@ -155,10 +155,13 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN export LD_LIBRARY_PATH=/usr/local/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
     export PATH=/usr/local/Qt-5.7.1/bin:$PATH && \
-    /opt/mlc-python-2.7.11/bin/mlc_pip install ipython numpy flask requests pyserial nose pyyaml coverage matplotlib scipy
+    /opt/mlc-python-2.7.11/bin/mlc_pip install ipython numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
+
+RUN gem install fpm
 
 ARG RELEASE
 ENV RELEASE ${RELEASE}
-ENV OS_VERSION ubuntu-16.04
+ENV OS_VERSION ubuntu-14.04
+ENV PACKAGE_TYPE deb
 ADD deploy_scripts/* /tmp/deploy_scripts/
 ENTRYPOINT ["/tmp/deploy_scripts/create_MLC_folder.sh"]

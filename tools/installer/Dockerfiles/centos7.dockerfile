@@ -127,10 +127,12 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
     rm -rf /tmp/PyQtDataVisualization_gpl-5.7.1*
 
 # Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install pyserial numpy nose matplotlib scipy pyyaml flask requests
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install ipython pyserial numpy nose matplotlib scipy pyyaml flask requests pyusb
+RUN gem install fpm
 
 ARG RELEASE
 ENV RELEASE ${RELEASE}
-ENV OS_VERSION ubuntu-16.04
+ENV OS_VERSION centos-7
+ENV PACKAGE_TYPE rpm
 ADD deploy_scripts/* /tmp/deploy_scripts/
 ENTRYPOINT ["/tmp/deploy_scripts/create_MLC_folder.sh"]
