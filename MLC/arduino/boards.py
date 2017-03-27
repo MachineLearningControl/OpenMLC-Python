@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import usb.core
+import usb.util
 
 Due = {"NAME": "Arduino Due",
        "SHORT_NAME": "due",
@@ -49,3 +51,14 @@ Leonardo = {"NAME": "Arduino Leonardo",
             "ANALOG_DEFAULT_RESOLUTION": 10}
 
 types = [Due, Uno, Mega, Leonardo]
+boards_ids = [(0x2341, 0x0043, 1),
+              (0x2341, 0x0042, 2),
+              (0x2341, 0x8036, 3),
+              (0x2341, 0x003e, 0),
+              (0x03EB, 0x6124, 0)]
+
+def detect_board():
+    for id in boards_ids:
+        usbdevs = usb.core.find(find_all=True, idVendor=id[0], idProduct=id[1])
+        for dev in usbdevs:
+            return id[2]

@@ -183,6 +183,13 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QPushButton" name="autoDetect">
+                  <property name="text">
+                   <string>Autodetect</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -1493,12 +1500,28 @@
    <slot>on_permission_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>934</x>
-     <y>116</y>
+     <x>989</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
      <y>337</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoDetect</sender>
+   <signal>clicked()</signal>
+   <receiver>BoardConfigurationWindow</receiver>
+   <slot>on_autodetect_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>918</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1018</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
@@ -1514,6 +1537,7 @@
   <slot>on_connection_type_toggle()</slot>
   <slot>on_analog_resolution_change()</slot>
   <slot>on_permission_button_clicked()</slot>
+  <slot>on_autodetect_clicked()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="connection_type_group"/>

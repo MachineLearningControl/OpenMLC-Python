@@ -226,7 +226,10 @@ class BoardConfigurationWindow(QMainWindow):
         pinsList.verticalHeader().setVisible(False)
 
     def index_change(self, new_idx):
-        self.__controller.board_changed(new_idx, self.__board_idx)
+        self.__board_idx = self.__controller.board_changed(new_idx, self.__board_idx)
+
+    def current_board_idx(self):
+        return self.__board_idx
 
     def set_board(self, idx):
         self.ui.arduinoBoard.blockSignals(True)
@@ -237,7 +240,8 @@ class BoardConfigurationWindow(QMainWindow):
         self.__controller.start_bench()
 
     def on_connection_type_toggle(self):
-        print "Type toggled!"
+        #TBD
+        pass
 
     def on_permission_button_clicked(self):
         response = QInputDialog.getText(self,
@@ -259,6 +263,14 @@ class BoardConfigurationWindow(QMainWindow):
                                      "Permissions could not be given to {0}. "
                                      "Check the password inserted to be correct"
                                      .format(interface_name))
+
+    def on_autodetect_clicked(self):
+        idx = self.__controller.autodetect_board()
+        if idx is None:
+            QMessageBox.information(self, "No device detected", "Couldn't find a supported Arduino board. "
+                                                                "Please, check your connections.")
+        else:
+            self.__board_idx = idx
 
     def _update_interfaces(self):
         # Search for all the files which starts with tty and end with ACM in the /dev directory
