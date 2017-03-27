@@ -52,6 +52,8 @@ class BoardConfigurationWindow(QMainWindow):
         self.__boards = boards
         self.__setup = setup
         self.__board_idx = 0
+        #Disabled by the moment -- ethernet not yet supported!
+        self.ui.ethernet_radio.setDisabled(True)
 
         current_board = 0
 
