@@ -1,0 +1,268 @@
+3Experimento N°1:
+---------------
+
+Summation_Gain: 1 (Summation)
+Sensor_Source: difference
+goal: kill_signal
+
+
+Python:
+Individual N°1: (root 0.0000) - Cost: 1
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- 1.4181 (+ S0 S0))) - Cost: 1.00191 - Simplified: - (root (+ -2S0 1.4181))
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°1: (root (* (* (* (* (* (* (* (* (- 1.2761 S0) 0.0052) 0.0052) 0.0052) 0.0052) 0.0052) 0.0052) 0.0052) 0.0052)) - Cost: 1 - Simplified: (root 0.0000)
+Individual N°2: -
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (+ (+ -2.2014 7.5239) (+ -4.0952 S0))) - Cost: 0.1250 - Simplified: (root (+ S0 1.22979))
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°2: -
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Experimento N°2:
+---------------
+
+Summation_Gain: -1 (Difference)
+Sensor_Source: difference
+goal: kill_signal
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (+ 0.2019 (+ 0.2019 (+ 0.2019 (+ 0.8548 S0))))) - Cost: 0.119522
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°1: (root (- S0 (- (- (+ S0 -0.7339) -0.6674) (+ 1.3113 (+ S0 (* -2.8824 (* S0 0.0135))))))) - Cost: 0.119513
+Individual N°2: (root (+ 1.3704 S0)) - Cost: 0.120442
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- S0 -1.6076)) - Cost: 0.1212
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°1: (root (+ 8.7690 (+ -7.4002 S0))) - Cost: 0.1205
+Individual N°2: -
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Experimento N°3:
+----------------
+
+Summation_Gain: 1 (Summation)
+Sensor_Source: difference
+goal: kill_perturbation
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- 2.5654 S0)) - Cost: 0.336503
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°1: (root (- (* (- (+ S0 0.5872) S0) (- (+ S0 0.2777) S0)) (- S0 2.3809))) - Cost: 0.336756
+Individual N°2: (root (- (- (- S0 -2.1348) S0) (- (- S0 1.1287) -0.6655))) - Cost: 0.337038
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- -0.9863 (+ -3.5715 S0))) - Cost: 0.3367
+Individual N°2: -
+
+Corrida N°2:
+------------
+Individual N°1: (root (- 2.5217 S0)) - Cost: 0.3375
+Individual N°2: (root (- 9.6417 (* S0 9.8841))) - Cost: 1.2365
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Experimento N°4:
+---------------
+
+Summation_Gain: -1 (Difference)
+Sensor_Source: difference
+goal: kill_perturbation
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (+ (- (* -1.3275 S0) (- 0.4921 S0)) S0)) - Cost: 0.407898
+Individual N°2: (root (- S0 0.9908)) - Cost: 0.422475
+
+Corrida N°2:
+------------
+Individual N°1: (root (+ (- S0 (* (* (* (+ -2.8991 (+ S0 0.7480)) (* S0 -0.0110)) (+ 2.3128 (+ (+ (+ S0 0.7480) -2.6736) -1.1998))) (+ (+ (+ 1.4003 S0) 4.3754) -4.6432))) -0.6972)) - Cost: 0.332672
+Individual N°2: -
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (+ S0 (* (+ S0 1.7545) (- (* -0.0489 (* (+ S0 1.7545) -0.3023)) 0.2018)))) - Cost: 0.3784
+Individual N°2: - 
+
+Corrida N°2:
+------------
+Individual N°1: (root (+ 10.2568 (+ S0 -11.1492))) - Cost: 0.4257
+Individual N°2: (root (* (+ S0 (- (+ S0 (- (+ 5.6831 S0) (- 4.7274 S0))) 1.8283)) 0.1801)) - Cost: 0.4279
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Experimento N°5:
+---------------
+
+Summation_Gain: 1 (Summation)
+Sensor_Source: signal_to_cancel
+goal: kill_signal
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (* -0.0445 (+ (* (* -0.0445 (* -0.0445 (+ (* (* -0.0445 (+ (- 0.8080 S0) 0.0000)) (- (* 0.5323 S0) (* (* -0.0445 (+ (- 0.8080 S0) 0.0000)) -0.3387))) 0.0000))) (* -0.0445 (+ (+ (* (* -0.0445 (* -0.0445 (+ (* (* -0.0445 (* (- 0.8080 S0) 0.0693)) (- (* 0.5323 S0) (* 0.5323 (- 0.8080 S0)))) 0.0000))) (- (* 0.5323 S0) (+ (* (* 0.5323 (+ -0.9457 S0)) (- (* 0.5323 S0) (* (* (- 0.8080 S0) 0.0693) -0.3387))) 0.0000))) 0.0000) 0.0000))) 0.0000))) - Cost: 1.0000 
+Individual N°2: - 
+
+Corrida N°2:
+------------
+Individual N°1: (root (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (* 0.1844 (- 0.8819 S0))))))))))))))) - Cost: 1.0000
+Individual N°2: -
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- (* (- -5.6520 (- -4.8938 (* S0 0.5120))) (* (+ (+ S0 -8.5984) (* S0 2.8809)) (* S0 2.8809))) (- 2.8859 (- (+ (* S0 5.9786) (- S0 1.8328)) (* (- -1.6521 S0) (* S0 -2.9630)))))) - Cost: 1.0078
+Individual N°2: (root (- (* (- (+ 0.2512 (- -1.6413 S0)) (- -4.8938 (* S0 0.5120))) (* (+ (+ S0 -8.5984) (* S0 2.8809)) (- (* S0 2.8809) (- -1.6413 S0)))) (- 2.8859 (- (+ (- -1.6413 S0) 0.2512) (* -4.8938 (- -4.8938 (* S0 0.5120))))))) - Cost: 1.1737
+
+Corrida N°2:
+------------
+Individual N°1: (root (* (* (- (+ -4.7663 S0) (+ S0 -5.2311)) (* (* (- (+ -4.7663 S0) (+ S0 -5.2311)) (- (* (+ (+ S0 -2.1651) (+ S0 S0)) (- (- 2.3319 S0) (* S0 S0))) (* S0 S0))) (* (+ (+ -4.7663 S0) 4.1293) (+ (+ S0 -2.1651) (+ S0 S0))))) (* (+ (+ S0 -2.1651) (+ S0 S0)) (- (* S0 9.6637) (- S0 -7.0332))))) - Cost: 1.0000
+Individual N°2: -
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Experimento N°6:
+---------------
+
+Summation_Gain: -1 (Difference)
+Sensor_Source: signal_to_cancel
+goal: kill_signal
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (* S0 0.8695)) - Cost: 0.092846
+Individual N°2:(root (+ 1.4201 (+ S0 -1.6022))) - Cost: 0.0928859
+
+Corrida N°2:
+------------
+Individual N°1: (root (- S0 (* -0.0622 (+ (* -1.6691 (- S0 (* -0.0622 (+ (* 1.6110 (* -1.6691 (- S0 (* -0.0622 (* -0.0622 (+ S0 0.1752)))))) S0)))) 0.0469)))) - Cost: 0.0911248
+Individual N°2: -
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (* 0.9663 (* S0 (* 0.9663 0.9663)))) - Cost: 0.0912
+Individual N°2: - 
+
+Corrida N°2:
+------------
+Individual N°1: (root S0) - cost: 0.1002
+Individual N°2: (root (+ (- S0 -2.8589) -2.4957)) - Cost: 0.1415
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Experimento N°7:
+---------------
+
+Summation_Gain: 11 (Summation)
+Sensor_Source: signal_to_cancel
+goal: kill_perturbation
+
+Python:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (- 2.1765 S0)) - Cost: 0.203419
+Individual N°2: 
+
+Corrida N°2:
+------------
+Individual N°1: (root (+ (- 2.1421 S0) (* 0.0534 S0))) - Cost: 0.2006626
+Individual N°2: (root (- 2.2030 S0)) - Cost: 0.203233
+
+MATLAB:
+-------
+Corrida N°1:
+------------
+Individual N°1: (root (* (- 5.8407 (* (- (- 7.0597 S0) (- (+ (- 7.0597 S0) -3.8906) (- 9.1718 S0))) (+ -2.3804 (+ (- 7.0597 S0) -3.8906)))) (+ -2.3804 (- (- 9.1718 S0) 5.8407)))) - Cost: 0.5548
+Individual N°2: (root (+ (- 7.0597 S0) -3.8906)) - Cost: 0.5627
+
+Corrida N°2:
+------------
+Individual N°1: (root (- 2.0322 S0)) - Cost: 0.2167
+Individual N°2: - 
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+Experimento N°8:
+----------------
+
+Summation_Gain: -1 (Difference)
+Sensor_Source: signal_to_cancel
+goal: kill_perturbation
+
+Python:
+-------
+Corrida N°1
+-----------
+Individual N°1: (root (+ -2.9020 (- S0 -1.7977))) - Cost: 0.203213
+Individual N°2: (root (- (* S0 0.8304) 0.7951)) - Cost: 0.203611
+
+Corrida N°2
+-----------
+Individual N°1: (root (+ -2.9020 (- S0 -1.7977))) - Cost: 0.203222
+Individual N°2: -
+
+MATLAB:
+-------
+Corrida N°1
+-----------
+Individual N°1: (root (- S0 (+ 2.0609 (- 6.3505 7.1934)))) - Cost: 0.209770
+Individual N°2: (root (- S0 (+ 1.4636 (* (* (- S0 0.9509) (- S0 (- S0 -0.6498))) (- S0 S0))))) - Cost: 0.2671
+
+Corrida N°2
+-----------
+Individual N°1: (root (- S0 (+ 2.0609 (- 6.3505 7.1934)))) - Cost: 0.2085
+Individual N°2: (root (+ (* (* (- S0 S0) (- -8.6307 6.2627)) (- (+ S0 -0.8597) S0)) (+ S0 -0.8597))) - Cost: 0.2324
