@@ -545,13 +545,6 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QCheckBox" name="dimension_check">
-                <property name="text">
-                 <string>3D</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </widget>
            </item>
@@ -869,7 +862,6 @@
   <tabstop>next_gen_button</tabstop>
   <tabstop>log_check</tabstop>
   <tabstop>show_all_check</tabstop>
-  <tabstop>dimension_check</tabstop>
   <tabstop>gen_cut_button</tabstop>
   <tabstop>gen_start_over_button</tabstop>
   <tabstop>best_indiv_button</tabstop>
@@ -916,22 +908,6 @@
     <hint type="destinationlabel">
      <x>277</x>
      <y>223</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dimension_check</sender>
-   <signal>clicked()</signal>
-   <receiver>ExperimentWindow</receiver>
-   <slot>on_dimension_check_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>922</x>
-     <y>283</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>480</x>
-     <y>273</y>
     </hint>
    </hints>
   </connection>

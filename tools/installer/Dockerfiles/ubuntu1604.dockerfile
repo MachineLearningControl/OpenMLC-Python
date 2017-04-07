@@ -109,7 +109,7 @@ RUN git clone git://code.qt.io/qt/qtx11extras.git && \
     /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtx11extras
 
-RUN git clone https://github.com/mati75/qt5ct.git && \
+RUN git clone https://github.com/Ezetowers/qt5ct.git && \
     cd qt5ct && \
     /opt/mlc-python-2.7.11/Qt-5.7.1/bin/qmake PREFIX=/opt/mlc-python-2.7.11/qt5ct && make -j4 && make install && \
     rm -rf /tmp/qt5ct
@@ -164,4 +164,5 @@ ENV RELEASE ${RELEASE}
 ENV OS_VERSION ubuntu-16.04
 ENV PACKAGE_TYPE deb
 ADD deploy_scripts/* /tmp/deploy_scripts/
+ADD qt5ct /tmp/qt5ct/
 ENTRYPOINT ["/tmp/deploy_scripts/create_MLC_folder.sh"]

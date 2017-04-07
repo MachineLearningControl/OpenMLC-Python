@@ -21,10 +21,15 @@ ln -s mlc_python/bin/mlc_python mlc_python.sh
 ln -s mlc_python/bin/mlc_ipython mlc_ipython.sh
 ln -s mlc_python/bin/mlc_pip mlc_pip.sh
 
+# Move qt5ct binary, add license and remove another directories
+mv $MLC_PATH/mlc_python/qt5ct/bin/qt5ct $MLC_PATH/mlc_python/bin
+cp -r /tmp/qt5ct/qt5ct.COPYING $MLC_PATH/mlc_python/bin
+cp -r /tmp/qt5ct/.config $MLC_PATH/mlc_python/bin
+rm -rf $MLC_PATH/mlc_python/qt5ct
+
 # Add tools scripts
 cp -r /tmp/deploy_scripts/install_matlab_engine.sh $MLC_PATH/tools
-cp -r /tmp/deploy_scripts/qt5ct.qt.conf $MLC_PATH/mlc_python/qt5ct/bin/qt.conf
-cp -r /tmp/deploy_scripts/qt5ct.sh $MLC_PATH/tools
+cp -r /tmp/qt5ct/qt5ct.sh $MLC_PATH/tools
 chmod a+x $MLC_PATH/tools/*
 
 # Clean unnecesary files in the MLC package
