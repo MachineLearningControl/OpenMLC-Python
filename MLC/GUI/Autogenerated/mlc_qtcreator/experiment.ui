@@ -176,6 +176,32 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
+            <widget class="QGroupBox" name="exp_gen_count_group">
+             <property name="title">
+              <string>Generation 0/0</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="1" column="0">
+               <widget class="QPushButton" name="exp_prov_gen_button">
+                <property name="text">
+                 <string>&lt;&lt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="exp_next_gen_button">
+                <property name="text">
+                 <string>&gt;&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QComboBox" name="exp_gen_count_combo"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_2">
              <property name="title">
               <string>Scripts</string>
@@ -397,6 +423,9 @@
                 </property>
                 <property name="text">
                  <string>Disable board</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -835,7 +864,6 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
   <tabstop>textEdit</tabstop>
   <tabstop>max_cost_combo</tabstop>
   <tabstop>min_cost_combo</tabstop>
@@ -1404,6 +1432,54 @@
     <hint type="destinationlabel">
      <x>956</x>
      <y>682</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exp_gen_count_combo</sender>
+   <signal>activated(QString)</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_gen_count_combo_changed(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>811</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exp_prov_gen_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_prev_gen_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>754</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exp_next_gen_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_next_gen_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>868</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>
