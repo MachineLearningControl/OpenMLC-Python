@@ -5,9 +5,6 @@ WORKDIR /tmp
 
 RUN mkdir -p /opt/mlc-python-2.7.11/bin
 
-# Create project structure
-ADD mlc_python_scripts/* /opt/mlc-python-2.7.11/bin/
-
 # Update the current system
 RUN apt-get update && apt-get upgrade -y
 
@@ -58,19 +55,6 @@ RUN wget -q https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tar.xz && \
     cd Python-2.7.11 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-2.7.11 && make && make install && \
     rm -rf /tmp/Python-2.7.11*
 
-# Install Python Setuptools
-RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1.1.tar.gz#md5=10a0f4feb9f2ea99acf634c8d7136d6d && \
-    tar xzvf setuptools-20.1.1.tar.gz && \
-    cd setuptools-20.1.1 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
-    rm -rf /tmp/setuptools-20.1.1*
-
-
-# Idem with pip
-RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb && \
-    tar xzvf pip-8.0.2.tar.gz && \
-    cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
-    rm -rf /tmp/pip-8.0.2*
-
 # Install Qt5.7
 RUN git clone git://code.qt.io/qt/qtbase.git && \
     cd qtbase && \
@@ -120,6 +104,21 @@ RUN git clone git://code.qt.io/qt/qtstyleplugins.git && \
     mkdir -p /opt/mlc-python-2.7.11/Qt-5.7.1/plugins/styles && \
     cp -r ./plugins/styles/* /opt/mlc-python-2.7.11/Qt-5.7.1/plugins/styles && \
     rm -rf /tmp/qtstyleplugins
+
+# Add Python scripts
+ADD mlc_python_scripts/* /opt/mlc-python-2.7.11/bin/
+
+# Install Python Setuptools
+RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1.1.tar.gz#md5=10a0f4feb9f2ea99acf634c8d7136d6d && \
+    tar xzvf setuptools-20.1.1.tar.gz && \
+    cd setuptools-20.1.1 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
+    rm -rf /tmp/setuptools-20.1.1*
+
+# Idem with pip
+RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb && \
+    tar xzvf pip-8.0.2.tar.gz && \
+    cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
+    rm -rf /tmp/pip-8.0.2*
 
 # Add PyQt5 Support
 RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz && \

@@ -5,7 +5,7 @@ export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."
 export LD_LIBRARY_PATH=$ROOTPATH/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$ROOTPATH/custom_libs:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$ROOTPATH/Qt-5.7.1/lib:$LD_LIBRARY_PATH
-IPYTHON="$ROOTPATH/bin/ipython2"
+IPYTHON="$ROOTPATH/bin/mlc_python $ROOTPATH/bin/ipython2"
 
 # Run the dynamically compiled python for matlab
 if [ "$#" -ne 0 ]; then
