@@ -824,6 +824,7 @@ class Ui_ExperimentWindow(object):
         self.disable_board_check.setStatusTip("")
         self.disable_board_check.setWhatsThis("")
         self.disable_board_check.setAccessibleDescription("")
+        self.disable_board_check.setChecked(True)
         self.disable_board_check.setObjectName("disable_board_check")
         self.verticalLayout_14.addWidget(self.disable_board_check)
         self.board_group = QtWidgets.QHBoxLayout()
