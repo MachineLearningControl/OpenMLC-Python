@@ -139,13 +139,17 @@ def stmt_update_cost(individual_id, cost, evaluation_time, generation):
                                                      evaluation_time,
                                                      individual_id,
                                                      generation)
-
-
-def stmt_get_individual_with_min_cost():
-    return '''SELECT indiv_id
-              FROM population
-              ORDER BY cost ASC
-              LIMIT 1'''
+"""
+The individual with the least cost in the last population 
+is considered to be the best individual
+"""
+def stmt_get_individual_with_min_cost_in_last_pop():
+    return '''SELECT indiv_id, 
+                     cost 
+                FROM population 
+            ORDER BY gen DESC, 
+                     cost ASC 
+               LIMIT 1'''
 
 def stmt_enable_foreign_key():
     return '''PRAGMA foreign_keys = ON'''

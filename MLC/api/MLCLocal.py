@@ -299,7 +299,7 @@ class MLCLocal(MLC):
 
         if simulation.number_of_generations() != 0:
             # Get the best indiv description
-            min_indiv_id = MLCRepository.get_instance().get_individual_with_min_cost()
+            min_indiv_id = MLCRepository.get_instance().get_individual_with_min_cost_in_last_pop()
             min_indiv_data = MLCRepository.get_instance().get_individual_data(min_indiv_id)
             experiment_info["best_indiv_id"] = min_indiv_id
             experiment_info["best_indiv_value"] = min_indiv_data.get_value()
