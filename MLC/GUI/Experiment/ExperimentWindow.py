@@ -576,6 +576,9 @@ class ExperimentWindow(QMainWindow):
             # FIXME In the future, some logic to get the old connection builder must be implemented
             ArduinoInterfaceSingleton.set_connection_builder(serial_connection_builder)
 
+        ArduinoInterfaceSingleton.get_instance(protocol_config=self._board_config,
+                                               conn_setup=self._serial_conn)
+
 
 ################################### VIEW AND MODEL METHODS #########################################
 
