@@ -21,6 +21,7 @@
 
 from ArduinoBench import ArduinoBench
 
+from MLC.GUI.Experiment.ArduinoConfigManager.ArduinoStatsDialog import ArduinoStatsDialog
 from MLC.GUI.Experiment.ArduinoConfigManager.BoardConfigurationWindow import BoardConfigurationWindow
 from MLC.arduino import boards
 from MLC.arduino.connection.serialconnection import SerialConnection, SerialConnectionConfig

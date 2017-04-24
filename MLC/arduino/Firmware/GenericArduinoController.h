@@ -20,7 +20,7 @@ const uint8_t PROTOCOL_VERSION      = 0xF2;
 const uint8_t VERSION_RESPONSE      = 0xF3;
 const uint8_t RESET_PINS            = 0xFE;
 
-typedef enum ReportModes {average, bulk, rt};
+enum ReportModes {average, bulk, rt};
 
 class GenericArduinoController
 {
