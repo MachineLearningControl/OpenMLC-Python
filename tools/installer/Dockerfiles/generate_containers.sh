@@ -1,5 +1,5 @@
 #!/bin/bash
-RELEASE=0.0.3
+RELEASE=0.0.4
 
 function check_run_as_root() {
     case `id` in

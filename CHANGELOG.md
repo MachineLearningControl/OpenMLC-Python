@@ -1,3 +1,10 @@
+## [0.0.4] 2017-04-25
+- [FIX] Changes in ArduinoUserInterface initialization
+- [FIX] Removed Port property from MLC Manager
+- [FIX] Added missing import in ArduinoStatsDialog
+- [FIX] Fixes in deploy dockerfiles
+- [FIX] Set MacOs and Windows log config files properly
+
 ## [0.0.3] 2017-03-24
 - [FEATURE] Added checkbox for Arduino Connector
 - [FEATURE] Added pysub dependency to detect when a board Arduino is connected

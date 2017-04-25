@@ -69,7 +69,6 @@ logger = get_gui_logger()
 class MLC_GUI(QMainWindow):
     MLC_ICON_FILE = os.path.join(*[mlc_gui_dir, "images", "mlc_icon.png"])
     GUI_CONFIG_FILE = os.path.join(mlc_gui_dir, ".mlc_gui.conf")
-    WEBSERVICE_PORT = 5000
     experiment_closed = pyqtSignal(['QString'])
 
     def __init__(self):
@@ -500,8 +499,6 @@ class MLC_GUI(QMainWindow):
         self._gui_config = ConfigParser.ConfigParser()
         self._gui_config.add_section('MAIN')
         self._gui_config.set('MAIN', 'workspace', workspace_dir)
-        self._gui_config.add_section('WEB_SERVICE')
-        self._gui_config.set('WEB_SERVICE', 'port', MLC_GUI.WEBSERVICE_PORT)
         with open(config_filepath, 'w') as cfg:
             self._gui_config.write(cfg)
 

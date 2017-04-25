@@ -134,7 +134,7 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
     rm -rf /tmp/PyQtDataVisualization_gpl-5.7.1*
 
 # Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install ipython pyserial numpy nose matplotlib scipy pyyaml flask requests pyusb
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install 'ipython<6.0.0' pyserial numpy nose matplotlib scipy pyyaml flask requests pyusb
 RUN gem install fpm
 
 ARG RELEASE

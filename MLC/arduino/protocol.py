@@ -312,7 +312,7 @@ def init_interface(protocol_config):
     return interface
 
 
-class ArduinoInterfaceSingleton:
+class ArduinoUserInterface:
     _instance = None
     _connection_builder = [invalid_connection_builder]
     _interface_builder = [init_interface]
@@ -323,24 +323,24 @@ class ArduinoInterfaceSingleton:
             serial_conn = None
             try:
                 #serial_conn = SerialConnection(**conn_setup)
-                connection = ArduinoInterfaceSingleton._connection_builder[0](conn_setup)
+                connection = ArduinoUserInterface._connection_builder[0](conn_setup)
             except ConnectionException, err:
                 lg.logger_.info("[PROTOCOL] Error while building connection. "
                                 "Err info: {0}".format(err))
                 raise
 
             protocol_config = protocol_config._replace(connection=connection)
-            ArduinoInterfaceSingleton._instance = ArduinoInterfaceSingleton._interface_builder[0](protocol_config)
+            ArduinoUserInterface._instance = ArduinoUserInterface._interface_builder[0](protocol_config)
 
-        if ArduinoInterfaceSingleton._instance is None:
+        if ArduinoUserInterface._instance is None:
             raise ProtocolSetupException("The arduino interface cannot be used if it isn't configured.")
 
-        return ArduinoInterfaceSingleton._instance
+        return ArduinoUserInterface._instance
 
     @staticmethod
     def set_connection_builder(builder):
-        ArduinoInterfaceSingleton._connection_builder[0] = builder
-        ArduinoInterfaceSingleton._interface_builder[0] = init_interface
+        ArduinoUserInterface._connection_builder[0] = builder
+        ArduinoUserInterface._interface_builder[0] = init_interface
 
     @staticmethod
     def __null_initialization(config):
@@ -348,5 +348,5 @@ class ArduinoInterfaceSingleton:
 
     @staticmethod
     def disable_interface():
-        ArduinoInterfaceSingleton._interface_builder[0] = ArduinoInterfaceSingleton.__null_initialization
-        ArduinoInterfaceSingleton._connection_builder[0] = invalid_connection_builder
+        ArduinoUserInterface._interface_builder[0] = ArduinoUserInterface.__null_initialization
+        ArduinoUserInterface._connection_builder[0] = invalid_connection_builder
