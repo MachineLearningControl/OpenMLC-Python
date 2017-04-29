@@ -28,6 +28,7 @@ import random
 import sys
 import time
 
+from MLC.arduino.protocol import ArduinoUserInterface
 from MLC.mlc_parameters.mlc_parameters import Config
 from PyQt5.QtCore import Qt
 
@@ -39,7 +40,7 @@ def individual_data(indiv):
 
     config = Config.get_instance()
     artificial_noise = config.getint('EVALUATOR', 'artificialnoise')
-    y_with_noise = y + [random.random() - 0.5 for _ in xrange(SAMPLES)] + artificial_noise * 500
+    y_with_noise = y + [random.random() / 2 - 0.25 for _ in xrange(SAMPLES)] + artificial_noise * 500
 
     if isinstance(indiv.get_formal(), str):
         formal = indiv.get_formal().replace('S0', 'x')
@@ -75,21 +76,41 @@ def cost(indiv):
 
 def show_best(index, generation, indiv, cost, block=True):
     x, y, y_with_noise, b = individual_data(indiv)
-    cuadratic_error = np.sqrt((y_with_noise - b)**2 / (1 + np.absolute(x**2)))
+    mean_squared_error = np.sqrt((y_with_noise - b)**2 / (1 + np.absolute(x**2)))
 
-    fig = plt.figure()
     # Put figure window on top of all other windows
+    fig = plt.figure()
     fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
+    fig.canvas.manager.window.setWindowTitle("Best Individual")
 
+    formal = None
+    if type(indiv.get_formal()) == list:
+        formal = indiv.get_formal()[0]
+    else:
+        formal = indiv.get_formal()
+
+    plt.rc('font', family='serif')
     plt.suptitle("Generation N#{0} - Individual N#{1}\n"
                  "Cost: {2}\n Formal: {3}".format(generation,
                                                   index,
                                                   cost,
-                                                  indiv.get_formal()))
+                                                  formal),
+                 fontsize=12)
+
     plt.subplot(2, 1, 1)
-    plt.plot(x, y, x, y_with_noise, '*', x, b)
+    line1, = plt.plot(x, y, color='r', linewidth=4, label='Curve without noise')
+    line2, = plt.plot(x, y_with_noise, 'g-.', linewidth=2, label='Curve with noise')
+    line3, = plt.plot(x, b, color='k', linewidth=2, label='Control Law (Individual)')
+    plt.ylabel('Functions', fontsize=12, fontweight='bold')
+    plt.xlabel('Samples', fontsize=12, fontweight='bold')
+    plt.legend(handles=[line1, line2, line3], loc=2)
+    plt.grid(True)
 
     plt.subplot(2, 1, 2)
-    plt.plot(x, cuadratic_error, '*r')
+    plt.plot(x, mean_squared_error, '*r')
+    plt.ylabel('Mean Squared Error', fontsize=12, fontweight='bold')
+    plt.xlabel('Samples', fontsize=12, fontweight='bold')
+    plt.grid(True)
     plt.yscale('log')
+
     plt.show(block=block)
