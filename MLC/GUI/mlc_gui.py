@@ -426,14 +426,14 @@ class MLC_GUI(QMainWindow):
         experiment_name = list_view.model().itemFromIndex(model_index).text()
         self._refresh_experiment_description(experiment_name)
 
-    def load_gui_config(self):
-        abspath = os.path.abspath(".")
-        config_filepath = os.path.join(abspath, MLC_GUI.GUI_CONFIG_FILE)
-        workspace_dir = ""
+    def _set_workspace_dir(self, cfg_file, workspace_exists=False):
+        if not os.path.isfile(cfg_file) or workspace_exists == True:
+            workspace_exists_msg = "Workspace set does not exist anymore. Do you want to reset it?"
+            workspace_doesnt_exists_msg = "Workspace has not been set yet. Do you want to set it?"
+            initial_msg = workspace_exists_msg if workspace_exists else workspace_doesnt_exists_msg
 
-        if not os.path.isfile(config_filepath):
             reply = QMessageBox.question(self, 'Message',
-                                         "Workspace has not been set yet. Do you want to set it?",
+                                         initial_msg,
                                          QMessageBox.Yes | QMessageBox.No,
                                          QMessageBox.Yes)
 
@@ -455,16 +455,32 @@ class MLC_GUI(QMainWindow):
                 self.close()
                 sys.exit(0)
 
-            self._create_gui_config_from_scratch(config_filepath, workspace_dir)
+            if not workspace_exists:
+                self._create_gui_config_from_scratch(cfg_file, workspace_dir)
+
             QMessageBox.information(self, 'MLC Manager',
                                     'Workspace was succesfully set',
                                     QMessageBox.Ok)
             logger.debug('[MLC_GUI] [LOAD_GUI] - Workspace was succesfully set: {0}'.format(workspace_dir))
+            return workspace_dir
+
+    def load_gui_config(self):
+        abspath = os.path.abspath(".")
+        config_filepath = os.path.join(abspath, MLC_GUI.GUI_CONFIG_FILE)
+        workspace_dir = self._set_workspace_dir(cfg_file=config_filepath,
+                                                workspace_exists=False)
 
         # Load GUI config
         self._gui_config = ConfigParser.ConfigParser()
         self._gui_config.read(config_filepath)
         workspace_dir = self._gui_config.get('MAIN', 'workspace')
+
+        # Check if workspace exists
+        if not os.path.exists(workspace_dir):
+            workspace_dir = self._set_workspace_dir(cfg_file=config_filepath,
+                                                    workspace_exists=True)
+            self._gui_config.set('MAIN', 'workspace', workspace_dir)
+            self._gui_config.write(open(config_filepath, "wt"))
 
         # Create the MLC Local instance and initialize the Experiments_Manager
         self._mlc_local = MLCLocal(workspace_dir)
