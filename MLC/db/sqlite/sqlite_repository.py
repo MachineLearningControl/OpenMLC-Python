@@ -32,6 +32,7 @@ from sql_statements_board_configuration import *
 from MLC.arduino.protocol import ProtocolConfig
 from MLC.arduino.connection.serialconnection import SerialConnectionConfig
 from MLC.arduino.boards import types
+import traceback
 
 logger = get_gui_logger()
 
@@ -66,6 +67,9 @@ class SQLiteRepository(MLCRepository):
         self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys()) + 1
         self.__individuals_to_flush = {}
 
+    def close(self):
+        self._conn.close()
+
     def __initialize_db(self):
         cursor = self._conn.cursor()
 
@@ -84,11 +88,19 @@ class SQLiteRepository(MLCRepository):
         self._conn.commit()
 
     def __get_db_connection(self, reopen_connection=False):
-        # TODO: Workaround. SQLite throw an exception when a connection is used in different threads. To solve it,
-        # we create a new connection every time a new connection is delivered
+        # TODO: Workaround. SQLite throw an exception when a connection is used 
+        # in different threads. To solve it, we create a new connection 
+        # every time a new connection is delivered
         if self._database != SQLiteRepository.IN_MEMORY_DB:
-            self._conn = sqlite3.connect(self._database)
+            # Close the previous connection
+            try:
+                self._conn.close()
+            except sqlite3.ProgrammingError:
+                # FIXME: There are open connections that cannot be closed for 
+                # the Thread bug. See what can be done
+                pass
 
+            self._conn = sqlite3.connect(self._database)
         return self._conn
 
     def __insert_individuals_pending(self, individual):

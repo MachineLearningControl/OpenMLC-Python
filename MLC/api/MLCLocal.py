@@ -162,6 +162,7 @@ class MLCLocal(MLC):
         # problems between Evaluation and Preevaluation scripts from other projects
         experiment_dir = os.path.join(self._working_dir, experiment_name)
         sys.path.remove(experiment_dir)
+        self._open_experiments[experiment_name].get_simulation().close()
         del self._open_experiments[experiment_name]
 
     def new_experiment(self, experiment_name,
@@ -246,10 +247,12 @@ class MLCLocal(MLC):
 
         experiment_dir = os.path.join(self._working_dir, experiment_name)
         try:
-            shutil.rmtree(experiment_dir)
             del self._experiments[experiment_name]
             if experiment_name in self._open_experiments:
+                simulation = self._open_experiments[experiment_name].get_simulation().close()
                 del self._open_experiments[experiment_name]
+
+            shutil.rmtree(experiment_dir)
         except OSError:
             logger.info("[MLC_LOCAL] Error while trying to delete experiment file: {0}".format(file))
             raise

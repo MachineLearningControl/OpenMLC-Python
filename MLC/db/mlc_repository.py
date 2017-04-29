@@ -75,6 +75,9 @@ class IndividualData:
 class MLCRepository:
     _instance = None
 
+    # Close the Database opened
+    def close():
+        raise NotImplementedError("This method must be implemented")
     # operation over generations
     def add_population(self, population):
         raise NotImplementedError("This method must be implemented")

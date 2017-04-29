@@ -46,6 +46,9 @@ class Simulation:
     def erase_generations(self, from_generation):
         self._mlc_repository.remove_population_from(from_generation)
 
+    def close(self):
+        self._mlc_repository.close()
+
     @staticmethod
     def create_empty_population_for(generation):
         from MLC.Population.Population import Population

@@ -64,6 +64,9 @@ class Experiment:
             Config.get_instance().read(self._config_file)
             set_logger(Config.get_instance().get('LOGGING', 'logmode'))
 
+            if Experiment.__last_simulation:
+                Experiment.__last_simulation.close()
+
             self._simulation = Simulation(self._name)
             Experiment.__last_simulation = self._simulation
 
