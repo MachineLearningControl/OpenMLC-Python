@@ -20,11 +20,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import MLC.Log.log as lg
+import networkx as nx
+import matplotlib.pyplot as plt
 import re
+
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Common.Operations import Operations
 from MLC.Common.LispTreeExpr.TreeNodes import LeafNode, InternalNode
 from MLC.Common.LispTreeExpr.OperationNodes import OpNodeFactory
+from PyQt5.QtCore import Qt
 
 
 class ExprException(Exception):
@@ -75,10 +79,18 @@ class OperationArgumentsAmountException(ExprException):
 
 
 class LispTreeExpr(object):
+    class NodeIdGenerator(object):
+        def __init__(self):
+            self._node_id_counter = 0
+
+        def next_node_id(self):
+            node_id = self._node_id_counter
+            self._node_id_counter += 1
+            return node_id
 
     def __init__(self, expr):
+        self._node_id_generator = LispTreeExpr.NodeIdGenerator()
         self._nodes = []
-
         self._expanded_tree = expr
 
         # Remove the root part of the node
@@ -193,6 +205,28 @@ class LispTreeExpr(object):
         self._simplified_tree = '(root ' + self._root.to_string() + ')'
         lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
+    def draw(self):
+        tree = nx.DiGraph()
+        self._root.construct_tree(tree)
+
+        fig = plt.figure()
+        # Put figure window on top of all other windows
+        fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
+        fig.canvas.manager.window.setWindowTitle("Individual Tree Representation")
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.axis('off')
+
+        labels = {}
+        for node_id in tree:
+            labels[node_id] = tree.node[node_id]['value']
+        pos = nx.nx_pydot.graphviz_layout(tree, prog='dot')
+
+        nodes = nx.draw_networkx_nodes(tree, pos, node_size=1000, node_color='#D3D3D3')
+        nodes.set_edgecolor('k')
+        nx.draw_networkx_edges(tree, pos, arrows=False)
+        nx.draw_networkx_labels(tree, pos, labels, font_size=12)
+        plt.show()
+
     def calculate_expression(self, sensor_replacement_list):
         class Replace_Sensors_Visitor(TreeVisitor):
 
@@ -291,7 +325,7 @@ class LispTreeExpr(object):
         else:
             param_len = len(expr)
 
-        leaf = LeafNode(expr[:param_len])
+        leaf = LeafNode(self._node_id_generator.next_node_id(), expr[:param_len])
         leaf.set_depth(parent_depth)
         leaf.set_expr_index(expr_index)
         leaf.set_subtreedepth(0)
@@ -299,7 +333,11 @@ class LispTreeExpr(object):
         return leaf, param_len + 1
 
     # As a precondition, the expression must be well-formed
-    def _generate_node(self, expr, is_root_expression=False, parent_depth=0, expr_index=0):
+    def _generate_node(self, 
+                       expr, 
+                       is_root_expression=False, 
+                       parent_depth=0, 
+                       expr_index=0):
         if expr[0] != '(':
             return self._generate_leaf_node(expr, parent_depth, expr_index)
 
@@ -307,7 +345,7 @@ class LispTreeExpr(object):
         op = self._get_operation(expr, is_root_expression)
 
         # Generate the arguments of the internal node as Child Nodes
-        node = OpNodeFactory.make(op["op"])
+        node = OpNodeFactory.make(op["op"], self._node_id_generator.next_node_id())
         node.set_depth(parent_depth + 1)
         node.set_expr_index(expr_index)
         expr_offset = 0
@@ -320,11 +358,13 @@ class LispTreeExpr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = self._generate_node(
-                    expr[next_arg_pos:], parent_depth=parent_depth + 1, expr_index=expr_index + next_arg_pos)
+                child_node, offset = self._generate_node(expr[next_arg_pos:], 
+                                                         parent_depth=parent_depth + 1, 
+                                                         expr_index=expr_index + next_arg_pos)
             else:
-                child_node, offset = self._generate_leaf_node(
-                    expr[next_arg_pos:], parent_depth=parent_depth + 1, expr_index=expr_index + next_arg_pos)
+                child_node, offset = self._generate_leaf_node(expr[next_arg_pos:],
+                                                              parent_depth=parent_depth + 1,
+                                                              expr_index=expr_index + next_arg_pos)
 
             node.add_child(child_node)
             child_subtreedepth = max(child_subtreedepth, child_node.get_subtreedepth())

@@ -53,8 +53,8 @@ def execute_op_without_warnings(op, log_prefix, exception_msg, arg1, arg2=None):
 
 class PlusNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "+", 1)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "+", 1)
 
     def formal(self):
         return "(" + self._nodes[0].formal() + " + " + self._nodes[1].formal() + ")"
@@ -62,14 +62,14 @@ class PlusNode(InternalNode):
     def op_simplify(self):
         # If one of the arguments is zero, avoid the operation
         if self._node_arg_x_is_y(0, 0):
-            return LeafNode(self._nodes[1].to_string())
+            return LeafNode(self._node_id, self._nodes[1].to_string())
         elif self._node_arg_x_is_y(1, 0):
-            return LeafNode(self._nodes[0].to_string())
+            return LeafNode(self._node_id, self._nodes[0].to_string())
 
         # Non of the arguments are zero. Make the operation if they are not sensors
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) + float(self._nodes[1].to_string())
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -86,8 +86,8 @@ class PlusNode(InternalNode):
 
 class MinusNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "-", 1)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "-", 1)
 
     def formal(self):
         return "(" + self._nodes[0].formal() + " - " + self._nodes[1].formal() + ")"
@@ -95,16 +95,16 @@ class MinusNode(InternalNode):
     def op_simplify(self):
         # if both arguments are equals, return 0
         if self._nodes[0].to_string() == self._nodes[1].to_string():
-            return LeafNode(process_float(0))
+            return LeafNode(self._node_id, process_float(0))
 
         # If the second argument is zero, avoid the operation.
         if self._node_arg_x_is_y(1, 0):
-            return LeafNode(self._nodes[0].to_string())
+            return LeafNode(self._node_id, self._nodes[0].to_string())
 
         # Non of the arguments are zero. Make the operation if they are not sensors
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) - float(self._nodes[1].to_string())
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -121,8 +121,8 @@ class MinusNode(InternalNode):
 
 class MultNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "*", 1)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "*", 1)
 
     def formal(self):
         return "(" + self._nodes[0].formal() + " .* " + self._nodes[1].formal() + ")"
@@ -130,17 +130,17 @@ class MultNode(InternalNode):
     def op_simplify(self):
         # If one or both of the arguments are zero, return zero
         if self._node_arg_x_is_y(0, 0) or self._node_arg_x_is_y(1, 0):
-            return LeafNode(process_float(0))
+            return LeafNode(self._node_id, process_float(0))
 
         # If one of the arguments is zero, avoid the operation
         if self._node_arg_x_is_y(0, 1):
-            return LeafNode(self._nodes[1].to_string())
+            return LeafNode(self._node_id, self._nodes[1].to_string())
         elif self._node_arg_x_is_y(1, 1):
-            return LeafNode(self._nodes[0].to_string())
+            return LeafNode(self._node_id, self._nodes[0].to_string())
 
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             arg = float(self._nodes[0].to_string()) * float(self._nodes[1].to_string())
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -159,8 +159,8 @@ class DivisionNode(InternalNode):
     PROTECTION = 0.001
     SIMPLIFY_PROTECTION = 0.01
 
-    def __init__(self):
-        InternalNode.__init__(self, "/", 1)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "/", 1)
 
     def formal(self):
         return "(my_div(" + self._nodes[0].formal() + "," + self._nodes[1].formal() + "))"
@@ -178,19 +178,19 @@ class DivisionNode(InternalNode):
     def op_simplify(self):
         # If the first argument is zero, return zero
         if self._node_arg_x_is_y(0, 0):
-            return LeafNode(process_float(0))
+            return LeafNode(self._node_id, process_float(0))
 
         # If the second argument is one, return the first argument
         if self._node_arg_x_is_y(1, 1):
-            return LeafNode(self._nodes[0].to_string())
+            return LeafNode(self._node_id, self._nodes[0].to_string())
 
         if not self._nodes[0].is_sensor() and not self._nodes[1].is_sensor():
             # FIXME: Harcoded number. Change it
             if abs(float(self._nodes[1].to_string())) < DivisionNode.SIMPLIFY_PROTECTION:
-                return LeafNode(process_float(0))
+                return LeafNode(self._node_id, process_float(0))
             else:
                 arg = float(self._nodes[0].to_string()) / float(self._nodes[1].to_string())
-                return LeafNode(process_float(arg))
+                return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -207,8 +207,8 @@ class DivisionNode(InternalNode):
 
 class SineNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "sin", 3)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "sin", 3)
 
     def formal(self):
         return "sin(" + self._nodes[0].formal() + ")"
@@ -216,7 +216,7 @@ class SineNode(InternalNode):
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
             arg = np.sin(float(self._nodes[0].to_string()))
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -232,8 +232,8 @@ class SineNode(InternalNode):
 
 class CosineNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "cos", 3)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "cos", 3)
 
     def formal(self):
         return "cos(" + self._nodes[0].formal() + ")"
@@ -241,7 +241,7 @@ class CosineNode(InternalNode):
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
             arg = np.cos(float(self._nodes[0].to_string()))
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -259,8 +259,8 @@ class LogarithmNode(InternalNode):
     PROTECTION = 0.00001
     SIMPLIFY_PROTECTION = 0.01
 
-    def __init__(self):
-        InternalNode.__init__(self, "log", 5)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "log", 5)
 
     def formal(self):
         return "my_log(" + self._nodes[0].formal() + ")"
@@ -281,7 +281,7 @@ class LogarithmNode(InternalNode):
             else:
                 arg = np.log(float(self._nodes[0].to_string()))
 
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -297,8 +297,8 @@ class LogarithmNode(InternalNode):
 
 class ExponentialNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "exp", 5)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "exp", 5)
 
     def formal(self):
         return "exp(" + self._nodes[0].formal() + ")"
@@ -311,9 +311,9 @@ class ExponentialNode(InternalNode):
             except OverflowError:
                 # FIXME: See what to do with this expression, because there are problems when
                 # an infinite value is the argument of a sinusoidal function
-                return LeafNode(process_float(float("inf")))
+                return LeafNode(self._node_id, process_float(float("inf")))
 
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -329,8 +329,8 @@ class ExponentialNode(InternalNode):
 
 class TanhNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "tanh", 5)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "tanh", 5)
 
     def formal(self):
         return "tanh(" + self._nodes[0].formal() + ")"
@@ -338,7 +338,7 @@ class TanhNode(InternalNode):
     def op_simplify(self):
         if not self._nodes[0].is_sensor():
             arg = np.tanh(float(self._nodes[0].to_string()))
-            return LeafNode(process_float(arg))
+            return LeafNode(self._node_id, process_float(arg))
         else:
             return self
 
@@ -354,8 +354,8 @@ class TanhNode(InternalNode):
 
 class RootNode(InternalNode):
 
-    def __init__(self):
-        InternalNode.__init__(self, "", 0)
+    def __init__(self, node_id):
+        InternalNode.__init__(self, node_id, "", 0)
 
     def to_string(self):
         return " ".join([n.to_string() for n in self._nodes])
@@ -389,9 +389,9 @@ class RootNode(InternalNode):
 class OpNodeFactory:
 
     @staticmethod
-    def make(op):
+    def make(op, node_id):
         if op == 'root':
-            return RootNode()
+            return RootNode(node_id)
 
         # instatiate node from string
         operation = Operations.get_instance().get_operation_from_op_string(op)
@@ -401,4 +401,4 @@ class OpNodeFactory:
         node_module = importlib.import_module(node_module_name)
         node_class = getattr(node_module, node_class_name)
 
-        return node_class()
+        return node_class(node_id)

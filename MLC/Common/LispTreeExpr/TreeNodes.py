@@ -20,11 +20,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 class TreeNode(object):
-
-    def __init__(self):
+    def __init__(self, node_id):
+        self._node_id = node_id
         self._depth = -1
         self._subtreedepth = -1
         self._expr_index = -1
+
+    def get_node_id(self):
+        return self._node_id
 
     def get_depth(self):
         return self._depth
@@ -62,6 +65,9 @@ class TreeNode(object):
     # def value(self):
     #     raise NotImplementedError('TreeNode', 'value is an abstract method')
 
+    def construct_tree(self, nx_tree):
+        raise NotImplementedError('TreeNode', 'complexity is an abstract method')        
+
     def formal(self):
         raise NotImplementedError('TreeNode', 'formal is an abstract method')
 
@@ -73,8 +79,8 @@ class TreeNode(object):
 
 class LeafNode(TreeNode):
 
-    def __init__(self, arg):
-        TreeNode.__init__(self)
+    def __init__(self, node_id, arg):
+        TreeNode.__init__(self, node_id)
         # String value of the node
         self._arg = arg
         # Numerical value of the node
@@ -92,12 +98,15 @@ class LeafNode(TreeNode):
     def complexity(self):
         return 1
 
+    def construct_tree(self, nx_tree):
+        nx_tree.add_node(self._node_id, value=str(self._arg))
+
     def is_sensor(self):
         try:
             float(self._arg)
             return False
         except ValueError:
-            return True
+            return True        
 
     def formal(self):
         try:
@@ -117,8 +126,8 @@ class LeafNode(TreeNode):
 
 class InternalNode(TreeNode):
 
-    def __init__(self, op, complexity):
-        TreeNode.__init__(self)
+    def __init__(self, node_id, op, complexity):
+        TreeNode.__init__(self, node_id)
         self._op = op
         self._complexity = complexity
         self._nodes = []
@@ -159,6 +168,16 @@ class InternalNode(TreeNode):
                 return self
 
         return self.op_simplify()
+
+    def construct_tree(self, nx_tree):
+        node_op = self._op
+        if not self._op:
+            node_op = 'root'
+        nx_tree.add_node(self._node_id, value=node_op)
+
+        for node in self._nodes:
+            node.construct_tree(nx_tree)
+            nx_tree.add_edge(self._node_id, node.get_node_id())
 
     def is_leaf(self):
         # Check if the list is empty
