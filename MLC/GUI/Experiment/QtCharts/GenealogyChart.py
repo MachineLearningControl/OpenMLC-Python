@@ -125,7 +125,7 @@ class GenealogyChart(QtChartWrapper):
                     parents = generations[gen].get_parents()[indiv_id - 1]
                     for parent_index in range(len(parents)):
                         new_indivs_to_process.append(parents[parent_index])
-                        self.add_line_curve(line_width=.7,
+                        self.add_line_curve(line_width=2,
                                             color=GenealogyChart.INDIV_COLORS[gen_method - 1])
                         self.append_point(self._next_curve, gen + 1, indiv_id)
                         self.append_point(self._next_curve, gen, parents[parent_index])

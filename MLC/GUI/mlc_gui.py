@@ -508,7 +508,7 @@ class MLC_GUI(QMainWindow):
         dialog.exec_()
 
     def menu_about(self):
-        dialog = MLCAboutDialog(self)
+        dialog = MLCAboutDialog(parent=self)
         dialog.exec_()
 
     def _create_gui_config_from_scratch(self, config_filepath, workspace_dir):

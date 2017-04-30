@@ -26,6 +26,9 @@
     </property>
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -34,8 +37,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1004</width>
-         <height>652</height>
+         <width>1006</width>
+         <height>654</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
@@ -1287,7 +1290,6 @@
          </widget>
         </item>
        </layout>
-       <zorder>groupBox</zorder>
        <zorder>groupBox</zorder>
        <zorder>groupBox</zorder>
        <zorder>benchTests</zorder>

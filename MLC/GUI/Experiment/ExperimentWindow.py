@@ -386,7 +386,7 @@ class ExperimentWindow(QMainWindow):
             logger.debug('[EXPERIMENT {0}] [EV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
                          .format(ev_path))
             # Check if file exists
-            QDesktopServices.openUrl(QUrl(ev_path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(ev_path))
         else:
             QMessageBox.critical(self, "Edit Evaluation Script",
                                  "Evaluation file doesn't exists. Check that file {0} exists"
@@ -413,7 +413,7 @@ class ExperimentWindow(QMainWindow):
             logger.debug('[EXPERIMENT {0}] [PREEV_EDIT_BUTTON_CLICKED] - Proceed to open file: {0}'
                          .format(preev_path))
             # Check if file exists
-            QDesktopServices.openUrl(QUrl(preev_path))
+            QDesktopServices.openUrl(QUrl.fromLocalFile(preev_path))
         else:
             QMessageBox.critical(self, "Edit Preevaluation Script",
                                  "Preevaluation file doesn't exists. Check that file {0} exists"
@@ -475,7 +475,7 @@ class ExperimentWindow(QMainWindow):
         logger.debug('[EXPERIMENT {0}] [EDIT_CONFIG_BUTTON] - '
                      'Executing on_edit_config_button_clicked function'
                      .format(self._experiment_name))
-        QDesktopServices.openUrl(QUrl(self._experiment_conf_path))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(self._experiment_conf_path))
 
     def on_first_add_indiv_button_clicked(self):
         self._first_indivs_manager.add_individual()
