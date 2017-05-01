@@ -11,10 +11,8 @@ branches:
     - master
 
 install:
-  - wget https://github.com/Ezetowers/MLC/releases/download/v0.0.1/mlc-python-ubuntu-14.04_0.6_amd64.deb
-  - sudo dpkg -i mlc-python-ubuntu-14.04_0.6_amd64.deb
-  - sudo /opt/mlc-python-2.7.11/bin/mlc_pip uninstall numpy -y
-  - sudo /opt/mlc-python-2.7.11/bin/mlc_pip install numpy
+  - wget https://github.com/Ezetowers/MLC/releases/download/v0.0.4/mlc-python-ubuntu-14.04_0.0.4_amd64.deb
+  - sudo dpkg -i mlc-python-ubuntu-14.04_0.0.4_amd64.deb
 
 script:
   - cd tests
