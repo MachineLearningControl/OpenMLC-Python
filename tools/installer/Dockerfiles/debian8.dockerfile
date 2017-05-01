@@ -47,6 +47,7 @@ RUN apt-get install cmake \
                     libreadline6-dev \
                     libreadline-dev \
                     rubygems \
+                    pkg-config \
                     -y
 
 # Download python 2.7.11
@@ -119,7 +120,8 @@ RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1
 RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb && \
     tar xzvf pip-8.0.2.tar.gz && \
     cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
-    rm -rf /tmp/pip-8.0.2*
+    rm -rf /tmp/pip-8.0.2* && \
+    /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
 
 RUN /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
 
@@ -153,11 +155,21 @@ RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtD
     make -j4 && make install && \
     rm -rf /tmp/PyQtDataVisualization_gpl-5.7.1*
 
+RUN wget http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.40.1.tar.gz && \
+    tar xzvf graphviz-2.40.1.tar.gz && \
+    cd graphviz-2.40.1 && \
+    ./configure --prefix=/tmp/graphviz-2.40.1 && \
+    make -j4 && make install && \
+    mkdir -p /opt/mlc-python-2.7.11/custom_libs /opt/mlc-python-2.7.11/custom_bins && \
+    cp -r /tmp/graphviz-2.40.1/lib/* /opt/mlc-python-2.7.11/custom_libs && \
+    cp -r /tmp/graphviz-2.40.1/bin/* /opt/mlc-python-2.7.11/custom_bins && \
+    rm -rf /tmp/graphviz-2.40.1*
+
 # Install mlc dependencies
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN export LD_LIBRARY_PATH=/usr/local/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
     export PATH=/usr/local/Qt-5.7.1/bin:$PATH && \
-    /opt/mlc-python-2.7.11/bin/mlc_pip install 'ipython<6.0.0' numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
+    /opt/mlc-python-2.7.11/bin/mlc_pip install networkx pydotplus pygraphviz 'ipython<6.0.0' numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
 
 RUN gem install fpm
 
