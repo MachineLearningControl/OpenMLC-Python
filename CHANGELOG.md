@@ -4,6 +4,7 @@
 - [FIX] Added missing import in ArduinoStatsDialog
 - [FIX] Fixes in deploy dockerfiles
 - [FIX] Set MacOs and Windows log config files properly
+- [FIX] Edit buttons working on Windows and Mac
 
 ## [0.0.3] 2017-03-24
 - [FEATURE] Added checkbox for Arduino Connector
