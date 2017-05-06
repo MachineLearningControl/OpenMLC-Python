@@ -42,7 +42,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="experiment_tab">
            <property name="layoutDirection">
@@ -648,6 +648,13 @@
                    <widget class="QPushButton" name="genealogy_button">
                     <property name="text">
                      <string>Genealogy</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="draw_as_tree_button">
+                    <property name="text">
+                     <string>Draw As Tree</string>
                     </property>
                    </widget>
                   </item>
@@ -1505,6 +1512,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>draw_as_tree_button</sender>
+   <signal>clicked()</signal>
+   <receiver>ExperimentWindow</receiver>
+   <slot>on_draw_as_tree_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>816</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>482</x>
+     <y>406</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>on_closed_dialog()</slot>
@@ -1536,5 +1559,6 @@
   <slot>on_gen_start_over_button_clicked()</slot>
   <slot>on_test_preev_indiv_button_clicked()</slot>
   <slot>on_disable_arduino_toggle()</slot>
+  <slot>on_draw_as_tree_button_clicked()</slot>
  </slots>
 </ui>
