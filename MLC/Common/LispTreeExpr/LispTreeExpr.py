@@ -21,9 +21,6 @@
 
 import MLC.Log.log as lg
 import networkx as nx
-import matplotlib
-matplotlib.use("Qt5Agg")
-import matplotlib.pyplot as plt
 import re
 
 from MLC.mlc_parameters.mlc_parameters import Config
@@ -207,27 +204,10 @@ class LispTreeExpr(object):
         self._simplified_tree = '(root ' + self._root.to_string() + ')'
         lg.logger_.debug("[LISP_TREE_EXPR] Simplified Expression: " + self._simplified_tree)
 
-    def draw(self):
+    def construct_graph(self):
         tree = nx.DiGraph()
         self._root.construct_tree(tree)
-
-        fig = plt.figure()
-        # Put figure window on top of all other windows
-        fig.canvas.manager.window.setWindowModality(Qt.ApplicationModal)
-        fig.canvas.manager.window.setWindowTitle("Individual Tree Representation")
-        ax = fig.add_axes([0, 0, 1, 1])
-        ax.axis('off')
-
-        labels = {}
-        for node_id in tree:
-            labels[node_id] = tree.node[node_id]['value']
-        pos = nx.nx_pydot.graphviz_layout(tree, prog='dot')
-
-        nodes = nx.draw_networkx_nodes(tree, pos, node_size=1000, node_color='#D3D3D3')
-        nodes.set_edgecolor('k')
-        nx.draw_networkx_edges(tree, pos, arrows=False)
-        nx.draw_networkx_labels(tree, pos, labels, font_size=12)
-        plt.show()
+        return tree
 
     def calculate_expression(self, sensor_replacement_list):
         class Replace_Sensors_Visitor(TreeVisitor):
