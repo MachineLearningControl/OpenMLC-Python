@@ -30,6 +30,7 @@ FORMS    += \
     pinout_design.ui \ 
     arduino_performance_test.ui \
     about.ui \
-    generic_spinner.ui
+    generic_spinner.ui \
+    individual_tree_visualization.ui
 
 DISTFILES +=

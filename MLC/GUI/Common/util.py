@@ -149,6 +149,3 @@ def add_permissions_to_file(filepath, permissions, user_password=None):
         return cmd_error_code == 0
     else:
         return os.system(cmd) == 0
-
-def get_individual_tree(indiv_value):
-    return LispTreeExpr(indiv_value)

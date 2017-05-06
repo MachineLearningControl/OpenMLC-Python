@@ -52,7 +52,6 @@ expr61 = "(root (exp (- -6.3726 (* -7.1746 S0))))"
 expr612 = "(root (- -6.3726 (* -7.1746 S0)))"
 
 tree = LispTreeExpr(expr6)
-tree.draw()
 x = np.linspace(-10.0, 10.0, num=201)
 mlc_y = tree.calculate_expression([x])
 
