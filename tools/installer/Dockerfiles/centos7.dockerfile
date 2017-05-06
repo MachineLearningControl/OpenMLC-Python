@@ -94,8 +94,9 @@ RUN wget -q https://pypi.python.org/packages/source/s/setuptools/setuptools-20.1
 RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3a73c4188f8dbad6a1e6f6d44d117eeb && \
     tar xzvf pip-8.0.2.tar.gz && \
     cd pip-8.0.2 && /opt/mlc-python-2.7.11/bin/mlc_python setup.py build && /opt/mlc-python-2.7.11/bin/mlc_python setup.py install && \
-    rm -rf /tmp/pip-8.0.2* && \
-    /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
+    rm -rf /tmp/pip-8.0.2*
+
+RUN /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
 
 RUN /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
 
@@ -133,14 +134,25 @@ RUN wget http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.40.1.tar
     tar xzvf graphviz-2.40.1.tar.gz && \
     cd graphviz-2.40.1 && \
     ./configure --prefix=/tmp/graphviz-2.40.1 && \
-    make -j4 && make install && \
-    mkdir -p /opt/mlc-python-2.7.11/custom_libs /opt/mlc-python-2.7.11/custom_bins && \
-    cp -r /tmp/graphviz-2.40.1/lib/* /opt/mlc-python-2.7.11/custom_libs && \
+    make -j4 && make install
+
+# Install mlc dependencies
+# Create .sh who will load the desired enviroment to run nosetests within it
+RUN export CFLAGS="-I/tmp/graphviz-2.40.1/include" \
+    export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/custom_libs:$LD_LIBRARY_PATH && \
+    export LD_LIBRARY_PATH=/opt/mlc-python-2.7.11/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
+    export LD_LIBRARY_PATH=/tmp/graphviz-2.40.1/lib:$LD_LIBRARY_PATH && \
+    export PKG_CONFIG_PATH=/tmp/graphviz-2.40.1/lib/pkgconfig:$PKG_CONFIG_PATH && \
+    export PATH=/opt/mlc-python-2.7.11/Qt-5.7.1/bin:$PATH && \
+    export PATH=/opt/mlc-python-2.7.11/custom_bins:$PATH && \
+    export PATH=/tmp/graphviz-2.40.1/bin:$PATH && \
+    /opt/mlc-python-2.7.11/bin/mlc_pip install networkx pydotplus pygraphviz 'ipython<6.0.0' numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
+
+RUN mkdir -p /opt/mlc-python-2.7.11/custom_libs /opt/mlc-python-2.7.11/custom_bins && \
+    cp -r /tmp/graphviz-2.40.1/lib/*.so* /tmp/graphviz-2.40.1/lib/graphviz /opt/mlc-python-2.7.11/custom_libs && \
     cp -r /tmp/graphviz-2.40.1/bin/* /opt/mlc-python-2.7.11/custom_bins && \
     rm -rf /tmp/graphviz-2.40.1*
 
-# Install mlc dependencies
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install networkx pydotplus pygraphviz 'ipython<6.0.0' pyserial numpy nose matplotlib scipy pyyaml flask requests pyusb
 RUN gem install fpm
 
 ARG RELEASE

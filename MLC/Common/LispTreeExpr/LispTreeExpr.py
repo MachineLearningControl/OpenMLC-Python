@@ -21,6 +21,8 @@
 
 import MLC.Log.log as lg
 import networkx as nx
+import matplotlib
+matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import re
 
