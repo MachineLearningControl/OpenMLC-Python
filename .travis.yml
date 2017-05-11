@@ -11,7 +11,7 @@ branches:
     - master
 
 install:
-  - wget https://github.com/Ezetowers/MLC/releases/download/v0.0.4/mlc-python-ubuntu-14.04_0.0.4_amd64.deb
+  - wget https://github.com/MachineLearningControl/OpenMLC-Python/releases/download/v0.0.4/mlc-python-ubuntu-14.04_0.0.4_amd64.deb
   - sudo dpkg -i mlc-python-ubuntu-14.04_0.0.4_amd64.deb
 
 script:
