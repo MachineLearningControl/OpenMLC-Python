@@ -3,7 +3,8 @@
 </p>
 
 # MLC (Machine Learning Control)
-[![Build Status](https://travis-ci.org/Ezetowers/MLC.svg?branch=master)](https://travis-ci.org/Ezetowers/MLC)
+[![Build Status](https://travis-ci.org/MachineLearningControl/OpenMLC-Python.svg?branch=master)](https://travis-ci.org/MachineLearningControl/OpenMLC-Python)
+
 
 ## Table of Contents
 1. [Abstract](#abstract)
