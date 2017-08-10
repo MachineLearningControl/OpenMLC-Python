@@ -6,6 +6,7 @@ mkdir -p $MLC_PATH/tools
 # Download the MLC code from Github
 wget "https://github.com/Ezetowers/MLC/archive/v$RELEASE.tar.gz"
 tar xzvf v$RELEASE.tar.gz -C $MLC_PATH
+mv $MLC_PATH/OpenMLC-Python-$RELEASE $MLC_PATH/MLC-$RELEASE
 rm -rf /tmp/v$RELEASE.tar.gz
 
 # Add libs and binaries used by Python before creating the .deb
@@ -55,4 +56,5 @@ rm -rf $MLC_PATH/Qt-5.7.1/mkspecs
 # Create the MLC Package
 tar cJvpf /tmp/MLC-$RELEASE-$OS_VERSION.tar.xz -C /tmp MLC-$RELEASE
 fpm -s dir -t $PACKAGE_TYPE -v $RELEASE -n mlc-python-$OS_VERSION /opt/mlc-python-2.7.11
-bash
+mv /tmp/MLC-$RELEASE/*.deb /tmp/release
+mv /tmp/*.tar.xz /tmp/release

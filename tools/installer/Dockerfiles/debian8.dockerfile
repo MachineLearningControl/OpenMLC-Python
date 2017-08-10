@@ -124,8 +124,6 @@ RUN wget -q https://pypi.python.org/packages/source/p/pip/pip-8.0.2.tar.gz#md5=3
 
 RUN /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
 
-RUN /opt/mlc-python-2.7.11/bin/mlc_pip install --upgrade pip
-
 # Add PyQt5 Support
 RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz && \
     tar xzvf sip-4.19.tar.gz && \

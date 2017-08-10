@@ -30,3 +30,5 @@ MLC/GUI/workspace
 
 # Ignore the Qtcreator user configuration file
 *.pro.user
+
+tools/installer/Dockerfiles/release/*
