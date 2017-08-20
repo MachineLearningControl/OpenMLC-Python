@@ -1,6 +1,6 @@
 
-from base import BaseConnection
-from serialconnection import SerialConnection
-from mockconnection import MockConnection
+from MLC.arduino.connection.base import BaseConnection
+from MLC.arduino.connection.serialconnection import SerialConnection
+from MLC.arduino.connection.mockconnection import MockConnection
 
-__all__ = ["BaseConnection", "SerialConnection", "MockConnection" ]
+__all__ = ["BaseConnection", "SerialConnection", "MockConnection"]

@@ -359,7 +359,7 @@ class ExperimentWindow(QMainWindow):
         export_file_name = os.path.join(export_dir, self._experiment_name + ".conf")
         try:
             shutil.copyfile(self._experiment_conf_path, export_file_name)
-        except Exception, err:
+        except Exception as err:
             QMessageBox.critical(self, "Config File Not Exported",
                                  "Config File could not be exported. "
                                  "Error {0}".format(err))
@@ -449,7 +449,7 @@ class ExperimentWindow(QMainWindow):
 
         # Ask the user which Individual he would like to have displayed
         indivs_per_gen = Config.get_instance().getint("POPULATION", "size")
-        individuals_list = [str(x) for x in xrange(1, indivs_per_gen + 1)]
+        individuals_list = [str(x) for x in range(1, indivs_per_gen + 1)]
 
         indiv = QInputDialog.getItem(self, "Individual Genealogy",
                                      "Select the individual you would like to display",
@@ -461,6 +461,7 @@ class ExperimentWindow(QMainWindow):
                                      generation=self._current_gen,
                                      individual=int(indiv[0]),
                                      experiment_name=self._experiment_name)
+            dialog.setAttribute(Qt.WA_DeleteOnClose)
             dialog.show()
 
     def on_draw_as_tree_button_clicked(self):
@@ -468,7 +469,7 @@ class ExperimentWindow(QMainWindow):
         gen_data = self._individuals_per_generation[self._current_gen - 1]
         tree_window = IndividualTreeVisualization(self,
                                                   experiment_name=self._experiment_name,
-                                                  gen_data=gen_data, 
+                                                  gen_data=gen_data,
                                                   current_gen=self._current_gen)
         tree_window.show()
 
@@ -710,7 +711,7 @@ class ExperimentWindow(QMainWindow):
 
         # Complete the list
         individuals = self._mlc_local.get_individuals(self._experiment_name)
-        for index in xrange(1, number_of_gens + 1):
+        for index in range(1, number_of_gens + 1):
             gens_list = []
 
             generation = self._mlc_local.get_generation(self._experiment_name, index)
@@ -718,7 +719,7 @@ class ExperimentWindow(QMainWindow):
             costs = generation.get_costs()
             gen_methods = generation.get_gen_methods()
 
-            for pop_index in xrange(1, indivs_per_gen + 1):
+            for pop_index in range(1, indivs_per_gen + 1):
                 indiv_index = pop_individuals[pop_index - 1]
                 indiv_cost = costs[pop_index - 1]
                 indiv_value = individuals[indiv_index].get_value()
@@ -764,10 +765,10 @@ class ExperimentWindow(QMainWindow):
         number_of_gens = experiment_info["generations"]
         if number_of_gens == 0:
             from_gen_combo.addItems([str(1)])
-            to_gen_combo.addItems([str(x) for x in xrange(2, ExperimentWindow.MAX_GENERATIONS + 1)])
+            to_gen_combo.addItems([str(x) for x in range(2, ExperimentWindow.MAX_GENERATIONS + 1)])
         else:
-            from_gen_combo.addItems([str(x) for x in xrange(1, number_of_gens + 1)])
-            to_gen_combo.addItems([str(x) for x in xrange(2, ExperimentWindow.MAX_GENERATIONS + 1)])
+            from_gen_combo.addItems([str(x) for x in range(1, number_of_gens + 1)])
+            to_gen_combo.addItems([str(x) for x in range(2, ExperimentWindow.MAX_GENERATIONS + 1)])
 
             # Set the from gen combo to the last generation evaluated
             index = from_gen_combo.findText(str(number_of_gens), Qt.MatchFixedString)
@@ -809,9 +810,9 @@ class ExperimentWindow(QMainWindow):
             exp_gen_count_group.setTitle("Generation: {0}/{1}".format(self._current_gen, number_of_gens))
 
             # Refresh the gen_count_combo
-            gen_count_combo.addItems(str(x) for x in xrange(1, number_of_gens + 1))
+            gen_count_combo.addItems(str(x) for x in range(1, number_of_gens + 1))
             gen_count_combo.setCurrentIndex(self._current_gen - 1)
-            exp_gen_count_combo.addItems(str(x) for x in xrange(1, number_of_gens + 1))
+            exp_gen_count_combo.addItems(str(x) for x in range(1, number_of_gens + 1))
             exp_gen_count_combo.setCurrentIndex(self._current_gen - 1)
         else:
             self._current_gen = 0
@@ -841,7 +842,7 @@ class ExperimentWindow(QMainWindow):
                 experiment_info = self._mlc_local.get_experiment_info(self._experiment_name)
                 number_of_gens = experiment_info["generations"]
 
-                for index in xrange(1, number_of_gens + 1):
+                for index in range(1, number_of_gens + 1):
                     if index == self._current_gen:
                         continue
                     gen = self._mlc_local.get_generation(self._experiment_name, index)

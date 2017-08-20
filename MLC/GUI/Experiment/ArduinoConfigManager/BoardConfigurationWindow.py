@@ -52,7 +52,7 @@ class BoardConfigurationWindow(QMainWindow):
         self.__boards = boards
         self.__setup = setup
         self.__board_idx = 0
-        #Disabled by the moment -- ethernet not yet supported!
+        # Disabled by the moment -- ethernet not yet supported!
         self.ui.ethernet_radio.setDisabled(True)
 
         current_board = 0
@@ -97,10 +97,10 @@ class BoardConfigurationWindow(QMainWindow):
             aux_idx += 1
 
         # Clear the list (QTableWidget.clearContent doesn't remove the rows!)
-        for i in xrange(self.ui.digitalPinsList.rowCount(), -1, -1):
+        for i in range(self.ui.digitalPinsList.rowCount(), -1, -1):
             self.ui.digitalPinsList.removeRow(i)
 
-        for i in xrange(self.ui.analogPinList.rowCount(), -1, -1):
+        for i in range(self.ui.analogPinList.rowCount(), -1, -1):
             self.ui.analogPinList.removeRow(i)
 
         for pin in setup.digital_input_pins:
@@ -145,11 +145,11 @@ class BoardConfigurationWindow(QMainWindow):
     def checkout_connection_config(self):
         # TODO Renombrar para checkout de parametros de conexion serie
         serial_config = {
-                        "baudrate": int(self.ui.baud_rate_selector.currentText()),
-                        "parity": self.ui.parity_bits_selector.currentIndex(),
-                        "stopbits": self.ui.stop_bits_selector.currentIndex(),
-                        "bytesize": self.ui.byte_size_selector.currentIndex(),
-                        "port": self.ui.interface_combo.currentText()}
+            "baudrate": int(self.ui.baud_rate_selector.currentText()),
+            "parity": self.ui.parity_bits_selector.currentIndex(),
+            "stopbits": self.ui.stop_bits_selector.currentIndex(),
+            "bytesize": self.ui.byte_size_selector.currentIndex(),
+            "port": self.ui.interface_combo.currentText()}
         return serial_config
 
     def checkout_board_setup(self):
@@ -242,7 +242,7 @@ class BoardConfigurationWindow(QMainWindow):
         self.__controller.start_bench()
 
     def on_connection_type_toggle(self):
-        #TBD
+        # TBD
         pass
 
     def on_permission_button_clicked(self):

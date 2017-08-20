@@ -33,6 +33,7 @@ def set_population_size(old_size, new_size, simulation):
 
 
 class ParamTypes:
+
     @staticmethod
     def string(value):
         v = str(value)
@@ -56,6 +57,7 @@ class ParamTypes:
 
 
 class ConfigRule:
+
     def __init__(self, description, param_type, set_function):
         self._description = description
         self._param_type = param_type
@@ -84,9 +86,9 @@ class MLCConfigRules:
         rules_file = yaml.load(open(rules_file, 'r'))
         self._rules = {}
 
-        for section, params in rules_file.iteritems():
+        for section, params in rules_file.items():
             self._rules[section] = {}
-            for param_name, param_rule in params.iteritems():
+            for param_name, param_rule in params.items():
                 self._rules[section][param_name] = self.__build_config_rule(param_rule)
 
     def apply(self, section, name, value, simulation):

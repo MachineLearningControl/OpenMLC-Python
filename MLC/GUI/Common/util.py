@@ -48,7 +48,7 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
                                          rhs_value=indiv_value)
         callback = EvaluatorFactory.get_callback()
         return callback.cost(individual)
-    except ExprException, err:
+    except ExprException as err:
         # Print the error message returned in the exception,
         # removing the prefix ([EXPR_EXCEPTION]])
         QMessageBox.critical(parent,
@@ -61,7 +61,7 @@ def test_individual_value(parent, experiment_name, log_prefix, indiv_value, conf
                      "Error Msg: {2}"
                      .format(log_prefix, experiment_name,
                              err.message[err.message.find(']') + 2:]))
-    except Exception, err:
+    except Exception as err:
         QMessageBox.critical(parent,
                              "Invalid Evaluation Script",
                              "Check the evaluation script to be correct. "
@@ -84,7 +84,7 @@ def check_individual_value(parent, experiment_name, log_prefix, indiv_value, nod
         """
         LispTreeExpr.check_expression(indiv_value)
         return True
-    except ExprException, err:
+    except ExprException as err:
         # Print the error message returned in the exception,
         # removing the prefix ([EXPR_EXCEPTION]])
         if not nodialog:
@@ -111,7 +111,7 @@ def check_if_indiv_pass_preevaluation(parent, experiment_name, log_prefix, indiv
                                          rhs_value=indiv_value)
         callback = PreevaluationManager.get_callback()
         return callback.preev(individual)
-    except ExprException, err:
+    except ExprException as err:
         # Print the error message returned in the exception,
         # removing the prefix ([EXPR_EXCEPTION]])
         QMessageBox.critical(parent,
@@ -124,7 +124,7 @@ def check_if_indiv_pass_preevaluation(parent, experiment_name, log_prefix, indiv
                      "Error Msg: {2}"
                      .format(log_prefix, experiment_name,
                              err.message[err.message.find(']') + 2:]))
-    except Exception, err:
+    except Exception as err:
         QMessageBox.critical(parent,
                              "Invalid Evaluation Script",
                              "Check the evaluation script to be correct. "

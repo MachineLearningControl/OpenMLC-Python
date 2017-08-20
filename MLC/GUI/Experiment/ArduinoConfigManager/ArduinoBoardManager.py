@@ -19,8 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from ArduinoBench import ArduinoBench
-
+from MLC.GUI.Experiment.ArduinoConfigManager.ArduinoBench import ArduinoBench
 from MLC.GUI.Experiment.ArduinoConfigManager.ArduinoStatsDialog import ArduinoStatsDialog
 from MLC.GUI.Experiment.ArduinoConfigManager.BoardConfigurationWindow import BoardConfigurationWindow
 from MLC.arduino import boards
@@ -147,7 +146,7 @@ class ArduinoBoardManager:
             self.__connection_status.set_error("Error: connection timeout")
         except ConnectionException:
             self.__connection_status.set_error("Error: Board unreachable")
-        except ValueError, err:
+        except ValueError as err:
             self.__connection_status.set_error("Error: {0}".format(err))
 
     def board_changed(self, new_idx, old_idx):

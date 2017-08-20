@@ -67,7 +67,7 @@ class RandomManager:
         RandomManager._rand_counter += n
         rand_list = []
 
-        for _ in xrange(n):
+        for _ in range(n):
             if not len(RandomManager._randoms):
                 rand_list.append(random.random())
             else:

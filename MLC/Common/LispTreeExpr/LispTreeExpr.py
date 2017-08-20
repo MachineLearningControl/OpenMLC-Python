@@ -78,7 +78,9 @@ class OperationArgumentsAmountException(ExprException):
 
 
 class LispTreeExpr(object):
+
     class NodeIdGenerator(object):
+
         def __init__(self):
             self._node_id_counter = 0
 
@@ -135,7 +137,7 @@ class LispTreeExpr(object):
         close_parenthesis = ")"
         string_to_find = open_parenthesis
         counter = 0
-        for index in xrange(len(expression)):
+        for index in range(len(expression)):
             if expression[index] == open_parenthesis:
                 counter += 1
             elif expression[index] == close_parenthesis:
@@ -315,10 +317,10 @@ class LispTreeExpr(object):
         return leaf, param_len + 1
 
     # As a precondition, the expression must be well-formed
-    def _generate_node(self, 
-                       expr, 
-                       is_root_expression=False, 
-                       parent_depth=0, 
+    def _generate_node(self,
+                       expr,
+                       is_root_expression=False,
+                       parent_depth=0,
                        expr_index=0):
         if expr[0] != '(':
             return self._generate_leaf_node(expr, parent_depth, expr_index)
@@ -340,8 +342,8 @@ class LispTreeExpr(object):
             next_arg_pos = 1 + len(op["op"]) + 1 + expr_offset
 
             if expr[next_arg_pos] == '(':
-                child_node, offset = self._generate_node(expr[next_arg_pos:], 
-                                                         parent_depth=parent_depth + 1, 
+                child_node, offset = self._generate_node(expr[next_arg_pos:],
+                                                         parent_depth=parent_depth + 1,
                                                          expr_index=expr_index + next_arg_pos)
             else:
                 child_node, offset = self._generate_leaf_node(expr[next_arg_pos:],

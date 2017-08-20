@@ -74,7 +74,7 @@ class ExperimentsManager():
 
         # Update the experiment description
         description = ""
-        for key, value in experiment_info.iteritems():
+        for key, value in experiment_info.items():
             description += "<b>" + str(key) + ":</b> " + str(value) + "<br>"
         self._experiment_info_dict[experiment_name] = description
 
@@ -130,13 +130,13 @@ class ExperimentsManager():
                          "Experiment {0} could not be imported. "
                          "It already exists.".format(experiment_name))
             raise
-        except ImportExperimentPathNotExistException, err:
+        except ImportExperimentPathNotExistException as err:
             logger.error("[GUI_EXPERIMENT_MANAGER] [IMPORT_EXPERIMENT] - "
                          "Experiment {0} could not be imported. "
                          "Experiment path given does not exists. Exception msg: {1}"
                          .format(experiment_name, err))
             raise
-        except Exception, err:
+        except Exception as err:
             logger.error("[GUI_EXPERIMENT_MANAGER] [IMPORT_EXPERIMENT] - "
                          "Experiment {0} could not be imported. {1}"
                          .format(experiment_name, err))
@@ -154,7 +154,7 @@ class ExperimentsManager():
             logger.info("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
                         "Experiment {0} was succesfully exported. It is stored in {1}"
                         .format(experiment_name, export_dir))
-        except Exception, err:
+        except Exception as err:
             logger.error("[GUI_EXPERIMENT_MANAGER] [EXPORT] - "
                          "An error ocurred while exporting project {0}. "
                          "Error {1}".format(experiment_name, err))

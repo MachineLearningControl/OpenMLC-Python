@@ -28,6 +28,7 @@ from MLC.arduino.connection import SerialConnection
 from MLC.arduino.protocol import ArduinoInterface
 from MLC.arduino import boards
 
+
 def actuate(terminal):
     connection = SerialConnection(port=terminal)
     arduinoDue = ArduinoInterface(connection, boards.Due)
@@ -44,7 +45,7 @@ def actuate(terminal):
     measures = []
     while diff < 10:
         print "Reading... {0}".format(diff)
-        results = arduinoDue.actuate([(40,1)])
+        results = arduinoDue.actuate([(40, 1)])
         measures.append(results)
         last_time = time.time()
         diff = last_time - start_time
@@ -52,7 +53,7 @@ def actuate(terminal):
     # Process samples
     samples = []
     for element in measures:
-        for i in xrange(len(element)):
+        for i in range(len(element)):
             samples.append(int(element[i][1]))
 
     # print "{0}".format(samples)
@@ -61,6 +62,7 @@ def actuate(terminal):
     plt.clf()
     plt.plot(samples)
     plt.show(block=True)
+
 
 def main():
     actuate("/dev/ttyACM0")

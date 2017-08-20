@@ -166,7 +166,7 @@ to_draw[no_eval_string] = (draw_methods,
 
 # Show the results
 methods = retrieve_methods(mlc_dir)
-for key, value in to_draw.iteritems():
+for key, value in to_draw.items():
     if value[3]:
         print "\n\n"
         print key

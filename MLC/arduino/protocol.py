@@ -20,11 +20,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import collections
-import boards
 from collections import namedtuple
-from connection.base import ConnectionException
-from connection.base import invalid_connection_builder
+from MLC.arduino.connection.base import ConnectionException
+from MLC.arduino.connection.base import invalid_connection_builder
 import MLC.Log.log as lg
+from MLC.arduino import boards
 
 _PROTOCOL_CMDS = {"ANALOG_PRECISION": '\x01\x00\x00\x00\x01%s',
                   "SET_INPUT": '\x02\x00\x00\x00\x01%s',
@@ -49,13 +49,16 @@ class ProtocolException(Exception):
 
 
 class ProtocolIOException(ProtocolException):
+
     def __init__(self, what):
         ProtocolException.__init__(self, "Protocol IO error: %s" % (what))
 
 
 class ProtocolSetupException(ProtocolException):
+
     def __init__(self, what):
         ProtocolException.__init__(self, "Setup error: %s" % (what))
+
 
 class ArduinoInterface:
     # 0=input 1=output -- wiring_constants.h
@@ -273,6 +276,7 @@ class ProtocolConfig(
     namedtuple('ProtocolConfig', ['connection', 'report_mode', 'read_count', 'read_delay', 'board_type',
                                   'digital_input_pins', 'digital_output_pins', 'analog_input_pins',
                                   'analog_output_pins', 'pwm_pins', 'analog_resolution'])):
+
     def __new__(cls, connection, report_mode=REPORT_MODES.AVERAGE, read_count=2, read_delay=0, board_type=boards.Due,
                 digital_input_pins=None, digital_output_pins=None, analog_input_pins=None, analog_output_pins=None,
                 pwm_pins=None, analog_resolution=None):
@@ -324,7 +328,7 @@ class ArduinoUserInterface:
             try:
                 #serial_conn = SerialConnection(**conn_setup)
                 connection = ArduinoUserInterface._connection_builder[0](conn_setup)
-            except ConnectionException, err:
+            except ConnectionException as err:
                 lg.logger_.info("[PROTOCOL] Error while building connection. "
                                 "Err info: {0}".format(err))
                 raise

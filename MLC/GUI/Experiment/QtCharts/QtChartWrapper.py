@@ -30,7 +30,8 @@ import numpy as np
 
 
 class QtChartWrapper():
-    #FIXME: Do a factory method or a decorator to make a line o spline series
+    # FIXME: Do a factory method or a decorator to make a line o spline series
+
     def __init__(self, show_legend=False, no_spline=False):
         self._ncurves = 0
         self._chart = QChart()
@@ -84,9 +85,9 @@ class QtChartWrapper():
     def add_data(self, xdata, ydata, line_width=.1, color=None):
         curve = None
         if self._no_spline:
-           curve = QLineSeries()
+            curve = QLineSeries()
         else:
-           curve = QSplineSeries()
+            curve = QSplineSeries()
         # curve = QSplineSeries()
         pen = curve.pen()
 
@@ -100,7 +101,7 @@ class QtChartWrapper():
 
         # Convert the xdata and ydata into a list of points. Add them to the curve
         points = []
-        for i in xrange(0, len(xdata)):
+        for i in range(0, len(xdata)):
             points.append(QPointF(xdata[i], ydata[i]))
         curve.append(points)
 

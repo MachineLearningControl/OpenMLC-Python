@@ -21,15 +21,15 @@
 
 import os
 import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+# reload(sys)
+# sys.setdefaultencoding("utf-8")
 
 mlc_gui_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(*[mlc_gui_dir, "..", ".."])
 sys.path.append(root_dir)
 
 
-import ConfigParser
+import configparser
 import tarfile
 import time
 import yaml
@@ -209,6 +209,7 @@ class MLC_GUI(QMainWindow):
                                       experiment_name=self._experiment_selected,
                                       experiment_closed_signal=self.experiment_closed,
                                       parent=self)
+        experiment.setAttribute(Qt.WA_DeleteOnClose)
         experiment.show()
 
     def on_clone_button_clicked(self):
@@ -322,7 +323,7 @@ class MLC_GUI(QMainWindow):
         except DuplicatedExperimentError:
             QMessageBox.critical(self, "Import Experiment", "Experiment {0} could not be imported. "
                                  "It already exists.".format(experiment_name))
-        except Exception, err:
+        except Exception as err:
             QMessageBox.critical(self, "Import Experiment", "Experiment {0} could not be imported. {1}"
                                  .format(experiment_name, err))
 
@@ -344,7 +345,7 @@ class MLC_GUI(QMainWindow):
             QMessageBox.information(self, "Experiment Exported",
                                     "Experiment {0} was succesfully exported. It is stored in {1}"
                                     .format(self._experiment_selected, export_dir))
-        except Exception, err:
+        except Exception as err:
             QMessageBox.critical(self, "Experiment Not Exported",
                                  "Experiment could not be exported. "
                                  "Error {0}".format(err))
@@ -471,7 +472,7 @@ class MLC_GUI(QMainWindow):
                                                 workspace_exists=False)
 
         # Load GUI config
-        self._gui_config = ConfigParser.ConfigParser()
+        self._gui_config = configparser.ConfigParser()
         self._gui_config.read(config_filepath)
         workspace_dir = self._gui_config.get('MAIN', 'workspace')
 
@@ -512,7 +513,7 @@ class MLC_GUI(QMainWindow):
         dialog.exec_()
 
     def _create_gui_config_from_scratch(self, config_filepath, workspace_dir):
-        self._gui_config = ConfigParser.ConfigParser()
+        self._gui_config = configparser.ConfigParser()
         self._gui_config.add_section('MAIN')
         self._gui_config.set('MAIN', 'workspace', workspace_dir)
         with open(config_filepath, 'w') as cfg:

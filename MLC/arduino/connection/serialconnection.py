@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from base import BaseConnection, ConnectionException, ConnectionTimeoutException
+from MLC.arduino.connection.base import BaseConnection, ConnectionException, ConnectionTimeoutException
 from collections import namedtuple
 import serial
 
 
 class SerialConnectionException(ConnectionException):
+
     def __init__(self, what):
         ConnectionException.__init__(self, "Error in connection initialization. {0}".format(what))
 
@@ -40,7 +41,7 @@ class SerialConnection(BaseConnection):
         parity -- parity check bits from pySerial. By default it is set to PARITY_ONE. Available options: PARITY_EVEN, PARITY_ODD, PARITY_MARK & PARITY_SPACE
         stopbits -- stop bits from pySerial. By default it is set to STOPBITS_ONE. Available options: STOPBITS_ONE_POINT_FIVE & STOPBITS_TWO
         bytesize -- byte size from pySerial. By default it is set to EIGHTBITS. Available options: FIVEBITS, SIXBITS & SEVENBITS
-        
+
         Raises:
             SerialConnectionException: If the port could not be open or configured
             ValueError: In case that port is not specified or if any of the parameters have errors
@@ -60,22 +61,22 @@ class SerialConnection(BaseConnection):
 
         try:
             self._connection = serial.Serial(**args)
-        except serial.SerialException, err:
+        except serial.SerialException as err:
             raise SerialConnectionException(str(err))
 
     def send(self, data):
         """
         Sends data through serial connection
-        
+
         Args:
             data: Bytes to be send
-        
+
         Raises:
             ConnectionTimeoutException: If could not write all data through serial connection
         """
         try:
             self._connection.write(data)
-        except serial.SerialTimeoutException, err:
+        except serial.SerialTimeoutException as err:
             raise ConnectionTimeoutException("write operation timeout after {0} seconds".format(self._write_timeout))
 
     def recv(self, length):
@@ -84,7 +85,7 @@ class SerialConnection(BaseConnection):
 
         Keyword arguments:
         length -- amount of bytes to receive
-        
+
         Raises:
             ConnectionTimeoutException: In case that the "length" of bytes is not received
         """

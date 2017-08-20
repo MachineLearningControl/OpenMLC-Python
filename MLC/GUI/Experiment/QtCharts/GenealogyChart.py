@@ -67,14 +67,14 @@ class GenealogyChart(QtChartWrapper):
 
         # Add the evolution strategies as four empty curve in order to set the
         # graphic legend
-        for index in xrange(len(GenealogyChart.INDIV_COLORS)):
+        for index in range(len(GenealogyChart.INDIV_COLORS)):
             self.add_line_curve(line_width=.7,
                                 color=GenealogyChart.INDIV_COLORS[index],
                                 legend=GenealogyChart.INDIV_LEGEND[index])
 
     def _add_title(self):
         chart_title = 'Generation N°{0} - Individual N°{1}'.format(self._amount_generations,
-                                                               self._indiv_index)
+                                                                   self._indiv_index)
         chart_font = QFont()
         chart_font.setWeight(QFont.ExtraBold)
         self.set_title(chart_title, chart_font)
@@ -98,23 +98,23 @@ class GenealogyChart(QtChartWrapper):
         # when the individuals amount per generations decrease
         marker_size = 4
 
-        for index in xrange(self._amount_generations):
+        for index in range(self._amount_generations):
             self.add_scatter(marker_size=marker_size,
                              color=GenealogyChart.SWIM_LINE_COLORS[(index - 1) % amount_colors])
 
-            for indiv_id in xrange(1, self._indivs_per_gen + 1):
+            for indiv_id in range(1, self._indivs_per_gen + 1):
                 self.append_point(index, index + 1, indiv_id)
 
     def _add_individuals(self):
         logger.debug("[GENEALOGY_CHART] Looping through individuals")
         start_time = time.time()
         generations = [self._mlc_local.get_generation(self._experiment_name, i)
-                       for i in xrange(1, self._amount_generations + 1)]
+                       for i in range(1, self._amount_generations + 1)]
 
         indivs_to_process = []
         new_indivs_to_process = [self._indiv_index]
 
-        for gen in xrange(self._amount_generations - 1, -1, -1):
+        for gen in range(self._amount_generations - 1, -1, -1):
             indivs_to_process = new_indivs_to_process
             new_indivs_to_process = []
 

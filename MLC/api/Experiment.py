@@ -21,7 +21,7 @@
 
 import os
 import argparse
-import ConfigParser
+import configparser
 import MLC.config as path_solver
 import shutil
 
@@ -54,7 +54,7 @@ class Experiment:
         self._db_file = db
         self._simulation = None
 
-        self._configuration = ConfigParser.ConfigParser()
+        self._configuration = configparser.ConfigParser()
         self._configuration.read(self._config_file)
 
     def get_simulation(self):
@@ -128,7 +128,7 @@ class Experiment:
         # Load experiment
         try:
             return Experiment(experiment_dir, experiment_name)
-        except Exception, err:
+        except Exception as err:
             logger.error("Cannot create a new experiment. Error message: %s " % err)
             raise
 
@@ -160,8 +160,8 @@ class Experiment:
 
         # TODO: Validate that the configuration database its ok
         try:
-            import ConfigParser
-            config = ConfigParser.ConfigParser()
+            import configparser
+            config = configparser.ConfigParser()
             config.readfp(open(experiment_cf))
 
             if not config.getboolean("BEHAVIOUR", "save"):
@@ -177,5 +177,5 @@ class Experiment:
             # TODO: We need to check for the existence of a Evaluation and Preevaluation folder. If so, we have to also
             # check if the variable in the configuration matches the file in this folders?
 
-        except Exception, err:
+        except Exception as err:
             raise InvalidExperimentException("Error reading configuration file %s: %s" % (experiment_cf, err))

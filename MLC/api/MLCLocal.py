@@ -20,8 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import argparse
-import cStringIO
-import ConfigParser
+import io
+import configparser
 import MLC.Common.util
 import os
 import shutil
@@ -80,7 +80,7 @@ class MLCLocal(MLC):
                 self._experiments[experiment_name] = Experiment(experiment_dir, experiment_name)
                 logger.info('[MLC_LOCAL] [INIT] - Found experiment in workspace: {0}'
                             .format(experiment_name))
-            except InvalidExperimentException, err:
+            except InvalidExperimentException as err:
                 logger.error("[MLC_LOCAL] [INIT] - Something go wrong loading experiment '{0}': {1}"
                              .format(experiment_name, err))
                 pass
@@ -90,7 +90,7 @@ class MLCLocal(MLC):
         return self._working_dir
 
     def get_workspace_experiments(self):
-        return self._experiments.keys()
+        return list(self._experiments.keys())
 
     def get_experiment_configuration(self, experiment_name):
         if experiment_name not in self._open_experiments:
@@ -117,7 +117,7 @@ class MLCLocal(MLC):
         if not os.path.exists(config_filepath):
             raise ConfigFilePathNotExistException(config_filepath)
 
-        experiment_config = ConfigParser.ConfigParser()
+        experiment_config = configparser.ConfigParser()
         experiment_config.read(config_filepath)
         new_config = Config.to_dictionary(experiment_config)
         # FIXME: Remove the db file from the config. Now the DB is a fixed part of the experiment
@@ -129,8 +129,8 @@ class MLCLocal(MLC):
             raise ClosedExperimentException("set_experiment_configuration", experiment_name)
 
         # FIXME: Check the way the configuration rules are being coded
-        # for section, params in new_configuration.iteritems():
-        #     for param_name, param_value in new_configuration[section].iteritems():
+        # for section, params in new_configuration.items():
+        #     for param_name, param_value in new_configuration[section].items():
         #         MLCConfigRules.get_instance().apply(section, param_name, param_value,
         #                                             self._open_experiments[experiment_name].get_simulation())
 
@@ -138,10 +138,10 @@ class MLCLocal(MLC):
         configuration = experiment.get_configuration()
 
         # FIXME: Check the way the configuration rules are being coded
-        # for section, params in new_configuration.iteritems():
+        # for section, params in new_configuration.items():
         #     if not section in configuration:
         #         configuration[section] = {}
-        #     for param_name, param_value in new_configuration[section].iteritems():
+        #     for param_name, param_value in new_configuration[section].items():
         #         configuration[section][param_name] = new_configuration[section][param_name]
 
         configuration.update(new_configuration)
@@ -175,7 +175,7 @@ class MLCLocal(MLC):
         if experiment_configuration is None:
             config = MLCLocal.DEFAULT_EXPERIMENT_CONFIG
 
-        self._load_new_experiment(experiment_name, 
+        self._load_new_experiment(experiment_name,
                                   config,
                                   evaluation_script,
                                   preevaluation_script)
@@ -194,7 +194,7 @@ class MLCLocal(MLC):
                         os.path.join(cloned_path, cloned_experiment + ".db"))
 
             # Change the DB name inside the experiment
-            experiment_config = ConfigParser.ConfigParser()
+            experiment_config = configparser.ConfigParser()
             experiment_config.read(os.path.join(cloned_path, cloned_experiment + ".conf"))
             experiment_config.set('BEHAVIOUR', 'savedir', cloned_experiment + ".db")
             with open(os.path.join(cloned_path, cloned_experiment + ".conf"), "w") as f:
@@ -203,7 +203,7 @@ class MLCLocal(MLC):
             # Add the experiment to the list of experiments
             self._experiments[cloned_experiment] = Experiment(cloned_path, cloned_experiment)
 
-        except Exception, err:
+        except Exception as err:
             logger.error("[MLC_LOCAL] [CLONE] - "
                          "An error ocurred while cloning project {0}. "
                          "Error {1}".format(experiment_name, err))
@@ -222,12 +222,12 @@ class MLCLocal(MLC):
         # Rename can be implemented as a clone and remove operation
         logger.info("[MLC_LOCAL] [RENAME] - Proceed to clone and remove the experiment given. "
                     "Old: {0} - New: {1}"
-                    .format(experiment_name_old.encode('utf-8'), 
+                    .format(experiment_name_old.encode('utf-8'),
                             experiment_name_new.encode('utf-8')))
         if self.clone_experiment(experiment_name_old, experiment_name_new):
             try:
                 self.delete_experiment(experiment_name_old)
-            except OSError, err:
+            except OSError as err:
                 # The experiment could not be removed
                 logger.error("[MLC_LOCAL] [RENAME] - "
                              "Experiment {0} could not be deleted. Err: {1}"
@@ -239,7 +239,6 @@ class MLCLocal(MLC):
                      "Experiment {0} could not be cloned. Aborting experiment rename."
                      .format(experiment_name_new))
         return False
-
 
     def delete_experiment(self, experiment_name):
         if experiment_name not in self._experiments:
@@ -268,7 +267,7 @@ class MLCLocal(MLC):
             with tarfile.open(experiment_path, "r:gz") as tar:
                 tar.extractall(self._working_dir)
             logger.info("[MLC_LOCAL] Experiment {0} was succesfully imported.".format(experiment_name))
-        except Exception, err:
+        except Exception as err:
             logger.error("[MLC_LOCAL] Experiment {0} could not be imported. Error msg: {1}"
                          .format(experiment_name, err))
             raise
@@ -280,7 +279,7 @@ class MLCLocal(MLC):
     def export_experiment(self, experiment_name):
         # Generate a tar file and store it in a variable, to be able to send
         # it via a websocket in the future
-        c = cStringIO.StringIO()
+        c = io.StringIO()
         experiment_dir = os.path.join(self._working_dir, experiment_name)
         util.make_tarfile(experiment_dir, c)
         return c.getvalue()
@@ -472,7 +471,7 @@ class MLCLocal(MLC):
 
     def _load_new_experiment(self, experiment_name, config_path,
                              evaluation_script, preevaluation_script):
-        experiment_config = ConfigParser.ConfigParser()
+        experiment_config = configparser.ConfigParser()
         experiment_config.read(config_path)
         config = Config.to_dictionary(experiment_config)
 
@@ -494,7 +493,7 @@ class MLCLocal(MLC):
                                                                  config,
                                                                  evaluation_script,
                                                                  preevaluation_script)
-        except Exception, err:
+        except Exception as err:
             logger.error("Cannot create a new experiment. Error message: %s " % err)
             raise
 

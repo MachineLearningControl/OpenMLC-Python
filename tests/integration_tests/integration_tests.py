@@ -266,5 +266,5 @@ if __name__ == '__main__':
             else:
                 print "'%s'? there is no integration test with that name!" % test_name
 
-    for test_dir, integration_test in test_to_run.iteritems():
+    for test_dir, integration_test in test_to_run.items():
         execute_integration_test(test_dir, integration_test)

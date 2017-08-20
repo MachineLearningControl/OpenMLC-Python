@@ -40,7 +40,7 @@ def individual_data(indiv):
 
     config = Config.get_instance()
     artificial_noise = config.getint('EVALUATOR', 'artificialnoise')
-    y_with_noise = y + [random.random() / 2 - 0.25 for _ in xrange(SAMPLES)] + artificial_noise * 500
+    y_with_noise = y + [random.random() / 2 - 0.25 for _ in range(SAMPLES)] + artificial_noise * 500
 
     if isinstance(indiv.get_formal(), str):
         formal = indiv.get_formal().replace('S0', 'x')

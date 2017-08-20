@@ -30,7 +30,7 @@ class ConfigDictTableModel(ConfigTableModel):
 
     def _dict_to_list_of_lists(self, dict):
         data = []
-        for section, options in dict.iteritems():
-            for option, value in options.iteritems():
+        for section, options in dict.items():
+            for option, value in options.items():
                 data.append([option, section, value])
         return data

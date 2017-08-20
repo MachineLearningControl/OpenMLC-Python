@@ -23,7 +23,7 @@ import math
 import MLC.Log.log as lg
 import numpy as np
 
-from BaseCreation import BaseCreation
+from MLC.Population.Creation.BaseCreation import BaseCreation
 from MLC.individual.Individual import Individual
 
 

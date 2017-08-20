@@ -33,7 +33,7 @@ class MLCRepositoryHelper:
     @staticmethod
     def get_hash_for_individual(individual):
         m = hashlib.md5()
-        m.update(individual.get_value())
+        m.update(individual.get_value().encode('utf-8'))
         return m.hexdigest()
 
 
@@ -79,6 +79,7 @@ class MLCRepository:
     def close():
         raise NotImplementedError("This method must be implemented")
     # operation over generations
+
     def add_population(self, population):
         raise NotImplementedError("This method must be implemented")
 

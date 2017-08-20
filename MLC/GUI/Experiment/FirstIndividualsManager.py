@@ -219,7 +219,7 @@ class FirstIndividualsManager(object):
 
         # Creat the dictionary of individuals
         indivs_dict = {}
-        for index in xrange(len(self._individuals)):
+        for index in range(len(self._individuals)):
             indiv = Individual(self._individuals[index])
             indivs_dict[indiv] = [index]
 
@@ -230,7 +230,7 @@ class FirstIndividualsManager(object):
 
         # Generate the dict to be used by the Table Model
         indivs_list = []
-        for index in xrange(len(self._individuals)):
+        for index in range(len(self._individuals)):
             indivs_list.append([index + 1, self._individuals[index]])
 
         table_model = ConfigTableModel(name="FIRST INDIVS TABLE",

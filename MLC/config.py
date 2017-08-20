@@ -25,17 +25,17 @@ project folders.
 This file should be placed on root_prohect/MLC/config.py
 """
 import os
-import __builtin__
+import builtins
 
-__builtin__.working_directory = os.path.abspath(".")
+builtins.working_directory = os.path.abspath(".")
 
 
 def get_working_directory():
-    return __builtin__.working_directory
+    return builtins.working_directory
 
 
 def set_working_directory(new_working_dir):
-    __builtin__.working_directory = new_working_dir
+    builtins.working_directory = new_working_dir
 
 
 def get_mlc_root_directory():

@@ -24,6 +24,8 @@ from MLC.mlc_parameters.mlc_parameters import Config
 from MLC import config as mlc_paths
 
 import os
+
+
 class Operations(object):
     """
     Singleton class gives information about the tree functions availables at
@@ -44,14 +46,14 @@ class Operations(object):
 
     def get_operation_from_op_num(self, op_num_index):
         try:
-            return self._ops.values()[int(op_num_index) - 1]
+            return list(self._ops.values())[int(op_num_index) - 1]
         except KeyError:
             raise IndexError("get_operation_from_op_num",
                              "Index must be one of the following values: {0}"
                              .format(str(self._ops.keys())))
 
     def get_operation_from_op_string(self, str_op):
-        for k, op in self._ops.iteritems():
+        for k, op in self._ops.items():
             if op["op"] == str_op:
                 return op
         raise KeyError('Operations', 'Key %s was not found' % str_op)

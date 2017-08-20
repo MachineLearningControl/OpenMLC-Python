@@ -19,7 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import os, sys, re, cmd, argparse
+import os
+import sys
+import re
+import cmd
+import argparse
 import traceback
 
 from MLC.api.mlc import MLCException
@@ -132,8 +136,8 @@ class MLCCmd(cmd.Cmd):
         try:
             experiment_info = mlc_api.get_experiment_info(experiment_name)
             self.msg("Experiment '%s':" % experiment_name)
-            for k, v in experiment_info.iteritems():
-                self.msg("%s: %s" % (k , v))
+            for k, v in experiment_info.items():
+                self.msg("%s: %s" % (k, v))
 
         except MLCException, err:
             self.msg(str(err))
@@ -149,7 +153,7 @@ class MLCCmd(cmd.Cmd):
         except MLCException, err:
             self.msg(str(err))
 
-    @validate_params([optional(string), optional(string)], err_handler,"[section] [paramater_name] expected")
+    @validate_params([optional(string), optional(string)], err_handler, "[section] [paramater_name] expected")
     def do_configuration(self, section, parameter_name):
         if MLCCmd.current_experiment is None:
             self.msg("no open experiment.")
@@ -228,9 +232,9 @@ class MLCCmd(cmd.Cmd):
         return True
 
     def __print_configuration(self, conf):
-        for section, parameters in conf.iteritems():
+        for section, parameters in conf.items():
             print "[%s]" % (section,)
-            for name, value in parameters.iteritems():
+            for name, value in parameters.items():
                 print "    %s = %s" % (name, value)
 
     def __print_individuals(self, individuals):
@@ -242,7 +246,7 @@ class MLCCmd(cmd.Cmd):
     def __search_parameter_in_configuration(configuration, param_name):
         found = {}
         for section, parameters in configuration:
-            for name, value in parameters.iteritems():
+            for name, value in parameters.items():
                 if name == param_name:
                     found[section] = {name: value}
 

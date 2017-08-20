@@ -320,6 +320,7 @@ class ExperimentInProgress(Thread):
 
         self._experiment_condition = self._dialog.get_experiment_condition_variable()
         self._dialog.add_experiment_data(self._amount_gens, self._indivs_per_gen)
+        self._dialog.setAttribute(Qt.WA_DeleteOnClose)
         self._dialog.show()
 
         # Individuals to be inserted in the first generation
@@ -331,16 +332,16 @@ class ExperimentInProgress(Thread):
             self._mlc_local.go(self._experiment_name, self._to_gen,
                                self._from_gen, self._callbacks,
                                self._gen_creator)
-        except ThreadCancelException, err:
+        except ThreadCancelException as err:
             logger.info('{0} [RUN] - Thread was cancelled by the user'
                         .format(self._log_prefix))
             self._dialog.simulation_finished.emit()
-        except ProtocolSetupException, err:
+        except ProtocolSetupException as err:
             logger.info('{0} [RUN] - Error in arduino configuration'
                         .format(self._log_prefix))
             self._experiment_condition.fail_experiment()
             self._dialog.board_setup_failure.emit(str(err))
-        except ProtocolIOException, err:
+        except ProtocolIOException as err:
             logger.info('{0} [RUN] - I/O error in arduino connection'
                         .format(self._log_prefix))
             self._experiment_condition.fail_experiment()

@@ -19,12 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from MixedRampedGauss import MixedRampedGauss
+
+from MLC.Population.Creation.MixedRampedGauss import MixedRampedGauss
 import MLC.Log.log as lg
 import sys
 
 
 class CreationFactory(object):
+
     @staticmethod
     def make(strategy):
         if strategy == "mixed_ramped_gauss":

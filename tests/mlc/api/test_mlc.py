@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from nose.tools import nottest
-import ConfigParser
+import configparser
 import MLC.api
 import os
 import shutil
@@ -148,7 +148,6 @@ class MLCWorkspaceTest(unittest.TestCase):
         self.assertTrue(configuration["PARAMS"].has_key("test_param"))
         self.assertEqual(configuration["PARAMS"]["test_param"], "test_value")
 
-
     def test_delete_experiment(self):
         # delete an experiment that not exists
         try:
@@ -272,12 +271,12 @@ class MLCWorkspaceTest(unittest.TestCase):
 
             board_configuration, serial_connection = mlc.get_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT)
 
-            new_board_config = ProtocolConfig(None, report_mode=12, read_count=10, read_delay=11, board_type=boards.Leonardo, analog_resolution=13)
+            new_board_config = ProtocolConfig(None, report_mode=12, read_count=10, read_delay=11,
+                                              board_type=boards.Leonardo, analog_resolution=13)
             new_connection = SerialConnectionConfig("/dev/ttyACM1", baudrate=5000, parity="P", stopbits=2, bytesize=6)
             mlc.save_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT, new_board_config, new_connection)
 
             loaded_board_configuration, loaded_connection = mlc.get_board_configuration(MLCWorkspaceTest.NEW_EXPERIMENT)
-
 
             self.assertEqual(loaded_board_configuration.board_type, boards.Leonardo)
             self.assertEqual(loaded_board_configuration.read_count, 10)

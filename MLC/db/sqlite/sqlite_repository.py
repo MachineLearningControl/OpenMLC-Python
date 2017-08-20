@@ -27,8 +27,8 @@ from MLC.db.mlc_repository import MLCRepositoryHelper, IndividualData
 from MLC.individual.Individual import Individual
 from MLC.Log.log import get_gui_logger
 from MLC.Simulation import Simulation
-from sql_statements import *
-from sql_statements_board_configuration import *
+from MLC.db.sqlite.sql_statements import *
+from MLC.db.sqlite.sql_statements_board_configuration import *
 from MLC.arduino.protocol import ProtocolConfig
 from MLC.arduino.connection.serialconnection import SerialConnectionConfig
 from MLC.arduino.boards import types
@@ -88,15 +88,15 @@ class SQLiteRepository(MLCRepository):
         self._conn.commit()
 
     def __get_db_connection(self, reopen_connection=False):
-        # TODO: Workaround. SQLite throw an exception when a connection is used 
-        # in different threads. To solve it, we create a new connection 
+        # TODO: Workaround. SQLite throw an exception when a connection is used
+        # in different threads. To solve it, we create a new connection
         # every time a new connection is delivered
         if self._database != SQLiteRepository.IN_MEMORY_DB:
             # Close the previous connection
             try:
                 self._conn.close()
             except sqlite3.ProgrammingError:
-                # FIXME: There are open connections that cannot be closed for 
+                # FIXME: There are open connections that cannot be closed for
                 # the Thread bug. See what can be done
                 pass
 
@@ -350,7 +350,7 @@ class SQLiteRepository(MLCRepository):
             # save/update board configuration
             if board_id is None:
                 cursor.execute(stmt_insert_board(board_config.board_type["SHORT_NAME"],
-                                                 0, # serial connection hardcoded
+                                                 0,  # serial connection hardcoded
                                                  board_config.read_count,
                                                  board_config.read_delay,
                                                  board_config.report_mode,
@@ -427,7 +427,7 @@ class SQLiteRepository(MLCRepository):
             board_type = filter(lambda x: x["SHORT_NAME"] == row[0], types)
 
             protocol = ProtocolConfig(connection=None,
-                                      board_type=board_type[0],
+                                      board_type=next(board_type),
                                       report_mode=row[1],
                                       read_count=row[2],
                                       read_delay=row[3],

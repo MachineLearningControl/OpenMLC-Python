@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import ConfigParser
+import configparser
 import numpy as np
 import MLC.Log.log as lg
 
@@ -37,14 +37,14 @@ class saved():
         self.cr.restore()
 
 
-class Config(ConfigParser.ConfigParser):
+class Config(configparser.ConfigParser):
     """
     Singleton class that parse and manipulates the Config file of the MLC
     """
     _instance = None
 
     def __init__(self):
-        ConfigParser.ConfigParser.__init__(self)
+        configparser.ConfigParser.__init__(self)
         self._log_prefix = '[CONFIG] '
 
     def get_list(self, section, param, item_type=int):
@@ -68,8 +68,8 @@ class Config(ConfigParser.ConfigParser):
         self._dictionary = Config.to_dictionary(self)
 
     def restore(self):
-        for section, options in self._dictionary.iteritems():
-            for opt, value in options.iteritems():
+        for section, options in self._dictionary.items():
+            for opt, value in options.items():
                 self.set(section, opt, value)
 
     @staticmethod
@@ -84,8 +84,8 @@ class Config(ConfigParser.ConfigParser):
     @classmethod
     def from_dictionary(cls, config_dict, config_type=None):
         config = cls() if config_type is None else config_type()
-        for section, options in config_dict.iteritems():
+        for section, options in config_dict.items():
             config.add_section(section)
-            for opt, value in options.iteritems():
+            for opt, value in options.items():
                 config.set(section, opt, value)
         return config

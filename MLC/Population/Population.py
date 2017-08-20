@@ -29,6 +29,7 @@ from MLC.individual.Individual import OperationOverIndividualFail
 
 
 class Population(object):
+
     class GeneticOperation:
         REPLICATION = 1
         MUTATION = 2
@@ -50,10 +51,10 @@ class Population(object):
 
         # Declare MATLAB attributes
         self._individuals = [-1] * self._size
-        self._costs       = [-1] * self._size
-        self._ev_time     = [-1] * self._size
-        self._gen_method  = [-1] * self._size
-        self._parents     = [[]] * self._size
+        self._costs = [-1] * self._size
+        self._ev_time = [-1] * self._size
+        self._gen_method = [-1] * self._size
+        self._parents = [[]] * self._size
 
         # genetic operations for individuals
         self._probrep = self._config.getfloat("OPTIMIZATION", "probrep")
@@ -99,7 +100,7 @@ class Population(object):
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
         costs = evaluator.evaluate(self._individuals)
 
-        for i in xrange(self._size):
+        for i in range(self._size):
             new_cost = costs[i]
 
             if new_cost > bad_value or str(new_cost) in ('nan', 'inf'):
@@ -115,7 +116,7 @@ class Population(object):
         # Get the individuals which value is the same as the
         # badvalue defined in the configuration
         bad_value = self._config.getfloat('EVALUATOR', 'badvalue')
-        bad_list = [x for x in xrange(len(self._costs)) if self._costs[x] == bad_value]
+        bad_list = [x for x in range(len(self._costs)) if self._costs[x] == bad_value]
 
         if len(bad_list) > 0.4 * len(self._individuals):
             lg.logger_.info('[POP][BAD_INDIVS] %s '
@@ -236,8 +237,8 @@ class Population(object):
 
                         # Update the individual in the new population with the first param_elitism
                         next_population.update_individual(dest_index=pop_idv_index_dest, rhs_pop=self,
-                                                  parent_index=pop_idv_index_orig, indiv_index=indiv_index,
-                                                  gen_method=Population.GenerationMethod.ELITISM)
+                                                          parent_index=pop_idv_index_orig, indiv_index=indiv_index,
+                                                          gen_method=Population.GenerationMethod.ELITISM)
                         individuals_created += 1
 
                 except IndexError:
@@ -278,13 +279,13 @@ class Population(object):
 
                             indiv_index = self._individuals[pop_idv_index_orig]
                             lg.logger_.info("Individual {0}/{1}: Mutation - Orig indiv {2} - Dest indiv {3}"
-                                             .format(individuals_created+1, len(not_valid_indexes),
-                                                     indiv_index, pop_idv_index_dest + 1))
+                                            .format(individuals_created + 1, len(not_valid_indexes),
+                                                    indiv_index, pop_idv_index_dest + 1))
 
                             old_indiv = self._mlc_repository.get_individual(indiv_index)
                             new_ind = old_indiv.mutate()
 
-                        except OperationOverIndividualFail, ex:
+                        except OperationOverIndividualFail as ex:
                             lg.logger_.warn(str(ex))
 
                     number, repeated = self._mlc_repository.add_individual(new_ind)
@@ -313,7 +314,6 @@ class Population(object):
                         indiv_index = self._individuals[pop_idv_index_orig]
                         indiv_index2 = self._individuals[pop_idv_index_orig2]
 
-
                         lg.logger_.info("Individual {0}/{1}: Crossover (Pair 1) - Orig indiv {2} - Dest index {3} - "
                                         .format(individuals_created + 1, len(not_valid_indexes), indiv_index, pop_idv_index_dest + 1))
 
@@ -325,7 +325,7 @@ class Population(object):
                         old_indiv2 = self._mlc_repository.get_individual(indiv_index2)
                         try:
                             new_ind, new_ind2, fail = old_indiv.crossover(old_indiv2)
-                        except OperationOverIndividualFail, ex:
+                        except OperationOverIndividualFail as ex:
                             lg.logger_.warn(str(ex))
 
                     number, repeated = self._mlc_repository.add_individual(new_ind)
@@ -357,7 +357,7 @@ class Population(object):
             # Sort the population by intervals. Reorder the population arrays
             indexes = [i[0] for i in sorted(enumerate(self._costs[subgen[0]:subgen[1] + 1]), key=lambda x:x[1])]
 
-            for i in xrange(subgen[1] - subgen[0] + 1):
+            for i in range(subgen[1] - subgen[0] + 1):
                 indivs.append(self._individuals[indexes[i]])
                 costs.append(self._costs[indexes[i]])
                 gen_method.append(self._gen_method[indexes[i]])

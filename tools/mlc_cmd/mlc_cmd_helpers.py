@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import ConfigParser
+import configparser
 from MLC.mlc_parameters.mlc_parameters import Config
 
 
@@ -33,7 +33,7 @@ def validate_params(param_types, err_handler, fail_message=""):
                 print "Bad command arguments, %s" % fail_message
                 return False
 
-            input_values = input_values + [None]*(len(param_types) - len(input_values))
+            input_values = input_values + [None] * (len(param_types) - len(input_values))
             validated_values = None
 
             try:
@@ -66,6 +66,6 @@ def optional(value_type):
 
 
 def load_configuration(configuration_file):
-    config_parser = ConfigParser.ConfigParser()
+    config_parser = configparser.ConfigParser()
     config_parser.read(configuration_file)
     return Config.to_dictionary(config_parser)

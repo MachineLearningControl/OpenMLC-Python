@@ -53,7 +53,7 @@ class CostPerIndividualCanvas(MplCanvas):
         self._axes.set_ylabel(text)
 
     def compute_initial_figure(self, log=False):
-        x_axis = xrange(1, 101)
+        x_axis = range(1, 101)
         if log:
             self._axes.semilogy(x_axis, self._costs)
         else:

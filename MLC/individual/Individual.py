@@ -132,7 +132,7 @@ class Individual(object):
             new_value = self.__mutate_tree(mutation_type)
             return Individual(new_value)
 
-        except TreeException, ex:
+        except TreeException as ex:
             raise OperationOverIndividualFail(self._value, "MUTATE", str(ex))
 
     def crossover(self, other_individual):
@@ -156,7 +156,7 @@ class Individual(object):
 
             return Individual(new_value_1), Individual(new_value_2), not success
 
-        except TreeException, ex:
+        except TreeException as ex:
             raise OperationOverIndividualFail(self._value, "CROSSOVER", str(ex))
 
     def compare(self, other_individual):
@@ -202,7 +202,7 @@ class Individual(object):
                 value_2, sm2, _ = self.__extract_subtree(other_individual.get_tree(), mutmindepth, n, maxdepth - n + 1)
                 correct = True
 
-            except TreeException, ex:
+            except TreeException as ex:
                 pass
 
             count += 1
@@ -426,7 +426,7 @@ class Individual(object):
                 'POPULATION', 'sensor_prob')
             if use_sensor:
                 sensor_number = math.ceil(RandomManager.rand() * config.getint('POPULATION', 'sensors')) - 1
-                new_value = begin_str + 'z' + str(sensor_number).rstrip('0').rstrip('.') + end_str
+                new_value = begin_str + 'z' + str(sensor_number) + end_str
             else:
                 range = config.getfloat('POPULATION', 'range')
                 precision = config.get('POPULATION', 'precision')

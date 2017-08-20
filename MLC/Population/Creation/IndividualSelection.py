@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from BaseCreation import BaseCreation
+from MLC.Population.Creation.BaseCreation import BaseCreation
 from MLC.db.mlc_repository import MLCRepository
 
 

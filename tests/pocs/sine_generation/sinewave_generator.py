@@ -69,7 +69,7 @@ plt.plot(n, sinewave, 'k', linestyle=':')
 plt.show(block=True)
 
 output = ""
-for i in xrange(int(fs)):
+for i in range(int(fs)):
     if i == 0:
         output += "{" + "{0}, ".format(sinewave[i])
     if i == (fs - 1):

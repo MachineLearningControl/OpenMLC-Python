@@ -74,21 +74,21 @@ class ChartConfiguration():
         # Variable used to determine when the chart can be updated
         self._update_chart = False
         # Load the colors in the combos
-        self._overflow_color_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.iteritems()])
-        self._valid_points_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.iteritems()])
-        self._nan_color_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.iteritems()])
-        self._max_cost_combo.addItems([str(x) for x in xrange(ChartConfiguration.MAX_COST_VALUES[0],
-                                                              ChartConfiguration.MAX_COST_VALUES[1] +
-                                                              ChartConfiguration.MAX_COST_VALUES[2],
-                                                              ChartConfiguration.MAX_COST_VALUES[2])])
-        self._min_cost_combo.addItems([str(x) for x in xrange(ChartConfiguration.MIN_COST_VALUES[0],
-                                                              ChartConfiguration.MIN_COST_VALUES[1] +
-                                                              ChartConfiguration.MIN_COST_VALUES[2],
-                                                              ChartConfiguration.MIN_COST_VALUES[2])])
-        self._marker_combo.addItems([str(x) for x in xrange(ChartConfiguration.MARKER_SIZE_VALUES[0],
-                                                            ChartConfiguration.MARKER_SIZE_VALUES[1] +
-                                                            ChartConfiguration.MARKER_SIZE_VALUES[2],
-                                                            ChartConfiguration.MARKER_SIZE_VALUES[2])])
+        self._overflow_color_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.items()])
+        self._valid_points_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.items()])
+        self._nan_color_combo.addItems([key for key, value in ChartConfiguration.CHART_COLORS.items()])
+        self._max_cost_combo.addItems([str(x) for x in range(ChartConfiguration.MAX_COST_VALUES[0],
+                                                             ChartConfiguration.MAX_COST_VALUES[1] +
+                                                             ChartConfiguration.MAX_COST_VALUES[2],
+                                                             ChartConfiguration.MAX_COST_VALUES[2])])
+        self._min_cost_combo.addItems([str(x) for x in range(ChartConfiguration.MIN_COST_VALUES[0],
+                                                             ChartConfiguration.MIN_COST_VALUES[1] +
+                                                             ChartConfiguration.MIN_COST_VALUES[2],
+                                                             ChartConfiguration.MIN_COST_VALUES[2])])
+        self._marker_combo.addItems([str(x) for x in range(ChartConfiguration.MARKER_SIZE_VALUES[0],
+                                                           ChartConfiguration.MARKER_SIZE_VALUES[1] +
+                                                           ChartConfiguration.MARKER_SIZE_VALUES[2],
+                                                           ChartConfiguration.MARKER_SIZE_VALUES[2])])
         self._set_defaults()
         self._create_new_chart(population_size)
         self._update_chart = True
@@ -146,16 +146,16 @@ class ChartConfiguration():
 
         overflow_and_nan_step = ChartConfiguration.MIN_COST_VALUES[2]
         self._overflow_value_combo.clear()
-        self._overflow_value_combo.addItems([str(x) for x in xrange(min_cost_value,
-                                                                    ChartConfiguration.MIN_COST_VALUES[1] +
-                                                                    overflow_and_nan_step,
-                                                                    overflow_and_nan_step)])
+        self._overflow_value_combo.addItems([str(x) for x in range(min_cost_value,
+                                                                   ChartConfiguration.MIN_COST_VALUES[1] +
+                                                                   overflow_and_nan_step,
+                                                                   overflow_and_nan_step)])
 
         self._nan_value_combo.clear()
-        self._nan_value_combo.addItems([str(x) for x in xrange(min_cost_value,
-                                                               ChartConfiguration.MIN_COST_VALUES[1] +
-                                                               overflow_and_nan_step,
-                                                               overflow_and_nan_step)])
+        self._nan_value_combo.addItems([str(x) for x in range(min_cost_value,
+                                                              ChartConfiguration.MIN_COST_VALUES[1] +
+                                                              overflow_and_nan_step,
+                                                              overflow_and_nan_step)])
         if min_cost_value < overflow_value:
             self._overflow_value_combo.setCurrentIndex(
                 self._overflow_value_combo.findText(str(overflow_value)))
@@ -205,7 +205,7 @@ class ChartConfiguration():
         nan_value = int(self._nan_value_combo.currentText())
         if not indiv_costs:
             # Add Points
-            for index in xrange(1, amount_points + 1):
+            for index in range(1, amount_points + 1):
                 if index % 11 == 0:
                     # Add an overflow point every 11 points
                     indiv_chart.append_point(1, index, overflow_value)
@@ -218,7 +218,7 @@ class ChartConfiguration():
                     value = amp * np.cos(2 * np.pi * index / amount_points) + amp
                     indiv_chart.append_point(0, index, value)
         else:
-            for index in xrange(1, amount_points + 1):
+            for index in range(1, amount_points + 1):
                 indiv_cost = indiv_costs[index - 1]
                 if indiv_cost > max_cost:
                     indiv_chart.append_point(1, index, overflow_value)

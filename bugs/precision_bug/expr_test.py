@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
+raw_input("Press Enter to continue...")
 
 import sys
 sys.path.append("../..")
@@ -25,8 +26,10 @@ import binascii
 import numpy as np
 import struct
 import MLC.Log.log as lg
+raw_input("Press Enter to continue...")
 
 from MLC.Common.LispTreeExpr.LispTreeExpr import LispTreeExpr
+raw_input("Press Enter to continue...")
 from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import Config
 
@@ -47,17 +50,22 @@ initialize_config()
 set_logger('console')
 
 # Full expression
-expr6 = "(root (cos (exp (- -6.3726 (* -7.1746 S0)))))"
+expr6 = "(root (- (+ (cos (/ (cos (/ 132.7707 (cos (/ (/ (log (log S2)) (/ (/ (/ 7.1798 (/ (log S6) (log S2))) (/ (log (tanh S4)) (/ 1103.5980 S3))) (log (log S2)))) (log S5))))) (log (/ (cos (/ (/ (log (log S2)) -0.6449) (/ 1103.5980 S3))) (* -1.0000 (tanh (cos (/ (/ (sin (log S0)) (/ (* S1 S3) (log (log S2)))) (/ 1103.5980 S3))))))))) 648.1562) (- 0.0100 (+ S4 (/ 6.7623 (/ (cos (* -1.0000 (tanh (cos (/ (/ (sin (log S0)) (/ (* S1 S3) (log S6))) (/ (/ (exp (/ 1744.7186 S0)) (/ S1 207.4462)) (/ (* S1 S3) (exp S5)))))))) (log (/ (/ (+ (/ S3 (/ (/ 7.1798 (sin (log S0))) (/ (* S1 S3) (/ 1103.5980 S3)))) 0.0000) (/ (/ (exp S5) (/ (sin (log S0)) (/ (* S1 S3) (log S6)))) (/ (* S1 S3) (/ (/ (exp (/ 1744.7186 S0)) (/ S1 207.4462)) (/ (* S1 S3) (exp S5)))))) (/ (/ 1103.5980 S3) (/ (/ -329.1023 (/ (log (sin (log S0))) (sin (log S0)))) (/ (log (sin (log S0))) -4.6052)))))))))))"
 expr61 = "(root (exp (- -6.3726 (* -7.1746 S0))))"
 expr612 = "(root (- -6.3726 (* -7.1746 S0)))"
 
+raw_input("Press Enter to continue...")
 tree = LispTreeExpr(expr6)
+raw_input("Press Enter to continue...")
+
 x = np.linspace(-10.0, 10.0, num=201)
-mlc_y = tree.calculate_expression([x])
+mlc_y = tree.calculate_expression([x,x,x,x,x,x,x])
+raw_input("Press Enter to continue...")
 
 # Calculate the Mean squared error
 y = np.tanh(x**3 - x**2 - 1)
 evaluation = float(np.sum((mlc_y - y)**2))
+raw_input("Press Enter to continue...")
 
 # print mlc_y
 with open("./costs_python.txt", "w") as f:
