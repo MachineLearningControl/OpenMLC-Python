@@ -19,11 +19,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 def stmt_create_table_individuals():
-    return ''' CREATE TABLE individual(indiv_id INTEGER PRIMARY KEY,
-                                       value text,
-                                       formal text,
-                                       complexity INTEGER)'''
+    return '''
+    CREATE TABLE individual(indiv_id INTEGER PRIMARY KEY,
+                            value text,
+                            formal text,
+                            complexity INTEGER)'''
+
+
+def stmt_create_table_index_individuals():
+    return '''
+    CREATE INDEX index_indiv_id ON individual(indiv_id)'''
 
 
 def stmt_create_table_population():
@@ -38,6 +45,16 @@ def stmt_create_table_population():
                             FOREIGN KEY(indiv_id) REFERENCES individual(indiv_id))'''
 
 
+def stmt_create_id_index_on_population():
+    return '''
+    CREATE INDEX index_pop_id ON population(id)'''
+
+
+def stmt_create_indiv_id_index_on_population():
+    return '''
+    CREATE INDEX index_pop_indiv_id ON population(indiv_id)'''
+
+
 def stmt_delete_generation(generation):
     return """DELETE FROM population
               WHERE gen = %s""" % (generation,)
@@ -47,9 +64,11 @@ def stmt_delete_from_generations(from_generation):
     return """DELETE FROM population
               WHERE gen >= %s""" % (from_generation,)
 
+
 def stmt_delete_to_generations(to_generation):
     return """DELETE FROM population
               WHERE gen <= %s""" % (to_generation,)
+
 
 def stmt_delete_unused_individuals():
     return '''DELETE FROM individual
@@ -72,19 +91,19 @@ def stmt_get_generations():
 
 def stmt_insert_individual_in_population(generation, indiv_id, cost, evaluation_time, gen_method, parents):
     return '''INSERT INTO population (gen, cost, evaluation_time, gen_method, parents, indiv_id)
-              VALUES (%s, "%s", %s, %s, "%s", %s)''' % (generation,
-                                                        cost,
-                                                        evaluation_time,
-                                                        gen_method,
-                                                        parents,
-                                                        indiv_id)
+              VALUES ( % s, "%s", % s, % s, "%s", % s)''' % (generation,
+                                                             cost,
+                                                             evaluation_time,
+                                                             gen_method,
+                                                             parents,
+                                                             indiv_id)
 
 
 def stmt_get_individuals_from_population(generation):
-    return '''SELECT indiv_id, cost, evaluation_time, gen_method, parents, ID
+    return '''SELECT indiv_id, cost, evaluation_time, gen_method, parents, id
               FROM population
               WHERE gen = %s
-              ORDER BY ID''' % generation
+              ORDER BY id''' % generation
 
 
 class SQLSaveFormal:
@@ -102,10 +121,10 @@ class SQLSaveFormal:
 
 
 def stmt_insert_individual(individual_id, individual):
-    return '''INSERT INTO individual VALUES (%s, "%s", "%s", %s)''' % (individual_id,
-                                                                       individual.get_value(),
-                                                                       SQLSaveFormal.to_sql(individual.get_formal()),
-                                                                       individual.get_complexity())
+    return '''INSERT INTO individual VALUES ( % s, "%s", "%s", % s)''' % (individual_id,
+                                                                          individual.get_value(),
+                                                                          SQLSaveFormal.to_sql(individual.get_formal()),
+                                                                          individual.get_complexity())
 
 
 def stmt_get_all_individuals():
@@ -140,16 +159,19 @@ def stmt_update_cost(individual_id, cost, evaluation_time, generation):
                                                      individual_id,
                                                      generation)
 """
-The individual with the least cost in the last population 
+The individual with the least cost in the last population
 is considered to be the best individual
 """
+
+
 def stmt_get_individual_with_min_cost_in_last_pop():
-    return '''SELECT indiv_id, 
-                     cost 
+    return '''SELECT indiv_id,
+                     cost
                 FROM population 
             ORDER BY gen DESC, 
                      cost ASC 
                LIMIT 1'''
+
 
 def stmt_enable_foreign_key():
     return '''PRAGMA foreign_keys = ON'''

@@ -471,6 +471,7 @@ class ExperimentWindow(QMainWindow):
                                                   experiment_name=self._experiment_name,
                                                   gen_data=gen_data,
                                                   current_gen=self._current_gen)
+        tree_window.setAttribute(Qt.WA_DeleteOnClose)
         tree_window.show()
 
     def on_board_config_button_clicked(self):

@@ -79,13 +79,13 @@ class Experiment:
         """
         Load again the experiment configuration, reading the config file from disk
         """
-        self._configuration = ConfigParser.ConfigParser()
+        self._configuration = configparser.ConfigParser()
         self._configuration.read(self._config_file)
         Config.get_instance().read(self._config_file)
         return Config.to_dictionary(self._configuration)
 
     def set_configuration(self, new_configuration):
-        self._configuration = Config.from_dictionary(new_configuration, config_type=ConfigParser.ConfigParser)
+        self._configuration = Config.from_dictionary(new_configuration, config_type=configparser.ConfigParser)
         self._configuration.write(open(self._config_file, "wt"))
 
         # Reload the configuration

@@ -75,7 +75,10 @@ class SQLiteRepository(MLCRepository):
 
         # MLC Population tables
         cursor.execute(stmt_create_table_individuals())
+        cursor.execute(stmt_create_table_index_individuals())
         cursor.execute(stmt_create_table_population())
+        cursor.execute(stmt_create_id_index_on_population())
+        cursor.execute(stmt_create_indiv_id_index_on_population())
 
         # Board configuration tables
         cursor.execute(stmt_create_table_board())
@@ -331,6 +334,7 @@ class SQLiteRepository(MLCRepository):
         individuals = {}
         conn = self.__get_db_connection()
         cursor = conn.execute(stmt_get_all_individuals())
+        # data = cursor.fetchall()
 
         for row in cursor:
             new_individual = Individual(str(row[1]), SQLSaveFormal.from_sql(row[2]), row[3])

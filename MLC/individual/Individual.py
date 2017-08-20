@@ -98,8 +98,6 @@ class Individual(object):
     _maxdepthfirst = None
 
     def __init__(self, value, formal=None, complexity=None):
-        self._config = Config.get_instance()
-
         # Tree expression initialized using lazing initialization through
         # _tree property. Use self._tree instead of self._lazy_tree to
         # obtain the tree expression.
@@ -114,8 +112,8 @@ class Individual(object):
             self._complexity = self._tree.complexity()
             self._value = self._tree.get_expanded_tree_as_string()
 
-        self._range = self._config.getint("POPULATION", "range")
-        self._precision = self._config.getint("POPULATION", "precision")
+    def get_config():
+        return Config.get_instance()
 
     @property
     def _tree(self):
@@ -188,9 +186,9 @@ class Individual(object):
 
             :return: (first new tree, second new tree) as strings
         """
-        maxtries = self._config.getint("GP", "maxtries")
-        mutmindepth = self._config.getint("GP", "mutmindepth")
-        maxdepth = self._config.getint("GP", "maxdepth")
+        maxtries = Config.get_instance().getint("GP", "maxtries")
+        mutmindepth = Config.get_instance().getint("GP", "mutmindepth")
+        maxdepth = Config.get_instance().getint("GP", "maxdepth")
 
         correct = False
         count = 0
@@ -218,11 +216,11 @@ class Individual(object):
         return value_1, value_2
 
     def __mutate_tree(self, mutation_type):
-        mutmindepth = self._config.getint("GP", "mutmindepth")
-        maxdepth = self._config.getint("GP", "maxdepth")
-        sensor_spec = self._config.getboolean("POPULATION", "sensor_spec")
-        sensors = self._config.getint("POPULATION", 'sensors')
-        mutation_types = self._config.get_list("GP", 'mutation_types')
+        mutmindepth = Config.get_instance().getint("GP", "mutmindepth")
+        maxdepth = Config.get_instance().getint("GP", "maxdepth")
+        sensor_spec = Config.get_instance().getboolean("POPULATION", "sensor_spec")
+        sensors = Config.get_instance().getint("POPULATION", 'sensors')
+        mutation_types = Config.get_instance().get_list("GP", 'mutation_types')
 
         # equi probability for each mutation type selected.
         if mutation_type == Individual.MutationType.ANY:
@@ -241,11 +239,12 @@ class Individual(object):
                     else:
                         next_individual_type = 4
 
-                    new_individual_value = Individual.__generate_indiv_regressive_tree(subtree, self._config, next_individual_type)
+                    new_individual_value = Individual.__generate_indiv_regressive_tree(
+                        subtree, Config.get_instance(), next_individual_type)
 
                     if new_individual_value:
                         if sensor_spec:
-                            config_sensor_list = sorted(self._config.get_list('POPULATION', 'sensor_list'))
+                            config_sensor_list = sorted(Config.get_instance().get_list('POPULATION', 'sensor_list'))
                         else:
                             config_sensor_list = range(sensors - 1, -1, -1)
 
@@ -275,11 +274,11 @@ class Individual(object):
         elif mutation_type == Individual.MutationType.HOIST:
             preevok = False
             counter = 0
-            maxtries = self._config.getint("GP", "maxtries")
+            maxtries = Config.get_instance().getint("GP", "maxtries")
 
             while not preevok and counter < maxtries:
                 counter += 1
-                controls = self._config.getint("POPULATION", "controls")
+                controls = Config.get_instance().getint("POPULATION", "controls")
                 prob_threshold = 1 / float(controls)
 
                 cl = [stree.to_string() for stree in self.get_tree().get_root_node()._nodes]
@@ -336,8 +335,8 @@ class Individual(object):
 
     def __reparam_tree(self, tree_expression):
         def leaf_value_generator():
-            leaf_value = (RandomManager.rand() - 0.5) * 2 * self._range
-            return "%0.*f" % (self._precision, leaf_value)
+            leaf_value = (RandomManager.rand() - 0.5) * 2 * Config.get_instance().getint("POPULATION", "range")
+            return "%0.*f" % (Config.get_instance().getint("POPULATION", "precision"), leaf_value)
 
         return self.__change_const_tree(tree_expression, leaf_value_generator)
 
