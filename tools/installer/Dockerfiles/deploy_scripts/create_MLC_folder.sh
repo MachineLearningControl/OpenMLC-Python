@@ -10,12 +10,12 @@ mv $MLC_PATH/OpenMLC-Python-$RELEASE $MLC_PATH/MLC-$RELEASE
 rm -rf /tmp/v$RELEASE.tar.gz
 
 # Add libs and binaries used by Python before creating the .deb
-mkdir -p /opt/mlc-python-2.7.11/custom_bins
-mkdir -p /opt/mlc-python-2.7.11/custom_libs
-cp -r /usr/bin/dot /opt/mlc-python-2.7.11/custom_bins
+mkdir -p /opt/mlc-python-$PYTHON_VERSION/custom_bins
+mkdir -p /opt/mlc-python-$PYTHON_VERSION/custom_libs
+cp -r /usr/bin/dot /opt/mlc-python-$PYTHON_VERSION/custom_bins
 
 # Add the mlc_python
-cp -r /opt/mlc-python-2.7.11 $MLC_PATH/mlc_python
+cp -r /opt/mlc-python-$PYTHON_VERSION $MLC_PATH/mlc_python
 chmod a+x $MLC_PATH/mlc_python/bin/*
 
 # Add project scripts
@@ -55,6 +55,6 @@ rm -rf $MLC_PATH/Qt-5.7.1/mkspecs
 
 # Create the MLC Package
 tar cJvpf /tmp/MLC-$RELEASE-$OS_VERSION.tar.xz -C /tmp MLC-$RELEASE
-fpm -s dir -t $PACKAGE_TYPE -v $RELEASE -n mlc-python-$OS_VERSION /opt/mlc-python-2.7.11
+fpm -s dir -t $PACKAGE_TYPE -v $RELEASE -n mlc-python-$OS_VERSION /opt/mlc-python-$PYTHON_VERSION
 mv /tmp/MLC-$RELEASE/*.deb /tmp/release
 mv /tmp/*.tar.xz /tmp/release

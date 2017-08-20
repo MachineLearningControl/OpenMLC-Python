@@ -1,5 +1,5 @@
 #!/bin/bash
-RELEASE=0.0.4
+RELEASE=0.0.5
 
 function check_run_as_root() {
     case `id` in
@@ -15,13 +15,29 @@ function check_run_as_root() {
 
 function main() {
     check_run_as_root
-    docker build -f ubuntu1404.dockerfile -t mlc_ubuntu:14.04 --build-arg RELEASE=$RELEASE .
-    docker build -f ubuntu1604.dockerfile -t mlc_ubuntu:16.04 --build-arg RELEASE=$RELEASE .
-    docker build -f ubuntu1610.dockerfile -t mlc_ubuntu:16.10 --build-arg RELEASE=$RELEASE .
-    docker build -f debian8.dockerfile -t mlc_debian:8 --build-arg RELEASE=$RELEASE .
-    docker build -f centos7.dockerfile -t mlc_centos:7 --build-arg RELEASE=$RELEASE .
-    docker build -f fedora20.dockerfile -t mlc_fedora:20 --build-arg RELEASE=$RELEASE .
+    dockerfile_array=("ubuntu1404" 
+                      "ubuntu1604" 
+                      # "ubuntu1610" 
+                      "debian8"
+                      # "fedora20"
+                      "centos7")
+
+    containers_array=("mlc_ubuntu:14.04" 
+                      "mlc_ubuntu:16.04" 
+                      # "mlc_ubuntu:16.10"
+                      "mlc_debian:8"  
+                      # "mlc_fedora:20"
+                      "mlc_centos:7")
+
+    # (Loop until we find an empty string.)
+    #
+    count=0
+    while [ "x${dockerfile_array[count]}" != "x" ]
+    do
+        docker build -f "${dockerfile_array[count]}.dockerfile" -t ${containers_array[count]} --build-arg RELEASE=$RELEASE .
+        # docker run --rm -v $(pwd)/release:/tmp/release -it ${containers_array[count]} bash
+        count=$(( $count + 1 ))
+    done    
 }
 
 main $*
-
