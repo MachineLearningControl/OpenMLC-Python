@@ -19,7 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import os, unittest
+import os
+import unittest
 from MLC.mlc_parameters.mlc_parameters import Config
 
 
@@ -81,7 +82,7 @@ list_float_range = 1:10"""
         self.assertTrue(isinstance(value, list))
 
         value = self._config.get_list("SECTION_LISTS", "list_range")
-        self.assertEquals(value, range(1, 10))
+        self.assertEquals(value, [x for x in range(1, 10)])
         self.assertTrue(isinstance(value, list))
 
         value = self._config.get_list("SECTION_LISTS", "list_float_range", item_type=float)
@@ -90,4 +91,3 @@ list_float_range = 1:10"""
         for item in value:
             self.assertTrue(isinstance(item, float))
         self.assertTrue(isinstance(value, list))
-

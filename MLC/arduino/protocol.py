@@ -240,7 +240,7 @@ class ArduinoInterface:
         # for x in self._anlg_inputs + self._digital_inputs}  # One dictionary
         # to save all ports results
 
-        results = dict(digital_res.items() + analog_res.items())
+        results = dict(list(digital_res.items()) + list(analog_res.items()))
 
         while pos < length:
             pin = ord(data[pos])
@@ -253,13 +253,13 @@ class ArduinoInterface:
 
                 if self._report_mode == REPORT_MODES.AVERAGE:
                     results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))] = [
-                        sum(results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))]) / (self._read_count + 1)]
+                        sum(results["A%d" % (pin - len(self._board["DIGITAL_PINS"]))]) // (self._read_count + 1)]
             else:
                 if pin in self._digital_inputs:
                     for i in range(0, self._read_count + 1):
                         results["D%d" % (pin)].append(
-                            bool(ord(data[pos + 1 + i / 8]) & (0x01 << (i % 8))))
-                    pos = pos + 1 + self._read_count / 8 + 1
+                            bool(ord(data[pos + 1 + i // 8]) & (0x01 << (i % 8))))
+                    pos = pos + 1 + self._read_count // 8 + 1
 
                     if self._report_mode == REPORT_MODES.AVERAGE:
                         results["D%d" % (pin)] = [
@@ -326,7 +326,7 @@ class ArduinoUserInterface:
         if protocol_config and conn_setup:
             serial_conn = None
             try:
-                #serial_conn = SerialConnection(**conn_setup)
+                # serial_conn = SerialConnection(**conn_setup)
                 connection = ArduinoUserInterface._connection_builder[0](conn_setup)
             except ConnectionException as err:
                 lg.logger_.info("[PROTOCOL] Error while building connection. "

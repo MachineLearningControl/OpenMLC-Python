@@ -85,7 +85,7 @@ def cost(indiv):
     cost_mlc_y3 = None
     try:
         cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
-    except FloatingPointError, err:
+    except FloatingPointError as err:
         np.seterr(all='ignore')
         cost_mlc_y3 = float(np.sum((mlc_y3 - y2)**2))
         np.seterr(all='raise')

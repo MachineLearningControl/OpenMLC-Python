@@ -49,7 +49,7 @@ class MLCRepositoryTest(unittest.TestCase):
 
     def __create_board_config(self, digital_input_pins=[], digital_output_pins=[], analog_input_pins=[], analog_output_pins=[], pwm_pins=[]):
         return ProtocolConfig(connection=None, board_type=Mega, report_mode=REPORT_MODES.BULK, read_count=1000, read_delay=2000, analog_resolution=12,
-                              digital_input_pins=digital_input_pins ,
+                              digital_input_pins=digital_input_pins,
                               digital_output_pins=digital_output_pins,
                               analog_input_pins=analog_input_pins,
                               analog_output_pins=analog_output_pins,
@@ -69,14 +69,14 @@ class MLCRepositoryTest(unittest.TestCase):
                                                        "size": "3",
                                                        "range": 0,
                                                        "precision": 0
-                                                   },
-                                                   "OPTIMIZATION": {
+        },
+            "OPTIMIZATION": {
                                                        "probrep": 0,
                                                        "probmut": 0,
                                                        "probcro": 0,
                                                        "cascade": "1,1",
                                                        "simplify": "false"
-                                                   }})
+        }})
 
         set_working_directory(MLCRepositoryTest.WORKSPACE_DIR)
         if not os.path.exists(MLCRepositoryTest.WORKSPACE_DIR):
@@ -245,7 +245,7 @@ class MLCRepositoryTest(unittest.TestCase):
         try:
             data = mlc_repo.get_individual_data(100)
             self.assertTrue(False)
-        except KeyError, ex:
+        except KeyError as ex:
             self.assertTrue(True)
 
     def test_update_individual_cost(self):
@@ -575,8 +575,8 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(mlc_repo.count_population(), 5)
 
         # Cut population 4
-        mlc_repo.remove_population_from(4+1)
-        mlc_repo.remove_population_to(4-1)
+        mlc_repo.remove_population_from(4 + 1)
+        mlc_repo.remove_population_to(4 - 1)
 
         # remove unused individuals
         mlc_repo.remove_unused_individuals()
@@ -589,7 +589,6 @@ class MLCRepositoryTest(unittest.TestCase):
 
         individual = mlc_repo.get_individual(4)
         self.assertEqual(individual.get_value(), "(root (+ 4 4))")
-
 
     def test_cut_generations_more_than_once(self):
         """
@@ -636,8 +635,8 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(mlc_repo.count_population(), 5)
 
         # Cut population 4
-        mlc_repo.remove_population_from(4+1)
-        mlc_repo.remove_population_to(4-1)
+        mlc_repo.remove_population_from(4 + 1)
+        mlc_repo.remove_population_to(4 - 1)
 
         p = Population(3, 0, Config.get_instance(), mlc_repo)
         p._individuals = [5, 5, 5]
@@ -658,8 +657,8 @@ class MLCRepositoryTest(unittest.TestCase):
         self.assertEqual(mlc_repo.count_population(), 5)
 
         # Cut population 4
-        mlc_repo.remove_population_from(4+1)
-        mlc_repo.remove_population_to(4-1)
+        mlc_repo.remove_population_from(4 + 1)
+        mlc_repo.remove_population_to(4 - 1)
 
         # remove unused individuals
         mlc_repo.remove_unused_individuals()
@@ -672,7 +671,6 @@ class MLCRepositoryTest(unittest.TestCase):
 
         individual = mlc_repo.get_individual(7)
         self.assertEqual(individual.get_value(), "(root (+ 7 7))")
-
 
     def test_remove_population_to_from_bad_values(self):
         mlc_repo = self.__get_new_repo()
@@ -723,7 +721,8 @@ class MLCRepositoryTest(unittest.TestCase):
         board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
 
         # update board configuration
-        new_board_config = ProtocolConfig(connection=None, board_type=Due, report_mode=REPORT_MODES.AVERAGE, read_count=2000, read_delay=3000, analog_resolution=10)
+        new_board_config = ProtocolConfig(connection=None, board_type=Due, report_mode=REPORT_MODES.AVERAGE,
+                                          read_count=2000, read_delay=3000, analog_resolution=10)
         updated_board_id = mlc_repo.save_board_configuration(board_config=new_board_config, board_id=board_id)
         self.assertEqual(updated_board_id, board_id)
 
@@ -741,7 +740,7 @@ class MLCRepositoryTest(unittest.TestCase):
         board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
 
         try:
-            updated_board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config, board_id=board_id+1)
+            updated_board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config, board_id=board_id + 1)
             self.assertTrue(False)
         except KeyError:
             self.assertTrue(True)
@@ -751,7 +750,7 @@ class MLCRepositoryTest(unittest.TestCase):
         board_id = mlc_repo.save_board_configuration(board_config=MLCRepositoryTest.test_board_config)
 
         try:
-            board_config = mlc_repo.load_board_configuration(board_id+1)
+            board_config = mlc_repo.load_board_configuration(board_id + 1)
             self.assertTrue(False)
         except KeyError:
             self.assertTrue(True)
@@ -843,7 +842,8 @@ class MLCRepositoryTest(unittest.TestCase):
                                                            bytesize=400,
                                                            port=500)
 
-        updated_serial_connection_id = mlc_repo.save_serial_connection(updated_serial_connection, board_id, connection_id=serial_connection_id)
+        updated_serial_connection_id = mlc_repo.save_serial_connection(
+            updated_serial_connection, board_id, connection_id=serial_connection_id)
 
         self.assertEqual(updated_serial_connection_id, serial_connection_id)
         serial_connection = mlc_repo.load_serial_connection(board_id)

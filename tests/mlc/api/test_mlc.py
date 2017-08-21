@@ -108,9 +108,9 @@ class MLCWorkspaceTest(unittest.TestCase):
 
         # check configuration structure
         self.assertIsInstance(configuration, dict)
-        self.assertTrue(configuration.has_key("BEHAVIOUR"))
+        self.assertTrue("BEHAVIOUR" in configuration)
         self.assertIsInstance(configuration["BEHAVIOUR"], dict)
-        self.assertTrue(configuration["BEHAVIOUR"].has_key("showeveryitbest"))
+        self.assertTrue("showeveryitbest" in configuration["BEHAVIOUR"])
         self.assertEqual(configuration["BEHAVIOUR"]["showeveryitbest"], "true")
 
     def test_open_and_close_experiment(self):
@@ -223,14 +223,13 @@ class MLCWorkspaceTest(unittest.TestCase):
             mlc.open_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
             configuration = mlc.get_experiment_configuration(
                 MLCWorkspaceTest.NEW_EXPERIMENT)
-            print configuration
             mlc.close_experiment(MLCWorkspaceTest.NEW_EXPERIMENT)
 
             # check configuration structure
             self.assertIsInstance(configuration, dict)
-            self.assertTrue(configuration.has_key("PARAMS"))
+            self.assertTrue("PARAMS" in configuration)
             self.assertIsInstance(configuration["PARAMS"], dict)
-            self.assertTrue(configuration["PARAMS"].has_key("test_param"))
+            self.assertTrue("test_param" in configuration["PARAMS"])
             self.assertEqual(configuration["PARAMS"]["test_param"],
                              "test_value")
 

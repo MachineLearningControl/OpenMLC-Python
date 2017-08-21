@@ -123,6 +123,8 @@ class Application(object):
         self._set_numpy_parameters()
         self.__display_best = display_best
 
+        print(Config.get_instance()["EVALUATOR"]["evaluation_function"])
+
         if from_generation is None:
             from_generation = self._mlc_repository.count_population()
 

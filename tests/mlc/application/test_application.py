@@ -85,7 +85,7 @@ class ApplicationTest(unittest.TestCase):
                                                  experiment_configuration=numpy_config_path,
                                                  evaluation_script=numpy_ev_path)
 
-        Config.get_instance().set("EVALUATOR", "evaluation_function", "numpy_warnings_ev_script")
+        Config.get_instance()["EVALUATOR"]["evaluation_function"] = "numpy_warnings_ev_script"
 
         ApplicationTest.mlc_local.open_experiment(experiment_name)
         try:

@@ -87,5 +87,6 @@ class Config(configparser.ConfigParser):
         for section, options in config_dict.items():
             config.add_section(section)
             for opt, value in options.items():
-                config.set(section, opt, value)
+                # print("Option: {} - Type: {}: ".format(opt, type(opt)))
+                config[section][opt] = str(value)
         return config
