@@ -32,12 +32,12 @@ RUN yum install tk-devel lapack-devel cmake tcl tcl-devel expect tkinter openssh
 #     tar xzvf openssl-1.1.0c.tar.gz && \
 #     cd openssl-1.1.0c && ./config && make && make install
 
-# Download python 2.7.11
+# Download python 3.6.2
 # For more information about the compilation of the Python: http://www.mathworks.com/help/matlab/matlab_external/system-requirements-for-matlab-engine-for-python.html?requestedDomain=www.mathworks.com
-RUN wget -q https://www.python.org/ftp/python/2.7.11/Python-2.7.11.tar.xz && \
-    tar xJvf Python-2.7.11.tar.xz && \
-    cd Python-2.7.11 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-3.6.2 && make && make install && \
-    rm -rf /tmp/Python-2.7.11*
+RUN wget -q https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
+    tar xJvf Python-3.6.2.tar.xz && \
+    cd Python-3.6.2 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-3.6.2 && make && make install && \
+    rm -rf /tmp/Python-3.6.2*
 
 # Install Qt5.7
 RUN git clone git://code.qt.io/qt/qtbase.git && \
@@ -89,7 +89,7 @@ RUN git clone git://code.qt.io/qt/qtstyleplugins.git && \
     rm -rf /tmp/qtstyleplugins
 
 # Add Python scripts
-ADD mlc_python_scripts/* /opt/mlc-python-3.6.2/bin/
+ADD mlc_python_scripts/python3/* /opt/mlc-python-3.6.2/bin/
 
 RUN /opt/mlc-python-3.6.2/bin/mlc_pip install --upgrade pip
 
