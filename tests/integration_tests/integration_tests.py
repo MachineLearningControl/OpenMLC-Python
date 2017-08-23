@@ -183,12 +183,12 @@ class MLCIntegrationTest(unittest.TestCase):
             self._run_x_generation(7)
 
     def _run_x_generation(self, gen_number):
-        print "Checking Generation %s" % gen_number
+        print("Checking Generation %s" % gen_number)
 
-        print "Check Indvidual properties..."
+        print("Check Indvidual properties...")
         self._check_indiv_values(gen_number)
 
-        print "Check Indvidual properties..."
+        print("Check Indvidual properties...")
         pop = self._mlc.get_generation(MLCIntegrationTest.EXPERIMENT_NAME, gen_number)
         self._check_indiv_property(gen_number, pop.get_individuals(), 'index', 'int')
         self._check_indiv_property(gen_number, pop.get_costs(), 'cost', 'float')
@@ -199,7 +199,7 @@ class MLCIntegrationTest(unittest.TestCase):
     def _check_indiv_values(self, gen_number):
         i = 1
         indexes = self._mlc.get_generation(MLCIntegrationTest.EXPERIMENT_NAME, gen_number).get_individuals()
-        print "Check %s indviduals from generation %s" % (len(indexes), gen_number)
+        print("Check %s indviduals from generation %s" % (len(indexes), gen_number))
         for index in indexes:
             indiv = MLCRepository.get_instance().get_individual(index)
 
@@ -243,9 +243,9 @@ def get_test_class(test_dir, integration_test):
 
 
 def execute_integration_test(test_dir, integration_test):
-    print "Running '%s' with %s generations: %s" % (integration_test['name'],
+    print("Running '%s' with %s generations: %s" % (integration_test['name'],
                                                     integration_test['generations'],
-                                                    integration_test['description'])
+                                                    integration_test['description']))
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     suite.addTests(loader.loadTestsFromTestCase(get_test_class(test_dir, integration_test)))
@@ -264,7 +264,7 @@ if __name__ == '__main__':
             if test_name in all_tests:
                 test_to_run[test_name] = all_tests[test_name]
             else:
-                print "'%s'? there is no integration test with that name!" % test_name
+                print("'%s'? there is no integration test with that name!" % test_name)
 
     for test_dir, integration_test in test_to_run.items():
         execute_integration_test(test_dir, integration_test)
