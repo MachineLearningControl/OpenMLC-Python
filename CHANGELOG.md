@@ -1,3 +1,7 @@
+## [0.1.0-alpha] 2017-08-23
+- First version of MLC supported in Python3
+- [FIX] Added Delete_On_Close attributes to several windows to avoid mem leaks
+
 ## [0.0.4] 2017-04-25
 - [FIX] Changes in ArduinoUserInterface initialization
 - [FIX] Removed Port property from MLC Manager
