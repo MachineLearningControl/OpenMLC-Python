@@ -27,6 +27,7 @@ import sys
 
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Evaluation.StandaloneEvaluator import StandaloneEvaluator
+from MLC.Population.Evaluation.MultiProcessEvaluator import MultiProcessEvaluator
 
 
 class EvaluatorFactory(object):
@@ -63,9 +64,13 @@ class EvaluatorFactory(object):
 
     @staticmethod
     def make(strategy, callback_manager):
+        # Change this to a dict to avoid using ifs
+        ev_callback = EvaluatorFactory.get_callback()
         if strategy == "mfile_standalone":
-            ev_callback = EvaluatorFactory.get_callback()
             return StandaloneEvaluator(ev_callback, callback_manager)
+        elif strategy == "multiprocess":
+            ev_callback = EvaluatorFactory.get_callback()
+            return MultiProcessEvaluator(ev_callback, callback_manager)
         else:
             lg.logger_.error("[EV_FACTORY] Evaluation method " +
                              strategy + " is not valid. Aborting program")
