@@ -1,6 +1,6 @@
 #!/bin/bash
-RELEASE=0.0.5
-PYTHON_VERSION=3.6.2
+RELEASE=0.1.0-alpha
+PYTHON_VERSION=3.4.7
 
 function check_run_as_root() {
     case `id` in
@@ -16,16 +16,15 @@ function check_run_as_root() {
 
 function main() {
     check_run_as_root
-    dockerfile_array=("ubuntu1404" 
-                      "ubuntu1604" 
+    dockerfile_array=("ubuntu1604" 
+                      "ubuntu1404" 
                       "ubuntu1610" 
                       "debian8"
                       "fedora20"
                       "centos7")
 
-    containers_array=("mlc_ubuntu:14.04" 
-                      "mlc_ubuntu:16.04" 
-                      "mlc_ubuntu:16.04-improved" 
+    containers_array=("mlc_ubuntu:16.04" 
+                      "mlc_ubuntu:14.04" 
                       "mlc_ubuntu:16.10"
                       "mlc_debian:8"  
                       "mlc_fedora:20"
@@ -37,7 +36,7 @@ function main() {
     while [ "x${dockerfile_array[count]}" != "x" ]
     do
         docker build -f "${dockerfile_array[count]}.dockerfile" -t ${containers_array[count]} --build-arg RELEASE=$RELEASE --build-arg PYTHON_VERSION=$PYTHON_VERSION .
-        docker run --rm -v $(pwd)/release:/tmp/release -it ${containers_array[count]} bash
+        # docker run --rm -v $(pwd)/release:/tmp/release -it ${containers_array[count]} bash
         count=$(( $count + 1 ))
     done    
 }

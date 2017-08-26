@@ -2,13 +2,15 @@
 
 # Form implementation generated from reading ui file './mlc_qtcreator/arduinoconnectiontest.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_ArduinoConnectionDialog(object):
+
     def setupUi(self, ArduinoConnectionDialog):
         ArduinoConnectionDialog.setObjectName("ArduinoConnectionDialog")
         ArduinoConnectionDialog.resize(400, 300)
@@ -48,13 +50,15 @@ class Ui_ArduinoConnectionDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/generic_spinner.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_GenericSpinnerDialog(object):
+
     def setupUi(self, GenericSpinnerDialog):
         GenericSpinnerDialog.setObjectName("GenericSpinnerDialog")
         GenericSpinnerDialog.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -76,7 +80,7 @@ class Ui_GenericSpinnerDialog(object):
         self.spinner_label.setAlignment(QtCore.Qt.AlignCenter)
         self.spinner_label.setWordWrap(False)
         self.spinner_label.setObjectName("spinner_label")
-        self.spinner_layout.addWidget(self.spinner_label, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.spinner_layout.addWidget(self.spinner_label, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.cancel_button = QtWidgets.QPushButton(GenericSpinnerDialog)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -104,13 +108,15 @@ class Ui_GenericSpinnerDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/pinout_design.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_ArduinoBoardDialog(object):
+
     def setupUi(self, ArduinoBoardDialog):
         ArduinoBoardDialog.setObjectName("ArduinoBoardDialog")
         ArduinoBoardDialog.resize(400, 300)
@@ -140,13 +146,15 @@ class Ui_ArduinoBoardDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MLCManager(object):
+
     def setupUi(self, MLCManager):
         MLCManager.setObjectName("MLCManager")
         MLCManager.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -334,13 +342,15 @@ class Ui_MLCManager(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/tab_content.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Form(object):
+
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(400, 300)
@@ -356,13 +366,15 @@ class Ui_Form(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/about.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MLCAboutDialog(object):
+
     def setupUi(self, MLCAboutDialog):
         MLCAboutDialog.setObjectName("MLCAboutDialog")
         MLCAboutDialog.resize(403, 464)
@@ -414,13 +426,15 @@ class Ui_MLCAboutDialog(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment_in_progress.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_ExperimentInProgressWindow(object):
+
     def setupUi(self, ExperimentInProgressWindow):
         ExperimentInProgressWindow.setObjectName("ExperimentInProgressWindow")
         ExperimentInProgressWindow.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -515,13 +529,15 @@ class Ui_ExperimentInProgressWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/arduino_performance_test.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_arduino_performance_test(object):
+
     def setupUi(self, arduino_performance_test):
         arduino_performance_test.setObjectName("arduino_performance_test")
         arduino_performance_test.resize(775, 500)
@@ -603,13 +619,15 @@ class Ui_arduino_performance_test(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/individual_tree_visualization.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_IndividualTreeVisualization(object):
+
     def setupUi(self, IndividualTreeVisualization):
         IndividualTreeVisualization.setObjectName("IndividualTreeVisualization")
         IndividualTreeVisualization.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -655,7 +673,7 @@ class Ui_IndividualTreeVisualization(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.ok_cancel_box.sizePolicy().hasHeightForWidth())
         self.ok_cancel_box.setSizePolicy(sizePolicy)
-        self.ok_cancel_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.ok_cancel_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.ok_cancel_box.setCenterButtons(True)
         self.ok_cancel_box.setObjectName("ok_cancel_box")
         self.verticalLayout.addWidget(self.ok_cancel_box)
@@ -677,13 +695,15 @@ class Ui_IndividualTreeVisualization(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/experiment.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_ExperimentWindow(object):
+
     def setupUi(self, ExperimentWindow):
         ExperimentWindow.setObjectName("ExperimentWindow")
         ExperimentWindow.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -754,7 +774,7 @@ class Ui_ExperimentWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_11.sizePolicy().hasHeightForWidth())
         self.label_11.setSizePolicy(sizePolicy)
-        self.label_11.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.label_11.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.label_11.setObjectName("label_11")
         self.gridLayout_6.addWidget(self.label_11, 0, 2, 1, 1)
         self.label_10 = QtWidgets.QLabel(self.groupBox_7)
@@ -1257,7 +1277,8 @@ class Ui_ExperimentWindow(object):
         self.groupBox_3.setTitle(_translate("ExperimentWindow", "Generations"))
         self.gen_cut_button.setToolTip(_translate("ExperimentWindow", "Remove generations ahead of the current generation"))
         self.gen_cut_button.setText(_translate("ExperimentWindow", "Cut"))
-        self.gen_start_over_button.setToolTip(_translate("ExperimentWindow", "Remove all the generations, maintaining only the last generation computed"))
+        self.gen_start_over_button.setToolTip(_translate(
+            "ExperimentWindow", "Remove all the generations, maintaining only the last generation computed"))
         self.gen_start_over_button.setText(_translate("ExperimentWindow", "Start Over"))
         self.groupBox_8.setTitle(_translate("ExperimentWindow", "Graphics"))
         self.best_indiv_button.setText(_translate("ExperimentWindow", "Best Individual"))
@@ -1282,13 +1303,15 @@ class Ui_ExperimentWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/genealogy.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_GenealogyWindow(object):
+
     def setupUi(self, GenealogyWindow):
         GenealogyWindow.setObjectName("GenealogyWindow")
         GenealogyWindow.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -1321,13 +1344,15 @@ class Ui_GenealogyWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/board_config_design.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_BoardConfigurationWindow(object):
+
     def setupUi(self, BoardConfigurationWindow):
         BoardConfigurationWindow.setObjectName("BoardConfigurationWindow")
         BoardConfigurationWindow.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -2042,13 +2067,15 @@ class Ui_BoardConfigurationWindow(object):
 
 # Form implementation generated from reading ui file './mlc_qtcreator/edit_properties.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.9.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_PropertiesDialog(object):
+
     def setupUi(self, PropertiesDialog):
         PropertiesDialog.setObjectName("PropertiesDialog")
         PropertiesDialog.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -2064,7 +2091,7 @@ class Ui_PropertiesDialog(object):
         self.verticalLayout.addWidget(self.tableView)
         self.buttonBox = QtWidgets.QDialogButtonBox(PropertiesDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
 
@@ -2076,4 +2103,3 @@ class Ui_PropertiesDialog(object):
     def retranslateUi(self, PropertiesDialog):
         _translate = QtCore.QCoreApplication.translate
         PropertiesDialog.setWindowTitle(_translate("PropertiesDialog", "MLC Manager Properties"))
-

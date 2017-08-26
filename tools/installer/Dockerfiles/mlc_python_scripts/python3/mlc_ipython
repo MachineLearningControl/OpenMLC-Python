@@ -4,7 +4,7 @@ export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."
 # Add the correct path to the LD_LIBRARY_PATH enviroment variable
 export LD_LIBRARY_PATH=$ROOTPATH/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$ROOTPATH/custom_libs:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$ROOTPATH/Qt-5.7.1/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$ROOTPATH/Qt-5.9.1/lib:$LD_LIBRARY_PATH
 IPYTHON="$ROOTPATH/bin/mlc_python $ROOTPATH/bin/ipython3"
 
 # Run the dynamically compiled python for matlab

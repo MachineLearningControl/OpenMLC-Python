@@ -4,8 +4,8 @@ export ROOTPATH="$(dirname "$(readlink -f "$0")")/.."
 # Add the correct path to the LD_LIBRARY_PATH enviroment variable
 export LD_LIBRARY_PATH=$ROOTPATH/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$ROOTPATH/custom_libs:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$ROOTPATH/Qt-5.7.1/lib:$LD_LIBRARY_PATH
-PIP="$ROOTPATH/bin/mlc_python $ROOTPATH/bin/pip3.6"
+export LD_LIBRARY_PATH=$ROOTPATH/Qt-5.9.1/lib:$LD_LIBRARY_PATH
+PIP="$ROOTPATH/bin/mlc_python $ROOTPATH/bin/pip3.4"
 
 # Run the dynamically compiled pip
 if [ "$#" -ne 0 ]; then

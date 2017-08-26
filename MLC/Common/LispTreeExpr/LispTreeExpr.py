@@ -77,20 +77,21 @@ class OperationArgumentsAmountException(ExprException):
                                .format(expression))
 
 
+class NodeIdGenerator(object):
+
+    def __init__(self):
+        self._node_id_counter = 0
+
+    def next_node_id(self):
+        node_id = self._node_id_counter
+        self._node_id_counter += 1
+        return node_id
+
+
 class LispTreeExpr(object):
 
-    class NodeIdGenerator(object):
-
-        def __init__(self):
-            self._node_id_counter = 0
-
-        def next_node_id(self):
-            node_id = self._node_id_counter
-            self._node_id_counter += 1
-            return node_id
-
     def __init__(self, expr):
-        self._node_id_generator = LispTreeExpr.NodeIdGenerator()
+        self._node_id_generator = NodeIdGenerator()
         self._nodes = []
         self._expanded_tree = expr
 

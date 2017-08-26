@@ -49,12 +49,12 @@ rm -rf $MLC_PATH/MLC-$RELEASE/tests
 rm -rf $MLC_PATH/MLC-$RELEASE/doc
 rm -rf $MLC_PATH/MLC-$RELEASE/bugs
 rm -rf $MLC_PATH/MLC-$RELEASE/matlab_code
-rm -rf $MLC_PATH/Qt-5.7.1/docs
-rm -rf $MLC_PATH/Qt-5.7.1/include
-rm -rf $MLC_PATH/Qt-5.7.1/mkspecs
+rm -rf $MLC_PATH/Qt-5.9.1/docs
+rm -rf $MLC_PATH/Qt-5.9.1/include
+rm -rf $MLC_PATH/Qt-5.9.1/mkspecs
 
 # Create the MLC Package
 tar cJvpf /tmp/MLC-$RELEASE-$OS_VERSION.tar.xz -C /tmp MLC-$RELEASE
 fpm -s dir -t $PACKAGE_TYPE -v $RELEASE -n mlc-python-$OS_VERSION /opt/mlc-python-$PYTHON_VERSION
-mv /tmp/MLC-$RELEASE/*.deb /tmp/release
+mv /tmp/MLC-$RELEASE/*.$PACKAGE_TYPE /tmp/release
 mv /tmp/*.tar.xz /tmp/release

@@ -15,7 +15,7 @@ CMD ["/usr/sbin/init"]
 
 WORKDIR /tmp
 
-RUN mkdir -p /opt/mlc-python-3.6.2/bin
+RUN mkdir -p /opt/mlc-python-3.4.7/bin
 
 # Update the current system
 RUN yum update -y
@@ -25,96 +25,96 @@ RUN yum update -y
 # Install packages
 RUN yum install libxkbcommon tk-devel lapack-devel cmake tcl tcl-devel expect tkinter openssh-server gcc gcc-c++ wget xz make vim openssl-devel openssh-clients rpm-build ruby-devel libpng libpng-devel sqlite-devel freeglut-devel libxcb libxcb-devel xcb-util xcb-util-devel git -y
 
-# Download python 3.6.2
+# Download python 3.4.7
 # For more information about the compilation of the Python: http://www.mathworks.com/help/matlab/matlab_external/system-requirements-for-matlab-engine-for-python.html?requestedDomain=www.mathworks.com
-RUN wget -q https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz && \
-    tar xJvf Python-3.6.2.tar.xz && \
-    cd Python-3.6.2 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-3.6.2 && make && make install && \
-    rm -rf /tmp/Python-3.6.2*
+RUN wget -q https://www.python.org/ftp/python/3.4.7/Python-3.4.7.tar.xz && \
+    tar xJvf Python-3.4.7.tar.xz && \
+    cd Python-3.4.7 && ./configure --enable-shared --enable-unicode=ucs4 --prefix=/opt/mlc-python-3.4.7 && make && make install && \
+    rm -rf /tmp/Python-3.4.7*
 
 # Install Qt5.7
 RUN git clone git://code.qt.io/qt/qtbase.git && \
     cd qtbase && \
-    git checkout 5.7 && \
-    ./configure --prefix=/opt/mlc-python-3.6.2/Qt-5.7.1 -xkb-config-root /usr/share/X11/xkb -no-gtk -nomake tests -nomake examples -qt-xcb --opensource --confirm-license && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    ./configure --prefix=/opt/mlc-python-3.4.7/Qt-5.9.1 -xkb-config-root /usr/share/X11/xkb -no-gtk -nomake tests -nomake examples -qt-xcb --opensource --confirm-license && make -j4 && make install && \
     rm -rf /tmp/qtbase
 
 RUN git clone git://code.qt.io/qt/qttools.git && \
     cd qttools && \
-    git checkout 5.7 && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qttools
 
 RUN git clone git://code.qt.io/qt/qtcharts.git && \
     cd qtcharts && \
-    git checkout 5.7 && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtcharts
 
 RUN git clone git://code.qt.io/qt/qtdatavis3d.git && \
     cd qtdatavis3d && \
-    git checkout 5.7 && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtdatavis3d
 
 RUN git clone git://code.qt.io/qt/qtdeclarative.git && \
     cd qtdeclarative && \
-    git checkout 5.7 && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtdeclarative
 
 RUN git clone git://code.qt.io/qt/qtx11extras.git && \
     cd qtx11extras && \
-    git checkout 5.7 && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake CONFIG+=release && make -j4 && make install && \
+    git checkout v5.9.1 && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake CONFIG+=release && make -j4 && make install && \
     rm -rf /tmp/qtx11extras
 
 RUN git clone https://github.com/Ezetowers/qt5ct.git && \
     cd qt5ct && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake PREFIX=/opt/mlc-python-3.6.2/qt5ct && make -j4 && make install && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake PREFIX=/opt/mlc-python-3.4.7/qt5ct && make -j4 && make install && \
     rm -rf /tmp/qt5ct
 
 RUN git clone git://code.qt.io/qt/qtstyleplugins.git && \
     cd qtstyleplugins && \
-    /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake && make && \
-    mkdir -p /opt/mlc-python-3.6.2/Qt-5.7.1/plugins/styles && \
-    cp -r ./plugins/styles/* /opt/mlc-python-3.6.2/Qt-5.7.1/plugins/styles && \
+    /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake && make && \
+    mkdir -p /opt/mlc-python-3.4.7/Qt-5.9.1/plugins/styles && \
+    cp -r ./plugins/styles/* /opt/mlc-python-3.4.7/Qt-5.9.1/plugins/styles && \
     rm -rf /tmp/qtstyleplugins
 
 # Add Python scripts
-ADD mlc_python_scripts/python3/* /opt/mlc-python-3.6.2/bin/
+ADD mlc_python_scripts/python3/* /opt/mlc-python-3.4.7/bin/
 
-RUN /opt/mlc-python-3.6.2/bin/mlc_pip install --upgrade pip
+RUN /opt/mlc-python-3.4.7/bin/mlc_pip install --upgrade pip
 
-# Add PyQt5 Support
-RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19/sip-4.19.tar.gz && \
-    tar xzvf sip-4.19.tar.gz && \
-    cd sip-4.19 && \
-    /opt/mlc-python-3.6.2/bin/mlc_python configure.py && \
+# # Add PyQt5 Support
+RUN wget https://sourceforge.net/projects/pyqt/files/sip/sip-4.19.3/sip-4.19.3.tar.gz && \
+    tar xzvf sip-4.19.3.tar.gz && \
+    cd sip-4.19.3 && \
+    /opt/mlc-python-3.4.7/bin/mlc_python configure.py && \
     make -j4 && make install && \
-    rm -rf /tmp/sip-4.19*
+    rm -rf /tmp/sip-4.19.3*
 
-RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.7.1/PyQt5_gpl-5.7.1.tar.gz && \
-    tar xzvf PyQt5_gpl-5.7.1.tar.gz && \
-    cd PyQt5_gpl-5.7.1 && \
-    /opt/mlc-python-3.6.2/bin/mlc_python configure.py --qmake /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake --confirm-license --sip /opt/mlc-python-3.6.2/bin/sip && \
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-5.9/PyQt5_gpl-5.9.tar.gz && \
+    tar xzvf PyQt5_gpl-5.9.tar.gz && \
+    cd PyQt5_gpl-5.9 && \
+    /opt/mlc-python-3.4.7/bin/mlc_python configure.py --qmake /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake --confirm-license --sip /opt/mlc-python-3.4.7/bin/sip && \
     make -j4 && make install && \
-    rm -rf /tmp/PyQt5_gpl-5.7.1*
+    rm -rf /tmp/PyQt5_gpl-5.9*
 
 # Add PyQt5 Charts
-RUN wget https://sourceforge.net/projects/pyqt/files/PyQtChart/PyQtChart-5.7.1/PyQtChart_gpl-5.7.1.tar.gz && \
-    tar xzvf PyQtChart_gpl-5.7.1.tar.gz && \
-    cd PyQtChart_gpl-5.7.1 && \
-    /opt/mlc-python-3.6.2/bin/mlc_python configure.py --qmake /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake --sip /opt/mlc-python-3.6.2/bin/sip && \
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQtChart/PyQtChart-5.9/PyQtChart_gpl-5.9.tar.gz && \
+    tar xzvf PyQtChart_gpl-5.9.tar.gz && \
+    cd PyQtChart_gpl-5.9 && \
+    /opt/mlc-python-3.4.7/bin/mlc_python configure.py --qmake /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake --sip /opt/mlc-python-3.4.7/bin/sip && \
     make -j4 && make install && \
-    rm -rf /tmp/PyQtChart_gpl-5.7.1*
+    rm -rf /tmp/PyQtChart_gpl-5.9*
 
-RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtDataVisualization-5.7.1/PyQtDataVisualization_gpl-5.7.1.tar.gz/download -O PyQtDataVisualization_gpl-5.7.1.tar.gz && \
-    tar xzvf PyQtDataVisualization_gpl-5.7.1.tar.gz && \
-    cd PyQtDataVisualization_gpl-5.7.1 && \
-    /opt/mlc-python-3.6.2/bin/mlc_python configure.py --qmake /opt/mlc-python-3.6.2/Qt-5.7.1/bin/qmake --sip /opt/mlc-python-3.6.2/bin/sip && \
+RUN wget https://sourceforge.net/projects/pyqt/files/PyQtDataVisualization/PyQtDataVisualization-5.9/PyQtDataVisualization_gpl-5.9.tar.gz/download -O PyQtDataVisualization_gpl-5.9.tar.gz && \
+    tar xzvf PyQtDataVisualization_gpl-5.9.tar.gz && \
+    cd PyQtDataVisualization_gpl-5.9 && \
+    /opt/mlc-python-3.4.7/bin/mlc_python configure.py --qmake /opt/mlc-python-3.4.7/Qt-5.9.1/bin/qmake --sip /opt/mlc-python-3.4.7/bin/sip && \
     make -j4 && make install && \
-    rm -rf /tmp/PyQtDataVisualization_gpl-5.7.1*
+    rm -rf /tmp/PyQtDataVisualization_gpl-5.9*
 
 RUN wget http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.40.1.tar.gz && \
     tar xzvf graphviz-2.40.1.tar.gz && \
@@ -125,18 +125,18 @@ RUN wget http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.40.1.tar
 # Install mlc dependencies
 # Create .sh who will load the desired enviroment to run nosetests within it
 RUN export CFLAGS="-I/tmp/graphviz-2.40.1/include" \
-    export LD_LIBRARY_PATH=/opt/mlc-python-3.6.2/custom_libs:$LD_LIBRARY_PATH && \
-    export LD_LIBRARY_PATH=/opt/mlc-python-3.6.2/Qt-5.7.1/lib:$LD_LIBRARY_PATH && \
+    export LD_LIBRARY_PATH=/opt/mlc-python-3.4.7/custom_libs:$LD_LIBRARY_PATH && \
+    export LD_LIBRARY_PATH=/opt/mlc-python-3.4.7/Qt-5.9.1/lib:$LD_LIBRARY_PATH && \
     export LD_LIBRARY_PATH=/tmp/graphviz-2.40.1/lib:$LD_LIBRARY_PATH && \
     export PKG_CONFIG_PATH=/tmp/graphviz-2.40.1/lib/pkgconfig:$PKG_CONFIG_PATH && \
-    export PATH=/opt/mlc-python-3.6.2/Qt-5.7.1/bin:$PATH && \
-    export PATH=/opt/mlc-python-3.6.2/custom_bins:$PATH && \
+    export PATH=/opt/mlc-python-3.4.7/Qt-5.9.1/bin:$PATH && \
+    export PATH=/opt/mlc-python-3.4.7/custom_bins:$PATH && \
     export PATH=/tmp/graphviz-2.40.1/bin:$PATH && \
-    /opt/mlc-python-3.6.2/bin/mlc_pip install networkx pydotplus pygraphviz 'ipython<6.0.0' numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
+    /opt/mlc-python-3.4.7/bin/mlc_pip install networkx pydotplus pygraphviz 'ipython<6.0.0' numpy flask requests pyserial nose pyyaml coverage matplotlib scipy pyusb
 
-RUN mkdir -p /opt/mlc-python-3.6.2/custom_libs /opt/mlc-python-3.6.2/custom_bins && \
-    cp -r /tmp/graphviz-2.40.1/lib/*.so* /tmp/graphviz-2.40.1/lib/graphviz /opt/mlc-python-3.6.2/custom_libs && \
-    cp -r /tmp/graphviz-2.40.1/bin/* /opt/mlc-python-3.6.2/custom_bins && \
+RUN mkdir -p /opt/mlc-python-3.4.7/custom_libs /opt/mlc-python-3.4.7/custom_bins && \
+    cp -r /tmp/graphviz-2.40.1/lib/*.so* /tmp/graphviz-2.40.1/lib/graphviz /opt/mlc-python-3.4.7/custom_libs && \
+    cp -r /tmp/graphviz-2.40.1/bin/* /opt/mlc-python-3.4.7/custom_bins && \
     rm -rf /tmp/graphviz-2.40.1*
 
 RUN gem install fpm
