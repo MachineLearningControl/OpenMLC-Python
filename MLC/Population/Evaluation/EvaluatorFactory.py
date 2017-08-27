@@ -43,7 +43,6 @@ class EvaluatorFactory(object):
             # all the same, so when one experiment loads his module, other project with the same
             # name of module won't be able to load yours
             ev_module = sys.modules["Evaluation"]
-            print(ev_module)
             del sys.modules['Evaluation']
             del ev_module
             lg.logger_.debug("[EV_FACTORY] Module {0} was removed".format(sys.modules["Evaluation"]))

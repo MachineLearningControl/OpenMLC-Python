@@ -327,7 +327,7 @@ class ExperimentInProgress(Thread):
         self._gen_creator = gen_creator
 
     def run(self):
-        logger.debug('{0} [RUN] - Executing Thread mainloop'.format(self._log_prefix))
+        logger.info('{0} [RUN] - Executing Thread mainloop'.format(self._log_prefix))
         try:
             self._mlc_local.go(self._experiment_name, self._to_gen,
                                self._from_gen, self._callbacks,
@@ -351,6 +351,7 @@ class ExperimentInProgress(Thread):
                         .format(self._log_prefix))
             traceback.print_exc()
             sys.exit(-1)
+        logger.info('{0} [RUN] - Finishing Thread mainloop'.format(self._log_prefix))
 
     def indiv_evaluated(self, individual_id, cost):
         logger.debug('{0} [INDIV_EV] - Executing indiv_evaluated callback. '

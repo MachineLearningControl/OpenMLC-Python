@@ -72,6 +72,12 @@ class Experiment:
 
         return self._simulation
 
+    def close_simulation(self):
+        if Experiment.__last_simulation is not None:
+            Experiment.__last_simulation.close()
+            Experiment.__last_simulation = None
+            MLCRepository._instance = None
+
     def get_configuration(self):
         return Config.to_dictionary(self._configuration)
 

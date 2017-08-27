@@ -84,7 +84,7 @@ class ExperimentWindow(QMainWindow):
         self.setWindowTitle("Experiment {0}".format(self._experiment_name))
 
         # Experiment tab parameters
-        self._mlc_local.open_experiment(self._experiment_name)
+        self._mlc_local.open_experiment(self._experiment_name, True)
         experiment_info = self._mlc_local.get_experiment_info(self._experiment_name)
         self._current_gen = int(experiment_info["generations"])
 
@@ -215,16 +215,16 @@ class ExperimentWindow(QMainWindow):
         logger.info('[EXPERIMENT {0}] [START_BUTTON] - Proceed to execute experiment from Generation '
                     'N°{1} to Generation N°{2}'.format(self._experiment_name, from_gen, to_gen))
 
-        progress_dialog = ExperimentInProgress(mlc_local=self._mlc_local,
-                                               parent=self,
-                                               experiment_name=self._experiment_name,
-                                               to_gen=to_gen,
-                                               from_gen=from_gen,
-                                               chart_params=self._chart_conf.chart_params(),
-                                               parent_signal=self.experiment_finished,
-                                               gen_creator=gen_creator)
+        self._progress_dialog = ExperimentInProgress(mlc_local=self._mlc_local,
+                                                     parent=self,
+                                                     experiment_name=self._experiment_name,
+                                                     to_gen=to_gen,
+                                                     from_gen=from_gen,
+                                                     chart_params=self._chart_conf.chart_params(),
+                                                     parent_signal=self.experiment_finished,
+                                                     gen_creator=gen_creator)
 
-        progress_dialog.start()
+        self._progress_dialog.start()
 
     def on_prev_gen_button_clicked(self):
         logger.debug(
@@ -924,6 +924,9 @@ class ExperimentWindow(QMainWindow):
         self._update_experiment_info()
         self._update_individuals_figure()
         self._update_scatter_chart()
+
+        self._progress_dialog.join()
+        self._progrees_dialog = None
 
     def _store_board_configuration(self, board_config, serial_conn):
         # Pass the parameter as a list to mock PyQt fixed data types

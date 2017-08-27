@@ -19,7 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 class TreeNode(object):
+
     def __init__(self, node_id):
         self._node_id = node_id
         self._depth = -1
@@ -66,7 +68,7 @@ class TreeNode(object):
     #     raise NotImplementedError('TreeNode', 'value is an abstract method')
 
     def construct_tree(self, nx_tree):
-        raise NotImplementedError('TreeNode', 'complexity is an abstract method')        
+        raise NotImplementedError('TreeNode', 'complexity is an abstract method')
 
     def formal(self):
         raise NotImplementedError('TreeNode', 'formal is an abstract method')
@@ -76,6 +78,7 @@ class TreeNode(object):
 
     def accept(self, visitor):
         raise NotImplementedError('TreeNode', 'accept is an abstract method')
+
 
 class LeafNode(TreeNode):
 
@@ -106,7 +109,7 @@ class LeafNode(TreeNode):
             float(self._arg)
             return False
         except ValueError:
-            return True        
+            return True
 
     def formal(self):
         try:
@@ -123,6 +126,7 @@ class LeafNode(TreeNode):
 
     def accept(self, visitor):
         visitor.visit_leaf_node(self)
+
 
 class InternalNode(TreeNode):
 

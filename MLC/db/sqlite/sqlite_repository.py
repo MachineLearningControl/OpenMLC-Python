@@ -55,71 +55,24 @@ class SQLiteRepository(MLCRepository):
         self.__base_gen = gen_numbers[0] if gen_numbers else 1
 
         # all individuals: {individual_id: (Individual, generated(bool))
-        self.__individuals = self.__load_individuals()
-        self._hashlist = {}
-
-        # load hashes
-        for indiv_id, individual in self.__individuals.items():
-            hash = MLCRepositoryHelper.get_hash_for_individual(individual)
-            self._hashlist[hash] = indiv_id
+        self.__individuals = {}
+        self.__hashlist = {}
 
         # enhancement
-        self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys()) + 1
+        self.__next_individual_id = 1
         self.__individuals_to_flush = {}
 
     def close(self):
         self._conn.close()
 
-    def __initialize_db(self):
-        cursor = self._conn.cursor()
+    def load_individuals(self):
+        self.__individuals = self.__load_individuals()
+        self.__next_individual_id = 1 if not self.__individuals else max(self.__individuals.keys()) + 1
 
-        # MLC Population tables
-        cursor.execute(stmt_create_table_individuals())
-        cursor.execute(stmt_create_table_index_individuals())
-        cursor.execute(stmt_create_table_population())
-        cursor.execute(stmt_create_id_index_on_population())
-        cursor.execute(stmt_create_indiv_id_index_on_population())
-
-        # Board configuration tables
-        cursor.execute(stmt_create_table_board())
-        cursor.execute(stmt_create_table_serial_connection())
-        cursor.execute(stmt_create_table_digital_pin())
-        cursor.execute(stmt_create_table_analog_pin())
-        cursor.execute(stmt_create_table_pwm_pin())
-
-        cursor.close()
-        self._conn.commit()
-
-    def __get_db_connection(self, reopen_connection=False):
-        # TODO: Workaround. SQLite throw an exception when a connection is used
-        # in different threads. To solve it, we create a new connection
-        # every time a new connection is delivered
-        if self._database != SQLiteRepository.IN_MEMORY_DB:
-            # Close the previous connection
-            try:
-                self._conn.close()
-            except sqlite3.ProgrammingError:
-                # FIXME: There are open connections that cannot be closed for
-                # the Thread bug. See what can be done
-                pass
-
-            self._conn = sqlite3.connect(self._database)
-        return self._conn
-
-    def __insert_individuals_pending(self, individual):
-        individual_id = self.__next_individual_id
-        self.__individuals_to_flush[individual_id] = individual
-        self.__next_individual_id += 1
-        return individual_id
-
-    def __flush_individuals(self):
-        conn = self.__get_db_connection()
-        cursor = conn.cursor()
-        for individual_id in sorted(self.__individuals_to_flush.keys()):
-            cursor.execute(stmt_insert_individual(individual_id, self.__individuals_to_flush[individual_id]))
-        cursor.close()
-        conn.commit()
-        self.__individuals_to_flush = {}
+        # load hashes
+        for indiv_id, individual in self.__individuals.items():
+            hash = MLCRepositoryHelper.get_hash_for_individual(individual)
+            self.__hashlist[hash] = indiv_id
 
     # operation over generations
     def add_population(self, population):
@@ -199,7 +152,7 @@ class SQLiteRepository(MLCRepository):
         for indiv_id in to_delete:
             individual_to_delete = self.__individuals[indiv_id]
             del self.__individuals[indiv_id]
-            del self._hashlist[MLCRepositoryHelper.get_hash_for_individual(individual_to_delete)]
+            del self.__hashlist[MLCRepositoryHelper.get_hash_for_individual(individual_to_delete)]
 
         return len(to_delete)
 
@@ -207,13 +160,13 @@ class SQLiteRepository(MLCRepository):
     def add_individual(self, individual):
         hash = MLCRepositoryHelper.get_hash_for_individual(individual)
 
-        if hash in self._hashlist:
-            return self._hashlist[hash], True
+        if hash in self.__hashlist:
+            return self.__hashlist[hash], True
 
         individual_id = self.__insert_individuals_pending(individual)
 
         self.__individuals[individual_id] = individual
-        self._hashlist[hash] = individual_id
+        self.__hashlist[hash] = individual_id
 
         return individual_id, False
 
@@ -240,12 +193,15 @@ class SQLiteRepository(MLCRepository):
 
     def get_individual_data(self, individual_id):
         try:
-            data = IndividualData(self.__individuals[individual_id].get_value())
             conn = self.__get_db_connection()
             cursor = conn.execute(stmt_get_individual_data(individual_id))
 
+            data = IndividualData()
             for row in cursor:
-                data._add_data(row[0] - self.__base_gen + 1, row[1], row[2])
+                data.add_data(generation=row[0] - self.__base_gen + 1,
+                              cost=row[1],
+                              evaluation_time=row[2],
+                              value=row[3])
 
             cursor.close()
             conn.commit()
@@ -263,16 +219,21 @@ class SQLiteRepository(MLCRepository):
         for row in cursor:
             indiv_id = row[0]
             if indiv_id not in indiv_data_dict:
-                data = IndividualData(self.__individuals[indiv_id].get_value())
-                indiv_data_dict[indiv_id] = data
+                indiv_data_dict[indiv_id] = IndividualData(self.__individuals[indiv_id].get_value())
 
-            indiv_data_dict[indiv_id]._add_data(row[1], row[2], row[3])
+            indiv_data_dict[indiv_id].add_data(generation=row[1],
+                                               cost=row[2],
+                                               evaluation_time=row[3])
 
         cursor.close()
         conn.commit()
         return indiv_data_dict
 
     def count_individual(self):
+        if not self.__individuals:
+            conn = self.__get_db_connection()
+            cursor = conn.execute(stmt_count_all_individuals())
+            return cursor.fetchone()[0]
         return len(self.__individuals)
 
     # special methods
@@ -289,60 +250,6 @@ class SQLiteRepository(MLCRepository):
         logger.debug("[SQLITE_REPO] [UPDATE_INDIV_COST] - Query executed: {0}"
                      .format(stmt_to_update_cost))
         self.__execute(stmt_to_update_cost)
-
-    def __execute(self, statement):
-        # print ">>> %s" % statement
-        conn = self.__get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(statement)
-        cursor.close()
-        conn.commit()
-        return cursor.lastrowid
-
-    def _get_generations(self):
-        generations = []
-        conn = self.__get_db_connection()
-        cursor = conn.execute(stmt_get_generations())
-        for row in cursor:
-            generations.append(int(row[0]))
-        cursor.close()
-        conn.commit()
-        return sorted(generations)
-
-    def __load_population(self, generation):
-        i = 0
-        population = Simulation.create_empty_population_for(generation)
-        conn = self.__get_db_connection()
-        cursor = conn.execute(stmt_get_individuals_from_population(generation))
-        for row in cursor:
-            population._individuals[i] = row[0]
-            population._costs[i] = row[1]
-            population._ev_time[i] = row[2]
-            population._gen_method[i] = row[3]
-
-            if not row[4] == '':
-                population._parents[i] = [int(elem) for elem in row[4].split(',')]
-            else:
-                population._parents[i] = []
-
-            i += 1
-        cursor.close()
-        conn.commit()
-        return population
-
-    def __load_individuals(self):
-        individuals = {}
-        conn = self.__get_db_connection()
-        cursor = conn.execute(stmt_get_all_individuals())
-        # data = cursor.fetchall()
-
-        for row in cursor:
-            new_individual = Individual(str(row[1]), SQLSaveFormal.from_sql(row[2]), row[3])
-            individuals[row[0]] = new_individual
-
-        cursor.close()
-        conn.commit()
-        return individuals
 
     # board configuration
     def save_board_configuration(self, board_config, board_id=None):
@@ -396,22 +303,6 @@ class SQLiteRepository(MLCRepository):
             conn.commit()
 
         return board_id
-
-    def __insert_pins(self, pin_list, cursor, stmt_insert_pin, board_id, pin_type):
-        for pin_id in pin_list:
-            cursor.execute(stmt_insert_pin(board_id, pin_id, pin_type))
-
-    def __get_pins(self, cursor, stmt_get_pins, board_id):
-        input_pins = []
-        output_pins = []
-
-        for row in cursor.execute(stmt_get_pins(board_id)):
-            pin_id, pin_type = row[0], row[1]
-            if pin_type == 0:
-                input_pins.append(pin_id)
-            else:
-                output_pins.append(pin_id)
-        return input_pins, output_pins
 
     def get_board_configuration_ids(self):
         board_ids = []
@@ -491,6 +382,9 @@ class SQLiteRepository(MLCRepository):
 
         return connection_id
 
+    def flush_individuals(self):
+        self.__flush_individuals()
+
     def load_serial_connection(self, board_id):
         serial_connection = None
 
@@ -509,3 +403,124 @@ class SQLiteRepository(MLCRepository):
             raise KeyError("Serial Connectio %s doess not exists" % board_id)
 
         return serial_connection
+
+    def __insert_pins(self, pin_list, cursor, stmt_insert_pin, board_id, pin_type):
+        for pin_id in pin_list:
+            cursor.execute(stmt_insert_pin(board_id, pin_id, pin_type))
+
+    def __initialize_db(self):
+        cursor = self._conn.cursor()
+
+        # MLC Population tables
+        cursor.execute(stmt_create_table_individuals())
+        cursor.execute(stmt_create_table_index_individuals())
+        cursor.execute(stmt_create_table_population())
+        cursor.execute(stmt_create_id_index_on_population())
+        cursor.execute(stmt_create_indiv_id_index_on_population())
+
+        # Board configuration tables
+        cursor.execute(stmt_create_table_board())
+        cursor.execute(stmt_create_table_serial_connection())
+        cursor.execute(stmt_create_table_digital_pin())
+        cursor.execute(stmt_create_table_analog_pin())
+        cursor.execute(stmt_create_table_pwm_pin())
+
+        cursor.close()
+        self._conn.commit()
+
+    def __get_db_connection(self, reopen_connection=False):
+        # TODO: Workaround. SQLite throw an exception when a connection is used
+        # in different threads. To solve it, we create a new connection
+        # every time a new connection is delivered
+        if self._database != SQLiteRepository.IN_MEMORY_DB:
+            # Close the previous connection
+            try:
+                self._conn.close()
+            except sqlite3.ProgrammingError:
+                # FIXME: There are open connections that cannot be closed for
+                # the Thread bug. See what can be done
+                pass
+
+            self._conn = sqlite3.connect(self._database)
+        return self._conn
+
+    def __insert_individuals_pending(self, individual):
+        individual_id = self.__next_individual_id
+        self.__individuals_to_flush[individual_id] = individual
+        self.__next_individual_id += 1
+        return individual_id
+
+    def __flush_individuals(self):
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
+        for individual_id in sorted(self.__individuals_to_flush.keys()):
+            cursor.execute(stmt_insert_individual(individual_id, self.__individuals_to_flush[individual_id]))
+        cursor.close()
+        conn.commit()
+        self.__individuals_to_flush = {}
+
+    def __execute(self, statement):
+        # print ">>> %s" % statement
+        conn = self.__get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(statement)
+        cursor.close()
+        conn.commit()
+        return cursor.lastrowid
+
+    def _get_generations(self):
+        generations = []
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_generations())
+        for row in cursor:
+            generations.append(int(row[0]))
+        cursor.close()
+        conn.commit()
+        return sorted(generations)
+
+    def __load_population(self, generation):
+        i = 0
+        population = Simulation.create_empty_population_for(generation)
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_individuals_from_population(generation))
+        for row in cursor:
+            population._individuals[i] = row[0]
+            population._costs[i] = row[1]
+            population._ev_time[i] = row[2]
+            population._gen_method[i] = row[3]
+
+            if not row[4] == '':
+                population._parents[i] = [int(elem) for elem in row[4].split(',')]
+            else:
+                population._parents[i] = []
+
+            i += 1
+        cursor.close()
+        conn.commit()
+        return population
+
+    def __load_individuals(self):
+        individuals = {}
+        conn = self.__get_db_connection()
+        cursor = conn.execute(stmt_get_all_individuals())
+        # data = cursor.fetchall()
+
+        for row in cursor:
+            new_individual = Individual(str(row[1]), SQLSaveFormal.from_sql(row[2]), row[3])
+            individuals[row[0]] = new_individual
+
+        cursor.close()
+        conn.commit()
+        return individuals
+
+    def __get_pins(self, cursor, stmt_get_pins, board_id):
+        input_pins = []
+        output_pins = []
+
+        for row in cursor.execute(stmt_get_pins(board_id)):
+            pin_id, pin_type = row[0], row[1]
+            if pin_type == 0:
+                input_pins.append(pin_id)
+            else:
+                output_pins.append(pin_id)
+        return input_pins, output_pins

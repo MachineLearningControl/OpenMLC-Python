@@ -26,6 +26,10 @@ mlc_gui_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(*[mlc_gui_dir, "..", ".."])
 sys.path.append(root_dir)
 
+import gc
+import tracemalloc
+from tracemalloc import Filter
+# tracemalloc.start(50)
 
 import configparser
 import tarfile
@@ -112,6 +116,25 @@ class MLC_GUI(QMainWindow):
         action_rename = QAction("Rename", self)
         action_rename.triggered.connect(self.on_rename_button_clicked)
         self._context_menu.addAction(action_rename)
+
+        self.snapshots = []
+
+    def collect_stats(self):
+        gc.collect()
+        # filters = [Filter(inclusive=True, filename_pattern="*LispTreeExpr*")]
+
+        self.snapshots.append(tracemalloc.take_snapshot())
+        if len(self.snapshots) > 1:
+            # stats = self.snapshots[-1].filter_traces(filters).compare_to(self.snapshots[-2], 'traceback')
+            stats = self.snapshots[-1].compare_to(self.snapshots[-2], 'traceback')
+
+            for stat in stats[:10]:
+                print("{} new KiB {} total KiB {} new {} total memory blocks: ".format(
+                    stat.size_diff / 1024, stat.size / 1024, stat.count_diff, stat.count))
+                for line in stat.traceback.format():
+                    print(line)
+
+            print("\n")
 
     def on_edit_workspace_clicked(self):
         logger.debug('[MLC_MANAGER] [EDIT_WORKSPACE] - On_edit_workspace_location triggered')
@@ -209,6 +232,7 @@ class MLC_GUI(QMainWindow):
                                       parent=self)
         experiment.setAttribute(Qt.WA_DeleteOnClose)
         experiment.show()
+        # self.collect_stats()
 
     def on_clone_button_clicked(self):
         logger.debug("[MLC_MANAGER] [CLONE_BUTTON] - Clone button clicked")

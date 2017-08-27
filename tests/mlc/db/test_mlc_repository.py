@@ -93,6 +93,7 @@ class MLCRepositoryTest(unittest.TestCase):
     def __get_new_repo(self):
         MLCRepository._instance = None
         MLCRepository.make("test_mlc_repository")
+        MLCRepository.get_instance().load_individuals()
         return MLCRepository.get_instance()
 
     def test_add_individual(self):
@@ -124,6 +125,18 @@ class MLCRepositoryTest(unittest.TestCase):
         mlc_repo.add_individual(Individual("(root (+ 1 1))"))
         mlc_repo.add_individual(Individual("(root (+ 2 2))"))
 
+        p = Population(2, 0, Config.get_instance(), mlc_repo)
+        p._individuals = [1, 2]
+        p._costs = [4, 5]
+        p._ev_time = [7, 8]
+        p._gen_method = [10, 11]
+
+        # add population to the mlc_repository
+        self.assertEqual(mlc_repo.count_population(), 0)
+        mlc_repo.add_population(p)
+        mlc_repo.load_individuals()
+        self.assertEqual(mlc_repo.count_population(), 1)
+
         # get individuals
         individual = mlc_repo.get_individual(1)
         self.assertEqual(individual.get_value(), "(root (+ 1 1))")
@@ -133,14 +146,14 @@ class MLCRepositoryTest(unittest.TestCase):
 
         # get individual data
         data = mlc_repo.get_individual_data(1)
-        self.assertEqual(data.get_appearances(), 0)
+        self.assertEqual(data.get_appearances(), 1)
         self.assertEqual(data.get_value(), "(root (+ 1 1))")
-        self.assertEqual(data.get_cost_history(), {})
+        self.assertEqual(data.get_cost_history(), {1: [(4.0, 7)]})
 
         data = mlc_repo.get_individual_data(2)
-        self.assertEqual(data.get_appearances(), 0)
+        self.assertEqual(data.get_appearances(), 1)
         self.assertEqual(data.get_value(), "(root (+ 2 2))")
-        self.assertEqual(data.get_cost_history(), {})
+        self.assertEqual(data.get_cost_history(), {1: [(5.0, 8)]})
 
         # invalid id
         try:
@@ -213,40 +226,38 @@ class MLCRepositoryTest(unittest.TestCase):
         p._ev_time = [8, 5, 10]
 
         mlc_repo.add_population(p)
+        mlc_repo.load_individuals()
 
         # check idividuals data loaded from the mlc_repo
         self.assertEqual(mlc_repo.count_population(), 2)
 
         # Individual 1 have two appearances in the first generation
         data = mlc_repo.get_individual_data(1)
-        self.assertEqual(data.get_value(), "(root (+ 1 1))")
         self.assertEqual(data.get_appearances(), 2)
+        self.assertEqual(data.get_value(), "(root (+ 1 1))")
         self.assertEqual(data.get_cost_history(), {1: [(4.0, 5), (6.0, 7)]})
 
         # Individual 2 have two appearances
         data = mlc_repo.get_individual_data(2)
-        self.assertEqual(data.get_value(), "(root (+ 2 2))")
         self.assertEqual(data.get_appearances(), 2)
+        self.assertEqual(data.get_value(), "(root (+ 2 2))")
         self.assertEqual(data.get_cost_history(), {1: [(5.0, 6)], 2: [(9.0, 10)]})
 
         # Individual 3 have one appearances
         data = mlc_repo.get_individual_data(3)
-        self.assertEqual(data.get_value(), "(root (+ 3 3))")
         self.assertEqual(data.get_appearances(), 1)
+        self.assertEqual(data.get_value(), "(root (+ 3 3))")
         self.assertEqual(data.get_cost_history(), {2: [(7.0, 8)]})
 
         # Individual 4 have one appearances
         data = mlc_repo.get_individual_data(4)
-        self.assertEqual(data.get_value(), "(root (+ 4 4))")
         self.assertEqual(data.get_appearances(), 1)
+        self.assertEqual(data.get_value(), "(root (+ 4 4))")
         self.assertEqual(data.get_cost_history(), {2: [(4.0, 5)]})
 
         # get individual data from invalid individual
-        try:
-            data = mlc_repo.get_individual_data(100)
-            self.assertTrue(False)
-        except KeyError as ex:
-            self.assertTrue(True)
+        data = mlc_repo.get_individual_data(100)
+        self.assertEqual(data.get_value(), None)
 
     def test_update_individual_cost(self):
         mlc_repo = self.__get_new_repo()

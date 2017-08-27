@@ -65,6 +65,7 @@ class Worker(Process):
         while not self._stop_monitor.is_experiment_finished():
             data = self._input_queue.get()
             if data is None:
+                lg.logger_.info("{}None message received. Exiting worker loop".format(self._log_prefix))
                 break
 
             lg.logger_.info("{}Proceed to evaluate Individual N°{}"
@@ -83,7 +84,7 @@ class Worker(Process):
             # We return the Individual id and the cost as output
             self._output_queue.put((data["index"], cost))
 
-        lg.logger_.info("{}Exitting worker process loop.".format(self._log_prefix))
+        lg.logger_.info("{}Exiting worker process loop.".format(self._log_prefix))
 
 
 class MultiProcessEvaluator(object):

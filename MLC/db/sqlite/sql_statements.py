@@ -129,14 +129,21 @@ def stmt_insert_individual(individual_id, individual):
 
 def stmt_get_all_individuals():
     return '''SELECT indiv_id, value, formal, complexity
-              from individual
+              FROM individual
               ORDER BY indiv_id'''
 
 
+def stmt_count_all_individuals():
+    return '''SELECT count(*)
+              FROM individual'''
+
+
 def stmt_get_individual_data(indiv_id):
-    return '''SELECT gen, cost, evaluation_time
-              FROM population
-              WHERE indiv_id = %s''' % (indiv_id)
+    return '''SELECT pop.gen, pop.cost, pop.evaluation_time, indiv.value
+              FROM   individual indiv,
+                     population pop
+               WHERE pop.indiv_id = %s
+                 AND pop.indiv_id = indiv.indiv_id''' % (indiv_id)
 
 
 def stmt_get_individuals_data():

@@ -31,6 +31,7 @@ from MLC.individual.Individual import Individual
 
 
 class PopulationTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         TestHelper.load_default_configuration()
@@ -73,4 +74,3 @@ class PopulationTest(unittest.TestCase):
                 inserted_individual = MLCRepository.get_instance().get_individual(inserted_individual_id)
 
                 self.assertEqual(expected_individual.get_value(), inserted_individual.get_value())
-

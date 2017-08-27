@@ -61,7 +61,7 @@ class MLCWorkspaceTest(unittest.TestCase):
 
         mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
         # general settings for MLC
-        set_logger('console')
+        set_logger('testing')
         set_working_directory(MLCWorkspaceTest.WORKSPACE_DIR)
 
         this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -321,7 +321,7 @@ class MLCWorkspaceTest(unittest.TestCase):
         # Execute a simulation
         mlc = MLCLocal(working_dir=MLCWorkspaceTest.WORKSPACE_DIR)
         mlc.new_experiment("test_go_and_check", MLCWorkspaceTest.ORIGINAL_CONFIGURATION)
-        mlc.open_experiment("test_go_and_check")
+        mlc.open_experiment("test_go_and_check", True)
         mlc.go("test_go_and_check", 2)
 
         # obtain individuals

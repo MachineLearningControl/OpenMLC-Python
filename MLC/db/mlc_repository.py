@@ -53,7 +53,7 @@ class IndividualData:
             number of time the individual appears
     """
 
-    def __init__(self, value):
+    def __init__(self, value=None):
         self._value = value
         self._cost_history = defaultdict(list)
         self._appearances = 0
@@ -67,9 +67,12 @@ class IndividualData:
     def get_cost_history(self):
         return self._cost_history
 
-    def _add_data(self, generation, cost, evaluation_time):
+    def add_data(self, generation, cost, evaluation_time, value=None):
         self._cost_history[generation].append((cost, evaluation_time))
         self._appearances += 1
+
+        if value is not None:
+            self._value = value
 
 
 class MLCRepository:
@@ -78,7 +81,9 @@ class MLCRepository:
     # Close the Database opened
     def close():
         raise NotImplementedError("This method must be implemented")
-    # operation over generations
+
+    def load_individuals(self):
+        raise NotImplementedError("This method must be implemented")
 
     def add_population(self, population):
         raise NotImplementedError("This method must be implemented")
@@ -143,6 +148,9 @@ class MLCRepository:
         raise NotImplementedError("This method must be implemented")
 
     def load_connection(self, connection_id):
+        raise NotImplementedError("This method must be implemented")
+
+    def flush_individuals():
         raise NotImplementedError("This method must be implemented")
 
     @staticmethod

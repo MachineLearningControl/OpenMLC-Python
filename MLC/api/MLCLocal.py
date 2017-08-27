@@ -147,9 +147,23 @@ class MLCLocal(MLC):
         configuration.update(new_configuration)
         experiment.set_configuration(configuration)
 
-    def open_experiment(self, experiment_name):
+    def open_experiment(self, experiment_name, load_indivs=False):
         if experiment_name not in self._experiments:
             raise ExperimentNotExistException(experiment_name)
+
+        # FIXME: Call this method to reload the MLCRepository
+        self._experiments[experiment_name].get_simulation()
+
+        # FIXME: MEGA SUPER DUPER HACK ¬¬
+        if load_indivs == True:
+            # Load the experiments individuals JUST when we need to work
+            # with the experiment
+            # FIXME: This thing of having an Experiment, a Simulation and a
+            # MLCRepository is a mess!!!. Refactor it to call just functions here
+            # from the Experiment or the Simulation and NOT to call functions from
+            # the MLCRepository!!!.
+            # THIS CLASS SHOULD NOT KNOW THAT THERE IS A REPOSITORY!!
+            MLCRepository.get_instance().load_individuals()
 
         # Add the project folder to the path to be able to use the Evaluation
         # and Preevaluation Scripts
@@ -162,7 +176,8 @@ class MLCLocal(MLC):
         # problems between Evaluation and Preevaluation scripts from other projects
         experiment_dir = os.path.join(self._working_dir, experiment_name)
         sys.path.remove(experiment_dir)
-        self._open_experiments[experiment_name].get_simulation().close()
+
+        self._open_experiments[experiment_name].close_simulation()
         del self._open_experiments[experiment_name]
 
     def new_experiment(self, experiment_name,

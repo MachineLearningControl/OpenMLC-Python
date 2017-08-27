@@ -1,6 +1,7 @@
-## [0.1.0-alpha] 2017-08-23
+## [0.1.0-alpha] 2017-08-27
 - First version of MLC supported in Python3
 - [FIX] Added Delete_On_Close attributes to several windows to avoid mem leaks
+- [FIX] Individuals loaded only when experiment is opened
 
 ## [0.0.4] 2017-04-25
 - [FIX] Changes in ArduinoUserInterface initialization

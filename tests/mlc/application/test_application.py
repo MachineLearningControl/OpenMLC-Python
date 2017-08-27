@@ -29,6 +29,7 @@ from MLC.config import set_working_directory
 from MLC.config import get_working_directory
 from MLC.config import get_test_path
 from MLC.db.mlc_repository import MLCRepository
+from MLC.Log.log import set_logger
 from MLC.mlc_parameters.mlc_parameters import saved
 from MLC.mlc_parameters.mlc_parameters import Config
 from MLC.Population.Creation import BaseCreation
@@ -135,7 +136,7 @@ class ApplicationTest(unittest.TestCase):
 
             self.assertEqual(ApplicationTest.on_start,          1)
             self.assertEqual(ApplicationTest.on_evaluate,       2 * 10)
-            self.assertEqual(ApplicationTest.on_new_generation, range(1, 2 + 1))
+            self.assertEqual(ApplicationTest.on_new_generation, [index for index in range(1, 2 + 1)])
             self.assertEqual(ApplicationTest.on_finish,         1)
 
     def test_list_of_callbacks(self):
